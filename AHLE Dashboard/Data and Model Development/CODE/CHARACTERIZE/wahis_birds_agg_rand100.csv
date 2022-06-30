@@ -1,0 +1,101 @@
+,year,country,disease,serotype_subtype_genotype,animal_category,species,cases_thsdhd,deaths_thsdhd,killed_and_disposed_of_thsdhd,new_outbreaks,slaughtered_thsdhd,susceptible_thsdhd,vaccinated_thsdhd
+500,2020,Netherlands,High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N1,Domestic,Birds,0.15,0.15,27.531,1,0.0,27.681,0.0
+460,2019,France,Low pathogenic avian influenza (poultry) (2006-2021),H5,Domestic,Birds,0.0,0.0,2.6,0,0.0,2.6,0.0
+90,2012,Poland,Avian mycoplasmosis (M.synoviae) (2006-),-,Domestic,Birds,81.423,0.7000000000000001,0.0,0,0.0,132.055,0.0
+130,2013,Italy,High pathogenicity avian influenza viruses (poultry) (Inf. with),H7;H7N7,Domestic,Birds,256.851,9.664,972.791,0,0.0,982.455,0.0
+54,2012,Brazil,Avian infectious laryngotracheitis,-,Domestic,Birds,96.612,75.707,0.0,0,0.0,3298.428,0.0
+100,2012,United Kingdom,Mycoplasma gallisepticum (Avian mycoplasmosis) (Inf. with),-,Domestic,Birds,0.002,0.0,0.0,0,0.0,0.0,0.0
+87,2012,Netherlands,Low pathogenic avian influenza (poultry) (2006-2021),H5N2,Domestic,Birds,0.2,0.0,44.5,0,0.0,44.5,0.0
+453,2018,Poland,Mycoplasma gallisepticum (Avian mycoplasmosis) (Inf. with),-,Domestic,Birds,70.61500000000001,0.0,0.0,0,0.0,228.072,0.0
+215,2014,United States of America,Low pathogenic avian influenza (poultry) (2006-2021),H5N8,Domestic,Birds,0.0,0.0,116.0,0,0.0,116.0,0.0
+154,2013,United Kingdom,Fowl typhoid,-,Domestic,Birds,1.2,1.2,58.800000000000004,0,0.0,60.0,0.0
+258,2015,Italy,Low pathogenic avian influenza (poultry) (2006-2021),H5N2,Domestic,Birds,0.17300000000000001,0.0,23.61,0,0.0,23.796,0.0
+513,2020,United States of America,Newcastle disease virus (Inf. with),-,Domestic,Birds,0.0,0.0,0.0,0,0.0,0.0,0.0
+449,2018,Poland,Avian infectious bronchitis,-,Domestic,Birds,90.967,0.38,0.0,0,0.0,392.137,0.0
+514,2021,France,High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N8,Domestic,Birds,767.4069999999999,42.25799999999999,1431.4519999999998,320,0.0,1473.7099999999998,0.0
+319,2016,India,Fowl typhoid,-,Domestic,Birds,15.949,0.29000000000000004,0.0,0,0.0,0.0,0.0
+48,2011,United Kingdom,Mycoplasma gallisepticum (Avian mycoplasmosis) (Inf. with),-,Domestic,Birds,0.009000000000000001,0.0,0.0,0,0.0,0.0,0.0
+403,2017,Poland,High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N8,Domestic,Birds,38.57,38.565000000000005,721.373,0,0.0,759.95,0.0
+424,2018,China (People's Rep. of),Infectious bursal disease (Gumboro disease),-,Domestic,Birds,54.43100000000002,9.636,6.874999999999998,0,0.031,530.256,195.37700000000007
+223,2015,China (People's Rep. of),Avian infectious bronchitis,-,Domestic,Birds,478.82999999999987,43.44900000000001,43.80300000000001,0,0.674,4750.234,1154.0119999999997
+354,2017,China (People's Rep. of),Avian infectious bronchitis,-,Domestic,Birds,149.668,15.777,14.553999999999998,0,0.14100000000000001,2716.1620000000007,479.387
+163,2014,China (People's Rep. of),Avian chlamydiosis,-,Domestic,Birds,5.151,0.002,0.002,0,0.0,7.7620000000000005,0.0
+196,2014,Italy,High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N8,Domestic,Birds,1.982,1.982,30.003,0,0.0,31.985,0.0
+46,2011,United Kingdom,Infectious bursal disease (Gumboro disease),-,Domestic,Birds,0.095,0.0,0.0,0,0.0,0.0,0.0
+349,2017,Brazil,Avian mycoplasmosis (M.synoviae) (2006-),-,Domestic,Birds,6755.467,28.123,0.065,0,1361.17,9011.234,0.0
+486,2020,China (People's Rep. of),High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N6,Domestic,Birds,1.84,1.84,0.657,1,0.0,2.497,0.0
+186,2014,Germany,Low pathogenic avian influenza (poultry) (2006-2021),H5N1,Domestic,Birds,0.048,0.048,38.275,0,0.0,38.323,0.0
+101,2012,United Kingdom,Pullorum disease,-,Domestic,Birds,0.001,0.0,0.0,0,0.0,0.0,0.0
+419,2018,China (People's Rep. of),Duck virus hepatitis,-,Domestic,Birds,16.939999999999998,6.957000000000001,2.7099999999999995,0,0.003,251.42700000000002,46.687999999999995
+442,2018,Italy,High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N8,Domestic,Birds,43.306,4.953,370.617,0,0.0,375.57,0.0
+152,2013,United Kingdom,Avian infectious laryngotracheitis,-,Domestic,Birds,0.0,0.0,0.0,0,0.0,0.0,0.0
+68,2012,China (People's Rep. of),Newcastle disease virus (Inf. with),-,Domestic,Birds,114.20499999999998,50.116,172.57199999999997,0,6.042,814.7610000000001,1079.2490000000005
+207,2014,Poland,Fowl typhoid,-,Domestic,Birds,10.903,0.0,0.0,0,0.0,10.96,0.0
+56,2012,Brazil,Fowl typhoid,-,Domestic,Birds,22.211999999999996,4.407,37.377,0,0.0,124.32000000000001,0.0
+447,2018,Netherlands,Influenza A viruses of high pathogenicity (Inf. with) (non-poultry including wild birds) (2017-),H5N6,Domestic,Birds,0.002,0.0,0.032,0,0.0,0.032,0.0
+97,2012,United Kingdom,Avian mycoplasmosis (M.synoviae) (2006-),-,Domestic,Birds,0.0,0.0,0.0,0,0.0,0.0,0.0
+509,2020,United Kingdom,High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N8,Domestic,Birds,7.186,7.181,27.781,4,0.0,40.60099999999999,0.0
+320,2016,India,High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N1,Domestic,Birds,18.209,18.209,252.092,0,0.0,271.48199999999997,0.0
+525,2021,United Kingdom,High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N1,Domestic,Birds,0.10300000000000001,0.099,3.105,1,0.0,3.204,0.0
+206,2014,Poland,Avian mycoplasmosis (M.synoviae) (2006-),-,Domestic,Birds,14.527000000000001,0.0,0.0,0,8.259,14.763000000000002,0.0
+160,2014,Brazil,Infectious bursal disease (Gumboro disease),-,Domestic,Birds,215.557,4.086,0.0,0,0.044,421.8,0.0
+391,2017,Italy,High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N8,Domestic,Birds,1148.337,42.415000000000006,2104.2850000000003,0,0.0,2756.1800000000007,0.0
+27,2011,Italy,Low pathogenic avian influenza (poultry) (2006-2021),H5;H5N2;H7,Domestic,Birds,0.018000000000000002,0.002,5.397,0,0.0,5.397,0.0
+412,2017,United States of America,High pathogenicity avian influenza viruses (poultry) (Inf. with),H7;H7N9,Domestic,Birds,0.0,0.7000000000000001,73.3,0,0.0,74.0,0.0
+150,2013,United Kingdom,Avian chlamydiosis,-,Domestic,Birds,0.001,0.0,0.0,0,0.0,0.0,0.0
+335,2016,Poland,Infectious bursal disease (Gumboro disease),-,Domestic,Birds,260.844,37.403999999999996,0.0,0,0.0,731.6600000000001,0.0
+52,2011,United States of America,Low pathogenic avian influenza (poultry) (2006-2021),H7N9,Domestic,Birds,0.0,0.0,0.0,0,3.0,5.5,0.0
+135,2013,Italy,Low pathogenic avian influenza (poultry) (2006-2021),H5N2,Domestic,Birds,0.003,0.0,5.03,0,0.0,5.03,0.0
+159,2014,Brazil,Avian mycoplasmosis (M.synoviae) (2006-),-,Domestic,Birds,609.9,21.644000000000002,0.005,0,34.455,636.222,0.0
+407,2017,Spain,Avian mycoplasmosis (M.synoviae) (2006-),-,Domestic,Birds,0.10200000000000001,0.0,0.0,0,0.0,0.0,0.0
+157,2013,United States of America,Low pathogenic avian influenza (poultry) (2006-2021),H7N7,Domestic,Birds,0.0,0.0,9.8,0,0.0,9.8,0.0
+298,2016,China (People's Rep. of),Infectious bursal disease (Gumboro disease),-,Domestic,Birds,284.36999999999995,54.891000000000005,37.83500000000001,0,1.312,2495.5749999999994,497.91499999999996
+216,2014,United States of America,Low pathogenic avian influenza (poultry) (2006-2021),H7N3,Domestic,Birds,0.0,0.0,0.0,0,0.0,51.2,0.0
+10,2011,China (People's Rep. of),High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N1,Domestic,Birds,0.29,0.29,6.575,0,0.0,6.865,0.0
+70,2012,Germany,Avian infectious laryngotracheitis,-,Domestic,Birds,0.119,0.099,0.067,0,0.0,15.94,0.0
+330,2016,Netherlands,Low pathogenic avian influenza (poultry) (2006-2021),H5N2,Domestic,Birds,0.0,0.0,17.009,0,0.0,17.009,0.0
+99,2012,United Kingdom,Infectious bursal disease (Gumboro disease),-,Domestic,Birds,0.02,0.0,0.0,0,0.0,0.0,0.0
+35,2011,Poland,Avian mycoplasmosis (M.synoviae) (2006-),-,Domestic,Birds,19.888,0.0,0.0,0,0.0,24.948,0.0
+313,2016,Germany,Avian infectious laryngotracheitis,-,Domestic,Birds,0.853,0.67,0.004,0,27.0,461.156,0.0
+487,2020,France,High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N8,Domestic,Birds,153.903,4.682,376.839,0,0.0,408.614,0.0
+271,2015,Spain,Avian infectious laryngotracheitis,-,Domestic,Birds,0.005,0.0,0.0,0,0.0,0.0,0.0
+341,2016,Spain,Mycoplasma gallisepticum (Avian mycoplasmosis) (Inf. with),-,Domestic,Birds,0.149,0.0,0.0,0,0.0,0.083,0.0
+175,2014,China (People's Rep. of),High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N6,Domestic,Birds,20.558,17.79,70.222,0,0.0,88.012,0.0
+246,2015,Germany,High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N8,Domestic,Birds,0.006,0.005,0.08600000000000001,0,0.0,0.134,0.0
+89,2012,Poland,Avian chlamydiosis,-,Domestic,Birds,0.8,0.467,0.0,0,0.0,0.925,0.0
+28,2011,Italy,Low pathogenic avian influenza (poultry) (2006-2021),H5;H7,Domestic,Birds,0.02,0.0,1.988,0,0.0,2.138,0.0
+492,2020,Germany,Infectious bursal disease (Gumboro disease),not sampled,Domestic,Birds,6.822,6.8020000000000005,0.014,0,0.0,186.15200000000002,0.0
+384,2017,Germany,Low pathogenic avian influenza (poultry) (2006-2021),H5N1,Domestic,Birds,0.0,0.0,0.0,0,0.0,0.0,0.0
+33,2011,Netherlands,Low pathogenic avian influenza (poultry) (2006-2021),H7N7,Domestic,Birds,0.012,0.001,62.788,0,0.0,62.8,0.0
+512,2020,United States of America,Low pathogenic avian influenza (poultry) (2006-2021),H7N3,Domestic,Birds,0.0,0.0,305.25,0,0.0,305.25,0.0
+494,2020,India,High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N1,Domestic,Birds,5.037,4.0,12.825,7,0.0,31.085,0.0
+148,2013,Spain,Mycoplasma gallisepticum (Avian mycoplasmosis) (Inf. with),-,Domestic,Birds,1.2730000000000001,0.0,0.0,0,1.2730000000000001,2841.201,0.0
+237,2015,France,High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N1,Domestic,Birds,0.042,0.042,1.4580000000000002,0,0.0,1.5,0.0
+359,2017,China (People's Rep. of),High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N1;H7N9,Domestic,Birds,35.0,15.0,66.5,0,0.0,81.5,0.0
+244,2015,Germany,Avian chlamydiosis,-,Domestic,Birds,0.221,0.0,0.0,0,0.0,0.0,0.0
+55,2012,Brazil,Avian mycoplasmosis (M.synoviae) (2006-),-,Domestic,Birds,278.687,52.828,0.002,0,0.0,197.342,0.0
+11,2011,China (People's Rep. of),Infectious bursal disease (Gumboro disease),-,Domestic,Birds,422.9890000000001,44.917,13.324999999999998,0,1.8810000000000002,3550.4649999999992,1188.3890000000001
+390,2017,India,Newcastle disease virus (Inf. with),-,Domestic,Birds,379.343,3.2400000000000007,0.0,0,0.0,0.0,3423.02
+220,2015,Brazil,Infectious bursal disease (Gumboro disease),-,Domestic,Birds,17.852,3.686,0.0,0,0.0,85.852,0.0
+459,2019,China (People's Rep. of),High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N6,Domestic,Birds,1.9660000000000002,1.4780000000000002,66.812,2,0.0,68.29,0.0
+255,2015,India,Newcastle disease virus (Inf. with),-,Domestic,Birds,693.8400000000001,12.615,0.0,0,0.0,0.0,660.2470000000001
+504,2020,Spain,Avian chlamydiosis,-,Domestic,Birds,0.002,0.0,0.0,0,0.0,0.0,0.0
+524,2021,Poland,High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N8,Domestic,Birds,19.335,3.4379999999999997,24.267,2,0.0,27.705,0.0
+394,2017,Italy,Low pathogenic avian influenza (poultry) (2006-2021),H5N2,Domestic,Birds,10.717,0.001,11.899000000000001,0,0.0,11.9,0.0
+361,2017,China (People's Rep. of),High pathogenicity avian influenza viruses (poultry) (Inf. with),H7N9,Domestic,Birds,172.384,115.259,506.45400000000006,0,0.0,1662.3740000000003,0.0
+241,2015,France,Low pathogenic avian influenza (poultry) (2006-2021),H5N2,Domestic,Birds,0.0,0.0,12.61,0,0.063,23.777,0.0
+522,2021,Italy,Low pathogenic avian influenza (poultry) (2006-2021),H7N7,Domestic,Birds,0.034,0.033,3.068,0,0.0,3.0180000000000002,0.0
+445,2018,Netherlands,Avian chlamydiosis,-,Domestic,Birds,0.16799999999999998,0.003,0.356,0,0.0,3.6630000000000003,0.0
+517,2021,India,High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N1,Domestic,Birds,0.995,0.995,6.936,4,0.0,7.931,0.0
+115,2013,China (People's Rep. of),Infectious bursal disease (Gumboro disease),-,Domestic,Birds,242.95100000000005,30.50700000000001,0.0,0,1.1,2089.321,1021.9469999999998
+491,2020,Germany,High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N8,Domestic,Birds,23.452999999999996,2.9610000000000003,170.408,12,0.0,173.36899999999994,0.0
+350,2017,Brazil,Fowl typhoid,-,Domestic,Birds,751.457,86.884,147.067,0,424.356,996.0440000000001,0.0
+229,2015,China (People's Rep. of),High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N2;H5N6,Domestic,Birds,1.616,1.616,39.28,0,0.0,40.896,0.0
+66,2012,China (People's Rep. of),Infectious bursal disease (Gumboro disease),-,Domestic,Birds,330.89900000000006,40.46100000000002,0.176,0,3.661,2605.0200000000004,946.1499999999999
+435,2018,Germany,Avian infectious laryngotracheitis,-,Domestic,Birds,5.089,0.059000000000000004,0.01,0,0.0,118.876,0.0
+372,2017,France,Low pathogenic avian influenza (poultry) (2006-2021),H5N1;H5N9,Domestic,Birds,0.0,0.0,7.88,0,0.0,7.88,0.0
+40,2011,Spain,Mycoplasma gallisepticum (Avian mycoplasmosis) (Inf. with),-,Domestic,Birds,0.012,0.0,0.0,0,0.0,0.004,0.0
+352,2017,Brazil,Pullorum disease,-,Domestic,Birds,493.196,4.547,0.002,0,481.567,577.3100000000001,0.0
+168,2014,China (People's Rep. of),High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N1,Domestic,Birds,39.932,33.776,873.4920000000001,0,0.0,907.268,0.0
+120,2013,Germany,Avian infectious laryngotracheitis,-,Domestic,Birds,0.014,0.0,0.0,0,0.0,0.0,0.0
+360,2017,China (People's Rep. of),High pathogenicity avian influenza viruses (poultry) (Inf. with),H5N6,Domestic,Birds,41.887,24.904,38.986999999999995,0,0.0,67.30799999999999,0.0

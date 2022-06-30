@@ -1,0 +1,2 @@
+column_name,count,distinct_values,entropy,most_freq_value_1,most_freq_value_1_count,most_freq_value_2,most_freq_value_2_count,most_freq_value_3,most_freq_value_3_count
+geo,349,37,3.5630821025855735,FI,11,FR,11,NL,11

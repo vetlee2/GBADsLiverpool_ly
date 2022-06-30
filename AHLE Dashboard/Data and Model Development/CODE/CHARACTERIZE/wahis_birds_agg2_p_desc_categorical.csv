@@ -1,0 +1,4 @@
+column_name,count,distinct_values,entropy,most_freq_value_1,most_freq_value_1_count,most_freq_value_2,most_freq_value_2_count,most_freq_value_3,most_freq_value_3_count
+country,107,11,2.386815761844319,Poland,11,India,11,Germany,11
+animal_category,107,1,0.0,Domestic,107, , , , 
+species,107,1,0.0,Birds,107, , , , 

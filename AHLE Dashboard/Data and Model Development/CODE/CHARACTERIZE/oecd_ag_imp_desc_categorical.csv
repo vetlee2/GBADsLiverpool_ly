@@ -1,0 +1,10 @@
+column_name,count,distinct_values,entropy,most_freq_value_1,most_freq_value_1_count,most_freq_value_2,most_freq_value_2_count,most_freq_value_3,most_freq_value_3_count
+location,402588,47,3.8501185826418736,WLD,9012,BRA,8556,MEX,8556
+country,402588,47,3.8501185826418736,WORLD,9012,Brazil,8556,AFRICA,8556
+commodity_code,402588,43,3.666706648611765,SB,11856,OOS,11856,SBE,11292
+commodity,402588,43,3.666706648611765,Soybean,11856,Other oilseeds,11856,COTTON,11292
+variable_code,402588,23,2.9946912339260843,NT,21996,QC,21996,ST,21996
+variable,402588,23,2.9946912339260843,Trade balance,21996,Consumption,21996,Imports,21996
+base_unit_code,356892,15,1.600814612161872,TONNE,196836,G_PERS_DAY,40608,LT,24252
+base_unit,356892,15,1.600814612161872,Tonnes,196836,g/person/day,40608,Litres,24252
+unit_multiplier,402588,3,0.9559406470690952,Thousands,203604,Units,154428,Millions,44556

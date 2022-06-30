@@ -1,0 +1,28 @@
+
+div.tab--selected {
+	border-bottom: none;
+	border-top: 3px solid orange !important ;
+}
+
+div.rc-slider-handle {
+	background-color: none;
+	border-color: orange;
+	color: black;
+}
+
+div.rc-slider-track {
+	background-color: smokegrey; 
+	height: 3px;
+}
+
+div.rc-slider.daq-slider--light_slider {
+	color: darkgrey;
+}
+
+.tab-content {
+    margin-left: 20px;
+}
+
+#poultry-waterfall g.points > g:nth-child(1) > path {
+    fill: #FE9666 !important ;
+}

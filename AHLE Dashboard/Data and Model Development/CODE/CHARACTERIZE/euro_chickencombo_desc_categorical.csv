@@ -1,0 +1,7 @@
+column_name,count,distinct_values,entropy,most_freq_value_1,most_freq_value_1_count,most_freq_value_2,most_freq_value_2_count,most_freq_value_3,most_freq_value_3_count
+geo,418,42,3.717743467577602,FI,11,EL,11,NL,11
+_merge_slaughter,418,3,0.6693437310733509,both,323,right_only,69,left_only,26
+_merge_prodprice,418,3,0.6676440351696984,both,256,left_only,162,right_only,0
+_merge_costofprod,418,3,0.65135377535067,both,269,left_only,149,right_only,0
+geo_inscope,418,2,0.4705217390004963,False,343,True,75, , 
+geo_eu27,418,2,0.6236548495681085,True,132,False,286, , 

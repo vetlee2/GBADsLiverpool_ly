@@ -1,0 +1,6 @@
+column_name,count,distinct_values,entropy,most_freq_value_1,most_freq_value_1_count,most_freq_value_2,most_freq_value_2_count,most_freq_value_3,most_freq_value_3_count
+country,528,11,2.326717307711288,China (People's Rep. of),109,Germany,56,Italy,51
+disease,528,20,2.3747726425813576,Low pathogenic avian influenza (poultry) (2006-2021),124,High pathogenicity avian influenza viruses (poultry) (Inf. with),110,Infectious bursal disease (Gumboro disease),44
+serotype_subtype_genotype,528,45,1.994651875274237,-,292,H5N8,41,H5N1,37
+animal_category,528,1,0.0,Domestic,528, , , , 
+species,528,1,0.0,Birds,528, , , , 

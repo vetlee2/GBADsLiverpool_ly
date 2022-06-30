@@ -1,0 +1,5 @@
+column_name,count,distinct_values,entropy,most_freq_value_1,most_freq_value_1_count,most_freq_value_2,most_freq_value_2_count,most_freq_value_3,most_freq_value_3_count
+partner,3751,11,2.3978952727983707,ES,341,IT,341,GB,341
+partner_label,3751,11,2.3978952727983707,Poland,341,Spain (incl. Canary Islands 'XB' from 1997),341,"Intra-EU (AT-01/1995, BE-01/1958, BG-01/2007, CY-05/2004, CZ-05/2004, DE-01/1958, DK-01/1973, EE-05/2004, ES-01/1986, FI-01/1995, FR-01/1958, GB-01/1973->01/2020, GR-01/1981, HR-07/2013, HU-05/2004, IE-01/1973, IT-01/1958, LT-05/2004, LU-01/1958, LV-05/2004, MT-05/2004, NL-01/1958, PL-05/2004, PT-01/1986, RO-01/2007, SE-01/1995, SI-05/2004, SK-05/2004, QR-01/1993, QV-01/1993, QY-01/1988)",341
+reporter,3751,31,3.4339872044851463,ES,121,MT,121,FR,121
+reporter_label,3751,31,3.4339872044851463,Poland,121,Cyprus,121,Lithuania,121

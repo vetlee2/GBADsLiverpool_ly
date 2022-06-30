@@ -1,0 +1,2 @@
+column_name,count,distinct_values,entropy,most_freq_value_1,most_freq_value_1_count,most_freq_value_2,most_freq_value_2_count,most_freq_value_3,most_freq_value_3_count
+time_period,64,64,4.1588830833596715,Jan to Mar 13,1,Oct to Dec 06,1,Jul to Sep 09,1

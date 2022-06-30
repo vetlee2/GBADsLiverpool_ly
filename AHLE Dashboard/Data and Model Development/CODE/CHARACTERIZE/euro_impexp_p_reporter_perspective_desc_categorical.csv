@@ -1,0 +1,5 @@
+column_name,count,distinct_values,entropy,most_freq_value_1,most_freq_value_1_count,most_freq_value_2,most_freq_value_2_count,most_freq_value_3,most_freq_value_3_count
+reporter,341,31,3.4339872044851463,FI,11,DK,11,HU,11
+reporter_label,341,31,3.4339872044851463,Poland,11,Latvia,11,Bulgaria,11
+_intra_extra,341,3,0.0,both,341,left_only,0,right_only,0
+_intra_extra_world,341,3,0.0,both,341,left_only,0,right_only,0

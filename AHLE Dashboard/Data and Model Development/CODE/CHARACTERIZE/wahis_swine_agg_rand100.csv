@@ -1,0 +1,101 @@
+,year,country,disease,serotype_subtype_genotype,animal_category,species,cases_thsdhd,deaths_thsdhd,killed_and_disposed_of_thsdhd,new_outbreaks,slaughtered_thsdhd,susceptible_thsdhd,vaccinated_thsdhd
+280,2019,India,Classical swine fever virus (Inf. with),-,Domestic,Swine,0.055,0.015,0.0,0,0.0,0.165,0.05
+160,2015,India,Porcine reproductive and respiratory syndrome virus (Inf. with),-,Domestic,Swine,0.0,0.0,0.0,0,0.0,0.0,0.0
+87,2013,India,Foot and mouth disease virus (Inf. with),not typed,Domestic,Swine,0.026000000000000002,0.0,0.0,0,0.0,0.0,0.0
+18,2011,India,Foot and mouth disease virus (Inf. with),not sampled,Domestic,Swine,0.035,0.0,0.0,0,0.0,0.0,0.0
+120,2014,India,Classical swine fever virus (Inf. with),-,Domestic,Swine,1.726,0.28900000000000003,0.0,0,0.0,0.0,3.22
+193,2016,India,Porcine reproductive and respiratory syndrome virus (Inf. with),-,Domestic,Swine,0.0,0.0,0.0,0,0.0,0.0,0.0
+181,2016,China (People's Rep. of),Porcine reproductive and respiratory syndrome virus (Inf. with),-,Domestic,Swine,0.8470000000000001,0.115,0.08300000000000002,0,0.0,5.566,0.225
+174,2016,Brazil,Echinococcus granulosus (Inf. with) (2014-),-,Domestic,Swine,0.29600000000000004,0.0,0.0,0,0.29600000000000004,0.0,0.0
+55,2012,India,Foot and mouth disease virus (Inf. with),O,Domestic,Swine,0.098,0.0,0.0,0,0.0,0.0,0.0
+10,2011,China (People's Rep. of),Taenia solium (Inf. with) (Porcine cysticercosis),-,Domestic,Swine,0.405,0.014000000000000002,0.007,0,0.0,1.2510000000000001,0.0
+293,2019,Spain,Trichinella spp. (Inf. with),-,Domestic,Swine,0.001,0.0,0.001,0,0.0,0.0,0.0
+262,2018,Italy,African swine fever virus (Inf. with),-,Domestic,Swine,0.215,0.012,0.713,0,0.0,0.725,0.0
+215,2017,China (People's Rep. of),Transmissible gastroenteritis,-,Domestic,Swine,186.99699999999999,57.644000000000005,52.176,0,0.462,2661.1639999999998,196.8610000000001
+141,2015,Brazil,Brucella abortus (Inf. with),-,Domestic,Swine,0.001,0.0,0.001,0,0.003,0.004,0.0
+31,2011,Spain,Transmissible gastroenteritis,-,Domestic,Swine,0.001,0.0,0.0,0,0.0,0.02,0.0
+123,2014,India,Porcine reproductive and respiratory syndrome virus (Inf. with),-,Domestic,Swine,0.020000000000000004,0.0,0.020000000000000004,0,0.0,0.47900000000000004,0.0
+295,2020,China (People's Rep. of),African swine fever virus (Inf. with),-,Domestic,Swine,1.098,0.8699999999999999,11.412000000000003,18,0.0,12.282,0.0
+52,2012,Germany,Echinococcosis/hydatidosis,-,Domestic,Swine,0.003,0.0,0.0,0,0.0,0.0,0.0
+40,2012,China (People's Rep. of),Anthrax,-,Domestic,Swine,0.09600000000000002,0.069,0.3,0,0.185,44.811,167.718
+294,2020,Brazil,Classical swine fever virus (Inf. with),-,Domestic,Swine,0.020000000000000004,0.003,0.047,2,0.0,0.05,0.0
+265,2018,Italy,Trichinella spp. (Inf. with),-,Domestic,Swine,0.015,0.0,0.278,0,0.0,0.278,0.0
+20,2011,Italy,Aujeszky's disease virus (Inf. with),-,Domestic,Swine,0.041,0.0,0.0,0,0.0,0.122,0.0
+106,2014,Brazil,Vesicular stomatitis (-2014),Indiana,Domestic,Swine,0.004,0.0,0.0,0,0.0,0.083,0.0
+149,2015,China (People's Rep. of),Japanese encephalitis,-,Domestic,Swine,0.481,0.14900000000000002,0.14700000000000002,0,0.0,15.305,4.136
+54,2012,India,Classical swine fever virus (Inf. with),-,Domestic,Swine,3.612,1.9769999999999999,0.0,0,0.0,0.0,20.574
+216,2017,China (People's Rep. of),Trichinella spp. (Inf. with),-,Domestic,Swine,0.113,0.043000000000000003,0.041,0,0.0,0.203,0.15
+234,2017,Spain,Echinococcus granulosus (Inf. with) (2014-),-,Domestic,Swine,0.11000000000000001,0.0,0.11000000000000001,0,0.0,0.0,0.0
+33,2011,United Kingdom,Leptospirosis,-,Domestic,Swine,0.002,0.0,0.0,0,0.0,0.0,0.0
+168,2015,Spain,Bovine tuberculosis (-2018),-,Domestic,Swine,0.248,0.0,0.021,0,0.0,0.0,0.0
+154,2015,France,Trichinella spp. (Inf. with),-,Domestic,Swine,0.0,0.0,0.0,0,0.0,0.0,0.0
+130,2014,Poland,Porcine reproductive and respiratory syndrome virus (Inf. with),-,Domestic,Swine,0.019,0.0,0.0,0,0.0,1.12,0.0
+195,2016,Poland,African swine fever virus (Inf. with),-,Domestic,Swine,0.058,0.043,1.25,0,0.0,1.307,0.0
+158,2015,India,Foot and mouth disease virus (Inf. with),O,Domestic,Swine,0.007,0.0,0.0,0,0.0,0.0,0.0
+41,2012,China (People's Rep. of),Aujeszky's disease virus (Inf. with),-,Domestic,Swine,2.5709999999999993,0.52,0.03,0,0.08,92.45600000000002,17.952999999999996
+35,2012,Brazil,Aujeszky's disease virus (Inf. with),-,Domestic,Swine,0.0,0.0,0.0,0,0.0,0.0,0.0
+205,2017,Brazil,Aujeszky's disease virus (Inf. with),-,Domestic,Swine,0.0,0.0,0.0,0,4.032,0.0,0.0
+310,2021,France,Brucella suis (Inf. with),-,Domestic,Swine,0.034,0.0,0.0,7,0.29500000000000004,0.911,0.0
+274,2019,Brazil,Classical swine fever virus (Inf. with),-,Domestic,Swine,0.746,0.551,1.088,0,0.0,1.6390000000000002,0.0
+16,2011,India,Classical swine fever virus (Inf. with),-,Domestic,Swine,4.018,1.371,0.0,0,0.0,0.0,17.145
+217,2017,France,Brucella suis (Inf. with),-,Domestic,Swine,0.0,0.0,0.0,0,0.22,0.22,0.0
+112,2014,China (People's Rep. of),Foot and mouth disease virus (Inf. with),O,Domestic,Swine,0.004,0.0,0.035,0,0.0,0.035,0.0
+110,2014,China (People's Rep. of),Classical swine fever virus (Inf. with),-,Domestic,Swine,0.8370000000000001,0.138,0.37100000000000005,0,0.28400000000000003,8.825000000000001,5.438
+19,2011,Italy,African swine fever virus (Inf. with),-,Domestic,Swine,0.749,0.741,3.878,0,0.069,4.619,0.0
+30,2011,Spain,Porcine reproductive and respiratory syndrome virus (Inf. with),-,Domestic,Swine,0.17900000000000002,0.0,0.0,0,0.0,13001.524,0.8
+152,2015,China (People's Rep. of),Transmissible gastroenteritis,-,Domestic,Swine,248.17000000000002,44.691,43.944,0,0.7320000000000001,3442.4969999999994,180.227
+68,2013,Brazil,Aujeszky's disease virus (Inf. with),-,Domestic,Swine,0.112,0.0,0.0,0,0.112,0.0,0.0
+184,2016,China (People's Rep. of),Trichinella spp. (Inf. with),-,Domestic,Swine,0.056,0.0,0.0,0,0.0,1.584,0.0
+308,2021,China (People's Rep. of),African swine fever virus (Inf. with),-,Domestic,Swine,1.116,1.0290000000000001,4.962,16,0.0,5.991999999999999,0.0
+254,2018,France,Trichinella spp. (Inf. with),-,Domestic,Swine,0.003,0.0,0.0,0,0.0,0.0,0.0
+101,2013,United Kingdom,Porcine reproductive and respiratory syndrome virus (Inf. with),-,Domestic,Swine,0.0,0.0,0.0,0,0.0,0.0,0.0
+11,2011,China (People's Rep. of),Transmissible gastroenteritis,-,Domestic,Swine,366.2679999999999,23.523,20.299999999999994,0,0.35400000000000004,1990.9020000000003,126.10699999999997
+180,2016,China (People's Rep. of),Japanese encephalitis,-,Domestic,Swine,0.5880000000000001,0.221,0.219,0,0.01,50.526999999999994,5.869
+228,2017,Italy,Porcine reproductive and respiratory syndrome virus (Inf. with),-,Domestic,Swine,0.002,0.0,0.0,0,0.0,0.027,0.0
+73,2013,China (People's Rep. of),Aujeszky's disease virus (Inf. with),-,Domestic,Swine,0.9040000000000001,0.139,0.10200000000000001,0,0.012,60.701,33.878
+47,2012,China (People's Rep. of),Taenia solium (Inf. with) (Porcine cysticercosis),-,Domestic,Swine,0.015000000000000001,0.0,0.005,0,0.002,0.749,0.0
+27,2011,Spain,Aujeszky's disease virus (Inf. with),-,Domestic,Swine,0.116,0.0,0.024,0,0.024,16.198999999999998,9.476
+71,2013,Brazil,Taenia solium (Inf. with) (Porcine cysticercosis),-,Domestic,Swine,0.03,0.0,0.0,0,0.03,0.0,0.0
+75,2013,China (People's Rep. of),Foot and mouth disease virus (Inf. with),A,Domestic,Swine,0.088,0.0,1.662,0,0.0,1.662,0.0
+300,2020,Italy,Trichinella spp. (Inf. with),-,Domestic,Swine,0.002,0.0,0.0,0,0.0,0.075,0.0
+182,2016,China (People's Rep. of),Taenia solium (Inf. with) (Porcine cysticercosis),-,Domestic,Swine,0.22700000000000004,0.002,0.006,0,0.0,1.392,0.0
+113,2014,China (People's Rep. of),Japanese encephalitis,-,Domestic,Swine,0.412,0.079,0.09200000000000001,0,0.046,25.805999999999997,1.9310000000000003
+50,2012,France,Brucella suis (Inf. with),-,Domestic,Swine,0.0,0.0,0.0,0,0.0,0.0,0.0
+291,2019,Spain,Porcine reproductive and respiratory syndrome virus (Inf. with),-,Domestic,Swine,1.4580000000000002,0.0,0.0,0,0.0,5.4,0.0
+57,2012,Italy,African swine fever virus (Inf. with),-,Domestic,Swine,0.7430000000000001,0.44700000000000006,0.9420000000000001,0,0.232,3.539,0.0
+296,2020,France,Aujeszky's disease virus (Inf. with),-,Domestic,Swine,0.003,0.0,0.007,0,0.024,0.031000000000000003,0.0
+276,2019,China (People's Rep. of),African swine fever virus (Inf. with),-,Domestic,Swine,7.1850000000000005,4.126,84.66399999999999,60,0.0,137.72,0.0
+103,2014,Brazil,Aujeszky's disease virus (Inf. with),-,Domestic,Swine,0.0,0.0,0.0,0,0.0,0.0,0.0
+134,2014,Spain,Echinococcus granulosus (Inf. with) (2014-),-,Domestic,Swine,0.002,0.0,0.0,0,0.0,0.0,0.0
+206,2017,Brazil,Echinococcus granulosus (Inf. with) (2014-),-,Domestic,Swine,0.30700000000000005,0.0,0.0,0,0.30700000000000005,0.0,0.0
+282,2019,Italy,Aujeszky's disease virus (Inf. with),-,Domestic,Swine,0.01,0.0,0.0,0,0.007,0.111,0.0
+302,2020,Spain,Aujeszky's disease virus (Inf. with),-,Domestic,Swine,0.092,0.0,0.44100000000000006,0,0.0,2.418,0.0
+132,2014,Spain,Aujeszky's disease virus (Inf. with),-,Domestic,Swine,0.191,0.0,0.092,0,0.099,2.047,0.0
+67,2012,United Kingdom,Porcine reproductive and respiratory syndrome virus (Inf. with),-,Domestic,Swine,0.028,0.0,0.0,0,0.0,0.0,0.0
+207,2017,Brazil,Rabies virus (Inf. with),RABV,Domestic,Swine,0.001,0.001,0.0,0,0.0,0.02,0.0
+99,2013,Spain,Taenia solium (Inf. with) (Porcine cysticercosis),-,Domestic,Swine,0.005,0.0,0.005,0,0.0,3.581,0.0
+148,2015,China (People's Rep. of),Foot and mouth disease virus (Inf. with),A,Domestic,Swine,0.5810000000000001,0.314,0.7909999999999999,0,0.0,1.105,0.0
+220,2017,Germany,Echinococcus multilocularis (Inf. with) (2014-),-,Domestic,Swine,0.001,0.0,0.0,0,0.0,0.0,0.0
+128,2014,Poland,African swine fever virus (Inf. with),-,Domestic,Swine,0.006,0.005,0.004,0,0.0,0.009000000000000001,0.0
+53,2012,Germany,Transmissible gastroenteritis,-,Domestic,Swine,0.008,0.001,0.0,0,0.0,0.41000000000000003,0.0
+14,2011,Germany,Leptospirosis,-,Domestic,Swine,0.046,0.0,0.0,0,0.0,0.019,0.0
+233,2017,Spain,Aujeszky's disease virus (Inf. with),-,Domestic,Swine,0.042,0.0,0.0,0,0.042,0.743,0.0
+213,2017,China (People's Rep. of),Porcine reproductive and respiratory syndrome virus (Inf. with),-,Domestic,Swine,0.625,0.32300000000000006,0.002,0,0.0,3.13,0.8789999999999999
+85,2013,India,Foot and mouth disease virus (Inf. with),O,Domestic,Swine,0.101,0.025,0.0,0,0.0,0.0,0.0
+196,2016,Poland,Aujeszky's disease virus (Inf. with),-,Domestic,Swine,0.387,0.0,0.457,0,0.352,0.0,0.0
+264,2018,Italy,Brucella suis (Inf. with),-,Domestic,Swine,0.007,0.0,0.0,0,0.0,0.7020000000000001,0.0
+88,2013,India,Porcine reproductive and respiratory syndrome virus (Inf. with),-,Domestic,Swine,0.40700000000000003,0.019000000000000003,0.5840000000000001,0,0.0,5.404,0.0
+317,2021,Spain,Porcine reproductive and respiratory syndrome virus (Inf. with),-,Domestic,Swine,0.34500000000000003,0.0,0.0,0,0.0,0.0,0.0
+303,2020,Spain,Echinococcus granulosus (Inf. with) (2014-),-,Domestic,Swine,0.068,0.0,0.0,0,0.0,0.0,0.0
+301,2020,Poland,African swine fever virus (Inf. with),-,Domestic,Swine,1.3070000000000002,0.8880000000000002,56.196,112,0.0,57.08399999999999,0.0
+242,2018,China (People's Rep. of),Aujeszky's disease virus (Inf. with),-,Domestic,Swine,2.6320000000000006,0.9250000000000002,0.7110000000000001,0,0.004,34.846000000000004,19.697
+191,2016,India,Foot and mouth disease virus (Inf. with),not sampled,Domestic,Swine,0.003,0.0,0.0,0,0.0,0.0,0.0
+311,2021,Germany,African swine fever virus (Inf. with),-,Domestic,Swine,0.051,0.051,4.31,6,0.0,4.357,0.0
+42,2012,China (People's Rep. of),Classical swine fever virus (Inf. with),-,Domestic,Swine,1.048,0.653,0.049,0,0.022000000000000002,56.336,47.615
+147,2015,China (People's Rep. of),Classical swine fever virus (Inf. with),-,Domestic,Swine,4.226,0.8420000000000001,0.569,0,0.012,37.922999999999995,2.056
+273,2018,Spain,Trichinella spp. (Inf. with),-,Domestic,Swine,0.005,0.0,0.005,0,0.0,0.001,0.0
+292,2019,Spain,Taenia solium (Inf. with) (Porcine cysticercosis),-,Domestic,Swine,0.001,0.0,0.0,0,0.0,0.0,0.0
+304,2020,Spain,Porcine reproductive and respiratory syndrome virus (Inf. with),-,Domestic,Swine,1.109,0.0,0.0,0,0.0,50.0,0.0
+173,2016,Brazil,Bovine tuberculosis (-2018),-,Domestic,Swine,0.002,0.0,0.0,0,0.002,10.867,0.0
+187,2016,Germany,Brucella suis (Inf. with),-,Domestic,Swine,0.0,0.0,0.145,0,0.0,1.162,0.0
+286,2019,Poland,Porcine reproductive and respiratory syndrome virus (Inf. with),-,Domestic,Swine,0.049,0.0,0.0,0,0.0,6.329,0.0

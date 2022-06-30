@@ -1,0 +1,4 @@
+column_name,count,distinct_values,entropy,most_freq_value_1,most_freq_value_1_count,most_freq_value_2,most_freq_value_2_count,most_freq_value_3,most_freq_value_3_count
+country,1780,178,5.181783550292085,Poland,10,Kenya,10,United Kingdom of Great Britain and Northern Ireland,10
+country_inscope,1780,2,0.2614164444460414,False,1650,True,130, , 
+_merge_prodprice,1780,3,0.5725862937737287,both,1318,left_only,462,right_only,0

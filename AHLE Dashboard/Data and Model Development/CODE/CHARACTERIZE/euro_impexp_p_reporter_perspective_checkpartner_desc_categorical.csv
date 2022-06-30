@@ -1,0 +1,9 @@
+column_name,count,distinct_values,entropy,most_freq_value_1,most_freq_value_1_count,most_freq_value_2,most_freq_value_2_count,most_freq_value_3,most_freq_value_3_count
+reporter,341,31,3.4339872044851463,FI,11,DK,11,HU,11
+reporter_label,341,31,3.4339872044851463,Poland,11,Latvia,11,Bulgaria,11
+_intra_extra,341,3,0.0,both,341,left_only,0,right_only,0
+_intra_extra_world,341,3,0.0,both,341,left_only,0,right_only,0
+aspartner_partner,88,8,2.0794415416798357,IT,11,ES,11,PL,11
+aspartner_partner_label,88,8,2.0794415416798357,Poland,11,Spain (incl. Canary Islands 'XB' from 1997),11,"France (incl. Saint Barthélemy 'BL' -> 2012; incl. French Guiana 'GF', Guadeloupe 'GP', Martinique 'MQ', Réunion 'RE' from 1997; incl. Mayotte 'YT' from 2014)",11
+aspartner__merge,88,3,0.0,both,88,left_only,0,right_only,0
+_merge,341,3,0.5710227109429162,left_only,253,both,88,right_only,0

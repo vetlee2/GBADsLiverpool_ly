@@ -1,0 +1,6 @@
+column_name,count,distinct_values,entropy,most_freq_value_1,most_freq_value_1_count,most_freq_value_2,most_freq_value_2_count,most_freq_value_3,most_freq_value_3_count
+country,319,10,2.04942323866515,China (People's Rep. of),83,Spain,52,India,39
+disease,319,23,2.7406845605763306,Aujeszky's disease virus (Inf. with),45,Porcine reproductive and respiratory syndrome virus (Inf. with),35,Trichinella spp. (Inf. with),35
+serotype_subtype_genotype,319,10,0.5386855195870914,-,284,O,14,not sampled,8
+animal_category,319,1,0.0,Domestic,319, , , , 
+species,319,1,0.0,Swine,319, , , , 

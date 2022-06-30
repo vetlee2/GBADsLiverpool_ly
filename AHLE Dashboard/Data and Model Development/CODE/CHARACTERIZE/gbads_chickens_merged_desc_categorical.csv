@@ -1,0 +1,5 @@
+column_name,count,distinct_values,entropy,most_freq_value_1,most_freq_value_1_count,most_freq_value_2,most_freq_value_2_count,most_freq_value_3,most_freq_value_3_count
+country,110,11,2.3978952727983707,Poland,10,India,10,United States of America,10
+wahis_animal_category,100,1,0.0,Domestic,100, , , , 
+wahis_species,100,1,0.0,Birds,100, , , , 
+uncom_reporter,110,11,2.3978952727983707,Poland,10,India,10,Germany,10

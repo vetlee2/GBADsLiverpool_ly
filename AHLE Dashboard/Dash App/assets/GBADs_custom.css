@@ -1,0 +1,137 @@
+/* Table of Contents
+
+1. Tab and Page Settings
+2. Sliders and Dropdowns
+3. Datatable
+
+*/
+
+/*------------------------------------------------------------------------------------------------------------------------------*/
+/* 1. Tab and Page Settings*/
+/*------------------------------------------------------------------------------------------------------------------------------*/
+
+/* Make background grey*/
+body {
+background-color: #F2F2F2 !important;
+}
+
+/* Add a margin to the left side of the page within the tabs*/
+.tab-content {
+    margin-left: 20px;
+}
+
+/* Changes the line that indicates which tab is selected to orange*/
+div.tab--selected {
+	border-bottom: none;
+	border-top: 3px solid #F7931D !important ;
+}
+
+/* Adjust the vertical spacing around the headings*/
+.heading-style, h1, h2, h3, h4, h5, h6 {
+    margin: .5rem 0 1.05rem !important;
+}
+
+/*Changing the font to Raleway custom Google font*/
+@font-face {
+  font-family: 'Raleway' !important;
+  font-style: normal;
+  src: url("Raleway-VariableFont_wght.ttf") format('truetype');
+}
+/*  src: url(https://fonts.gstatic.com/s/raleway/v26/1Ptxg8zYS_SKggPN4iEgvnHyvveLxVvaorCFPrEHJA.woff2) format('woff2');
+*/
+/*For all things in the body*/
+*, html, body {
+font-family: “Raleway”, sans-serif !important;
+}
+/*For all headings*/
+.heading-style, h1, h2, h3, h4, h5, h6 {
+font-family: “Raleway”, sans-serif !important;
+}
+/*For all plots*/
+.js-plotly-plot .plotly, .js-plotly-plot .plotly div {
+font-family: “Raleway”, sans-serif !important;
+}
+
+/*------------------------------------------------------------------------------------------------------------------------------*/
+
+
+/*------------------------------------------------------------------------------------------------------------------------------*/
+/* 2. Sliders and Dropdowns*/
+/*------------------------------------------------------------------------------------------------------------------------------*/
+
+/* Changes the slider tracks to grey */
+div.rc-slider-track {
+  background-color: #333333 !important;
+}
+
+/* Changes the box that displays the slider value to have an grey outline*/
+div.rc-slider-handle {
+	background-color: none;
+	border-color: #333333;
+	color: black;
+}
+
+/* Change the slider handle to grey*/
+svg.cEBNup path {
+    stroke: #333333 !important;
+}
+
+/* Change highlight color for selection to grey*/
+.VirtualizedSelectFocusedOption {
+    background-color: #F2F2F2;
+}
+
+/* Change border color and background color of reset to default button*/
+button{
+	border-color: #7A7A7A !important;
+	background-color: #7A7A7A !important;
+	color: #ffffff !important;
+}
+
+/*------------------------------------------------------------------------------------------------------------------------------*/
+
+
+/*------------------------------------------------------------------------------------------------------------------------------*/
+/* 3. Datatable*/
+/*------------------------------------------------------------------------------------------------------------------------------*/
+
+/* Change data table selected feature colors (trash/sort) to grey*/
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner table {
+    --accent: #333333 !important;
+}
+
+/* Change selected cell color to grey in data table*/
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td.focused {
+	border-color: #F2F2F2 !important;
+    background-color: #F2F2F2 !important;
+}
+
+/* Make the text in the tooltip bold and italics*/
+.dash-tooltip .dash-table-tooltip{
+	font-style: italic; 
+	font-weight: bold;
+}
+
+/* Currently does not work, trying to move the tooltip above the column header*/
+.dash-tooltip.style{
+	top: 100 !important;
+}
+
+/* Remove the arrow that displays at the top of the tooltip*/
+.dash-tooltip[data-attr-anchor='top']:before{
+	border-bottom-color: transparent !important;
+}
+.dash-tooltip[data-attr-anchor='top']:after{
+	border-bottom-color: transparent !important;
+}
+
+/*------------------------------------------------------------------------------------------------------------------------------*/
+
+
+/*
+
+Using for comments
+
+Add '!important' to any section that needs to override the default
+
+*/

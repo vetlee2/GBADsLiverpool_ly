@@ -13,9 +13,13 @@ cmd_output_directory <- '.'   # '.' to write to same folder this code is in
 # -----------------------------------------------------------------
 # Get from command line arguments
 # -----------------------------------------------------------------
-cmd_args <- commandArgs(trailingOnly=TRUE)	# Fetch command line arguments
-cmd_nruns <- type.convert(cmd_args[1]) 		# First argument: number of runs. Convert to numeric.
-cmd_output_directory <- cmd_args[2] 			# Second argument: folder location to save outputs
+# Only look for command arguments if this was invoked from the command line
+if (grepl('Rterm.exe', paste(commandArgs(), collapse=" "), ignore.case = TRUE, fixed = TRUE))
+{
+	cmd_args <- commandArgs(trailingOnly=TRUE)	# Fetch command line arguments
+	cmd_nruns <- type.convert(cmd_args[1]) 		# First argument: number of runs. Convert to numeric.
+	cmd_output_directory <- cmd_args[2] 			# Second argument: folder location to save outputs
+}
 
 # -----------------------------------------------------------------
 # Show in console
@@ -1529,7 +1533,7 @@ results_current <- compartmental_model(
 	,fvAM = rpert(10000, 5400, 5557, 5457) 	## Financial value of adult Male  
 
 	## Off take which go for fertility in females (used when calculating hide numbers)
-	,fert_offtake = 0.25		# for breeding age females only 75% of offtake contribute to skins (25% remain in national breeding herd)
+	#,fert_offtake = 0.25		# for breeding age females only 75% of offtake contribute to skins (25% remain in national breeding herd)
 
 	## skin/hides  
 	## parameters can be updated through expert opinion but adding options for flexibility here
@@ -1641,7 +1645,7 @@ results_ideal <- compartmental_model(
 	,fvAM = rpert(10000, 5880,	6051,	5942) ## Financial value of adult Male  
 
 	## Off take which go for fertility in females (used when calculating hide numbers)
-	,fert_offtake = 0.25		# for breeding age females only 75% of offtake contribute to skins (25% remain in national breeding herd)
+	#,fert_offtake = 0.25		# for breeding age females only 75% of offtake contribute to skins (25% remain in national breeding herd)
 
 	## skin/hides  
 	## parameters can be updated through expert opinion but adding options for flexibility here

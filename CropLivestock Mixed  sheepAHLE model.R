@@ -5,7 +5,7 @@
 # Set manually
 # -----------------------------------------------------------------
 # Number of simulation iterations
-cmd_nruns <- 100
+cmd_nruns <- 10000
 
 # Folder location to save outputs
 cmd_output_directory <- '.'   # '.' to write to same folder this code is in
@@ -179,12 +179,15 @@ compartmental_model <- function(
 	## only 25% of ls keepers spend money on feed 
 	## We make the assumption that 50% of feed used by those spending
 	## any money on feed is purchased
-	DM_purch_NF <- (kg_DM_req_NF * 0.25 * rpert(10000, 0.1, 1, 0.5))
-	DM_purch_NM <- (kg_DM_req_NM * 0.25 * rpert(10000, 0.1, 1, 0.5))
-	DM_purch_JF <- (kg_DM_req_JF * 0.25 * rpert(10000, 0.1, 1, 0.5))
-	DM_purch_JM <- (kg_DM_req_JM * 0.25 * rpert(10000, 0.1, 1, 0.5))
-	DM_purch_AF <- (kg_DM_req_AF * 0.25 * rpert(10000, 0.1, 1, 0.5))
-	DM_purch_AM <- (kg_DM_req_AM * 0.25 * rpert(10000, 0.1, 1, 0.5))
+	
+	## NOTE in the pastoral system this purchased feed will be 0
+	
+	DM_purch_NF <- (kg_DM_req_NF * 0.25 * 0.5) #rpert(10000, 0.1, 1, 0.5))
+	DM_purch_NM <- (kg_DM_req_NM * 0.25 * 0.5) #rpert(10000, 0.1, 1, 0.5))
+	DM_purch_JF <- (kg_DM_req_JF * 0.25 * 0.5) #rpert(10000, 0.1, 1, 0.5))
+	DM_purch_JM <- (kg_DM_req_JM * 0.25 * 0.5) #rpert(10000, 0.1, 1, 0.5))
+	DM_purch_AF <- (kg_DM_req_AF * 0.25 * 0.5) #rpert(10000, 0.1, 1, 0.5))
+	DM_purch_AM <- (kg_DM_req_AM * 0.25 * 0.5) #rpert(10000, 0.1, 1, 0.5))
 
 	KG_Feed_purchased_NF <- DM_purch_NF / DM_in_feed
 	KG_Feed_purchased_NM <- DM_purch_NM / DM_in_feed
@@ -598,13 +601,21 @@ compartmental_model <- function(
 		## Initial population size
 		
 		## population structure using proportion of constant flock growth after 5 yearr
-		NF <- 2070822  	# neonatal female
-		JF <- 1915971  	# juvenile female
-		AF <- 14049629 	# adult female
+#		NF <- 2070822  	# neonatal female
+	#	JF <- 1915971  	# juvenile female
+#		AF <- 14049629 	# adult female
 		
-		NM <- 2070822 		# neonatal male
-		JM <- 1147386 		# juvenile male
-		AM <- 3048715 		# adult male
+	#	NM <- 2070822 		# neonatal male
+	#	JM <- 1147386 		# juvenile male
+	#	AM <- 3048715 		# adult male
+		
+		## population structure from 2021 censeus
+		NF <- 3180603
+		JF <- 1364040
+		AF <- 13114647
+		NM <- 2987904
+		JM <- 1510638
+		AM <- 2539661
 
 		# Total population size (sum of above)
 		N <- NF + JF + AF + NM + JM + AM
@@ -1210,7 +1221,6 @@ compartmental_model <- function(
 		Quant_Milk_M[i, ] <- Quant_Milk
 		Quant_Wool_M[i, ] <- Quant_Wool
 
-
 		##
 		Cumilative_Dry_Matter_M[i, ] <- Cumilative_Dry_Matter
 
@@ -1473,6 +1483,8 @@ build_summary_df <- function(items_to_summarize ,display_names)
 	return(summary_df)
 }
 
+nruns = 1000
+cmd_nruns = 1000
 # =================================================================
 # Run scenarios
 # =================================================================
@@ -1588,6 +1600,8 @@ results_current <- compartmental_model(
 	,Interest_rate = 0.00 	## this is made zero because the inflation is greater than nominal interest rate henec real interest rate is zero
 )
 
+results_current[[2]]
+
 # -----------------------------------------------------------------
 # Ideal
 # -----------------------------------------------------------------
@@ -1677,7 +1691,7 @@ results_ideal <- compartmental_model(
 	## variable results for the amount of dry matter in wheat and barley and tef in Ethiopia
 	## range 30-90%
 	## taking 70% as an estimate for this trial
-	,DM_in_feed = rpert(10000, 0.3, 0.9, 0.7)  	## change this to choose from data informed distribution
+	,DM_in_feed = rpert(10000, 0.85, 0.95, 0.9)  	## change this to choose from data informed distribution
 
 	## Labour cost
 	## for this we have taken estimate from MS: Legesse '2010 work as its between two other estimates
@@ -1699,6 +1713,8 @@ results_ideal <- compartmental_model(
 	,Interest_rate = 0.00 	## this is made zero because the inflation is greater than nominal interest rate henec real interest rate is zero
 )
 
+
+
 # =================================================================
 # Debugging
 # =================================================================
@@ -1714,12 +1730,30 @@ results_ideal <- compartmental_model(
 # =================================================================
 # Calculate
 gross_margin_current = results_current[[1]]
+mean(gross_margin_current)
+sd(gross_margin_current)
+summary(gross_margin_current)
+
 summary_current = results_current[[2]]
 
 gross_margin_ideal = results_ideal[[1]]
+mean(gross_margin_ideal)
+sd(gross_margin_ideal)
+summary(gross_margin_ideal)
+
 summary_ideal = results_ideal[[2]]
 
 AHLE <- gross_margin_ideal - gross_margin_current
+mean(AHLE)
+sd(AHLE)
+summary(AHLE)
+
+AHLE_table <- results_ideal[[1]] - results_current[[2]] 
+
+## AHLE in dollars
+print('AHLE in USD')
+print(mean(AHLE*0.019))
+sd(AHLE*0.019)
 
 # Print to console
 print('Summary of compartmental model under current conditions:')

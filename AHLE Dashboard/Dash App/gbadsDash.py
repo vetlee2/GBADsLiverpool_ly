@@ -39,7 +39,7 @@ import lib.bod_calcs as bod
 
 #### PARAMETERS
 
-prod = True          # Use when testing/dev mode to remove auth
+prod = False          # Use when testing/dev mode to remove auth
 
 #%% 2. INITIALIZE APP
 ###############################################################################################
@@ -118,6 +118,12 @@ gbads_pigs_merged_fordash = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'gbads
 # Breed Standards
 swinebreedstd_pic_growthandfeed = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'swinebreedstd_pic_growthandfeed.pkl.gz'))
 swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'swinebreedstd_liverpool_model3.pkl.gz'))
+
+# -----------------------------------------------------------------------------
+# Ethiopia Case Study
+# -----------------------------------------------------------------------------
+# AHLE Summary - Sheep
+ecs_ahle_summary_sheep = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_sheep_clm_summary_envelope.csv'))
 
 # =============================================================================
 #### User options and defaults
@@ -361,10 +367,13 @@ ecs_year_options = [{'label': i, 'value': i, 'disabled': True} for i in ["2011",
 ecs_year_options += [{'label': "2021", 'value': "2021", 'disabled': False}]
 
 # Species
-ecs_species_options =  [{'label': "Small ruminant", 'value': "Small ruminant", 'disabled': False}]
-
+ecs_species_options = [{'label': i, 'value': i, 'disabled': True} for i in ["All",
+                                                                            "Goats",
+                                                                            "Sheep"]]
+♠
 # Age
-ecs_age_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Neonate",
+ecs_age_options = [{'label': i, 'value': i, 'disabled': True} for i in ["All",
+                                                                        "Neonate",
                                                                         "Juvenile",
                                                                         "Adult",
                                                                         ]]
@@ -375,7 +384,8 @@ ecs_sex_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Male",
                                                                        ]]
 
 # Production system
-ecs_prodsys_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Mixed crop livestock",
+ecs_prodsys_options = [{'label': i, 'value': i, 'disabled': True} for i in ["All",
+                                                                            "Mixed crop livestock",
                                                                             "Pastoral",
                                                                             ]]
 

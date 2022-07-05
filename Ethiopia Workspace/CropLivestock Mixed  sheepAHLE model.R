@@ -5,7 +5,7 @@
 # Set manually
 # -----------------------------------------------------------------
 # Number of simulation iterations
-cmd_nruns <- 10000
+cmd_nruns <- 1000
 
 # Folder location to save outputs
 cmd_output_directory <- '.'   # '.' to write to same folder this code is in
@@ -62,7 +62,7 @@ rpert <- function( n, x.min, x.max, x.mode, lambda = 4 )
 }
 
 compartmental_model <- function(
-	nruns 			## Number of iterations (duration of simulation) # representing days 
+   nruns 			## Number of iterations (duration of simulation) # representing days 
 	,Num_months 	## NOTE - if you change this you must change rates to be monthly 
 	
 	## Growth rate N -> J and J-> A
@@ -71,6 +71,12 @@ compartmental_model <- function(
 	# Fertility
 	,part
 	,prolif
+	
+	# lactation
+	,prop_F_milked
+	,lac_duration #(days)
+	,avg_daily_yield_ltr
+	,milk_value_ltr
 	
 	# Offtake
 	## Currently fixed, but, should this be dependant on new pop size, to keep pop size as it was at t0
@@ -480,6 +486,8 @@ compartmental_model <- function(
 	Value_Hides_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
 
 	Quant_Milk_M <- matrix(, nrow = nruns, ncol = Num_months)
+	Value_Milk_M <- matrix(, nrow = nruns, ncol = Num_months)
+	
 	Quant_Wool_M <- matrix(, nrow = nruns, ncol = Num_months)
 
 	##
@@ -604,21 +612,32 @@ compartmental_model <- function(
 #		NF <- 2070822  	# neonatal female
 	#	JF <- 1915971  	# juvenile female
 #		AF <- 14049629 	# adult female
-		
 	#	NM <- 2070822 		# neonatal male
 	#	JM <- 1147386 		# juvenile male
 	#	AM <- 3048715 		# adult male
-		
-		## population structure from 2021 censeus
-		NF <- 3180603
-		JF <- 1364040
-		AF <- 13114647
-		NM <- 2987904
-		JM <- 1510638
-		AM <- 2539661
-
-		# Total population size (sum of above)
-		N <- NF + JF + AF + NM + JM + AM
+	  
+	  ## pop structure from 2021 census CLM GOATS
+#	  NF = 2803178
+#	  AF = 10864998
+#	  JF = 1508363
+#	  NM = 2586971
+#	  JM = 1146066
+#	  AM = 3055888
+	  
+	  ## population structure from 2021 survey PAST sheep
+	  
+	  NF = 1805806   # neonatal female
+	  JF = 1525444    # juvenile female
+	  AF = 9293369  # adult female
+	  NM = 1212609  # neonatal male
+	  JM = 967746  # juvenile male
+	  AM = 3390900
+	  
+	  
+	  # Total population size (sum of above)
+	  
+	  # Total population size (sum of above)
+	  N <- NF + JF + AF + NM + JM + AM
 	  
 		## age sex group prop of pop at t0 - this ratio should probably stay the same
 	  
@@ -658,6 +677,12 @@ compartmental_model <- function(
 		# Production Values (Value at t0)
 		Liveweight_kg <- 0
   
+		Liveweight_kg_NF <- 0
+		Liveweight_kg_NM <- 0
+		Liveweight_kg_JF <- 0
+		Liveweight_kg_JM <- 0
+		Liveweight_kg_AF <- 0
+		Liveweight_kg_AM <- 0
 		##
 		Pop_growth <- 0
 
@@ -802,12 +827,8 @@ compartmental_model <- function(
 			
 			
 			## total mortality
-			Total_Mortality[month] = Num_dead + (sample(AlphaN, 1) * NF) + (sample(AlphaJ, 1) * JF) + (sample(AlphaF, 1) * AF) + 
-			(sample(AlphaN, 1) * NM) + (sample(AlphaJ, 1) * JM) + (sample(AlphaM, 1) * AM)
 
-			Num_dead = Total_Mortality[month]
-
-			## age group deaths
+			## age group deaths (cumilative within age groups so dont need to make total culilative)
 			Total_Mortality_NF[month] = Num_dead_NF + (sample(AlphaN, 1) * NF)
 			Num_dead_NF = Total_Mortality_NF[month]
 			Total_Mortality_NM[month] = Num_dead_NM + (sample(AlphaN, 1) * NM)
@@ -821,6 +842,12 @@ compartmental_model <- function(
 			Total_Mortality_AM[month] = Num_dead_AM + (sample(AlphaM, 1) * AM)
 			Num_dead_AM = Total_Mortality_AM[month]
 
+
+			Total_Mortality[month] = Total_Mortality_NF[month] + Total_Mortality_NM[month] + 
+			                                    Total_Mortality_JF[month] + Total_Mortality_JM[month] + 
+			                                    Total_Mortality_AF[month] + Total_Mortality_AM[month]
+			
+			Num_dead = Total_Mortality[month]
 			
 			## Note, this model is stochastic so the whole N population is different from the individual age groups
 			## to make the total N sum to the same as the other age groups it should be calculated differently
@@ -840,29 +867,49 @@ compartmental_model <- function(
 			Cumilative_Pop_growth_AF[month] =  numAF[month] - N_AF_to
 			Cumilative_Pop_growth_AM[month] =  numAM[month] - N_AM_to
 
+			##
+			## potentially remove below  7 lines as not necessary? to check
+			Pop_growth = Cumilative_Pop_growth[month]
+			
+			Pop_growth_NF = Cumilative_Pop_growth_NF[month]
+			Pop_growth_NM = Cumilative_Pop_growth_NM[month]
+			Pop_growth_JF = Cumilative_Pop_growth_JF[month]
+			Pop_growth_JM = Cumilative_Pop_growth_JM[month]
+			Pop_growth_AF = Cumilative_Pop_growth_AF[month]
+			Pop_growth_AM = Cumilative_Pop_growth_AM[month]
+			
 			# whole population liveweight (number in each age sex group * liveweight conversion factor, for each month - NOT cumilative)
-			Quant_Liveweight_kg[month] = (NF * sample(lwNF, 1)) + (NM * sample(lwNM, 1)) +
-			                             (JF * sample(lwJF, 1)) + (JM * sample(lwJM, 1)) + 
-			                             (AF * sample(lwAF, 1)) + (AM * sample(lwAM, 1))
 			
 			# note there is currently no difference in weights of adult animals
-			Quant_Liveweight_kg_NF[month] = (NF * sample(lwNF, 1))
-			Quant_Liveweight_kg_NM[month] = (NM * sample(lwNM, 1))
-			Quant_Liveweight_kg_JF[month] = (JF * sample(lwJF, 1))
-			Quant_Liveweight_kg_JM[month] = (JM * sample(lwJM, 1))
-			Quant_Liveweight_kg_AF[month] = (AF * sample(lwAF, 1))
-			Quant_Liveweight_kg_AM[month] = (AM * sample(lwAM, 1))
+			Quant_Liveweight_kg_NF[month] = Liveweight_kg_NF + (NF * sample(lwNF, 1))
+			Quant_Liveweight_kg_NM[month] = Liveweight_kg_NM + (NM * sample(lwNM, 1))
+			Quant_Liveweight_kg_JF[month] = Liveweight_kg_JF + (JF * sample(lwJF, 1))
+			Quant_Liveweight_kg_JM[month] = Liveweight_kg_JM + (JM * sample(lwJM, 1))
+			Quant_Liveweight_kg_AF[month] = Liveweight_kg_AF + (AF * sample(lwAF, 1))
+			Quant_Liveweight_kg_AM[month] = Liveweight_kg_AM + (AM * sample(lwAM, 1))
+			
+			Liveweight_kg_NF = Quant_Liveweight_kg_NF[month]
+			Liveweight_kg_NM = Quant_Liveweight_kg_NM[month]
+			Liveweight_kg_JF = Quant_Liveweight_kg_JF[month]
+			Liveweight_kg_JM = Quant_Liveweight_kg_JM[month]
+			Liveweight_kg_AF = Quant_Liveweight_kg_AF[month]
+			Liveweight_kg_AM = Quant_Liveweight_kg_AM[month]
+			
+			Quant_Liveweight_kg[month] = Quant_Liveweight_kg_NF[month] + Quant_Liveweight_kg_NM[month] +
+			  Quant_Liveweight_kg_JF[month] + Quant_Liveweight_kg_JM[month] + 
+			  Quant_Liveweight_kg_AF[month] + Quant_Liveweight_kg_AM[month]
+			
+			Liveweight_kg = Quant_Liveweight_kg[month]
 
 			# whole population as meat
-			Quant_Meat_kg[month] = (NF * sample(lwNF, 1) * ccy) + (NM * sample(lwNM, 1) * ccy) + 
+			Quant_Meat_kg[month] =  (NF * sample(lwNF, 1) * ccy) + (NM * sample(lwNM, 1) * ccy) + 
 				(JF * sample(lwJF, 1) * ccy) + (JM * sample(lwJM, 1) * ccy) +
 				(AF * sample(lwAF, 1) * ccy) + (AM * sample(lwAM, 1) * ccy) 
-
-			# Offtake (all offtake added + culled adult males)
-			Num_Offtake[month] = Offtake + (sample(GammaF, 1) * JF) +  (sample(GammaF, 1) * AF) + 
-												  (sample(GammaM, 1) * JM) + (sample(GammaM, 1) * AM) + (sample(CullM, 1) * AM)
 			
-			Offtake = Num_Offtake[month]
+			## not needed as meat sums up monthly from total population size if all turned into meat
+			Meat_kg = Quant_Meat_kg[month]
+			
+			# Offtake (all offtake added + culled adult males)
 
 			## offtake from different age cats
 			Num_Offtake_JF[month] <- Offtake_JF +  (sample(GammaF, 1) * JF)
@@ -875,25 +922,40 @@ compartmental_model <- function(
 			Offtake_JM = Num_Offtake_JM[month]
 			Offtake_AF = Num_Offtake_AF[month]
 			Offtake_AM = Num_Offtake_AM[month]
+			
+			Num_Offtake[month] = Num_Offtake_JF[month] +  Num_Offtake_JM[month]  + 
+			  Num_Offtake_AF[month] + Num_Offtake_AM[month] 
+			
+			Offtake = Num_Offtake[month]
+			
 
 			# Hides per month (only calculated on offftake as a proportion (1-prop females for fertility), we could add a proportion of dead too? * Expert opinion question)
-			Quant_Hides[month] = Hides + ((sample(GammaF, 1) * JF * hides_rate) + (sample(GammaF, 1) * AF * hides_rate) + 
-												## Male offtake all for meat so hides rate = 1 and culled males
-												(sample(GammaM, 1) * JM * hides_rate) + (sample(GammaM, 1) * AM * hides_rate) + (sample(CullM, 1) * AM * hides_rate)) +
-			## and mortality proportion which contribute to hides = hides_rate_m
-			(sample(AlphaF, 1) * (JF+AF) * hides_rate_mor) + (sample(AlphaM, 1) * (JM +AM) * hides_rate_mor)  
-
+			
 			# Quantity of hides in the dif age sex groups
 			Quant_Hides_JF[month] = Hides_JF + (sample(GammaF, 1) * JF * hides_rate) + (sample(AlphaF, 1) * JF * hides_rate_mor)
 			Quant_Hides_JM[month] = Hides_JM + (sample(GammaM, 1) * JM * hides_rate) + (sample(AlphaM, 1) * JM * hides_rate_mor)
 			Quant_Hides_AF[month] = Hides_AF + (sample(GammaF, 1) * AF * hides_rate) + (sample(AlphaF, 1) * AF * hides_rate_mor)
 			Quant_Hides_AM[month] = Hides_AM + (sample(GammaM, 1) * AM * hides_rate) + (sample(AlphaM, 1) * AM * hides_rate_mor) + (sample(CullM, 1) * AM * hides_rate)
-
-			## Manure produced
-			Quant_Manure[month] = Manure_kg + ((numNF[month] + numNM[month])* (sample(Man_N, 1)*30))  
-			+ ((numJF[month] + numJM[month])* (sample(Man_J, 1) * 30))
-			+ ((numAF[month] + numAM[month])* (sample(Man_A, 1) * 30))
-
+			
+			Hides_JF = Quant_Hides_JF[month]
+			Hides_JM = Quant_Hides_JM[month]
+			Hides_AF = Quant_Hides_AF[month]
+			Hides_AM = Quant_Hides_AM[month]
+			
+			# sum for total population
+			Quant_Hides[month] = Quant_Hides_JF[month] + Quant_Hides_JM[month] + 	Quant_Hides_AF[month] + Quant_Hides_AM[month]
+			                                
+			Hides = Quant_Hides[month]
+			
+			## Milk
+			# number of females giving birth in month x, multiplied by number that would be milked
+			## multiplied by lactation duration and daily yield)
+			Quant_Milk[month] = Milk + (AF * (sample(part, 1)) * prop_F_milked * lac_duration * avg_daily_yield_ltr) 
+			  
+			  Milk = Quant_Milk[month]
+			
+			## Manure 
+			
 			## manure from different age cats
 			Quant_Manure_NF[month] = Manure_kg_NF + (numNF[month] * (sample(Man_N, 1)*30))  
 			Quant_Manure_NM[month] = Manure_kg_NM + (numNM[month] * (sample(Man_N, 1)*30))  
@@ -901,82 +963,49 @@ compartmental_model <- function(
 			Quant_Manure_JM[month] = Manure_kg_JM + (numJM[month] * (sample(Man_J, 1)*30))  
 			Quant_Manure_AF[month] = Manure_kg_AF + (numAF[month] * (sample(Man_A, 1)*30))  
 			Quant_Manure_AM[month] = Manure_kg_AM + (numAM[month] * (sample(Man_A, 1)*30))  
-
-			# Cumilative dry matter used by the system
-			Cumilative_Dry_Matter[month] = Cumulitive_DM + (NF * sample(kg_DM_req_NF, 1)) + (NM * sample(kg_DM_req_NM, 1)) +
-			(JF * sample(kg_DM_req_JF, 1)) + (JM * sample(kg_DM_req_JM, 1)) +
-			(AF * sample(kg_DM_req_AF, 1)) + (AM * sample(kg_DM_req_AM, 1))
-
-
-			Cumilative_Dry_Matter_NF[month] = Cumulitive_DM_NF + (NF * sample(kg_DM_req_NF, 1)) 
-			Cumilative_Dry_Matter_NM[month] = Cumulitive_DM_NM + (NM * sample(kg_DM_req_NM, 1)) 
-			Cumilative_Dry_Matter_JF[month] = Cumulitive_DM_JF + (JF * sample(kg_DM_req_JF, 1))
-			Cumilative_Dry_Matter_JM[month] = Cumulitive_DM_JM + (JM * sample(kg_DM_req_JM, 1))
-			Cumilative_Dry_Matter_AF[month] = Cumulitive_DM_AF + (AF * sample(kg_DM_req_AF, 1))
-			Cumilative_Dry_Matter_AM[month] = Cumulitive_DM_AM + (AM * sample(kg_DM_req_AM, 1))
-
-			## Production values (make sure all the values that update each month are updated here) 
-			## this is so each month the values are new and can be added to
-			Liveweight_kg = Quant_Liveweight_kg[month]
-
-			##
-			Pop_growth = Cumilative_Pop_growth[month]
-
-			Pop_growth_NF = Cumilative_Pop_growth_NF[month]
-			Pop_growth_NM = Cumilative_Pop_growth_NM[month]
-			Pop_growth_JF = Cumilative_Pop_growth_JF[month]
-			Pop_growth_JM = Cumilative_Pop_growth_JM[month]
-			Pop_growth_AF = Cumilative_Pop_growth_AF[month]
-			Pop_growth_AM = Cumilative_Pop_growth_AM[month]
-
-			##
-			Meat_kg = Quant_Meat_kg[month]
-
-			##
-			Manure_kg = Quant_Manure[month]
-
+			
 			Manure_kg_NF = Quant_Manure_NF[month]
 			Manure_kg_NM = Quant_Manure_NM[month]
 			Manure_kg_JF = Quant_Manure_JF[month]
 			Manure_kg_JM = Quant_Manure_JM[month]
 			Manure_kg_AF = Quant_Manure_AF[month]
 			Manure_kg_AM = Quant_Manure_AM[month]
-
-			##
-			Cumulitive_DM = Cumilative_Dry_Matter[month]
-
+			
+			Quant_Manure[month] = Quant_Manure_NF[month] + Quant_Manure_NM[month] + Quant_Manure_JF[month]
+			                                + Quant_Manure_JM[month] + Quant_Manure_AF[month] + Quant_Manure_AM[month]
+	
+			Manure_kg = Quant_Manure[month]
+			
+			
+			# Cumilative dry matter used by the system
+		
+			Cumilative_Dry_Matter_NF[month] = Cumulitive_DM_NF + (NF * sample(kg_DM_req_NF, 1)) 
+			Cumilative_Dry_Matter_NM[month] = Cumulitive_DM_NM + (NM * sample(kg_DM_req_NM, 1)) 
+			Cumilative_Dry_Matter_JF[month] = Cumulitive_DM_JF + (JF * sample(kg_DM_req_JF, 1))
+			Cumilative_Dry_Matter_JM[month] = Cumulitive_DM_JM + (JM * sample(kg_DM_req_JM, 1))
+			Cumilative_Dry_Matter_AF[month] = Cumulitive_DM_AF + (AF * sample(kg_DM_req_AF, 1))
+			Cumilative_Dry_Matter_AM[month] = Cumulitive_DM_AM + (AM * sample(kg_DM_req_AM, 1))
+			
 			Cumulitive_DM_NF = Cumilative_Dry_Matter_NF[month]
 			Cumulitive_DM_NM = Cumilative_Dry_Matter_NM[month]
 			Cumulitive_DM_JF = Cumilative_Dry_Matter_JF[month]
 			Cumulitive_DM_JM = Cumilative_Dry_Matter_JM[month]
 			Cumulitive_DM_AF = Cumilative_Dry_Matter_AF[month]
 			Cumulitive_DM_AM = Cumilative_Dry_Matter_AM[month]
-
-			##
-			Hides = Quant_Hides[month]
-
-			Hides_JF = Quant_Hides_JF[month]
-			Hides_JM = Quant_Hides_JM[month]
-			Hides_AF = Quant_Hides_AF[month]
-			Hides_AM = Quant_Hides_AM[month]
-
-			# population growth per month 
-			if(month > 1)  ## we must make this piece of code only for months > 1 as month 1 - 1 doesnt compute
-			monthly_pop_growth[month] = (numN[month] - numN[month-1])
-			Monthly_growth = monthly_pop_growth[month]
-
-			if(month > 1)  ## we must make this piece of code only for months > 1 as month 1 - 1 doesnt compute
-			popultation_growth_rate[month] = (numN[month] - numN[month-1])/numN[month-1]
-			Monthly_growth_rate =  popultation_growth_rate[month]
-
+			
+			## Total population
+			Cumilative_Dry_Matter[month] = Cumilative_Dry_Matter_NF[month] + Cumilative_Dry_Matter_NM[month] +
+			  Cumilative_Dry_Matter_JF[month] + Cumilative_Dry_Matter_JM[month] +
+			  Cumilative_Dry_Matter_AF[month] + Cumilative_Dry_Matter_AM[month]
+			
+			Cumulitive_DM = Cumilative_Dry_Matter[month]
+			
+			
+			## Production values (make sure all the values that update each month are updated here) 
+			## this is so each month the values are new and can be added to
+			# deleted what was here as no longer stores output to examine pop growth rate
 
 			# financial value of offtake (all offtake and culled males * population sizes * financial value)
-			Value_Offtake[month] = Value_offt + ((sample(GammaF, 1) * JF * sample(fvJF, 1)) + 
-														 (sample(GammaF, 1) * AF * sample(fvAF, 1)) + 
-														 (sample(GammaM, 1) * JM * sample(fvJM, 1)) + 
-														 (sample(GammaM, 1) * AM * sample(fvAM, 1)) + 
-														 (sample(CullM, 1) * AM * sample(fvAM, 1)))
-			Value_offt = Value_Offtake[month] 
 
 			## Juv and adults only
 			Value_Offtake_JF[month] = Value_offt_JF + (sample(GammaF, 1) * JF * sample(fvJF, 1)) 
@@ -990,43 +1019,37 @@ compartmental_model <- function(
 
 			Value_Offtake_AM[month] = Value_offt_AM + (sample(GammaM, 1) * AM * sample(fvAM, 1)) + (sample(CullM, 1) * AM * sample(fvAM, 1))  
 			Value_offt_AM = Value_Offtake_AM[month] 
+			
+			## sum total population
+			Value_Offtake[month] = Value_Offtake_JF[month]  +  Value_Offtake_JM[month] + Value_Offtake_AF[month] + Value_Offtake_AM[month]
+			Value_offt = Value_Offtake[month] 
 
 			# financial value of heard increase (can only do for months > 1 as doing -1 month calcs)
-			Value_herd_inc <- 0
+
 			## Gemma edits here as this calculation doesnt make sense 
 			## now calculation is change in population since t0 
 			## multiplied by price per head (each month compares to t0)
-
-			Value_Herd_Increase[month] =   ((NF - N_NF_to) * sample(fvNF, 1)) +
-																		 ((NM - N_NM_to) * sample(fvNM, 1)) +
-																		 ((JF - N_JF_to) * sample(fvJF, 1)) +
-																		 ((JM - N_JM_to) * sample(fvJM, 1)) +
-																		 ((AF - N_AF_to) * sample(fvAF, 1)) +
-																		 ((AM - N_AM_to) * sample(fvAM, 1)) 
-
-			Value_herd_inc = Value_Herd_Increase[month]
-
 			##
-			Value_Herd_Increase_NF[month] = ((NF - N_NF_to) * sample(fvNF, 1))
+			  Value_Herd_Increase_NF[month] = ((NF - N_NF_to) * sample(fvNF, 1))
 			Value_herd_inc_NF = Value_Herd_Increase_NF[month]
-
-			Value_Herd_Increase_NM[month] = ((NM - N_NM_to) * sample(fvNM, 1))
+		  	Value_Herd_Increase_NM[month] = ((NM - N_NM_to) * sample(fvNM, 1))
   		Value_herd_inc_NM = Value_Herd_Increase_NM[month]
-
-			Value_Herd_Increase_JF[month] = ((JF - N_JF_to) * sample(fvJF, 1))
+			  Value_Herd_Increase_JF[month] = ((JF - N_JF_to) * sample(fvJF, 1))
 			Value_herd_inc_JF = Value_Herd_Increase_JF[month]
-
-			Value_Herd_Increase_JM[month] =  ((JM - N_JM_to) * sample(fvJM, 1))
+		  	Value_Herd_Increase_JM[month] =  ((JM - N_JM_to) * sample(fvJM, 1))
 			Value_herd_inc_JM = Value_Herd_Increase_JM[month]
-
-			Value_Herd_Increase_AF[month] = ((AF - N_AF_to) * sample(fvAF, 1))
+		  	Value_Herd_Increase_AF[month] = ((AF - N_AF_to) * sample(fvAF, 1))
 			Value_herd_inc_AF = Value_Herd_Increase_AF[month]
-
-			Value_Herd_Increase_AM[month] =  ((AM - N_AM_to) * sample(fvAM, 1))
+		  	Value_Herd_Increase_AM[month] =  ((AM - N_AM_to) * sample(fvAM, 1))
 			Value_herd_inc_AM = Value_Herd_Increase_AM[month]
 
-			##
+			# total pop value of herd increase
+			Value_Herd_Increase[month] = Value_Herd_Increase_NF[month] + Value_Herd_Increase_NM[month] + Value_Herd_Increase_JF[month] +
+			Value_Herd_Increase_JM[month] + Value_Herd_Increase_AF[month] + Value_Herd_Increase_AM[month]
+			
+			Value_herd_inc = Value_Herd_Increase[month]
 
+			## Total value increase
 			Total_Value_increase[month] = Value_herd_inc + Value_offt
 			Total_Value_increase_NF[month] = Value_herd_inc_NF 
 			Total_Value_increase_NM[month] = Value_herd_inc_NM 
@@ -1037,35 +1060,28 @@ compartmental_model <- function(
 
 			## Expenditure in system
 			# Feed cost
-			Feed_cost[month] = Feed +   ((NF * sample(Expenditure_on_feed_NF, 1) * 30) + 
-											  (NM * (sample(Expenditure_on_feed_NM, 1) * 30)) +
-											  (JF * (sample(Expenditure_on_feed_JF, 1) * 30)) + 
-											  (JM * (sample(Expenditure_on_feed_JM, 1) * 30)) + 
-											  (AF * (sample(Expenditure_on_feed_AF, 1) * 30)) +
-											  (AM * (sample(Expenditure_on_feed_AM, 1) * 30)))
-			Feed = Feed_cost[month]
-
-			Feed_cost_NF[month] = Feed_NF + (NF * sample(Expenditure_on_feed_NF, 1)  * 30) 
+		  	Feed_cost_NF[month] = Feed_NF + (NF * sample(Expenditure_on_feed_NF, 1)  * 30) 
 			Feed_NF = Feed_cost_NF[month]
-
-			Feed_cost_NM[month] = Feed_NM + (NM * sample(Expenditure_on_feed_NM, 1)  * 30) 
+  			Feed_cost_NM[month] = Feed_NM + (NM * sample(Expenditure_on_feed_NM, 1)  * 30) 
 			Feed_NM = Feed_cost_NM[month]
-
-			Feed_cost_JF[month] = Feed_JF + (JF * sample(Expenditure_on_feed_JF, 1)  * 30)
+			  Feed_cost_JF[month] = Feed_JF + (JF * sample(Expenditure_on_feed_JF, 1)  * 30)
 			Feed_JF = Feed_cost_JF[month]
-
-			Feed_cost_JM[month] = Feed_JM + (JM * sample(Expenditure_on_feed_JM, 1)  * 30)
+			  Feed_cost_JM[month] = Feed_JM + (JM * sample(Expenditure_on_feed_JM, 1)  * 30)
 			Feed_JM = Feed_cost_JM[month]
-
-			Feed_cost_AF[month] = Feed_AF + (AF * sample(Expenditure_on_feed_AF, 1) * 30)
+  			Feed_cost_AF[month] = Feed_AF + (AF * sample(Expenditure_on_feed_AF, 1) * 30)
 			Feed_AF = Feed_cost_AF[month]
-
-			Feed_cost_AM[month] = Feed_AM + (AM * sample(Expenditure_on_feed_AM, 1) * 30) 
+			  Feed_cost_AM[month] = Feed_AM + (AM * sample(Expenditure_on_feed_AM, 1) * 30) 
 			Feed_AM = Feed_cost_AM[month]
 
+			# total feed cost
+			Feed_cost[month] = Feed_cost_NF[month] + Feed_cost_NM[month]  
+			                        + Feed_cost_JF[month] + Feed_cost_JM[month]
+			                        + Feed_cost_AF[month] + Feed_cost_AM[month]
+			                               
+			Feed = Feed_cost[month]
+			
+			
 			# Labour costs (number of SR's * labour cost per head per month)
-			Labour_cost[month] = Labour + (N * sample(Lab_SR, 1) * lab_non_health)
-			Labour =  Labour_cost[month]
 
 			Labour_cost_NF[month] = Labour_NF + (NF * sample(Lab_SR, 1) * lab_non_health) 
 			Labour_cost_NM[month] = Labour_NM + (NM * sample(Lab_SR, 1) * lab_non_health) 
@@ -1080,10 +1096,13 @@ compartmental_model <- function(
 			Labour_JM = Labour_cost_JM[month]
 			Labour_AF = Labour_cost_AF[month]
 			Labour_AM = Labour_cost_AM[month]
+			
+			Labour_cost[month] = Labour_cost_NF[month] + Labour_cost_NM[month] 
+			                            + Labour_cost_JF[month] + Labour_cost_JM[month]
+			                            + Labour_cost_AF[month] + Labour_cost_AM[month]
+			Labour =  Labour_cost[month]
 
 			# Medicines and veterinary expenditure
-			Health_cost[month] = Health + (N * sample(Health_exp, 1))
-			Health = Health_cost[month]
 
 			Health_cost_NF[month] = Health_NF + (NF * sample(Health_exp, 1)) 
 			Health_cost_NM[month] = Health_NM + (NM * sample(Health_exp, 1)) 
@@ -1098,16 +1117,13 @@ compartmental_model <- function(
 			Health_JM = Health_cost_JM[month]
 			Health_AF = Health_cost_AF[month]
 			Health_AM = Health_cost_AM[month]
+			
+			Health_cost[month] = Health_cost_NF[month] + Health_cost_NM[month] 
+			                            + Health_cost_JF[month] + Health_cost_JM[month]
+			                            + Health_cost_AF[month] + Health_cost_AM[month]
+			Health = Health_cost[month]
 
 			# Capital costs
-			Capital_cost[month] = (numNF[1] * sample(fvNF, 1) * Interest_rate) + 
-			(numNM[1] * sample(fvNM, 1) * Interest_rate) + 
-			(numJF[1] * sample(fvJF, 1) * Interest_rate) + 
-			(numJM[1] * sample(fvJM, 1) * Interest_rate) +  
-			(numAF[1] * sample(fvAF, 1) * Interest_rate) + 
-			(numAM[1] * sample(fvAM, 1) * Interest_rate) 
-
-			Capital = Capital_cost[month]
 
 			Capital_cost_NF[month] = (numNF[1] * sample(fvNF, 1) * Interest_rate) 
 			Capital_NF = Capital_cost_NF[month]
@@ -1127,6 +1143,13 @@ compartmental_model <- function(
 			Capital_cost_AM[month] = (numAM[1] * sample(fvAM, 1) * Interest_rate) 
 			Capital_AM = Capital_cost_AM[month]
 
+			# total pop capital cost
+			Capital_cost[month] = Capital_cost_NF[month] + Capital_cost_NM[month]
+			                    + Capital_cost_JF[month] + Capital_cost_JM[month] 
+			                    + Capital_cost_AF[month] + Capital_cost_AM[month]
+			  
+			Capital = Capital_cost[month]
+			
 			##
 			Total_expenditure[month] =  Feed + Health + Labour + Capital
 
@@ -1346,6 +1369,7 @@ compartmental_model <- function(
 
 	## values
 	Value_Hides_M <- Quant_Hides_M * hides_value
+	Value_Milk_M <- Quant_Milk_M * milk_value_ltr
 
 	Value_Hides_JF_M <- Quant_Hides_JF_M * hides_value
 	Value_Hides_JM_M <- Quant_Hides_JM_M * hides_value
@@ -1361,12 +1385,12 @@ compartmental_model <- function(
 	Value_Manure_AM_M <- Quant_Manure_AM_M * Man_value
 
 	## VALUE of herd increase and offtake and produce in ETH BIRR
-	Production_value_herd_offteake_hide_man_M <- Total_Value_increase_M + Value_Manure_M + Value_Hides_M 
+	Production_value_herd_offteake_hide_man_M <- Total_Value_increase_M + Value_Manure_M + Value_Hides_M + Value_Milk_M
 	Production_value_herd_offteake_hide_man_NF_M <- Total_Value_increase_NF_M + Value_Manure_NF_M
 	Production_value_herd_offteake_hide_man_NM_M <- Total_Value_increase_NM_M + Value_Manure_NM_M
 	Production_value_herd_offteake_hide_man_JF_M <- Total_Value_increase_JF_M + Value_Manure_JF_M + Value_Hides_JF_M
 	Production_value_herd_offteake_hide_man_JM_M <- Total_Value_increase_JM_M + Value_Manure_JM_M + Value_Hides_JM_M
-	Production_value_herd_offteake_hide_man_AF_M <- Total_Value_increase_AF_M + Value_Manure_AF_M + Value_Hides_AF_M
+	Production_value_herd_offteake_hide_man_AF_M <- Total_Value_increase_AF_M + Value_Manure_AF_M + Value_Hides_AF_M + Value_Milk_M
 	Production_value_herd_offteake_hide_man_AM_M <- Total_Value_increase_AM_M + Value_Manure_AM_M + Value_Hides_AM_M
 
 	# total number
@@ -1419,6 +1443,7 @@ compartmental_model <- function(
 			,Total_Value_increase_M[,12]
 			,Value_Manure_M[,12]
 			,Value_Hides_M[,12]
+			,Value_Milk_M[,12]
 			,Production_value_herd_offteake_hide_man_M[,12]
 			
 			# Inputs / expenditures
@@ -1449,6 +1474,7 @@ compartmental_model <- function(
 			,'Total Value Increase 1'
 			,'Value of Manure'
 			,'Value of Hides'
+			,'Value of Milk'
 			,'Total Value Increase 2'
 			
 			,'Feed Cost'
@@ -1483,18 +1509,17 @@ build_summary_df <- function(items_to_summarize ,display_names)
 	return(summary_df)
 }
 
-nruns = 1000
 cmd_nruns = 1000
 # =================================================================
 # Run scenarios
 # =================================================================
 # -----------------------------------------------------------------
-# Current
+# Current SHEEP Crop livestock
 # -----------------------------------------------------------------
-results_current <- compartmental_model(
+results_current_s_cl <- compartmental_model(
 	## Number of iterations (duration of simulation)
 	# representing days 
-	nruns = cmd_nruns
+  nruns = cmd_nruns
 	
 	## NOTE - if you change this you must change rates to be monthly 
 	,Num_months = 12
@@ -1503,8 +1528,13 @@ results_current <- compartmental_model(
 	,Beta = 1/6
 	
 	# Fertility
-	,part = rpert(10000, 0.51, 0.67, 0.59)
+	,part = rpert(10000, 0.52, 0.67, 0.60)
 	,prolif = rtruncnorm(10000, 0, 3, 1.3, 0.15)
+	
+	,prop_F_milked = 0 # for now half lambed are milked
+	,lac_duration = 0 #(days)
+	,avg_daily_yield_ltr = 0 # example on avg 100ml a day for 60 days from half of ewes lambed
+	,milk_value_ltr = 0 #
 	
 	# Offtake
 	## Currently fixed, but, should this be dependant on new pop size, to keep pop size as it was at t0
@@ -1577,7 +1607,7 @@ results_current <- compartmental_model(
 	## variable results for the amount of dry matter in wheat and barley and tef in Ethiopia
 	## range 30-90%
 	## taking 70% as an estimate for this trial
-	,DM_in_feed = rpert(10000, 0.3, 0.9, 0.7)  	## change this to choose from data informed distribution
+	,DM_in_feed = rpert(10000, 0.85, 0.95, 0.9)  	## change this to choose from data informed distribution
 
 	## Labour cost
 	## for this we have taken estimate from MS: Legesse '2010 work as its between two other estimates
@@ -1600,15 +1630,15 @@ results_current <- compartmental_model(
 	,Interest_rate = 0.00 	## this is made zero because the inflation is greater than nominal interest rate henec real interest rate is zero
 )
 
-results_current[[2]]
+results_current_s_cl[[2]]
 
 # -----------------------------------------------------------------
 # Ideal
 # -----------------------------------------------------------------
-results_ideal <- compartmental_model(
+results_ideal_s_cl <- compartmental_model(
 	## Number of iterations (duration of simulation)
 	# representing days 
-	nruns = cmd_nruns
+ nruns = cmd_nruns
 	
 	## NOTE - if you change this you must change rates to be monthly 
 	,Num_months = 12
@@ -1617,8 +1647,14 @@ results_ideal <- compartmental_model(
 	,Beta = 1/6
 	
 	# Fertility
-	,part = rpert(10000, 0.45, 1.3, 0.8)
-	,prolif = rpert(10000, 1, 3, 1.2 )
+	,part = rpert(10000, 0.3, 1.8, 0.8)
+	,prolif = rpert(10000, 1, 3, 1.3 )
+	
+	# lactation # example 
+	,prop_F_milked = 0 # for now half lambed are milked
+	,lac_duration = 0 #(days)
+	,avg_daily_yield_ltr = 0 # example on avg 100ml a day for 60 days from half of ewes lambed
+	,milk_value_ltr = 0 #
 	
 	# Offtake
 	## Currently fixed, but, should this be dependant on new pop size, to keep pop size as it was at t0
@@ -1719,8 +1755,8 @@ results_ideal <- compartmental_model(
 # Debugging
 # =================================================================
 # Show everything returned
-#print('Objects returned for results_current:')
-#for (i in results_current)
+#print('Objects returned for results_current_s_cl:')
+#for (i in results_current_s_cl)
 #{
 #   print(i)
 #}
@@ -1729,49 +1765,680 @@ results_ideal <- compartmental_model(
 # Process results
 # =================================================================
 # Calculate
-gross_margin_current = results_current[[1]]
-mean(gross_margin_current)
-sd(gross_margin_current)
-summary(gross_margin_current)
+gross_margin_current_s_cl = results_current_s_cl[[1]]
+mean(gross_margin_current_s_cl)
+sd(gross_margin_current_s_cl)
+summary(gross_margin_current_s_cl)
 
-summary_current = results_current[[2]]
+summary_current_s_cl = results_current_s_cl[[2]]
 
-gross_margin_ideal = results_ideal[[1]]
-mean(gross_margin_ideal)
-sd(gross_margin_ideal)
-summary(gross_margin_ideal)
+gross_margin_ideal_s_cl = results_ideal_s_cl[[1]]
+mean(gross_margin_ideal_s_cl)
+sd(gross_margin_ideal_s_cl)
+summary(gross_margin_ideal_s_cl)
 
-summary_ideal = results_ideal[[2]]
+summary_ideal_s_cl = results_ideal_s_cl[[2]]
 
-AHLE <- gross_margin_ideal - gross_margin_current
-mean(AHLE)
-sd(AHLE)
-summary(AHLE)
+AHLE_s_cl <- gross_margin_ideal_s_cl - gross_margin_current_s_cl
+mean(AHLE_s_cl)
+sd(AHLE_s_cl)
+summary(AHLE_s_cl)
 
-AHLE_table <- results_ideal[[1]] - results_current[[2]] 
+AHLE_s_cl_table <- summary_ideal_s_cl[,(2:8)] - summary_current_s_cl[,(2:8)] 
+AHLE_s_cl_table <- cbind(summary_ideal_s_cl[,1], AHLE_s_cl_table[,(1:7)])
 
 ## AHLE in dollars
 print('AHLE in USD')
-print(mean(AHLE*0.019))
-sd(AHLE*0.019)
+print(mean(AHLE_s_cl*0.019))
+sd(AHLE_s_cl*0.019)
 
 # Print to console
 print('Summary of compartmental model under current conditions:')
-print(summary_current)
+print(summary_current_s_cl)
 print('Distribution of gross margin under current conditions:')
-summary(gross_margin_current)
-plot(density(gross_margin_current))
+summary(gross_margin_current_s_cl)
+plot(density(gross_margin_current_s_cl))
 
 print('Summary of compartmental model under ideal conditions:')
-print(summary_ideal)
+print(summary_ideal_s_cl)
 print('Distribution of gross margin under ideal conditions:')
-summary(gross_margin_ideal)
-plot(density(gross_margin_ideal))
+summary(gross_margin_ideal_s_cl)
+plot(density(gross_margin_ideal_s_cl))
 
 print('Distribution of gross margin difference (ideal minus current):')
-summary(AHLE)
-plot(density(AHLE))
-
+summary(AHLE_s_cl)
+plot(density(AHLE_s_cl))
+hist(AHLE_s_cl)
 # Write files
-write.csv(summary_current, file.path(cmd_output_directory, 'ahle_sheep_clm_summary_current.csv'), row.names=FALSE)
-write.csv(summary_ideal, file.path(cmd_output_directory, 'ahle_sheep_clm_summary_ideal.csv'), row.names=FALSE)
+write.csv(summary_current_s_cl, file.path(cmd_output_directory, 'ahle_sheep_clm_summary_current.csv'), row.names=FALSE)
+write.csv(summary_ideal_s_cl, file.path(cmd_output_directory, 'ahle_sheep_clm_summary_ideal.csv'), row.names=FALSE)
+
+
+
+####################################################################
+
+
+# =================================================================
+# Run scenarios
+# =================================================================
+# -----------------------------------------------------------------
+# Current GOATS Crop livestock
+# -----------------------------------------------------------------
+
+## to run for goats muct change function to have goats starting population size
+## need to change so pop size set in function but when I did this it messed
+## the whole model up
+
+results_current_g_cl <- compartmental_model(
+  ## Number of iterations (duration of simulation)
+  # representing days 
+  nruns = cmd_nruns
+  
+  ## NOTE - if you change this you must change rates to be monthly 
+  ,Num_months = 12
+  
+  ## Growth rate N -> J and J-> A
+  ,Beta = 1/6
+  
+  # Fertility
+  ,part = rpert(10000, 0.37, 0.50, 0.46)
+  ,prolif = rtruncnorm(10000, a = 0, b = 3, 1.7, 0.12)
+  
+  ,prop_F_milked = 0 # for now half lambed are milked
+  ,lac_duration = 0 #(days)
+  ,avg_daily_yield_ltr = 0 # example on avg 100ml a day for 60 days from half of ewes lambed
+  ,milk_value_ltr = 0 #
+  
+  # Offtake
+  ## Currently fixed, but, should this be dependant on new pop size, to keep pop size as it was at t0
+  ## offtake must = offtake + dif between NNFt0 etc and NJF current
+  ,GammaF = 0.09/12 	# offtake rate female (juv and adult only) 
+  ,GammaM = 0.71/12 	# offtake rate male
+  
+  # Mortality ## informed from META analysis
+  ,AlphaN = rpert(1000, 0.12/6, 0.39/6, 0.26/6)			# mortality rate juveniel ## parameter derived from meat pooled proportion and variance 
+  ,AlphaJ = rpert(1000, 0.14/6, 0.14/6, 0.14/6)		# mortality rate juveniel ## parameter derived from meat pooled proportion and variance 
+  ,AlphaF = rpert(1000, 0.04/12, 0.13/12, 0.09/12)	# mortality  adult female ##Parameter derived from meat pooled proportion and variance
+  ,AlphaM = rpert(1000, 0.05/12, 0.13/12, 0.09/12)	# motality adult male ##Parameter derived from meat pooled proportion and variancethin the national herd for breeding
+  
+  # Culls
+  ,CullF = 1/108 	# cullrate Adult Female ## These will be valueless
+  ,CullM = 1/48 		# cullrate Adult Male  ## These will still have a value
+  
+  ## Production parameters (kg)
+  
+  # Liveweight conversion (kg) ## Informed from META analysis
+  ,lwNF = rtruncnorm(10000, a = 1, b = 15, mean = 8.5, sd = 1.6)  	# Liveweight Neonate## parameters derived from meta pooled mean and variance 
+  ,lwNM = rtruncnorm(10000, a = 1, b = 15, mean = 8.5, sd = 1.6)  	# Liveweight Neonateparameters derived from meta pooled mean and variance
+  ,lwJF = rnorm(10000, 13.6, sd = 1.0) 										# Liveweight Juvenille # Same here ##parameters derived from meta pooled mean and variance
+  ,lwJM = rnorm(10000, 13.6, sd = 1.0) 										# Liveweight Juvenille # Same here##parameters derived from meta pooled mean and variance
+  ,lwAF = rnorm(10000, 25.1, sd = 0.2) 										# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+  ,lwAM = rnorm(10000, 24.1, sd = 0.2) 										# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+  
+  # carcase yeild
+  ,ccy = 0.42 		# As a % of liveweight for all groups
+  
+  ## Financial value of live animals
+  # Ethiopian Birr
+  ,fvNF = rpert(10000, 800, 850, 825) 	## Financial value of neonatal Female
+  ,fvJF = rpert(10000, 1550, 2800, 1950) 	## Financial value of neonatal Male
+  ,fvAF = rpert(10000, 2140, 4093, 3210) 	## Financial value of juv Female
+  ,fvNM = rpert(10000, 900, 2200, 1550) 	## Financial value of juv Male
+  ,fvJM = rpert(10000, 1800, 4350, 3048) 	## Financial value of adult Female
+  ,fvAM = rpert(10000, 3850, 9000, 5900) 	## Financial value of adult Male  
+  
+  ## Off take which go for fertility in females (used when calculating hide numbers)
+  #,fert_offtake = 0.25		# for breeding age females only 75% of offtake contribute to skins (25% remain in national breeding herd)
+  
+  ## skin/hides  
+  ## parameters can be updated through expert opinion but adding options for flexibility here
+  ,hides_rate = 1 			# 1 skin per animal offtake for males
+  ,hides_rate_mor = 0.5 	# 50% of dead animals contribute to hides count
+  
+  # hides value per piece in birr
+  ,hides_value = 20
+  
+  # manure rate (kg produced/animal/day)
+  ,Man_N = rnorm(10000, 0.1, 0.016) 	# Manure kg/ day from neonates ## means and Sds  are derived from  body wt
+  ,Man_J = rnorm(10000, 0.2, 0.01) 	# Manure kg/ day from juvenile## means and Sds  are derived from  body wt
+  ,Man_A = rnorm(10000, 0.3, 0.002) 	# Manure kg/ day from adults ##means and Sds  are derived from  body wt
+  
+  # 0.0125 USD / kg = 0.65 eth birr per kg 2021 price
+  ,Man_value = 0.5
+  
+  ## dry matter requirements per kg of liveweight
+  ,DM_req_prpn_NF = 0.026  	# Dry matter required by neonates
+  ,DM_req_prpn_NM = 0.026  	# Dry matter required by neonates
+  ,DM_req_prpn_JF = 0.026  	# Dry matter required by juvenile
+  ,DM_req_prpn_JM = 0.026  	# Dry matter required by juvenile
+  ,DM_req_prpn_AF = 0.026  	# Dry matter required by adults
+  ,DM_req_prpn_AM = 0.026  	# Dry matter required by adults
+  
+  ## Input parameters ## just example distributions for now
+  ,Feed_cost_kg = rpert(10000, 2.5, 6.5, 3.46) 	## Ethiopian birr/kg wheat and barley
+  
+  ## variable results for the amount of dry matter in wheat and barley and tef in Ethiopia
+  ## range 30-90%
+  ## taking 70% as an estimate for this trial
+  ,DM_in_feed = rpert(10000, 0.85, 0.95, 0.9)  	## change this to choose from data informed distribution
+  
+  ## Labour cost
+  ## for this we have taken estimate from MS: Legesse '2010 work as its between two other estimates
+  ## the estimate was birr per head per year so dividing by 12 = birr/head/month
+  #,Lab_SR = 368/12
+  ## example code to change labour cost to selecting from distribution
+  ,Lab_SR = rpert(10000, (260/12), (649/12), (368/12))
+  ,lab_non_health = 1
+  
+  ## Helath care costs
+  ## for this we have used single point estimate from  LFDP data (other estimates 2.2 - 14.3)
+  ## the estimate is birr per head per year so dividing by 12 = birr/head/month
+  ## this includes medicines and veterinary care
+  #,Health_exp = 2.8/12
+  ## and changing health care costs to select from distribution
+  ,Health_exp = runif(10000, (2.2/12), (2.8/12)) 	# the two national level estimates(national production and import of vet drugs and vaccines, and LFSDP and RPLRP projects) are used as bound for the price and used for unif distribution 14.3 was from an earlier study covering only two districts 
+  
+  ## Capital costs
+  ## for this we are using bank of Ethiopia inflation rate
+  ,Interest_rate = 0.00 	## this is made zero because the inflation is greater than nominal interest rate henec real interest rate is zero
+)
+
+results_current_g_cl[[2]]
+
+# -----------------------------------------------------------------
+# Ideal GOATS CROP mixed livestock
+# -----------------------------------------------------------------
+results_ideal_g_cl <- compartmental_model(
+  ## Number of iterations (duration of simulation)
+  # representing days 
+  nruns = cmd_nruns
+  
+  ## NOTE - if you change this you must change rates to be monthly 
+  ,Num_months = 12
+  
+  ## Growth rate N -> J and J-> A
+  ,Beta = 1/6
+  
+  # Fertility
+  ,part = rpert(10000, 0.25, 1.2, 0.85)
+  ,prolif = rpert(10000, 1, 2.1, 1.8)
+  
+  # lactation # example 
+  ,prop_F_milked = 0 # for now half lambed are milked
+  ,lac_duration = 0 #(days)
+  ,avg_daily_yield_ltr = 0 # example on avg 100ml a day for 60 days from half of ewes lambed
+  ,milk_value_ltr = 0 #
+  
+  # Offtake
+  ## Currently fixed, but, should this be dependant on new pop size, to keep pop size as it was at t0
+  ## offtake must = offtake + dif between NNFt0 etc and NJF current
+  ,GammaF = 0.09/12 	# offtake rate female (juv and adult only) 
+  ,GammaM = 0.71/12 	# offtake rate male
+  
+  # Mortality ## informed from META analysis
+  ,AlphaN = 0		# mortality rate juveniel ## parameter derived from meat pooled proportion and variance 
+  ,AlphaJ = 0		# mortality rate juveniel ## parameter derived from meat pooled proportion and variance 
+  ,AlphaF = 0		# mortality  adult female ##Parameter derived from meat pooled proportion and variance
+  ,AlphaM = 0		# motality adult male ##Parameter derived from meat pooled proportion and variancethin the national herd for breeding
+  
+  # Culls
+  ,CullF = 1/108 	# cullrate Adult Female ## These will be valueless
+  ,CullM = 1/48 		# cullrate Adult Male  ## These will still have a value
+  
+  ## Production parameters (kg)
+  
+  # Liveweight conversion (kg) ## Informed from META analysis
+  ,lwNF = rpert(10000, 6, 20, 11.8 )  		# Liveweight Neonate## parameters derived from meta pooled mean and variance 
+  ,lwNM = rpert(10000, 6.5, 21.5, 12.5)  	# Liveweight Neonateparameters derived from meta pooled mean and variance
+  ,lwJF = rpert(10000, 10, 30, 21.0)			# Liveweight Juvenille # Same here ##parameters derived from meta pooled mean and variance
+  ,lwJM = rpert(10000, 13, 33, 22.33) 			# Liveweight Juvenille # Same here##parameters derived from meta pooled mean and variance
+  ,lwAF = rpert(10000, 16, 35, 28.2 ) 		# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+  ,lwAM = rpert(10000, 18, 37, 30.7) 			# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+  
+  # carcase yeild
+  ,ccy = 0.42 		# As a % of liveweight for all groups
+  
+  ## Financial value of live animals
+  # Ethiopian Birr
+  ,fvNF = rpert(10000, 1111,	1180,	1145) ## Financial value of neonatal Female
+  ,fvJF = rpert(10000, 2393,	4324,	3011) ## Financial value of neonatal Male
+  ,fvAF = rpert(10000, 2404,	4599,	3606) ## Financial value of juv Female
+  ,fvNM = rpert(10000, 1324,	3235,	2279) ## Financial value of juv Male
+  ,fvJM = rpert(10000, 2951,	7133,	4998) ## Financial value of adult Female
+  ,fvAM = rpert(10000, 4904,	11465, 7516) ## Financial value of adult Male  
+  
+  ## Off take which go for fertility in females (used when calculating hide numbers)
+  #,fert_offtake = 0.25		# for breeding age females only 75% of offtake contribute to skins (25% remain in national breeding herd)
+  
+  ## skin/hides  
+  ## parameters can be updated through expert opinion but adding options for flexibility here
+  ,hides_rate = 1 			# 1 skin per animal offtake for males
+  ,hides_rate_mor = 0.5 	# 50% of dead animals contribute to hides count
+  
+  # 1 usd per piece = 51 eth birr
+  ,hides_value = 40
+  
+  # manure rate (kg produced/animal/day)
+  ,Man_N = rnorm(10000, 0.1, 0.016) 	# Manure kg/ day from neonates ## means and Sds  are derived from  body wt
+  ,Man_J = rnorm(10000, 0.2, 0.01) 	# Manure kg/ day from juvenile## means and Sds  are derived from  body wt
+  ,Man_A = rnorm(10000, 0.3, 0.002) 	# Manure kg/ day from adults ##means and Sds  are derived from  body wt
+  
+  # 0.0125 USD / kg = 0.65 eth birr per kg 2021 price
+  ,Man_value = 0.5
+  
+  ## dry matter requirements per kg of liveweight
+  ,DM_req_prpn_NF = 0.026  	# Dry matter required by neonates
+  ,DM_req_prpn_NM = 0.026  	# Dry matter required by neonates
+  ,DM_req_prpn_JF = 0.026  	# Dry matter required by juvenile
+  ,DM_req_prpn_JM = 0.026  	# Dry matter required by juvenile
+  ,DM_req_prpn_AF = 0.026  	# Dry matter required by adults
+  ,DM_req_prpn_AM = 0.026  	# Dry matter required by adults
+  
+  ## Input parameters ## just example distributions for now
+  ,Feed_cost_kg = rpert(10000, 2.5, 6.5, 3.46) 	## Ethiopian birr/kg wheat and barley
+  
+  ## variable results for the amount of dry matter in wheat and barley and tef in Ethiopia
+  ## range 30-90%
+  ## taking 70% as an estimate for this trial
+  ,DM_in_feed = rpert(10000, 0.85, 0.95, 0.9)  	## change this to choose from data informed distribution
+  
+  ## Labour cost
+  ## for this we have taken estimate from MS: Legesse '2010 work as its between two other estimates
+  ## the estimate was birr per head per year so dividing by 12 = birr/head/month
+  # Lab_SR = 368/12
+  ## example code to change labour cost to selecting from distribution
+  ,Lab_SR = rpert(10000, (260/12), (649/12), (368/12))
+  ,lab_non_health = 0.86 
+  ## Helath care costs
+  ## for this we have used single point estimate from  LFDP data (other estimates 2.2 - 14.3)
+  ## the estimate is birr per head per year so dividing by 12 = birr/head/month
+  ## this includes medicines and veterinary care
+  # Health_exp = 2.8/12
+  ## and changing health care costs to select from distribution
+  ,Health_exp = 0 	# the two national level estimates(national production and import of vet drugs and vaccines, and LFSDP and RPLRP projects) are used as bound for the price and used for unif distribution 14.3 was from an earlier study covering only two districts 
+  
+  ## Capital costs
+  ## for this we are using bank of Ethiopia inflation rate
+  ,Interest_rate = 0.00 	## this is made zero because the inflation is greater than nominal interest rate henec real interest rate is zero
+)
+
+# =================================================================
+# Process GOAT Crop mixed livestock results
+# =================================================================
+# Calculate
+gross_margin_current_g_cl = results_current_g_cl[[1]]
+mean(gross_margin_current_g_cl)
+sd(gross_margin_current_g_cl)
+summary(gross_margin_current_g_cl)
+
+summary_current_g_cl = results_current_g_cl[[2]]
+
+gross_margin_ideal_g_cl = results_ideal_g_cl[[1]]
+mean(gross_margin_ideal_g_cl)
+sd(gross_margin_ideal_g_cl)
+summary(gross_margin_ideal_g_cl)
+
+summary_ideal_g_cl = results_ideal_g_cl[[2]]
+
+AHLE_g_cl <- gross_margin_ideal_g_cl - gross_margin_current_g_cl
+mean(AHLE_g_cl)
+sd(AHLE_g_cl)
+summary(AHLE_g_cl)
+
+AHLE_g_cl_table <- summary_ideal_g_cl[,(2:8)] - summary_current_g_cl[,(2:8)] 
+AHLE_g_cl_table <- cbind(summary_ideal_g_cl[,1], AHLE_g_cl_table[,(1:7)])
+
+## AHLE in dollars
+print('AHLE in USD')
+print(mean(AHLE_g_cl*0.019))
+sd(AHLE_g_cl*0.019)
+
+# Print to console
+print('Summary of compartmental model under current conditions:')
+print(summary_current_g_cl)
+print('Distribution of gross margin under current conditions:')
+summary(gross_margin_current_g_cl)
+plot(density(gross_margin_current_g_cl))
+
+print('Summary of compartmental model under ideal conditions:')
+print(summary_ideal_g_cl)
+print('Distribution of gross margin under ideal conditions:')
+summary(gross_margin_ideal_g_cl)
+plot(density(gross_margin_ideal_g_cl))
+
+print('Distribution of gross margin difference (ideal minus current):')
+summary(AHLE_g_cl)
+plot(density(AHLE_g_cl))
+hist(AHLE_g_cl)
+# Write files
+write.csv(summary_current_g_cl, file.path(cmd_output_directory, 'ahle_goat_clm_summary_current.csv'), row.names=FALSE)
+write.csv(summary_ideal_g_cl, file.path(cmd_output_directory, 'ahle_goat_clm_summary_ideal.csv'), row.names=FALSE)
+
+
+###############################################################
+
+## PASTORAL MODEL PARAMETERS ## 
+
+## * REMEMBER, to run this code you must go into the compartmental 
+## model function and reset the inital population parameters and re create
+## the function
+
+# =================================================================
+# -----------------------------------------------------------------
+# Current SHEEP Crop Pastoral
+# -----------------------------------------------------------------
+results_current_s_past <- compartmental_model(
+  ## Number of iterations (duration of simulation)
+  # representing days 
+  nruns = cmd_nruns
+  
+  ## NOTE - if you change this you must change rates to be monthly 
+  ,Num_months = 12
+  
+  ## Growth rate N -> J and J-> A
+  ,Beta = 1/6
+  
+  # Fertility
+  ,part = rpert(10000, 0.52, 0.67, 0.60)
+  ,prolif = rtruncnorm(10000, 0, 3, 1.3, 0.25)
+  
+  ,prop_F_milked = 0 # for now half lambed are milked
+  ,lac_duration = 0 #(days)
+  ,avg_daily_yield_ltr = 0 # example on avg 100ml a day for 60 days from half of ewes lambed
+  ,milk_value_ltr = 0 #
+  
+  # Offtake
+  ## Currently fixed, but, should this be dependant on new pop size, to keep pop size as it was at t0
+  ## offtake must = offtake + dif between NNFt0 etc and NJF current
+  ,GammaF = 0.02/12 	# offtake rate female (juv and adult only) 
+  ,GammaM = 0.12/12 	# offtake rate male
+  
+  # Mortality ## informed from META analysis
+  ,AlphaN = rpert(1000, 0.35/6, 0.35/6, 0.35/6)		# the neonate mort is taken from a single stdu and used as fixed value instead of distribution
+  ,AlphaJ = rpert(1000, 0.05/6, 0.05/6, 0.05/6)		# no study for juvenile and adult mort so derived from  CSA crude mort using the neonate mort and used as fixed value instead of distribution 
+  ,AlphaF = rpert(1000, 0.04/12, 0.04/12, 0.04/12)# no study for juvenile and adult mort so derived from  CSA crude mort using the neonate mort and used as fixed value instead of distribution
+  ,AlphaM = rpert(1000, 0.05/12, 0.05/12, 0.05/12)# no study for juvenile and adult mort so derived from  CSA crude mort using the neonate mort and used as fixed value instead of distribution
+  
+  # Culls
+  ,CullF = 1/108 	# cullrate Adult Female ## These will be valueless
+  ,CullM = 1/48 		# cullrate Adult Male  ## These will still have a value
+  
+  ## Production parameters (kg)
+  
+  # Liveweight conversion (kg) ## Informed from META analysis
+  ,lwNF = rtruncnorm(10000, a = 1, b = 15, mean = 11.7, sd = 2.2)  	# Liveweight Neonate## parameters derived from meta pooled mean and variance 
+  ,lwNM = rtruncnorm(10000, a = 1, b = 15, mean =11.7, sd = 2.2)  	# Liveweight Neonateparameters derived from meta pooled mean and variance
+  ,lwJF = rnorm(10000, 19.1, sd = 0.48) 										# Liveweight Juvenille # Same here ##parameters derived from meta pooled mean and variance
+  ,lwJM = rnorm(10000, 19.1, sd = 0.48) 										# Liveweight Juvenille # Same here##parameters derived from meta pooled mean and variance
+  ,lwAF = rnorm(10000, 29.6, sd = 0.7) 										# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+  ,lwAM = rnorm(10000, 31.5, sd = 6.8) 										# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+  
+  # carcase yeild
+  ,ccy = 0.42 		# As a % of liveweight for all groups
+  
+  ## Financial value of live animals
+  # Ethiopian Birr
+  ,fvNF = rpert(10000, 650,	850,	750) 	## Financial value of neonatal Female
+  ,fvJF = rpert(10000, 1450,	1783,	1616) 	## Financial value of neonatal Male
+  ,fvAF = rpert(10000, 1400,2466, 1530) 	## Financial value of juv Female
+  ,fvNM = rpert(10000, 750,	1370, 1062) 	## Financial value of juv Male
+  ,fvJM = rpert(10000, 1425,	2466.6,1530) 	## Financial value of adult Female
+  ,fvAM = rpert(10000, 1800,	3616,	3041) 	## Financial value of adult Male  
+  
+  ## Off take which go for fertility in females (used when calculating hide numbers)
+  #,fert_offtake = 0.25		# for breeding age females only 75% of offtake contribute to skins (25% remain in national breeding herd)
+  
+  ## skin/hides  
+  ## parameters can be updated through expert opinion but adding options for flexibility here
+  ,hides_rate = 1 			# 1 skin per animal offtake for males
+  ,hides_rate_mor = 0.5 	# 50% of dead animals contribute to hides count
+  
+  # 1 usd per piece = 51 eth birr
+  ,hides_value = 40
+  
+  # manure rate (kg produced/animal/day)
+  ,Man_N = rnorm(10000, 0.1, 0.022) 	# Manure kg/ day from neonates ## means and Sds  are derived from  body wt
+  ,Man_J = rnorm(10000, 0.2, 0.038) 	# Manure kg/ day from juvenile## means and Sds  are derived from  body wt
+  ,Man_A = rnorm(10000, 0.3, 0.060) 	# Manure kg/ day from adults ##means and Sds  are derived from  body wt
+  
+  # 0.0125 USD / kg = 0.65 eth birr per kg 2021 price
+  ,Man_value = 0.5
+  
+  ## dry matter requirements per kg of liveweight
+  ,DM_req_prpn_NF = 0.026  	# Dry matter required by neonates
+  ,DM_req_prpn_NM = 0.026  	# Dry matter required by neonates
+  ,DM_req_prpn_JF = 0.026  	# Dry matter required by juvenile
+  ,DM_req_prpn_JM = 0.026  	# Dry matter required by juvenile
+  ,DM_req_prpn_AF = 0.026  	# Dry matter required by adults
+  ,DM_req_prpn_AM = 0.026  	# Dry matter required by adults
+  
+  ## Input parameters ## just example distributions for now
+  ## If we are saying Pastoralists dont spend money on feed for their livestock
+  ## we could just change feed cost to 0, or change the equation within the function
+  
+  ,Feed_cost_kg = rpert(10000, 2.5, 6.5, 3.46) 	## Ethiopian birr/kg wheat and barley
+  
+  ## variable results for the amount of dry matter in wheat and barley and tef in Ethiopia
+  ## range 30-90%
+  ## taking 70% as an estimate for this trial
+  ,DM_in_feed = rpert(10000, 0.85, 0.95, 0.9)  	## change this to choose from data informed distribution
+  
+  ## Labour cost
+  ## for this we have taken estimate from MS: Legesse '2010 work as its between two other estimates
+  ## the estimate was birr per head per year so dividing by 12 = birr/head/month
+  #,Lab_SR = 368/12
+  ## example code to change labour cost to selecting from distribution
+  ,Lab_SR = rpert(10000, (260/12), (649/12), (368/12))
+  ,lab_non_health = 1
+  
+  ## Helath care costs
+  ## for this we have used single point estimate from  LFDP data (other estimates 2.2 - 14.3)
+  ## the estimate is birr per head per year so dividing by 12 = birr/head/month
+  ## this includes medicines and veterinary care
+  #,Health_exp = 2.8/12
+  ## and changing health care costs to select from distribution
+  ,Health_exp = runif(10000, (2.2/12), (2.8/12)) 	# the two national level estimates(national production and import of vet drugs and vaccines, and LFSDP and RPLRP projects) are used as bound for the price and used for unif distribution 14.3 was from an earlier study covering only two districts 
+  
+  ## Capital costs
+  ## for this we are using bank of Ethiopia inflation rate
+  ,Interest_rate = 0.00 	## this is made zero because the inflation is greater than nominal interest rate henec real interest rate is zero
+)
+
+results_current_s_past[[2]]
+
+# -----------------------------------------------------------------
+# Ideal SHEEP PASTORAL
+# -----------------------------------------------------------------
+results_ideal_s_past <- compartmental_model(
+  ## Number of iterations (duration of simulation)
+  # representing days 
+  nruns = cmd_nruns
+  
+  ## NOTE - if you change this you must change rates to be monthly 
+  ,Num_months = 12
+  
+  ## Growth rate N -> J and J-> A
+  ,Beta = 1/6
+  
+  # Fertility
+  ,part = rpert(10000, 0.5, 1.12, 0.80)
+  ,prolif = rpert(10000, 1, 1.5, 1.1 )
+  
+  # lactation # example 
+  ,prop_F_milked = 0 # for now half lambed are milked
+  ,lac_duration = 0 #(days)
+  ,avg_daily_yield_ltr = 0 # example on avg 100ml a day for 60 days from half of ewes lambed
+  ,milk_value_ltr = 0 #
+  
+  # Offtake
+  ## Currently fixed, but, should this be dependant on new pop size, to keep pop size as it was at t0
+  ## offtake must = offtake + dif between NNFt0 etc and NJF current
+  ,GammaF = 0.02/12 	# offtake rate female (juv and adult only) 
+  ,GammaM = 0.12/12 	# offtake rate male
+  
+  # Mortality ## informed from META analysis
+  ,AlphaN = 0		# mortality rate juveniel ## parameter derived from meat pooled proportion and variance 
+  ,AlphaJ = 0		# mortality rate juveniel ## parameter derived from meat pooled proportion and variance 
+  ,AlphaF = 0		# mortality  adult female ##Parameter derived from meat pooled proportion and variance
+  ,AlphaM = 0		# motality adult male ##Parameter derived from meat pooled proportion and variancethin the national herd for breeding
+  
+  # Culls
+  ,CullF = 1/108 	# cullrate Adult Female ## These will be valueless
+  ,CullM = 1/48 		# cullrate Adult Male  ## These will still have a value
+  
+  ## Production parameters (kg)
+  
+  # Liveweight conversion (kg) ## Informed from META analysis
+  ,lwNF = rpert(10000, 6.5, 16.5, 14 )  		# Liveweight Neonate## parameters derived from meta pooled mean and variance 
+  ,lwNM = rpert(10000, 7, 17.0, 13.8)  	# Liveweight Neonateparameters derived from meta pooled mean and variance
+  ,lwJF = rpert(10000, 12, 23, 17.4)			# Liveweight Juvenille # Same here ##parameters derived from meta pooled mean and variance
+  ,lwJM = rpert(10000, 12.5, 24, 18) 			# Liveweight Juvenille # Same here##parameters derived from meta pooled mean and variance
+  ,lwAF = rpert(10000, 17, 34, 29.0) 		# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+  ,lwAM = rpert(10000, 18, 40.5, 30) 			# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+  
+  # carcase yeild
+  ,ccy = 0.42 		# As a % of liveweight for all groups
+  
+  ## Financial value of live animals
+  # Ethiopian Birr
+  ,fvNF = rpert(10000, 778,	1017,	897) ## Financial value of neonatal Female
+  ,fvJF = rpert(10000, 1314,	1616,	1465) ## Financial value of neonatal Male
+  ,fvAF = rpert(10000, 1372,	2417, 1499) ## Financial value of juv Female
+  ,fvNM = rpert(10000, 885,	1616, 1253) ## Financial value of juv Male
+  ,fvJM = rpert(10000, 1336,	2313,	1434) ## Financial value of adult Female
+  ,fvAM = rpert(10000, 1714,	3444,	2897) ## Financial value of adult Male  
+  
+  ## Off take which go for fertility in females (used when calculating hide numbers)
+  #,fert_offtake = 0.25		# for breeding age females only 75% of offtake contribute to skins (25% remain in national breeding herd)
+  
+  ## skin/hides  
+  ## parameters can be updated through expert opinion but adding options for flexibility here
+  ,hides_rate = 1 			# 1 skin per animal offtake for males
+  ,hides_rate_mor = 0.5 	# 50% of dead animals contribute to hides count
+  
+  # 1 usd per piece = 51 eth birr
+  ,hides_value = 40
+  
+  # manure rate (kg produced/animal/day)
+  ,Man_N = rnorm(10000, 0.1, 0.02) 	# Manure kg/ day from neonates ## means and Sds  are derived from  body wt
+  ,Man_J = rnorm(10000, 0.2, 0.04) 	# Manure kg/ day from juvenile## means and Sds  are derived from  body wt
+  ,Man_A = rnorm(10000, 0.3, 0.06) 	# Manure kg/ day from adults ##means and Sds  are derived from  body wt
+  
+  # 0.0125 USD / kg = 0.65 eth birr per kg 2021 price
+  ,Man_value = 0.5
+  
+  ## dry matter requirements per kg of liveweight
+  ,DM_req_prpn_NF = 0.026  	# Dry matter required by neonates
+  ,DM_req_prpn_NM = 0.026  	# Dry matter required by neonates
+  ,DM_req_prpn_JF = 0.026  	# Dry matter required by juvenile
+  ,DM_req_prpn_JM = 0.026  	# Dry matter required by juvenile
+  ,DM_req_prpn_AF = 0.026  	# Dry matter required by adults
+  ,DM_req_prpn_AM = 0.026  	# Dry matter required by adults
+  
+  ## Input parameters ## just example distributions for now
+  ,Feed_cost_kg = rpert(10000, 2.5, 6.5, 3.46) 	## Ethiopian birr/kg wheat and barley
+  
+  ## variable results for the amount of dry matter in wheat and barley and tef in Ethiopia
+  ## range 30-90%
+  ## taking 70% as an estimate for this trial
+  ,DM_in_feed = rpert(10000, 0.85, 0.95, 0.9)  	## change this to choose from data informed distribution
+  
+  ## Labour cost
+  ## for this we have taken estimate from MS: Legesse '2010 work as its between two other estimates
+  ## the estimate was birr per head per year so dividing by 12 = birr/head/month
+  # Lab_SR = 368/12
+  ## example code to change labour cost to selecting from distribution
+  ,Lab_SR = rpert(10000, (260/12), (649/12), (368/12))
+  ,lab_non_health = 0.86 
+  ## Helath care costs
+  ## for this we have used single point estimate from  LFDP data (other estimates 2.2 - 14.3)
+  ## the estimate is birr per head per year so dividing by 12 = birr/head/month
+  ## this includes medicines and veterinary care
+  # Health_exp = 2.8/12
+  ## and changing health care costs to select from distribution
+  ,Health_exp = 0 	# the two national level estimates(national production and import of vet drugs and vaccines, and LFSDP and RPLRP projects) are used as bound for the price and used for unif distribution 14.3 was from an earlier study covering only two districts 
+  
+  ## Capital costs
+  ## for this we are using bank of Ethiopia inflation rate
+  ,Interest_rate = 0.00 	## this is made zero because the inflation is greater than nominal interest rate henec real interest rate is zero
+)
+
+
+
+# =================================================================
+# Debugging
+# =================================================================
+# Show everything returned
+#print('Objects returned for results_current_s_cl:')
+#for (i in results_current_s_cl)
+#{
+#   print(i)
+#}
+
+# =================================================================
+# Process results
+# =================================================================
+# Calculate
+gross_margin_current_s_past = results_current_s_past[[1]]
+mean(gross_margin_current_s_past)
+sd(gross_margin_current_s_past)
+summary(gross_margin_current_s_past)
+
+summary_current_s_past = results_current_s_past[[2]]
+
+gross_margin_ideal_s_past = results_ideal_s_past[[1]]
+mean(gross_margin_ideal_s_past)
+sd(gross_margin_ideal_s_past)
+summary(gross_margin_ideal_s_past)
+
+summary_ideal_s_past = results_ideal_s_past[[2]]
+
+AHLE_s_past <- gross_margin_ideal_s_past - gross_margin_current_s_past
+mean(AHLE_s_past)
+sd(AHLE_s_past)
+summary(AHLE_s_past)
+
+AHLE_s_past_table <- summary_ideal_s_past[,(2:8)] - summary_current_s_past[,(2:8)] 
+AHLE_s_past_table <- cbind(summary_ideal_s_past[,1], AHLE_s_past_table[,(1:7)])
+
+## AHLE in dollars
+print('AHLE in USD')
+print(mean(AHLE_s_past*0.019))
+sd(AHLE_s_past*0.019)
+
+# Print to console
+print('Summary of compartmental model under current conditions:')
+print(summary_current_s_past)
+print('Distribution of gross margin under current conditions:')
+summary(gross_margin_current_s_past)
+plot(density(gross_margin_current_s_past))
+
+print('Summary of compartmental model under ideal conditions:')
+print(summary_ideal_s_past)
+print('Distribution of gross margin under ideal conditions:')
+summary(gross_margin_ideal_s_past)
+plot(density(gross_margin_ideal_s_past))
+
+print('Distribution of gross margin difference (ideal minus current):')
+summary(AHLE_s_past)
+plot(density(AHLE_s_past))
+hist(AHLE_s_past)
+# Write files
+write.csv(summary_current_s_past, file.path(cmd_output_directory, 'ahle_sheep_past_summary_current.csv'), row.names=FALSE)
+write.csv(summary_ideal_s_past, file.path(cmd_output_directory, 'ahle_sheep_past_summary_ideal.csv'), row.names=FALSE)
+
+
+
+####################################################################
+
+#### GOATS PASTORAL   ###
+
+
+
+
+
+
+
+
+
+

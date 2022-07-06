@@ -1,3 +1,42 @@
+# =================================================================
+# Top-level program parameters
+# =================================================================
+# -----------------------------------------------------------------
+# Set manually
+# -----------------------------------------------------------------
+# Folder location of input files (AHLE.xlsx and data.xlsx)
+cmd_input_directory <- '.'
+
+# Folder location for saving output files
+cmd_output_directory <- '.'
+
+#> Set number of samples to take from distribution
+cmd_n_samples = 1000
+
+# -----------------------------------------------------------------
+# Get from command line arguments
+# -----------------------------------------------------------------
+# Only look for command arguments if this was invoked from the command line
+if (grepl('Rterm.exe', paste(commandArgs(), collapse=" "), ignore.case = TRUE, fixed = TRUE))
+{
+	cmd_args <- commandArgs(trailingOnly=TRUE)	# Fetch command line arguments
+	cmd_input_directory <- cmd_args[1] 				# First argument: folder location of input files (AHLE.xlsx and data.xlsx)
+	cmd_output_directory <- cmd_args[2] 			# Second argument: folder location for saving output files
+	cmd_n_samples <- type.convert(cmd_args[3]) 	# Third argument: number of samples to take from distribution
+}
+
+# -----------------------------------------------------------------
+# Show in console
+# -----------------------------------------------------------------
+print('Using the following program parameters:')
+print('   Input directory')
+print(cmd_input_directory)
+print('   Output directory')
+print(cmd_output_directory)
+
+# =================================================================
+# Define functions
+# =================================================================
 #> Attribution function
 attribute <- function(AHLE, Att, num_sample){
   n = num_sample
@@ -53,24 +92,41 @@ attribute <- function(AHLE, Att, num_sample){
   return(list(s, j))
 }
 
+# =================================================================
+# Prep
+# =================================================================
 # Load pkgs
 pA <- c("tidyverse", "readxl", "mc2d", "reshape2")
 lapply(pA, require, character.only = T)
+
 #> Set random seed
 set.seed(123)
 
 #> Read AHLE and Attribution sheets
-AHLE <- read_xlsx("AHLE.xlsx", sheet = 2)
-Att <- read_xlsx("data.xlsx", sheet = 5)
-#> Set number of samples to take from distribution
-n = 1000
+AHLE <- read_xlsx(file.path(cmd_input_directory, "AHLE.xlsx"), sheet = 2)
+Att <- read_xlsx(file.path(cmd_input_directory, "data.xlsx"), sheet = 5)
+
+# =================================================================
+# Run attribution
+# =================================================================
 #> Run function
-Ethiopia <- attribute(AHLE, Att, n)
+Ethiopia <- attribute(AHLE, Att, cmd_n_samples)
+
+print('First object returned:')
 Ethiopia[[1]] #> is summary of n
+print('Second object returned:')
 Ethiopia[[2]] #> is a long data frame of n samples
 
+attribution_summary <- Ethiopia[[1]]
+
+# =================================================================
+# Process results
+# =================================================================
 #> Treemap example
-tm <- treemap(Ethiopia[[1]], index = c("Age class", "Cause"), vSize = "mean", type="index",
-               title="Attribution of small ruminant health loss in Ethiopia",
-               fontsize.labels=c(18,12), align.labels = list(c("centre", "top"),c("centre","centre")),
-               fontcolor.labels="black", palette = "Set3")
+#tm <- treemap(Ethiopia[[1]], index = c("Age class", "Cause"), vSize = "mean", type="index",
+#               title="Attribution of small ruminant health loss in Ethiopia",
+#               fontsize.labels=c(18,12), align.labels = list(c("centre", "top"),c("centre","centre")),
+#               fontcolor.labels="black", palette = "Set3")
+
+# Write to file
+write.csv(attribution_summary, file.path(cmd_output_directory, 'attribution_summary.csv'), row.names=FALSE)

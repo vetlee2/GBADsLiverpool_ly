@@ -65,6 +65,14 @@ compartmental_model <- function(
    nruns 			## Number of iterations (duration of simulation) # representing days 
 	,Num_months 	## NOTE - if you change this you must change rates to be monthly 
 	
+	# Initial population
+	,N_NF_t0		# Neonatal female
+	,N_NM_t0		# Neonatal male
+	,N_JF_t0		# Juvenile female
+	,N_JM_t0		# Juvenile male
+	,N_AF_t0		# Adult female
+	,N_AM_t0		# Adult male
+
 	## Growth rate N -> J and J-> A
 	,Beta
 	
@@ -142,6 +150,14 @@ compartmental_model <- function(
 	,DM_req_prpn_JM		# Dry matter required by juvenile
 	,DM_req_prpn_AF		# Dry matter required by adults
 	,DM_req_prpn_AM		# Dry matter required by adults
+	
+	## Proportion of livestock keepers that spend any money on feed
+	## NOTE Currently the same for all age*sex groups
+	,prpn_lskeepers_purch_feed
+	
+	## For those spending any money on feed, the proportion of feed that is purchased
+	## NOTE Currently the same for all age*sex groups
+	,prpn_feed_paid_for
 
 	## Input parameters ## just example distributions for now
 	,Feed_cost_kg		## Ethiopian birr/kg wheat and barley
@@ -182,18 +198,13 @@ compartmental_model <- function(
 	kg_DM_req_AF = DM_req_prpn_AF * lwAF  	# Dry matter required by adults
 	kg_DM_req_AM = DM_req_prpn_AM * lwAM  	# Dry matter required by adults
 
-	## only 25% of ls keepers spend money on feed 
-	## We make the assumption that 50% of feed used by those spending
-	## any money on feed is purchased
-	
 	## NOTE in the pastoral system this purchased feed will be 0
-	
-	DM_purch_NF <- (kg_DM_req_NF * 0.25 * 0.5) #rpert(10000, 0.1, 1, 0.5))
-	DM_purch_NM <- (kg_DM_req_NM * 0.25 * 0.5) #rpert(10000, 0.1, 1, 0.5))
-	DM_purch_JF <- (kg_DM_req_JF * 0.25 * 0.5) #rpert(10000, 0.1, 1, 0.5))
-	DM_purch_JM <- (kg_DM_req_JM * 0.25 * 0.5) #rpert(10000, 0.1, 1, 0.5))
-	DM_purch_AF <- (kg_DM_req_AF * 0.25 * 0.5) #rpert(10000, 0.1, 1, 0.5))
-	DM_purch_AM <- (kg_DM_req_AM * 0.25 * 0.5) #rpert(10000, 0.1, 1, 0.5))
+	DM_purch_NF <- (kg_DM_req_NF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
+	DM_purch_NM <- (kg_DM_req_NM * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
+	DM_purch_JF <- (kg_DM_req_JF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
+	DM_purch_JM <- (kg_DM_req_JM * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
+	DM_purch_AF <- (kg_DM_req_AF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
+	DM_purch_AM <- (kg_DM_req_AM * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
 
 	KG_Feed_purchased_NF <- DM_purch_NF / DM_in_feed
 	KG_Feed_purchased_NM <- DM_purch_NM / DM_in_feed
@@ -603,68 +614,31 @@ compartmental_model <- function(
 		## Current
 		## Crop-livestock
 		## Sheep
-	  
+		
 		## Variables
 		
 		## Initial population size
-		
-		## population structure using proportion of constant flock growth after 5 yearr
-#		NF <- 2070822  	# neonatal female
-	#	JF <- 1915971  	# juvenile female
-#		AF <- 14049629 	# adult female
-	#	NM <- 2070822 		# neonatal male
-	#	JM <- 1147386 		# juvenile male
-	#	AM <- 3048715 		# adult male
-	  
-	  ## pop structure from 2021 census CLM GOATS
-#	  NF = 2803178
-#	  AF = 10864998
-#	  JF = 1508363
-#	  NM = 2586971
-#	  JM = 1146066
-#	  AM = 3055888
-	  
-	  ## population structure from 2021 survey PAST sheep
-	  
-	  NF = 1805806   # neonatal female
-	  JF = 1525444    # juvenile female
-	  AF = 9293369  # adult female
-	  NM = 1212609  # neonatal male
-	  JM = 967746  # juvenile male
-	  AM = 3390900
-	  
-	  ## population structure from 2021 survey PAST goats
-#	  NF <- 2931658  # neonatal female
-#	  JF <- 2563862 # juvenile female
-#	  AF <- 15741790 # adult female
-#	  NM <- 1974212 # neonatal male
-#	  JM <- 1533797 # juvenile male
-#	  AM <- 5555576 # adult male
-	  
-	  # Total population size (sum of above)
-	  
-	  # Total population size (sum of above)
-	  N <- NF + JF + AF + NM + JM + AM
-	  
+
+		# Total population is sum of age*sex segments
+		Nt0 <- N_NF_t0 + N_NM_t0 + N_JF_t0 + N_JM_t0 + N_AF_t0 + N_AM_t0
+
+		# Define population variables and set initial values from function arguments 
+		N <- Nt0
+		NF <- N_NF_t0
+		NM <- N_NM_t0
+		JF <- N_JF_t0
+		JM <- N_JM_t0
+		AF <- N_AF_t0
+		AM <- N_AM_t0
+
 		## age sex group prop of pop at t0 - this ratio should probably stay the same
-	  
 		pNF_t0 <- NF/N
 		pJF_t0 <- JF/N
 		pAF_t0 <- AF/N
 		pNM_t0 <- NM/N
 		pJM_t0 <- JM/N
 		pAM_t0 <- AM/N
-	 
-		# Population at t0
-		Nto <- N
-	  
-		N_NF_to <- NF
-		N_NM_to <- NM
-		N_JF_to <- JF
-		N_JM_to <- JM
-		N_AF_to <- AF
-		N_AM_to <- AM
-	  
+		
 		Num_dead <- 0
 		
 		Num_dead_NF <- 0
@@ -865,14 +839,14 @@ compartmental_model <- function(
 
 			
 			# Population growth (total population in month - original population size)
-			Cumilative_Pop_growth[month] =  numN[month] - Nto
+			Cumilative_Pop_growth[month] =  numN[month] - Nt0
 
-			Cumilative_Pop_growth_NF[month] =  numNF[month] - N_NF_to
-			Cumilative_Pop_growth_NM[month] =  numNM[month] - N_NM_to
-			Cumilative_Pop_growth_JF[month] =  numJF[month] - N_JF_to
-			Cumilative_Pop_growth_JM[month] =  numJM[month] - N_JM_to
-			Cumilative_Pop_growth_AF[month] =  numAF[month] - N_AF_to
-			Cumilative_Pop_growth_AM[month] =  numAM[month] - N_AM_to
+			Cumilative_Pop_growth_NF[month] =  numNF[month] - N_NF_t0
+			Cumilative_Pop_growth_NM[month] =  numNM[month] - N_NM_t0
+			Cumilative_Pop_growth_JF[month] =  numJF[month] - N_JF_t0
+			Cumilative_Pop_growth_JM[month] =  numJM[month] - N_JM_t0
+			Cumilative_Pop_growth_AF[month] =  numAF[month] - N_AF_t0
+			Cumilative_Pop_growth_AM[month] =  numAM[month] - N_AM_t0
 
 			##
 			## potentially remove below  7 lines as not necessary? to check
@@ -1037,17 +1011,17 @@ compartmental_model <- function(
 			## now calculation is change in population since t0 
 			## multiplied by price per head (each month compares to t0)
 			##
-			  Value_Herd_Increase_NF[month] = ((NF - N_NF_to) * sample(fvNF, 1))
+			  Value_Herd_Increase_NF[month] = ((NF - N_NF_t0) * sample(fvNF, 1))
 			Value_herd_inc_NF = Value_Herd_Increase_NF[month]
-		  	Value_Herd_Increase_NM[month] = ((NM - N_NM_to) * sample(fvNM, 1))
+		  	Value_Herd_Increase_NM[month] = ((NM - N_NM_t0) * sample(fvNM, 1))
   		Value_herd_inc_NM = Value_Herd_Increase_NM[month]
-			  Value_Herd_Increase_JF[month] = ((JF - N_JF_to) * sample(fvJF, 1))
+			  Value_Herd_Increase_JF[month] = ((JF - N_JF_t0) * sample(fvJF, 1))
 			Value_herd_inc_JF = Value_Herd_Increase_JF[month]
-		  	Value_Herd_Increase_JM[month] =  ((JM - N_JM_to) * sample(fvJM, 1))
+		  	Value_Herd_Increase_JM[month] =  ((JM - N_JM_t0) * sample(fvJM, 1))
 			Value_herd_inc_JM = Value_Herd_Increase_JM[month]
-		  	Value_Herd_Increase_AF[month] = ((AF - N_AF_to) * sample(fvAF, 1))
+		  	Value_Herd_Increase_AF[month] = ((AF - N_AF_t0) * sample(fvAF, 1))
 			Value_herd_inc_AF = Value_Herd_Increase_AF[month]
-		  	Value_Herd_Increase_AM[month] =  ((AM - N_AM_to) * sample(fvAM, 1))
+		  	Value_Herd_Increase_AM[month] =  ((AM - N_AM_t0) * sample(fvAM, 1))
 			Value_herd_inc_AM = Value_Herd_Increase_AM[month]
 
 			# total pop value of herd increase
@@ -1516,7 +1490,7 @@ build_summary_df <- function(items_to_summarize ,display_names)
 	return(summary_df)
 }
 
-cmd_nruns = 10000
+
 # =================================================================
 # Run scenarios
 # =================================================================
@@ -1530,6 +1504,14 @@ results_current_s_cl <- compartmental_model(
 	
 	## NOTE - if you change this you must change rates to be monthly 
 	,Num_months = 12
+	
+	## population structure using proportion of constant flock growth after 5 yearr
+	,N_NF_t0 = 2070822  	# neonatal female
+	,N_JF_t0 = 1915971  	# juvenile female
+	,N_AF_t0 = 14049629 	# adult female
+	,N_NM_t0 = 2070822 		# neonatal male
+	,N_JM_t0 = 1147386 		# juvenile male
+	,N_AM_t0 = 3048715 		# adult male
 	
 	## Growth rate N -> J and J-> A
 	,Beta = 1/6
@@ -1608,6 +1590,14 @@ results_current_s_cl <- compartmental_model(
 	,DM_req_prpn_AF = 0.026  	# Dry matter required by adults
 	,DM_req_prpn_AM = 0.026  	# Dry matter required by adults
 
+	## Proportion of livestock keepers that spend any money on feed
+	## NOTE Currently the same for all age*sex groups
+	,prpn_lskeepers_purch_feed = 0.25 	## only 25% of ls keepers spend money on feed 
+	
+	## For those spending any money on feed, the proportion of feed that is purchased
+	## NOTE Currently the same for all age*sex groups
+	,prpn_feed_paid_for = 0.5 	## We make the assumption that 50% of feed used by those spending any money on feed is purchased
+
 	## Input parameters ## just example distributions for now
 	,Feed_cost_kg = rpert(10000, 2.5, 6.5, 3.46) 	## Ethiopian birr/kg wheat and barley
 
@@ -1645,10 +1635,18 @@ results_current_s_cl[[2]]
 results_ideal_s_cl <- compartmental_model(
 	## Number of iterations (duration of simulation)
 	# representing days 
- nruns = cmd_nruns
+	nruns = cmd_nruns
 	
 	## NOTE - if you change this you must change rates to be monthly 
 	,Num_months = 12
+	
+	## population structure using proportion of constant flock growth after 5 yearr
+	,N_NF_t0 = 2070822  	# neonatal female
+	,N_JF_t0 = 1915971  	# juvenile female
+	,N_AF_t0 = 14049629 	# adult female
+	,N_NM_t0 = 2070822 		# neonatal male
+	,N_JM_t0 = 1147386 		# juvenile male
+	,N_AM_t0 = 3048715 		# adult male
 	
 	## Growth rate N -> J and J-> A
 	,Beta = 1/6
@@ -1728,6 +1726,14 @@ results_ideal_s_cl <- compartmental_model(
 	,DM_req_prpn_AF = 0.026  	# Dry matter required by adults
 	,DM_req_prpn_AM = 0.026  	# Dry matter required by adults
 
+	## Proportion of livestock keepers that spend any money on feed
+	## NOTE Currently the same for all age*sex groups
+	,prpn_lskeepers_purch_feed = 0.25 	## only 25% of ls keepers spend money on feed 
+	
+	## For those spending any money on feed, the proportion of feed that is purchased
+	## NOTE Currently the same for all age*sex groups
+	,prpn_feed_paid_for = 0.5 	## We make the assumption that 50% of feed used by those spending any money on feed is purchased
+
 	## Input parameters ## just example distributions for now
 	,Feed_cost_kg = rpert(10000, 2.5, 6.5, 3.46) 	## Ethiopian birr/kg wheat and barley
 
@@ -1755,8 +1761,6 @@ results_ideal_s_cl <- compartmental_model(
 	## for this we are using bank of Ethiopia inflation rate
 	,Interest_rate = 0.00 	## this is made zero because the inflation is greater than nominal interest rate henec real interest rate is zero
 )
-
-
 
 # =================================================================
 # Debugging
@@ -1844,6 +1848,14 @@ results_current_g_cl <- compartmental_model(
   ## NOTE - if you change this you must change rates to be monthly 
   ,Num_months = 12
   
+	## pop structure from 2021 census CLM GOATS
+	,N_NF_t0 = 2803178
+	,N_AF_t0 = 10864998
+	,N_JF_t0 = 1508363
+	,N_NM_t0 = 2586971
+	,N_JM_t0 = 1146066
+	,N_AM_t0 = 3055888
+	
   ## Growth rate N -> J and J-> A
   ,Beta = 1/6
   
@@ -1921,6 +1933,14 @@ results_current_g_cl <- compartmental_model(
   ,DM_req_prpn_AF = 0.026  	# Dry matter required by adults
   ,DM_req_prpn_AM = 0.026  	# Dry matter required by adults
   
+	## Proportion of livestock keepers that spend any money on feed
+	## NOTE Currently the same for all age*sex groups
+	,prpn_lskeepers_purch_feed = 0.25 	## only 25% of ls keepers spend money on feed 
+	
+	## For those spending any money on feed, the proportion of feed that is purchased
+	## NOTE Currently the same for all age*sex groups
+	,prpn_feed_paid_for = 0.5 	## We make the assumption that 50% of feed used by those spending any money on feed is purchased
+
   ## Input parameters ## just example distributions for now
   ,Feed_cost_kg = rpert(10000, 2.5, 6.5, 3.46) 	## Ethiopian birr/kg wheat and barley
   
@@ -1963,7 +1983,15 @@ results_ideal_g_cl <- compartmental_model(
   ## NOTE - if you change this you must change rates to be monthly 
   ,Num_months = 12
   
-  ## Growth rate N -> J and J-> A
+	## pop structure from 2021 census CLM GOATS
+	,N_NF_t0 = 2803178
+	,N_AF_t0 = 10864998
+	,N_JF_t0 = 1508363
+	,N_NM_t0 = 2586971
+	,N_JM_t0 = 1146066
+	,N_AM_t0 = 3055888
+	
+	## Growth rate N -> J and J-> A
   ,Beta = 1/6
   
   # Fertility
@@ -2041,6 +2069,14 @@ results_ideal_g_cl <- compartmental_model(
   ,DM_req_prpn_AF = 0.026  	# Dry matter required by adults
   ,DM_req_prpn_AM = 0.026  	# Dry matter required by adults
   
+	## Proportion of livestock keepers that spend any money on feed
+	## NOTE Currently the same for all age*sex groups
+	,prpn_lskeepers_purch_feed = 0.25 	## only 25% of ls keepers spend money on feed 
+	
+	## For those spending any money on feed, the proportion of feed that is purchased
+	## NOTE Currently the same for all age*sex groups
+	,prpn_feed_paid_for = 0.5 	## We make the assumption that 50% of feed used by those spending any money on feed is purchased
+
   ## Input parameters ## just example distributions for now
   ,Feed_cost_kg = rpert(10000, 2.5, 6.5, 3.46) 	## Ethiopian birr/kg wheat and barley
   
@@ -2130,6 +2166,9 @@ write.csv(summary_ideal_g_cl, file.path(cmd_output_directory, 'ahle_goat_clm_sum
 ## model function and reset the inital population parameters and re create
 ## the function
 
+## UPDATE JR July 5, 2022: initial population numbers are now passed
+## as arguments when calling the function.
+
 # =================================================================
 # -----------------------------------------------------------------
 # Current SHEEP  Pastoral
@@ -2142,6 +2181,14 @@ results_current_s_past <- compartmental_model(
   ## NOTE - if you change this you must change rates to be monthly 
   ,Num_months = 12
   
+	## population structure from 2021 survey PAST sheep
+	,N_NF_t0 = 1805806   # neonatal female
+	,N_JF_t0 = 1525444    # juvenile female
+	,N_AF_t0 = 9293369  # adult female
+	,N_NM_t0 = 1212609  # neonatal male
+	,N_JM_t0 = 967746  # juvenile male
+	,N_AM_t0 = 3390900	# adult male
+	
   ## Growth rate N -> J and J-> A
   ,Beta = 1/6
   
@@ -2218,6 +2265,14 @@ results_current_s_past <- compartmental_model(
   ,DM_req_prpn_JM = 0.026  	# Dry matter required by juvenile
   ,DM_req_prpn_AF = 0.026  	# Dry matter required by adults
   ,DM_req_prpn_AM = 0.026  	# Dry matter required by adults
+
+	## Proportion of livestock keepers that spend any money on feed
+	## NOTE Currently the same for all age*sex groups
+	,prpn_lskeepers_purch_feed = 0.25 	## only 25% of ls keepers spend money on feed 
+	
+	## For those spending any money on feed, the proportion of feed that is purchased
+	## NOTE Currently the same for all age*sex groups
+	,prpn_feed_paid_for = 0.5 	## We make the assumption that 50% of feed used by those spending any money on feed is purchased
   
   ## Input parameters ## just example distributions for now
   ## If we are saying Pastoralists dont spend money on feed for their livestock
@@ -2264,6 +2319,14 @@ results_ideal_s_past <- compartmental_model(
   ## NOTE - if you change this you must change rates to be monthly 
   ,Num_months = 12
   
+	## population structure from 2021 survey PAST sheep
+	,N_NF_t0 = 1805806   # neonatal female
+	,N_JF_t0 = 1525444    # juvenile female
+	,N_AF_t0 = 9293369  # adult female
+	,N_NM_t0 = 1212609  # neonatal male
+	,N_JM_t0 = 967746  # juvenile male
+	,N_AM_t0 = 3390900	# adult male
+	
   ## Growth rate N -> J and J-> A
   ,Beta = 1/6
   
@@ -2341,6 +2404,14 @@ results_ideal_s_past <- compartmental_model(
   ,DM_req_prpn_JM = 0.026  	# Dry matter required by juvenile
   ,DM_req_prpn_AF = 0.026  	# Dry matter required by adults
   ,DM_req_prpn_AM = 0.026  	# Dry matter required by adults
+
+	## Proportion of livestock keepers that spend any money on feed
+	## NOTE Currently the same for all age*sex groups
+	,prpn_lskeepers_purch_feed = 0.25 	## only 25% of ls keepers spend money on feed 
+	
+	## For those spending any money on feed, the proportion of feed that is purchased
+	## NOTE Currently the same for all age*sex groups
+	,prpn_feed_paid_for = 0.5 	## We make the assumption that 50% of feed used by those spending any money on feed is purchased
   
   ## Input parameters ## just example distributions for now
   ,Feed_cost_kg = 0 	## Ethiopian birr/kg wheat and barley
@@ -2369,8 +2440,6 @@ results_ideal_s_past <- compartmental_model(
   ## for this we are using bank of Ethiopia inflation rate
   ,Interest_rate = 0.00 	## this is made zero because the inflation is greater than nominal interest rate henec real interest rate is zero
 )
-
-
 
 # =================================================================
 # Debugging

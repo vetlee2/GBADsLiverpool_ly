@@ -39,7 +39,7 @@ import lib.bod_calcs as bod
 
 #### PARAMETERS
 
-prod = True          # Use when testing/dev mode to remove auth
+prod = False          # Use when testing/dev mode to remove auth
 
 #%% 2. INITIALIZE APP
 ###############################################################################################
@@ -118,6 +118,12 @@ gbads_pigs_merged_fordash = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'gbads
 # Breed Standards
 swinebreedstd_pic_growthandfeed = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'swinebreedstd_pic_growthandfeed.pkl.gz'))
 swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'swinebreedstd_liverpool_model3.pkl.gz'))
+
+# -----------------------------------------------------------------------------
+# Ethiopia Case Study
+# -----------------------------------------------------------------------------
+# AHLE Summary - Sheep
+ecs_ahle_summary_sheep = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_sheep_clm_summary_envelope.csv'))
 
 # =============================================================================
 #### User options and defaults
@@ -361,10 +367,14 @@ ecs_year_options = [{'label': i, 'value': i, 'disabled': True} for i in ["2011",
 ecs_year_options += [{'label': "2021", 'value': "2021", 'disabled': False}]
 
 # Species
-ecs_species_options =  [{'label': "Small ruminant", 'value': "Small ruminant", 'disabled': False}]
+ecs_species_options = [{'label': i, 'value': i, 'disabled': True} for i in ["All",
+                                                                            "Goats",
+                                                                            ]]
+ecs_species_options += [{'label': "Sheep", 'value': "Sheep", 'disabled': False}]
 
 # Age
-ecs_age_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Neonate",
+ecs_age_options = [{'label': i, 'value': i, 'disabled': True} for i in ["All",
+                                                                        "Neonate",
                                                                         "Juvenile",
                                                                         "Adult",
                                                                         ]]
@@ -375,7 +385,8 @@ ecs_sex_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Male",
                                                                        ]]
 
 # Production system
-ecs_prodsys_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Mixed crop livestock",
+ecs_prodsys_options = [{'label': i, 'value': i, 'disabled': True} for i in ["All",
+                                                                            "Mixed crop livestock",
                                                                             "Pastoral",
                                                                             ]]
 
@@ -744,6 +755,55 @@ def prep_bod_forstackedbar_swine(INPUT_DF):
 
    return OUTPUT_DF
 
+def prep_bod_forsunburst_ecs(INPUT_DF):
+   working_df = INPUT_DF.copy()
+   
+   # Trim the data to keep things needed for the sunburst chart
+   working_df = working_df[['item','envelope']]
+
+   # Keep the lowest level of granularity
+   options = ['Value of Offtake',
+              'Value of Herd Increase',
+              'Value of Manure',
+              'Value of Hides', 
+              'Feed Cost', 
+              'Labour Cost',
+              'Health Cost', 
+              'Capital Cost']  
+   # Selecting rows based on item
+   working_df = working_df[working_df['item'].isin(options)]
+   
+   # Set the absolute value to show the proportions
+   working_df['envelope'] = abs(working_df['envelope'])
+
+   # Set up structure for sunburst chart
+   # Center (Total) value is Gross Margin
+   # working_df['Margin'] = 'Gross Margin'
+
+   # Next Level is Totals for Expenditure and Value Increase
+   value_rows = ['Value of Offtake',
+                 'Value of Herd Increase',
+                 'Value of Manure',
+                 'Value of Hides']
+
+   total_expenditure_rows = ['Feed Cost',
+                             'Labour Cost',
+                             'Health Cost',
+                             'Capital Cost']
+
+
+   for row in working_df['item']:
+       if row in value_rows:
+           i = working_df.index[working_df['item'] == row].tolist()
+           working_df.loc[i,['Total']] = 'Total Value Increase'
+       elif row in total_expenditure_rows:
+           i = working_df.index[working_df['item'] == row].tolist()
+           working_df.loc[i,['Total']] = 'Total Expenditure'
+           
+   OUTPUT_DF = working_df
+
+   return OUTPUT_DF
+
 # =============================================================================
 #### Define the figures
 # =============================================================================
@@ -849,6 +909,20 @@ def create_stacked_bar_swine(input_df, x, y, color):
        )
     return bar_fig
 
+# Define the sunburst
+def create_sunburst_ecs(input_df):
+    # sunburst_fig = px.sunburst(input_df, 
+    #                            path=['Margin', 'Total', 'item'], 
+    #                            values='envelope')
+    
+    sunburst_fig = px.icicle(input_df, 
+                             path=['Total', 'item'], 
+                             values='envelope')
+    
+    sunburst_fig.update_traces(root_color="white")
+
+    return sunburst_fig
+
 #%% 4. LAYOUT
 ##################################################################################################
 # Here we layout the webpage, including dcc (Dash Core Component) controls we want to use, such as dropdowns.
@@ -871,47 +945,19 @@ gbadsDash.layout = html.Div([
                             "margin-bottom":"10px",
                             'margin-right':"10px"},
         )),
-
-    #     # First Analytics Branding
-    #     dbc.Col(html.Div([
-    #         html.H3("Powered by"),
-    #         html.A(href="https://firstanalytics.com/",
-    #         children=[
-    #             html.Img(src='/assets/First_Analytics_logo_rgb no background.png',
-    #                      style={'height':'50%', 'width':'50%'})
-    #         ],),
-    #         ], style = {'margin-left':"10px",
-    #                     "margin-bottom":"10px",
-    #                     'margin-right':"10px",
-    #                     'textAlign': 'right'}
-    #     )),
-
     ], justify='between'),
 
 
     #### Data to pass between callbacks
     dcc.Store(id='core-data-poultry'),
     dcc.Store(id='core-data-swine'),
+    dcc.Store(id='core-data-ecs'),
 
     #### TABS
     dcc.Tabs([
 
         #### POULTRY TAB
         dcc.Tab(label="Poultry", children = [
-
-            # #### -- HEADINGS
-            # dbc.Row([
-            #     dbc.Col([
-            #         html.Br(),
-            #         html.H2("User Story: Policy Analyst or Policymaker",
-            #                 style={"margin": "0",
-            #                        "padding": "0"}),
-            #         html.H5('"I would like to understand the components of the burden of poultry disease in my region."',
-            #                 style={"margin": "0",
-            #                        "padding": "0"}),
-            #         ],
-            #         ),
-            #     ]),
 
             #### -- COUNTRY AND YEAR CONTROLS
             dbc.Row([
@@ -1569,7 +1615,7 @@ gbadsDash.layout = html.Div([
                     html.H6("Species"),
                     dcc.Dropdown(id='select-species-ecs',
                                  options=ecs_species_options,
-                                 value='Small ruminant',
+                                 value='Sheep',
                                  clearable = False,
                                  ),
                     ],style={
@@ -1761,20 +1807,46 @@ gbadsDash.layout = html.Div([
                         width=3),
 
                     # Sankey (STATIC)
-                    dbc.Col(
+                    dbc.Col([ # Sunburst
                         dbc.Spinner(children=[
-                        html.Div(children=[
-                                html.Img(src='/assets/EthiopianCaseStudyUpdatedSankeyFromGemma.png')
-                            ],
-                                 style = {'margin-left':"10px",
-                                            "margin-bottom":"10px",
-                                            'margin-right':"10px"},
-                        ),
-                            # End of Spinner
-                            ],size="md", color="#393375", fullscreen=False),
-                            # End of Output
-                            width=9
-                            ),
+                        dcc.Graph(id='ecs-sunburst',
+                                   style = {"height":"650px"},
+                                  config = {
+                                      "displayModeBar" : True,
+                                      "displaylogo": False,
+                                      'toImageButtonOptions': {
+                                          'format': 'png', # one of png, svg, jpeg, webp
+                                          'filename': 'GBADs_Ethiopia_Sunburst'
+                                          },
+                                      'modeBarButtonsToRemove': ['zoom',
+                                                                 'zoomIn',
+                                                                 'zoomOut',
+                                                                 'autoScale',
+                                                                 #'resetScale',  # Removes home button
+                                                                 'pan',
+                                                                 'select2d',
+                                                                 'lasso2d']
+                                      }
+                                  )
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                        # End of Sunburst
+                        ],style={"width":5}),
+                    
+                    # dbc.Col(
+                    #     dbc.Spinner(children=[
+                    #     html.Div(children=[
+                    #             html.Img(src='/assets/EthiopianCaseStudyUpdatedSankeyFromGemma.png')
+                    #         ],
+                    #              style = {'margin-left':"10px",
+                    #                         "margin-bottom":"10px",
+                    #                         'margin-right':"10px"},
+                    #     ),
+                    #         # End of Spinner
+                    #         ],size="md", color="#393375", fullscreen=False),
+                    #         # End of Output
+                    #         width=9
+                    #         ),
                     ]),
                 html.Br(),
 
@@ -3292,8 +3364,11 @@ def update_stacked_bar_swine(input_json, country, year):
    return swine_bar_fig
 
 # ==============================================================================
-#### UPDATE ETHIOPIAN
+#### UPDATE ETHIOPIA
 # ==============================================================================
+# ------------------------------------------------------------------------------
+#### -- Controls
+# ------------------------------------------------------------------------------
 # ECS reset to defaults button
 @gbadsDash.callback(
     Output(component_id='growth-slider-ecs', component_property='value'),
@@ -3397,6 +3472,56 @@ def show_milk_text_ecs(input_json):
    # else:
    #    display = f'{datavalue:.0f} days'
    return 'Milk (litres and $): nan'
+
+# ------------------------------------------------------------------------------
+#### -- Data
+# ------------------------------------------------------------------------------
+# MUST HAPPEN FIRST: Calculate burden of disease components on core data
+# Updates when user changes achievable proportion slider
+# Does not care about simple filtering (country and year)
+# @gbadsDash.callback(
+#    Output('core-data-ecs','data'),
+#    Input('achievable-pct-slider-poultry','value'),
+#    Input('dof-slider-poultry','value'),
+#    Input('select-country-poultry','value'),
+#    Input('ration-price-slider-poultry','value'),
+#    Input('fcr-slider-poultry','value')
+#    )
+# def update_core_data_poultry(achievable_pct, avg_dof, country, feedprice, fcr):
+#    breed_label_touse = poultry_lookup_breed_from_country[country]
+#    breed_df_touse = poultry_lookup_breed_df[breed_label_touse]
+#    poultry_data_withbod = bod.calc_bod_master_poultry(
+#       gbads_chickens_merged_fordash
+#       ,ACHIEVABLE_PCT_MASTER=achievable_pct      # Integer [0, 120]: proportion of ideal production that is achievable without disease, i.e. efficiency of feed, medications, and practices
+#       ,AVG_DOF_MASTER=avg_dof                      # Integer (0, 63]: Average days on feed. Will lookup breed standard weight for this day on feed.
+#       ,BREED_DF_MASTER=breed_df_touse     # Data frame with breed reference information. Must contain columns 'dayonfeed' and 'bodyweight_g'.
+#       ,FEEDPRICE_USDPERTONNE_MASTER=feedprice           # Float
+#       ,IDEAL_FCR_LIVE_MASTER=fcr                        # Float: ideal FCR per kg live weight
+#       # ,AVG_CARC_YIELD_MASTER=0.695                 # Float [0, 1]: average carcass yield as proportion of live weight. If blank, will use 'bod_breedstdyield_prpn'.
+#    )
+#    poultry_data_withbod['year'] = poultry_data_withbod['year'].astype(str)   # Change Year type to text
+#    return poultry_data_withbod.to_json(date_format='iso', orient='split')
+
+# ------------------------------------------------------------------------------
+#### -- Figures
+# ------------------------------------------------------------------------------
+@gbadsDash.callback(
+   Output('ecs-sunburst','figure'),
+   Input('select-species-ecs','value'),
+   )
+def update_sunburst_ecs(species):
+   # Data
+   input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_sheep_clm_summary_envelope.csv'))
+
+   sunburst_df = prep_bod_forsunburst_ecs(input_df)
+
+   ecs_sunburst_fig = create_sunburst_ecs(sunburst_df)
+   
+   ecs_sunburst_fig.update_layout(title_text=f'Ethiopia Sunburst | {species}',
+                               font_size=15)
+
+   return ecs_sunburst_fig
+
 
 
 #%% 6. RUN APP

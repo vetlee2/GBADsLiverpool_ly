@@ -2268,11 +2268,11 @@ results_current_s_past <- compartmental_model(
 
 	## Proportion of livestock keepers that spend any money on feed
 	## NOTE Currently the same for all age*sex groups
-	,prpn_lskeepers_purch_feed = 0.25 	## only 25% of ls keepers spend money on feed 
+	,prpn_lskeepers_purch_feed = 0 	## only 25% of ls keepers spend money on feed 
 	
 	## For those spending any money on feed, the proportion of feed that is purchased
 	## NOTE Currently the same for all age*sex groups
-	,prpn_feed_paid_for = 0.5 	## We make the assumption that 50% of feed used by those spending any money on feed is purchased
+	,prpn_feed_paid_for = 0 	## We make the assumption that 50% of feed used by those spending any money on feed is purchased
   
   ## Input parameters ## just example distributions for now
   ## If we are saying Pastoralists dont spend money on feed for their livestock
@@ -2407,11 +2407,11 @@ results_ideal_s_past <- compartmental_model(
 
 	## Proportion of livestock keepers that spend any money on feed
 	## NOTE Currently the same for all age*sex groups
-	,prpn_lskeepers_purch_feed = 0.25 	## only 25% of ls keepers spend money on feed 
+	,prpn_lskeepers_purch_feed = 0 	## only 25% of ls keepers spend money on feed 
 	
 	## For those spending any money on feed, the proportion of feed that is purchased
 	## NOTE Currently the same for all age*sex groups
-	,prpn_feed_paid_for = 0.5 	## We make the assumption that 50% of feed used by those spending any money on feed is purchased
+	,prpn_feed_paid_for = 0 	## We make the assumption that 50% of feed used by those spending any money on feed is purchased
   
   ## Input parameters ## just example distributions for now
   ,Feed_cost_kg = 0 	## Ethiopian birr/kg wheat and barley
@@ -2521,6 +2521,14 @@ results_current_g_past <- compartmental_model(
   ## NOTE - if you change this you must change rates to be monthly 
   ,Num_months = 12
   
+  ## population structure from 2021 survey PAST goats
+  ,N_NF_t0 = 2931658   # neonatal female
+  ,N_JF_t0 = 2563862    # juvenile female
+  ,N_AF_t0 = 15741790  # adult female
+  ,N_NM_t0 = 1974212  # neonatal male
+  ,N_JM_t0 = 1533797  # juvenile male
+  ,N_AM_t0 = 5555576	# adult male
+  
   ## Growth rate N -> J and J-> A
   ,Beta = 1/6
   
@@ -2598,6 +2606,14 @@ results_current_g_past <- compartmental_model(
   ,DM_req_prpn_AF = 0.026  	# Dry matter required by adults
   ,DM_req_prpn_AM = 0.026  	# Dry matter required by adults
   
+  ## Proportion of livestock keepers that spend any money on feed
+  ## NOTE Currently the same for all age*sex groups
+  ,prpn_lskeepers_purch_feed = 0 	## only 25% of ls keepers spend money on feed 
+  
+  ## For those spending any money on feed, the proportion of feed that is purchased
+  ## NOTE Currently the same for all age*sex groups
+  ,prpn_feed_paid_for = 0 	## We make the assumption that 50% of feed used by those spending any money on feed is purchased
+  
   ## Input parameters ## just example distributions for now
   ## If we are saying Pastoralists dont spend money on feed for their livestock
   ## we could just change feed cost to 0, or change the equation within the function
@@ -2643,6 +2659,13 @@ results_ideal_g_past <- compartmental_model(
   ## NOTE - if you change this you must change rates to be monthly 
   ,Num_months = 12
   
+  ## population structure from 2021 survey PAST goats
+  ,N_NF_t0 = 2931658   # neonatal female
+  ,N_JF_t0 = 2563862    # juvenile female
+  ,N_AF_t0 = 15741790  # adult female
+  ,N_NM_t0 = 1974212  # neonatal male
+  ,N_JM_t0 = 1533797  # juvenile male
+  ,N_AM_t0 = 5555576	# adult male
   ## Growth rate N -> J and J-> A
   ,Beta = 1/6
   
@@ -2720,6 +2743,14 @@ results_ideal_g_past <- compartmental_model(
   ,DM_req_prpn_JM = 0.026  	# Dry matter required by juvenile
   ,DM_req_prpn_AF = 0.026  	# Dry matter required by adults
   ,DM_req_prpn_AM = 0.026  	# Dry matter required by adults
+  
+  ## Proportion of livestock keepers that spend any money on feed
+  ## NOTE Currently the same for all age*sex groups
+  ,prpn_lskeepers_purch_feed = 0 	## only 25% of ls keepers spend money on feed 
+  
+  ## For those spending any money on feed, the proportion of feed that is purchased
+  ## NOTE Currently the same for all age*sex groups
+  ,prpn_feed_paid_for = 0 	## We make the assumption that 50% of feed used by those spending any money on feed is purchased
   
   ## Input parameters ## just example distributions for now
   ,Feed_cost_kg = 0 	## Ethiopian birr/kg wheat and barley

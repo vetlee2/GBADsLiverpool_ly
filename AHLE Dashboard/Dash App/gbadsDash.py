@@ -13,6 +13,7 @@
 
 # standard library packages (included with python and always available)
 import os, sys, datetime as dt
+from pathlib import Path
 import inspect
 
 print(f"[{dt.datetime.now().strftime('%Y%m%d_%H%M%S.%f')[:19]}] Starting {__name__}")
@@ -96,6 +97,10 @@ tab_style = {'fontWeight': 'bold'}
 CWD = os.getcwd()
 DASH_DATA_FOLDER = os.path.join(CWD ,'data')
 
+# Folder location for ethiopia case study
+GBADsLiverpool=Path(os.getcwd()).parent.parent
+ECS_PROGRAM_OUTPUT_FOLDER = os.path.join(GBADsLiverpool, "Ethiopia Workspace\Program outputs")
+
 # -----------------------------------------------------------------------------
 # Poultry
 # -----------------------------------------------------------------------------
@@ -123,7 +128,10 @@ swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'
 # Ethiopia Case Study
 # -----------------------------------------------------------------------------
 # AHLE Summary - Sheep
-ecs_ahle_summary_sheep = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_sheep_clm_summary_envelope.csv'))
+ecs_ahle_summary_sheep = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_sheep_clm_summary_envelope.csv'))
+
+# Attribution Summary
+ecs_attribution_summary = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'attribution_summary.csv'))
 
 # =============================================================================
 #### User options and defaults
@@ -755,7 +763,7 @@ def prep_bod_forstackedbar_swine(INPUT_DF):
 
    return OUTPUT_DF
 
-def prep_bod_forsunburst_ecs(INPUT_DF):
+def prep_ahle_forsunburst_ecs(INPUT_DF):
    working_df = INPUT_DF.copy()
    
    # Trim the data to keep things needed for the sunburst chart
@@ -773,8 +781,8 @@ def prep_bod_forsunburst_ecs(INPUT_DF):
    # Selecting rows based on item
    working_df = working_df[working_df['item'].isin(options)]
    
-   # Set the absolute value to show the proportions
-   working_df['envelope'] = abs(working_df['envelope'])
+   # # Set the absolute value to show the proportions
+   # working_df['envelope'] = abs(working_df['envelope'])
 
    # Set up structure for sunburst chart
    # Center (Total) value is Gross Margin
@@ -909,19 +917,37 @@ def create_stacked_bar_swine(input_df, x, y, color):
        )
     return bar_fig
 
-# Define the sunburst
-def create_sunburst_ecs(input_df):
+# Define the attribution treemap
+def create_attr_treemap_ecs(input_df):
+    treemap_fig = px.treemap(input_df, 
+                                path=['AHLE', 
+                                      'Production system',
+                                      'Age class',
+                                      'Cause'], 
+                                values='mean')
+
+    treemap_fig.update_traces(root_color="white")
+    
+    treemap_fig.update_layout(hovermode=False)
+
+    return treemap_fig
+
+# Define the AHLE sunburst
+def create_ahle_sunburst_ecs(input_df):
     # sunburst_fig = px.sunburst(input_df, 
-    #                            path=['Margin', 'Total', 'item'], 
-    #                            values='envelope')
+    #                             path=['Total', 'item'], 
+    #                             values='envelope')
     
     sunburst_fig = px.icicle(input_df, 
-                             path=['Total', 'item'], 
-                             values='envelope')
+                              path=['Total', 'item'], 
+                              values='envelope')
     
-    sunburst_fig.update_traces(root_color="white")
+    sunburst_fig.update_traces(root_color="grey")
+    
+    sunburst_fig.update_layout(hovermode=False)
 
     return sunburst_fig
+
 
 #%% 4. LAYOUT
 ##################################################################################################
@@ -1550,7 +1576,7 @@ gbadsDash.layout = html.Div([
                               })
                     # End of Spinner
                     ],size="md", color="#393375", fullscreen=False),
-                    # End of Staceked Bar
+                    # End of Stacked Bar
                     ],style={"width":5}
                     ),
 
@@ -1789,34 +1815,53 @@ gbadsDash.layout = html.Div([
             #### -- GRAPHICS
                 dbc.Row([  # Row with GRAPHICS
 
-                    # Output
+                    # Attribution Treemap
                     dbc.Col(
                         dbc.Spinner(children=[
 
-                        # Text output
-                        html.P(id='growth-text-ecs'),
-                        html.P(id='offtake-text-ecs'),
-                        html.P(id='dung-text-ecs'),
-                        html.P(id='hides-text-ecs'),
-                        html.P(id='milk-text-ecs'),
-
-                        # End of Spinner
-                        ],size="md", color="#393375", fullscreen=False),
-                        # End of Output
-                        style={"font-weight": "bold"},
-                        width=3),
-
-                    # Sankey (STATIC)
-                    dbc.Col([ # Sunburst
-                        dbc.Spinner(children=[
-                        dcc.Graph(id='ecs-sunburst',
+                        # # Text output
+                        # html.P(id='growth-text-ecs'),
+                        # html.P(id='offtake-text-ecs'),
+                        # html.P(id='dung-text-ecs'),
+                        # html.P(id='hides-text-ecs'),
+                        # html.P(id='milk-text-ecs'),
+                        
+                        dcc.Graph(id='ecs-attr-treemap',
                                    style = {"height":"650px"},
                                   config = {
                                       "displayModeBar" : True,
                                       "displaylogo": False,
                                       'toImageButtonOptions': {
                                           'format': 'png', # one of png, svg, jpeg, webp
-                                          'filename': 'GBADs_Ethiopia_Sunburst'
+                                          'filename': 'GBADs_Ethiopia_Attribution_Treemap'
+                                          },
+                                      'modeBarButtonsToRemove': ['zoom',
+                                                                 'zoomIn',
+                                                                 'zoomOut',
+                                                                 'autoScale',
+                                                                 #'resetScale',  # Removes home button
+                                                                 'pan',
+                                                                 'select2d',
+                                                                 'lasso2d']
+                                      }
+                                  )
+
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                        # End of Attribution Treemap
+                        style={"width":5}),
+
+                    # AHLE Sunburst
+                    dbc.Col([
+                        dbc.Spinner(children=[
+                        dcc.Graph(id='ecs-ahle-sunburst',
+                                   style = {"height":"650px"},
+                                  config = {
+                                      "displayModeBar" : True,
+                                      "displaylogo": False,
+                                      'toImageButtonOptions': {
+                                          'format': 'png', # one of png, svg, jpeg, webp
+                                          'filename': 'GBADs_Ethiopia_AHLE_Sunburst'
                                           },
                                       'modeBarButtonsToRemove': ['zoom',
                                                                  'zoomIn',
@@ -1830,7 +1875,7 @@ gbadsDash.layout = html.Div([
                                   )
                         # End of Spinner
                         ],size="md", color="#393375", fullscreen=False),
-                        # End of Sunburst
+                        # End of AHLE Sunburst
                         ],style={"width":5}),
                     
                     # dbc.Col(
@@ -3382,96 +3427,96 @@ def reset_to_default_ecs(reset):
     return growth_ecs_default, reproduction_ecs_default, mortality_ecs_default, costs_ecs_default, offtake_ecs_default
 
 
-# Add text display for outputs
-# Herd growth
-@gbadsDash.callback(
-   Output('growth-text-ecs', 'children'),
-   Input('core-data-poultry','data'),
-   # Input('select-country-poultry', 'value'),
-   # Input('select-year-poultry', 'value')
-   )
-def show_growth_text_ecs(input_json):
-   input_df = pd.read_json(input_json, orient='split')
-   # _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
-   # datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
-   # country_shortname = country_shortnames[country]
-   # if pd.isnull(datavalue):
-   #    display = '(no data)'
-   # else:
-   #    display = f'{datavalue:.0f} days'
-   return 'Heard growth (number of animals): nan'
+# # Add text display for outputs
+# # Herd growth
+# @gbadsDash.callback(
+#    Output('growth-text-ecs', 'children'),
+#    Input('core-data-poultry','data'),
+#    # Input('select-country-poultry', 'value'),
+#    # Input('select-year-poultry', 'value')
+#    )
+# def show_growth_text_ecs(input_json):
+#    input_df = pd.read_json(input_json, orient='split')
+#    # _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
+#    # datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
+#    # country_shortname = country_shortnames[country]
+#    # if pd.isnull(datavalue):
+#    #    display = '(no data)'
+#    # else:
+#    #    display = f'{datavalue:.0f} days'
+#    return 'Heard growth (number of animals): nan'
 
-# Offtake
-@gbadsDash.callback(
-   Output('offtake-text-ecs', 'children'),
-   Input('core-data-poultry','data'),
-   # Input('select-country-poultry', 'value'),
-   # Input('select-year-poultry', 'value')
-   )
-def show_offtake_text_ecs(input_json):
-   input_df = pd.read_json(input_json, orient='split')
-   # _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
-   # datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
-   # country_shortname = country_shortnames[country]
-   # if pd.isnull(datavalue):
-   #    display = '(no data)'
-   # else:
-   #    display = f'{datavalue:.0f} days'
-   return 'Offtake (number of animals): nan'
+# # Offtake
+# @gbadsDash.callback(
+#    Output('offtake-text-ecs', 'children'),
+#    Input('core-data-poultry','data'),
+#    # Input('select-country-poultry', 'value'),
+#    # Input('select-year-poultry', 'value')
+#    )
+# def show_offtake_text_ecs(input_json):
+#    input_df = pd.read_json(input_json, orient='split')
+#    # _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
+#    # datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
+#    # country_shortname = country_shortnames[country]
+#    # if pd.isnull(datavalue):
+#    #    display = '(no data)'
+#    # else:
+#    #    display = f'{datavalue:.0f} days'
+#    return 'Offtake (number of animals): nan'
 
-# Dung
-@gbadsDash.callback(
-   Output('dung-text-ecs', 'children'),
-   Input('core-data-poultry','data'),
-   # Input('select-country-poultry', 'value'),
-   # Input('select-year-poultry', 'value')
-   )
-def show_dung_text_ecs(input_json):
-   input_df = pd.read_json(input_json, orient='split')
-   # _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
-   # datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
-   # country_shortname = country_shortnames[country]
-   # if pd.isnull(datavalue):
-   #    display = '(no data)'
-   # else:
-   #    display = f'{datavalue:.0f} days'
-   return 'Dung ($): nan'
+# # Dung
+# @gbadsDash.callback(
+#    Output('dung-text-ecs', 'children'),
+#    Input('core-data-poultry','data'),
+#    # Input('select-country-poultry', 'value'),
+#    # Input('select-year-poultry', 'value')
+#    )
+# def show_dung_text_ecs(input_json):
+#    input_df = pd.read_json(input_json, orient='split')
+#    # _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
+#    # datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
+#    # country_shortname = country_shortnames[country]
+#    # if pd.isnull(datavalue):
+#    #    display = '(no data)'
+#    # else:
+#    #    display = f'{datavalue:.0f} days'
+#    return 'Dung ($): nan'
 
-# Hides
-@gbadsDash.callback(
-   Output('hides-text-ecs', 'children'),
-   Input('core-data-poultry','data'),
-   # Input('select-country-poultry', 'value'),
-   # Input('select-year-poultry', 'value')
-   )
-def show_hides_text_ecs(input_json):
-   input_df = pd.read_json(input_json, orient='split')
-   # _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
-   # datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
-   # country_shortname = country_shortnames[country]
-   # if pd.isnull(datavalue):
-   #    display = '(no data)'
-   # else:
-   #    display = f'{datavalue:.0f} days'
-   return 'Hides ($): nan'
+# # Hides
+# @gbadsDash.callback(
+#    Output('hides-text-ecs', 'children'),
+#    Input('core-data-poultry','data'),
+#    # Input('select-country-poultry', 'value'),
+#    # Input('select-year-poultry', 'value')
+#    )
+# def show_hides_text_ecs(input_json):
+#    input_df = pd.read_json(input_json, orient='split')
+#    # _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
+#    # datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
+#    # country_shortname = country_shortnames[country]
+#    # if pd.isnull(datavalue):
+#    #    display = '(no data)'
+#    # else:
+#    #    display = f'{datavalue:.0f} days'
+#    return 'Hides ($): nan'
 
-# Milk
-@gbadsDash.callback(
-   Output('milk-text-ecs', 'children'),
-   Input('core-data-poultry','data'),
-   # Input('select-country-poultry', 'value'),
-   # Input('select-year-poultry', 'value')
-   )
-def show_milk_text_ecs(input_json):
-   input_df = pd.read_json(input_json, orient='split')
-   # _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
-   # datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
-   # country_shortname = country_shortnames[country]
-   # if pd.isnull(datavalue):
-   #    display = '(no data)'
-   # else:
-   #    display = f'{datavalue:.0f} days'
-   return 'Milk (litres and $): nan'
+# # Milk
+# @gbadsDash.callback(
+#    Output('milk-text-ecs', 'children'),
+#    Input('core-data-poultry','data'),
+#    # Input('select-country-poultry', 'value'),
+#    # Input('select-year-poultry', 'value')
+#    )
+# def show_milk_text_ecs(input_json):
+#    input_df = pd.read_json(input_json, orient='split')
+#    # _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
+#    # datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
+#    # country_shortname = country_shortnames[country]
+#    # if pd.isnull(datavalue):
+#    #    display = '(no data)'
+#    # else:
+#    #    display = f'{datavalue:.0f} days'
+#    return 'Milk (litres and $): nan'
 
 # ------------------------------------------------------------------------------
 #### -- Data
@@ -3506,18 +3551,46 @@ def show_milk_text_ecs(input_json):
 #### -- Figures
 # ------------------------------------------------------------------------------
 @gbadsDash.callback(
-   Output('ecs-sunburst','figure'),
+   Output('ecs-attr-treemap','figure'),
    Input('select-species-ecs','value'),
    )
-def update_sunburst_ecs(species):
+def update_attr_treemap_ecs(species):
+   # Data
+   input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'attribution_summary.csv'))
+   
+   # Apply absolute value to only show positive values (proportions of Gross Margin)
+   input_df['mean'] = abs(input_df['mean'])
+
+   ecs_treemap_fig = create_attr_treemap_ecs(input_df)
+   
+   ecs_treemap_fig.update_layout(title_text='Ethiopia Attribution for Small Ruminants',
+                               font_size=15)
+
+   return ecs_treemap_fig
+
+
+@gbadsDash.callback(
+   Output('ecs-ahle-sunburst','figure'),
+   Input('select-species-ecs','value'),
+   )
+def update_ahle_sunburst_ecs(species):
    # Data
    input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_sheep_clm_summary_envelope.csv'))
-
-   sunburst_df = prep_bod_forsunburst_ecs(input_df)
-
-   ecs_sunburst_fig = create_sunburst_ecs(sunburst_df)
    
-   ecs_sunburst_fig.update_layout(title_text=f'Ethiopia Sunburst | {species}',
+   sunburst_df = prep_ahle_forsunburst_ecs(input_df)
+   
+   # Calculate Gross Margin to display
+   Total_Value_Increase = sunburst_df.loc[sunburst_df['Total'] == 'Total Value Increase', 'envelope'].sum()
+   Total_Expenditure = sunburst_df.loc[sunburst_df['Total'] == 'Total Expenditure', 'envelope'].sum()
+   Gross_Margin = Total_Value_Increase - Total_Expenditure
+   Gross_Margin = '${:,.0f} USD'.format(Gross_Margin)
+
+   # Apply absolute value to only show positive values (proportions of Gross Margin)
+   sunburst_df['envelope'] = abs(sunburst_df['envelope'])
+
+   ecs_sunburst_fig = create_ahle_sunburst_ecs(sunburst_df)
+   
+   ecs_sunburst_fig.update_layout(title_text=f'Ethiopia AHLE | {species} <br><sup>Gross Margin: {Gross_Margin} (Total Value Increase - Total Expenditure)</sup><br>',
                                font_size=15)
 
    return ecs_sunburst_fig

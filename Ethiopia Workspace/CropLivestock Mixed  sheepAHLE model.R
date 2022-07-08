@@ -17,7 +17,7 @@ cmd_output_directory <- '.'   # '.' to write to same folder this code is in
 if (grepl('Rterm.exe', paste(commandArgs(), collapse=" "), ignore.case = TRUE, fixed = TRUE))
 {
 	cmd_args <- commandArgs(trailingOnly=TRUE)	# Fetch command line arguments
-	cmd_nruns <- type.convert(cmd_args[1]) 		# First argument: number of runs. Convert to numeric.
+	cmd_nruns <- as.numeric(cmd_args[1]) 			# First argument: number of runs. Convert to numeric.
 	cmd_output_directory <- cmd_args[2] 			# Second argument: folder location to save outputs
 }
 
@@ -1374,122 +1374,103 @@ compartmental_model <- function(
 	Production_value_herd_offteake_hide_man_AF_M <- Total_Value_increase_AF_M + Value_Manure_AF_M + Value_Hides_AF_M + Value_Milk_M
 	Production_value_herd_offteake_hide_man_AM_M <- Total_Value_increase_AM_M + Value_Manure_AM_M + Value_Hides_AM_M
 
-	# total number
-	## offtake
-	#Mean_offtake <- mean(Num_Offtake_M[,12])
-	#SD_offtake <- sd(Num_Offtake_M[,12])
-	
-	## pop change/growth
-	#Mean_pop_growth <- mean(Cumilative_Pop_growth_M[,12])
-	#SD_pop_growth <- sd(Cumilative_Pop_growth_M[,12])
-
-	#Mean_mortality <- mean(Total_Mortality_M[,12])
-	#SD_mortality <- sd(Total_Mortality_M[,12])
-
-	#Mean_Total_number_increase <- mean(Total_number_change_M[,12])
-	#SD_Total_number_increase <- sd(Total_number_change_M[,12])
-
-	# total value increase
-	#Mean_Total_Value_increase <- mean(Production_value_herd_offteake_hide_man_M[,12])
-	#SD_Total_Value_increase <- sd(Production_value_herd_offteake_hide_man_M[,12])
-
-	# Expenditure total
-	#Mean_Expenditure_all <- mean(Total_expenditure_M[,12])
-	#SD_Expenditure_all <- sd(Total_expenditure_M[,12])
-	
 	## Gross margin
-	Gross_margin <- Production_value_herd_offteake_hide_man_M[,12] - Total_expenditure_M[,12]
-	#Mean_gross_margin <- mean(Gross_margin)
-	#SD_gross_margin <- sd(Gross_margin)
+	Gross_margin_M <- Production_value_herd_offteake_hide_man_M - Total_expenditure_M
+	Gross_margin_NF_M <- Production_value_herd_offteake_hide_man_NF_M - Total_expenditure_NF_M
+	Gross_margin_NM_M <- Production_value_herd_offteake_hide_man_NM_M - Total_expenditure_NM_M
+	Gross_margin_JF_M <- Production_value_herd_offteake_hide_man_JF_M - Total_expenditure_JF_M
+	Gross_margin_JM_M <- Production_value_herd_offteake_hide_man_JM_M - Total_expenditure_JM_M
+	Gross_margin_AF_M <- Production_value_herd_offteake_hide_man_AF_M - Total_expenditure_AF_M
+	Gross_margin_AM_M <- Production_value_herd_offteake_hide_man_AM_M - Total_expenditure_AM_M
 
 	# Summarize items and build data frame
 	summary_df <- build_summary_df(
-		items_to_summarize = list(
-			Num_Offtake_M[,12]
-			,Cumilative_Pop_growth_M[,12]
-			,Total_number_change_M[,12]
-			,Total_Mortality_M[,12]
+		# Labeled list of matrices to summarize. Matrix names should be WITHOUT SUFFIXES (without _M, _NF_M, etc.). Labels will be used in output data.
+		items_to_summarize = c(
+			'Num Offtake' = 'Num_Offtake'
+			,'Cml Pop Growth' = 'Cumilative_Pop_growth'
+			,'Total Number Increase' = 'Total_number_change'
+			,'Total Mortality' = 'Total_Mortality'
 			
-			,Quant_Liveweight_kg_M[,12]
-			,Quant_Meat_kg_M[,12]
-			,Quant_Manure_M[,12]
-			,Quant_Hides_M[,12]
-			,Quant_Milk_M[,12]
-			,Quant_Wool_M[,12]
-			,Cumilative_Dry_Matter_M[,12]
-			
-			# Monetary values
-			,Value_Offtake_M[,12]
-			,Value_Herd_Increase_M[,12]
-			,Total_Value_increase_M[,12]
-			,Value_Manure_M[,12]
-			,Value_Hides_M[,12]
-			,Value_Milk_M[,12]
-			,Production_value_herd_offteake_hide_man_M[,12]
-			
-			# Inputs / expenditures
-			,Feed_cost_M[,12]
-			,Labour_cost_M[,12]
-			,Health_cost_M[,12]
-			,Capital_cost_M[,12]
-			,Total_expenditure_M[,12]
-			
-			,Gross_margin
-		)
-		,display_names = c(
-			'Num Offtake'
-			,'Cml Pop Growth'
-			,'Total Number Increase'
-			,'Total Mortality'
-			
-			,'Liveweight (kg)'
-			,'Meat (kg)'
-			,'Manure'
-			,'Hides'
-			,'Milk'
-			,'Wool'
-			,'Cml Dry Matter'
+			,'Liveweight (kg)' = 'Quant_Liveweight_kg'
+			,'Meat (kg)' = 'Quant_Meat_kg'
+			,'Manure' = 'Quant_Manure'
+			,'Hides' = 'Quant_Hides'
+			,'Milk' = 'Quant_Milk'
+			,'Wool' = 'Quant_Wool'
+			,'Cml Dry Matter' = 'Cumilative_Dry_Matter'
 
-			,'Value of Offtake'
-			,'Value of Herd Increase'
-			,'Total Value Increase 1'
-			,'Value of Manure'
-			,'Value of Hides'
-			,'Value of Milk'
-			,'Total Value Increase 2'
+			,'Value of Offtake' = 'Value_Offtake'
+			,'Value of Herd Increase' = 'Value_Herd_Increase'
+			,'Value of Herd Increase plus Offtake' = 'Total_Value_increase'
+			,'Value of Manure' = 'Value_Manure'
+			,'Value of Hides' = 'Value_Hides'
+			,'Value of Milk' = 'Value_Milk'
+			,'Total Production Value' = 'Production_value_herd_offteake_hide_man'
 			
-			,'Feed Cost'
-			,'Labour Cost'
-			,'Health Cost'
-			,'Capital Cost'
-			,'Total Expenditure'
+			,'Feed Cost' = 'Feed_cost'
+			,'Labour Cost' = 'Labour_cost'
+			,'Health Cost' = 'Health_cost'
+			,'Capital Cost' = 'Capital_cost'
+			,'Total Expenditure' = 'Total_expenditure'
 			
-			,'Gross Margin'
+			,'Gross Margin' = 'Gross_margin'
 		)
 	)
 	print('Compartmental model finished.')
-	return(list(Gross_margin ,summary_df))
+	return(list(Gross_margin_M[,12] ,summary_df))
 }
 
-build_summary_df <- function(items_to_summarize ,display_names)
+build_summary_df <- function(
+	items_to_summarize 	# Labeled list of matrices to summarize. Matrix names should be WITHOUT SUFFIXES (without _M, _NF_M, etc.). Will iterate through all suffixes. Labels will be used in output data.
+)
 {
-	summary_df <- data.frame()  # Initialize
-	for (i in items_to_summarize)   # Summarize each vector and add a row to the data
+	suffixes = c( 			# Labeled list of matrix name suffixes. Suffixes will be appended to matrix names in items_to_summarize and must match matrices created above. Labels will be appended to labels in items_to_summarize.
+		'Overall' = '_M'
+		,'Neonatal Female' = '_NF_M'
+		,'Neonatal Male' = '_NM_M'
+		,'Juvenile Female' = '_JF_M'
+		,'Juvenile Male' = '_JM_M'
+		,'Adult Female' = '_AF_M'
+		,'Adult Male' = '_AM_M'
+	)
+	summary_df <- data.frame()  # Initialize data frame
+	for (i in seq(1, length(items_to_summarize))) 	# Loop through items to summarize
 	{
-		item_mean <- mean(i)
-		item_sd <- sd(i)
-		item_min <- min(i)
-		item_q1 <- quantile(i ,0.25)
-		item_median <- median(i)
-		item_q3 <- quantile(i ,0.75)
-		item_max <- max(i)
-		onerow_df <- data.frame(Mean=item_mean ,StDev=item_sd ,Min=item_min ,Q1=item_q1 ,Median=item_median ,Q3=item_q3 ,Max=item_max)
-		summary_df <- rbind(summary_df ,onerow_df)
+		base_matrix <- items_to_summarize[i]
+		base_label <- names(base_matrix)
+		for (j in seq(1, length(suffixes))) 						# Loop through suffixes
+		{
+			suffix <- suffixes[j]
+			group <- names(suffix)
+			
+			if (exists(paste(base_matrix, suffix, sep=''), frame=-2)) 	# If matrix with this suffix exists
+			{
+				matrix_to_summarize <- dynGet(paste(base_matrix, suffix, sep=''))
+				vector_to_summarize <- matrix_to_summarize[,12]
+				
+				print('base label:')
+				print(base_label)
+				print('group label:')
+				print(group)
+				print('matrix to summarize:')
+				print(paste(base_matrix, suffix, sep=''))
+				
+				item_mean <- mean(vector_to_summarize)
+				item_sd <- sd(vector_to_summarize)
+				item_min <- min(vector_to_summarize)
+				item_q1 <- quantile(vector_to_summarize ,0.25)
+				item_median <- median(vector_to_summarize)
+				item_q3 <- quantile(vector_to_summarize ,0.75)
+				item_max <- max(vector_to_summarize)
+				
+				onerow_df <- data.frame(Item=base_label ,Group=group ,Mean=item_mean ,StDev=item_sd ,Min=item_min ,Q1=item_q1 ,Median=item_median ,Q3=item_q3 ,Max=item_max)
+				summary_df <- rbind(summary_df ,onerow_df)
+			}
+		}
 	}
-	summary_df <- cbind(display_names ,summary_df)   # Add column of names
 	return(summary_df)
 }
-
 
 # =================================================================
 # Run scenarios
@@ -1795,8 +1776,8 @@ mean(AHLE_s_cl)
 sd(AHLE_s_cl)
 summary(AHLE_s_cl)
 
-AHLE_s_cl_table <- summary_ideal_s_cl[,(2:8)] - summary_current_s_cl[,(2:8)] 
-AHLE_s_cl_table <- cbind(summary_ideal_s_cl[,1], AHLE_s_cl_table[,(1:7)])
+AHLE_s_cl_table <- summary_ideal_s_cl[,(3:9)] - summary_current_s_cl[,(3:9)] 
+AHLE_s_cl_table <- cbind(summary_ideal_s_cl[,1:2], AHLE_s_cl_table[,(1:7)])
 
 ## AHLE in dollars
 print('AHLE in USD')
@@ -2128,8 +2109,8 @@ mean(AHLE_g_cl)
 sd(AHLE_g_cl)
 summary(AHLE_g_cl)
 
-AHLE_g_cl_table <- summary_ideal_g_cl[,(2:8)] - summary_current_g_cl[,(2:8)] 
-AHLE_g_cl_table <- cbind(summary_ideal_g_cl[,1], AHLE_g_cl_table[,(1:7)])
+AHLE_g_cl_table <- summary_ideal_g_cl[,(3:9)] - summary_current_g_cl[,(3:9)] 
+AHLE_g_cl_table <- cbind(summary_ideal_g_cl[,1:2], AHLE_g_cl_table[,(1:7)])
 
 ## AHLE in dollars
 print('AHLE in USD')
@@ -2474,8 +2455,8 @@ mean(AHLE_s_past)
 sd(AHLE_s_past)
 summary(AHLE_s_past)
 
-AHLE_s_past_table <- summary_ideal_s_past[,(2:8)] - summary_current_s_past[,(2:8)] 
-AHLE_s_past_table <- cbind(summary_ideal_s_past[,1], AHLE_s_past_table[,(1:7)])
+AHLE_s_past_table <- summary_ideal_s_past[,(3:9)] - summary_current_s_past[,(3:9)] 
+AHLE_s_past_table <- cbind(summary_ideal_s_past[,1:2], AHLE_s_past_table[,(1:7)])
 
 ## AHLE in dollars
 print('AHLE in USD')
@@ -2815,8 +2796,8 @@ mean(AHLE_g_past)
 sd(AHLE_g_past)
 summary(AHLE_g_past)
 
-AHLE_g_past_table <- summary_ideal_g_past[,(2:8)] - summary_current_g_past[,(2:8)] 
-AHLE_g_past_table <- cbind(summary_ideal_g_past[,1], AHLE_g_past_table[,(1:7)])
+AHLE_g_past_table <- summary_ideal_g_past[,(3:9)] - summary_current_g_past[,(3:9)] 
+AHLE_g_past_table <- cbind(summary_ideal_g_past[,1:2], AHLE_g_past_table[,(1:7)])
 
 ## AHLE in dollars
 print('AHLE in USD')

@@ -22,7 +22,7 @@ if (grepl('Rterm.exe', paste(commandArgs(), collapse=" "), ignore.case = TRUE, f
 	cmd_args <- commandArgs(trailingOnly=TRUE)	# Fetch command line arguments
 	cmd_input_directory <- cmd_args[1] 				# First argument: folder location of input files (AHLE.xlsx and data.xlsx)
 	cmd_output_directory <- cmd_args[2] 			# Second argument: folder location for saving output files
-	cmd_n_samples <- type.convert(cmd_args[3]) 	# Third argument: number of samples to take from distribution
+	cmd_n_samples <- as.numeric(cmd_args[3]) 		# Third argument: number of samples to take from distribution
 }
 
 # -----------------------------------------------------------------

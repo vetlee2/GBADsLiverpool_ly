@@ -1611,6 +1611,139 @@ results_current_s_cl <- compartmental_model(
 results_current_s_cl[[2]]
 
 # -----------------------------------------------------------------
+# MORTALITY ZERO sheep crop livestock
+# -----------------------------------------------------------------
+results_mortality_zero_s_cl <- compartmental_model(
+  ## Number of iterations (duration of simulation)
+  # representing days 
+  nruns = cmd_nruns
+  
+  ## NOTE - if you change this you must change rates to be monthly 
+  ,Num_months = 12
+  
+  ## population structure using proportion of constant flock growth after 5 yearr
+  ,N_NF_t0 = 2070822  	# neonatal female
+  ,N_JF_t0 = 1915971  	# juvenile female
+  ,N_AF_t0 = 14049629 	# adult female
+  ,N_NM_t0 = 2070822 		# neonatal male
+  ,N_JM_t0 = 1147386 		# juvenile male
+  ,N_AM_t0 = 3048715 		# adult male
+  
+  ## Growth rate N -> J and J-> A
+  ,Beta = 1/6
+  
+  # Fertility
+  ,part = rpert(10000, 0.52, 0.67, 0.60)
+  ,prolif = rtruncnorm(10000, 0, 3, 1.3, 0.15)
+  
+  ,prop_F_milked = 0 # for now half lambed are milked
+  ,lac_duration = 0 #(days)
+  ,avg_daily_yield_ltr = 0 # example on avg 100ml a day for 60 days from half of ewes lambed
+  ,milk_value_ltr = 0 #
+  
+  # Offtake
+  ## Currently fixed, but, should this be dependant on new pop size, to keep pop size as it was at t0
+  ## offtake must = offtake + dif between NNFt0 etc and NJF current
+  ,GammaF = 0.04/12 	# offtake rate female (juv and adult only) 
+  ,GammaM = 0.54/12 	# offtake rate male
+  
+  # Mortality ## informed from META analysis
+  ,AlphaN = 0			# mortality rate juveniel ## parameter derived from meat pooled proportion and variance 
+  ,AlphaJ = 0		# mortality rate juveniel ## parameter derived from meat pooled proportion and variance 
+  ,AlphaF = 0	# mortality  adult female ##Parameter derived from meat pooled proportion and variance
+  ,AlphaM = 0	# motality adult male ##Parameter derived from meat pooled proportion and variancethin the national herd for breeding
+  
+  # Culls
+  ,CullF = 1/108 	# cullrate Adult Female ## These will be valueless
+  ,CullM = 1/48 		# cullrate Adult Male  ## These will still have a value
+  
+  ## Production parameters (kg)
+  
+  # Liveweight conversion (kg) ## Informed from META analysis
+  ,lwNF = rtruncnorm(10000, a = 1, b = 15, mean = 11.7, sd = 2.2)  	# Liveweight Neonate## parameters derived from meta pooled mean and variance 
+  ,lwNM = rtruncnorm(10000, a = 1, b = 15, mean =11.7, sd = 2.2)  	# Liveweight Neonateparameters derived from meta pooled mean and variance
+  ,lwJF = rnorm(10000, 21.1, sd = 3.8) 										# Liveweight Juvenille # Same here ##parameters derived from meta pooled mean and variance
+  ,lwJM = rnorm(10000, 21.1, sd = 3.8) 										# Liveweight Juvenille # Same here##parameters derived from meta pooled mean and variance
+  ,lwAF = rnorm(10000, 28.6, sd = 4.1) 										# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+  ,lwAM = rnorm(10000, 31.5, sd = 6.8) 										# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+  
+  # carcase yeild
+  ,ccy = 0.42 		# As a % of liveweight for all groups
+  
+  ## Financial value of live animals
+  # Ethiopian Birr
+  ,fvNF = rpert(10000, 1000, 1300, 1200) 	## Financial value of neonatal Female
+  ,fvJF = rpert(10000, 2000, 2200, 2100) 	## Financial value of neonatal Male
+  ,fvAF = rpert(10000, 2900, 3100, 2955) 	## Financial value of juv Female
+  ,fvNM = rpert(10000, 1700, 1870, 1776) 	## Financial value of juv Male
+  ,fvJM = rpert(10000, 2900, 3124, 3024) 	## Financial value of adult Female
+  ,fvAM = rpert(10000, 5400, 5557, 5457) 	## Financial value of adult Male  
+  
+  ## Off take which go for fertility in females (used when calculating hide numbers)
+  #,fert_offtake = 0.25		# for breeding age females only 75% of offtake contribute to skins (25% remain in national breeding herd)
+  
+  ## skin/hides  
+  ## parameters can be updated through expert opinion but adding options for flexibility here
+  ,hides_rate = 1 			# 1 skin per animal offtake for males
+  ,hides_rate_mor = 0.5 	# 50% of dead animals contribute to hides count
+  
+  # 1 usd per piece = 51 eth birr
+  ,hides_value = 40
+  
+  # manure rate (kg produced/animal/day)
+  ,Man_N = rnorm(10000, 0.1, 0.022) 	# Manure kg/ day from neonates ## means and Sds  are derived from  body wt
+  ,Man_J = rnorm(10000, 0.2, 0.038) 	# Manure kg/ day from juvenile## means and Sds  are derived from  body wt
+  ,Man_A = rnorm(10000, 0.3, 0.060) 	# Manure kg/ day from adults ##means and Sds  are derived from  body wt
+  
+  # 0.0125 USD / kg = 0.65 eth birr per kg 2021 price
+  ,Man_value = 0.5
+  
+  ## dry matter requirements per kg of liveweight
+  ,DM_req_prpn_NF = 0.026  	# Dry matter required by neonates
+  ,DM_req_prpn_NM = 0.026  	# Dry matter required by neonates
+  ,DM_req_prpn_JF = 0.026  	# Dry matter required by juvenile
+  ,DM_req_prpn_JM = 0.026  	# Dry matter required by juvenile
+  ,DM_req_prpn_AF = 0.026  	# Dry matter required by adults
+  ,DM_req_prpn_AM = 0.026  	# Dry matter required by adults
+  
+  ## Proportion of livestock keepers that spend any money on feed
+  ## NOTE Currently the same for all age*sex groups
+  ,prpn_lskeepers_purch_feed = 0.25 	## only 25% of ls keepers spend money on feed 
+  
+  ## For those spending any money on feed, the proportion of feed that is purchased
+  ## NOTE Currently the same for all age*sex groups
+  ,prpn_feed_paid_for = 0.5 	## We make the assumption that 50% of feed used by those spending any money on feed is purchased
+  
+  ## Input parameters ## just example distributions for now
+  ,Feed_cost_kg = rpert(10000, 2.5, 6.5, 3.46) 	## Ethiopian birr/kg wheat and barley
+  
+  ## variable results for the amount of dry matter in wheat and barley and tef in Ethiopia
+  ## range 30-90%
+  ## taking 70% as an estimate for this trial
+  ,DM_in_feed = rpert(10000, 0.85, 0.95, 0.9)  	## change this to choose from data informed distribution
+  
+  ## Labour cost
+  ## for this we have taken estimate from MS: Legesse '2010 work as its between two other estimates
+  ## the estimate was birr per head per year so dividing by 12 = birr/head/month
+  #,Lab_SR = 368/12
+  ## example code to change labour cost to selecting from distribution
+  ,Lab_SR = rpert(10000, (260/12), (649/12), (368/12))
+  ,lab_non_health = 1
+  
+  ## Helath care costs
+  ## for this we have used single point estimate from  LFDP data (other estimates 2.2 - 14.3)
+  ## the estimate is birr per head per year so dividing by 12 = birr/head/month
+  ## this includes medicines and veterinary care
+  #,Health_exp = 2.8/12
+  ## and changing health care costs to select from distribution
+  ,Health_exp = runif(10000, (2.2/12), (2.8/12)) 	# the two national level estimates(national production and import of vet drugs and vaccines, and LFSDP and RPLRP projects) are used as bound for the price and used for unif distribution 14.3 was from an earlier study covering only two districts 
+  
+  ## Capital costs
+  ## for this we are using bank of Ethiopia inflation rate
+  ,Interest_rate = 0.00 	## this is made zero because the inflation is greater than nominal interest rate henec real interest rate is zero
+)
+
+# -----------------------------------------------------------------
 # Ideal
 # -----------------------------------------------------------------
 results_ideal_s_cl <- compartmental_model(
@@ -1771,6 +1904,13 @@ summary(gross_margin_ideal_s_cl)
 
 summary_ideal_s_cl = results_ideal_s_cl[[2]]
 
+gross_margin_mortality_zero_s_cl = results_mortality_zero_s_cl[[1]]
+mean(gross_margin_mortality_zero_s_cl)
+sd(gross_margin_mortality_zero_s_cl)
+summary(gross_margin_mortality_zero_s_cl)
+
+summary_mortality_zero_s_cl = results_mortality_zero_s_cl[[2]]
+
 AHLE_s_cl <- gross_margin_ideal_s_cl - gross_margin_current_s_cl
 mean(AHLE_s_cl)
 sd(AHLE_s_cl)
@@ -1804,7 +1944,7 @@ hist(AHLE_s_cl)
 # Write files
 write.csv(summary_current_s_cl, file.path(cmd_output_directory, 'ahle_sheep_clm_summary_current.csv'), row.names=FALSE)
 write.csv(summary_ideal_s_cl, file.path(cmd_output_directory, 'ahle_sheep_clm_summary_ideal.csv'), row.names=FALSE)
-
+write.csv(summary_mortality_zero_s_cl, file.path(cmd_output_directory, 'ahle_sheep_clm_summary_mortality_zero.csv'), row.names = FALSE)
 
 
 ####################################################################
@@ -1951,7 +2091,139 @@ results_current_g_cl <- compartmental_model(
   ,Interest_rate = 0.00 	## this is made zero because the inflation is greater than nominal interest rate henec real interest rate is zero
 )
 
-results_current_g_cl[[2]]
+# ------------------------------
+# MORTALITY ZERO
+# --------------------------------
+
+results_mortality_zero_g_cl <- compartmental_model(
+  ## Number of iterations (duration of simulation)
+  # representing days 
+  nruns = cmd_nruns
+  
+  ## NOTE - if you change this you must change rates to be monthly 
+  ,Num_months = 12
+  
+  ## pop structure from 2021 census CLM GOATS
+  ,N_NF_t0 = 2803178
+  ,N_AF_t0 = 10864998
+  ,N_JF_t0 = 1508363
+  ,N_NM_t0 = 2586971
+  ,N_JM_t0 = 1146066
+  ,N_AM_t0 = 3055888
+  
+  ## Growth rate N -> J and J-> A
+  ,Beta = 1/6
+  
+  # Fertility
+  ,part = rpert(10000, 0.37, 0.50, 0.46)
+  ,prolif = rtruncnorm(10000, a = 0, b = 3, 1.7, 0.12)
+  
+  ,prop_F_milked = 0 # for now half lambed are milked
+  ,lac_duration = 0 #(days)
+  ,avg_daily_yield_ltr = 0 # example on avg 100ml a day for 60 days from half of ewes lambed
+  ,milk_value_ltr = 0 #
+  
+  # Offtake
+  ## Currently fixed, but, should this be dependant on new pop size, to keep pop size as it was at t0
+  ## offtake must = offtake + dif between NNFt0 etc and NJF current
+  ,GammaF = 0.09/12 	# offtake rate female (juv and adult only) 
+  ,GammaM = 0.71/12 	# offtake rate male
+  
+  # Mortality ## informed from META analysis
+  ,AlphaN = 0		# mortality rate juveniel ## parameter derived from meat pooled proportion and variance 
+  ,AlphaJ = 0		# mortality rate juveniel ## parameter derived from meat pooled proportion and variance 
+  ,AlphaF = 0	  # mortality  adult female ##Parameter derived from meat pooled proportion and variance
+  ,AlphaM = 0 	# motality adult male ##Parameter derived from meat pooled proportion and variancethin the national herd for breeding
+  
+  # Culls
+  ,CullF = 1/108 	# cullrate Adult Female ## These will be valueless
+  ,CullM = 1/48 		# cullrate Adult Male  ## These will still have a value
+  
+  ## Production parameters (kg)
+  
+  # Liveweight conversion (kg) ## Informed from META analysis
+  ,lwNF = rtruncnorm(10000, a = 1, b = 15, mean = 8.5, sd = 1.6)  	# Liveweight Neonate## parameters derived from meta pooled mean and variance 
+  ,lwNM = rtruncnorm(10000, a = 1, b = 15, mean = 8.5, sd = 1.6)  	# Liveweight Neonateparameters derived from meta pooled mean and variance
+  ,lwJF = rnorm(10000, 13.6, sd = 1.0) 										# Liveweight Juvenille # Same here ##parameters derived from meta pooled mean and variance
+  ,lwJM = rnorm(10000, 13.6, sd = 1.0) 										# Liveweight Juvenille # Same here##parameters derived from meta pooled mean and variance
+  ,lwAF = rnorm(10000, 25.1, sd = 0.2) 										# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+  ,lwAM = rnorm(10000, 24.1, sd = 0.2) 										# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+  
+  # carcase yeild
+  ,ccy = 0.42 		# As a % of liveweight for all groups
+  
+  ## Financial value of live animals
+  # Ethiopian Birr
+  ,fvNF = rpert(10000, 800, 850, 825) 	## Financial value of neonatal Female
+  ,fvJF = rpert(10000, 1550, 2800, 1950) 	## Financial value of neonatal Male
+  ,fvAF = rpert(10000, 2140, 4093, 3210) 	## Financial value of juv Female
+  ,fvNM = rpert(10000, 900, 2200, 1550) 	## Financial value of juv Male
+  ,fvJM = rpert(10000, 1800, 4350, 3048) 	## Financial value of adult Female
+  ,fvAM = rpert(10000, 3850, 9000, 5900) 	## Financial value of adult Male  
+  
+  ## Off take which go for fertility in females (used when calculating hide numbers)
+  #,fert_offtake = 0.25		# for breeding age females only 75% of offtake contribute to skins (25% remain in national breeding herd)
+  
+  ## skin/hides  
+  ## parameters can be updated through expert opinion but adding options for flexibility here
+  ,hides_rate = 1 			# 1 skin per animal offtake for males
+  ,hides_rate_mor = 0.5 	# 50% of dead animals contribute to hides count
+  
+  # hides value per piece in birr
+  ,hides_value = 20
+  
+  # manure rate (kg produced/animal/day)
+  ,Man_N = rnorm(10000, 0.1, 0.016) 	# Manure kg/ day from neonates ## means and Sds  are derived from  body wt
+  ,Man_J = rnorm(10000, 0.2, 0.01) 	# Manure kg/ day from juvenile## means and Sds  are derived from  body wt
+  ,Man_A = rnorm(10000, 0.3, 0.002) 	# Manure kg/ day from adults ##means and Sds  are derived from  body wt
+  
+  # 0.0125 USD / kg = 0.65 eth birr per kg 2021 price
+  ,Man_value = 0.5
+  
+  ## dry matter requirements per kg of liveweight
+  ,DM_req_prpn_NF = 0.026  	# Dry matter required by neonates
+  ,DM_req_prpn_NM = 0.026  	# Dry matter required by neonates
+  ,DM_req_prpn_JF = 0.026  	# Dry matter required by juvenile
+  ,DM_req_prpn_JM = 0.026  	# Dry matter required by juvenile
+  ,DM_req_prpn_AF = 0.026  	# Dry matter required by adults
+  ,DM_req_prpn_AM = 0.026  	# Dry matter required by adults
+  
+  ## Proportion of livestock keepers that spend any money on feed
+  ## NOTE Currently the same for all age*sex groups
+  ,prpn_lskeepers_purch_feed = 0.25 	## only 25% of ls keepers spend money on feed 
+  
+  ## For those spending any money on feed, the proportion of feed that is purchased
+  ## NOTE Currently the same for all age*sex groups
+  ,prpn_feed_paid_for = 0.5 	## We make the assumption that 50% of feed used by those spending any money on feed is purchased
+  
+  ## Input parameters ## just example distributions for now
+  ,Feed_cost_kg = rpert(10000, 2.5, 6.5, 3.46) 	## Ethiopian birr/kg wheat and barley
+  
+  ## variable results for the amount of dry matter in wheat and barley and tef in Ethiopia
+  ## range 30-90%
+  ## taking 70% as an estimate for this trial
+  ,DM_in_feed = rpert(10000, 0.85, 0.95, 0.9)  	## change this to choose from data informed distribution
+  
+  ## Labour cost
+  ## for this we have taken estimate from MS: Legesse '2010 work as its between two other estimates
+  ## the estimate was birr per head per year so dividing by 12 = birr/head/month
+  #,Lab_SR = 368/12
+  ## example code to change labour cost to selecting from distribution
+  ,Lab_SR = rpert(10000, (260/12), (649/12), (368/12))
+  ,lab_non_health = 1
+  
+  ## Helath care costs
+  ## for this we have used single point estimate from  LFDP data (other estimates 2.2 - 14.3)
+  ## the estimate is birr per head per year so dividing by 12 = birr/head/month
+  ## this includes medicines and veterinary care
+  #,Health_exp = 2.8/12
+  ## and changing health care costs to select from distribution
+  ,Health_exp = runif(10000, (2.2/12), (2.8/12)) 	# the two national level estimates(national production and import of vet drugs and vaccines, and LFSDP and RPLRP projects) are used as bound for the price and used for unif distribution 14.3 was from an earlier study covering only two districts 
+  
+  ## Capital costs
+  ## for this we are using bank of Ethiopia inflation rate
+  ,Interest_rate = 0.00 	## this is made zero because the inflation is greater than nominal interest rate henec real interest rate is zero
+)
 
 # -----------------------------------------------------------------
 # Ideal GOATS CROP mixed livestock
@@ -2104,6 +2376,13 @@ summary(gross_margin_ideal_g_cl)
 
 summary_ideal_g_cl = results_ideal_g_cl[[2]]
 
+gross_margin_mortality_zero_g_cl = results_mortality_zero_g_cl[[1]]
+mean(gross_margin_mortality_zero_g_cl)
+sd(gross_margin_mortality_zero_g_cl)
+summary(gross_margin_mortality_zero_g_cl)
+
+summary_mortality_zero_g_cl = results_mortality_zero_g_cl[[2]]
+
 AHLE_g_cl <- gross_margin_ideal_g_cl - gross_margin_current_g_cl
 mean(AHLE_g_cl)
 sd(AHLE_g_cl)
@@ -2137,7 +2416,7 @@ hist(AHLE_g_cl)
 # Write files
 write.csv(summary_current_g_cl, file.path(cmd_output_directory, 'ahle_goat_clm_summary_current.csv'), row.names=FALSE)
 write.csv(summary_ideal_g_cl, file.path(cmd_output_directory, 'ahle_goat_clm_summary_ideal.csv'), row.names=FALSE)
-
+write.csv(summary_mortality_zero_g_cl, file.path(cmd_output_directory, 'ahle_goat_clm_summary_mortality_zero.csv'), row.names = FALSE)
 
 ###############################################################
 
@@ -2287,7 +2566,141 @@ results_current_s_past <- compartmental_model(
   ,Interest_rate = 0.00 	## this is made zero because the inflation is greater than nominal interest rate henec real interest rate is zero
 )
 
-results_current_s_past[[2]]
+# -----------------------------------------------------------------
+# Mortality Zero SHEEP  Pastoral
+# -----------------------------------------------------------------
+results_mortality_zero_s_past <- compartmental_model(
+  ## Number of iterations (duration of simulation)
+  # representing days 
+  nruns = cmd_nruns
+  
+  ## NOTE - if you change this you must change rates to be monthly 
+  ,Num_months = 12
+  
+  ## population structure from 2021 survey PAST sheep
+  ,N_NF_t0 = 1805806   # neonatal female
+  ,N_JF_t0 = 1525444    # juvenile female
+  ,N_AF_t0 = 9293369  # adult female
+  ,N_NM_t0 = 1212609  # neonatal male
+  ,N_JM_t0 = 967746  # juvenile male
+  ,N_AM_t0 = 3390900	# adult male
+  
+  ## Growth rate N -> J and J-> A
+  ,Beta = 1/6
+  
+  # Fertility
+  ,part = rpert(10000, 0.52, 0.67, 0.60)
+  ,prolif = rtruncnorm(10000, 0, 3, 1.3, 0.25)
+  
+  ,prop_F_milked = 0 # for now half lambed are milked
+  ,lac_duration = 0 #(days)
+  ,avg_daily_yield_ltr = 0 # example on avg 100ml a day for 60 days from half of ewes lambed
+  ,milk_value_ltr = 0 #
+  
+  # Offtake
+  ## Currently fixed, but, should this be dependant on new pop size, to keep pop size as it was at t0
+  ## offtake must = offtake + dif between NNFt0 etc and NJF current
+  ,GammaF = 0.02/12 	# offtake rate female (juv and adult only) 
+  ,GammaM = 0.12/12 	# offtake rate male
+  
+  # Mortality ## informed from META analysis
+  ,AlphaN = 0		# the neonate mort is taken from a single stdu and used as fixed value instead of distribution
+  ,AlphaJ = 0		# no study for juvenile and adult mort so derived from  CSA crude mort using the neonate mort and used as fixed value instead of distribution 
+  ,AlphaF = 0  # no study for juvenile and adult mort so derived from  CSA crude mort using the neonate mort and used as fixed value instead of distribution
+  ,AlphaM = 0  # no study for juvenile and adult mort so derived from  CSA crude mort using the neonate mort and used as fixed value instead of distribution
+  
+  # Culls
+  ,CullF = 1/108 	# cullrate Adult Female ## These will be valueless
+  ,CullM = 1/48 		# cullrate Adult Male  ## These will still have a value
+  
+  ## Production parameters (kg)
+  
+  # Liveweight conversion (kg) ## Informed from META analysis
+  ,lwNF = rtruncnorm(10000, a = 1, b = 15, mean = 11.7, sd = 2.2)  	# Liveweight Neonate## parameters derived from meta pooled mean and variance 
+  ,lwNM = rtruncnorm(10000, a = 1, b = 15, mean =11.7, sd = 2.2)  	# Liveweight Neonateparameters derived from meta pooled mean and variance
+  ,lwJF = rnorm(10000, 19.1, sd = 0.48) 										# Liveweight Juvenille # Same here ##parameters derived from meta pooled mean and variance
+  ,lwJM = rnorm(10000, 19.1, sd = 0.48) 										# Liveweight Juvenille # Same here##parameters derived from meta pooled mean and variance
+  ,lwAF = rnorm(10000, 29.6, sd = 0.7) 										# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+  ,lwAM = rnorm(10000, 31.5, sd = 6.8) 										# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+  
+  # carcase yeild
+  ,ccy = 0.42 		# As a % of liveweight for all groups
+  
+  ## Financial value of live animals
+  # Ethiopian Birr
+  ,fvNF = rpert(10000, 650,	850,	750) 	## Financial value of neonatal Female
+  ,fvJF = rpert(10000, 1450,	1783,	1616) 	## Financial value of neonatal Male
+  ,fvAF = rpert(10000, 1400,2466, 1530) 	## Financial value of juv Female
+  ,fvNM = rpert(10000, 750,	1370, 1062) 	## Financial value of juv Male
+  ,fvJM = rpert(10000, 1425,	2466.6,1530) 	## Financial value of adult Female
+  ,fvAM = rpert(10000, 1800,	3616,	3041) 	## Financial value of adult Male  
+  
+  ## Off take which go for fertility in females (used when calculating hide numbers)
+  #,fert_offtake = 0.25		# for breeding age females only 75% of offtake contribute to skins (25% remain in national breeding herd)
+  
+  ## skin/hides  
+  ## parameters can be updated through expert opinion but adding options for flexibility here
+  ,hides_rate = 1 			# 1 skin per animal offtake for males
+  ,hides_rate_mor = 0.5 	# 50% of dead animals contribute to hides count
+  
+  # 1 usd per piece = 51 eth birr
+  ,hides_value = 40
+  
+  # manure rate (kg produced/animal/day)
+  ,Man_N = rnorm(10000, 0.1, 0.022) 	# Manure kg/ day from neonates ## means and Sds  are derived from  body wt
+  ,Man_J = rnorm(10000, 0.2, 0.038) 	# Manure kg/ day from juvenile## means and Sds  are derived from  body wt
+  ,Man_A = rnorm(10000, 0.3, 0.060) 	# Manure kg/ day from adults ##means and Sds  are derived from  body wt
+  
+  # 0.0125 USD / kg = 0.65 eth birr per kg 2021 price
+  ,Man_value = 0.5
+  
+  ## dry matter requirements per kg of liveweight
+  ,DM_req_prpn_NF = 0.026  	# Dry matter required by neonates
+  ,DM_req_prpn_NM = 0.026  	# Dry matter required by neonates
+  ,DM_req_prpn_JF = 0.026  	# Dry matter required by juvenile
+  ,DM_req_prpn_JM = 0.026  	# Dry matter required by juvenile
+  ,DM_req_prpn_AF = 0.026  	# Dry matter required by adults
+  ,DM_req_prpn_AM = 0.026  	# Dry matter required by adults
+  
+  ## Proportion of livestock keepers that spend any money on feed
+  ## NOTE Currently the same for all age*sex groups
+  ,prpn_lskeepers_purch_feed = 0 	## only 25% of ls keepers spend money on feed 
+  
+  ## For those spending any money on feed, the proportion of feed that is purchased
+  ## NOTE Currently the same for all age*sex groups
+  ,prpn_feed_paid_for = 0 	## We make the assumption that 50% of feed used by those spending any money on feed is purchased
+  
+  ## Input parameters ## just example distributions for now
+  ## If we are saying Pastoralists dont spend money on feed for their livestock
+  ## we could just change feed cost to 0, or change the equation within the function
+  
+  ,Feed_cost_kg = 0 	## Ethiopian birr/kg wheat and barley
+  
+  ## variable results for the amount of dry matter in wheat and barley and tef in Ethiopia
+  ## range 30-90%
+  ## taking 70% as an estimate for this trial
+  ,DM_in_feed = rpert(10000, 0.85, 0.95, 0.9)  	## change this to choose from data informed distribution
+  
+  ## Labour cost
+  ## for this we have taken estimate from MS: Legesse '2010 work as its between two other estimates
+  ## the estimate was birr per head per year so dividing by 12 = birr/head/month
+  #,Lab_SR = 368/12
+  ## example code to change labour cost to selecting from distribution
+  ,Lab_SR = rpert(10000, (260/12), (649/12), (368/12))
+  ,lab_non_health = 1
+  
+  ## Helath care costs
+  ## for this we have used single point estimate from  LFDP data (other estimates 2.2 - 14.3)
+  ## the estimate is birr per head per year so dividing by 12 = birr/head/month
+  ## this includes medicines and veterinary care
+  #,Health_exp = 2.8/12
+  ## and changing health care costs to select from distribution
+  ,Health_exp = runif(10000, (2.2/12), (2.8/12)) 	# the two national level estimates(national production and import of vet drugs and vaccines, and LFSDP and RPLRP projects) are used as bound for the price and used for unif distribution 14.3 was from an earlier study covering only two districts 
+  
+  ## Capital costs
+  ## for this we are using bank of Ethiopia inflation rate
+  ,Interest_rate = 0.00 	## this is made zero because the inflation is greater than nominal interest rate henec real interest rate is zero
+)
 
 # -----------------------------------------------------------------
 # Ideal SHEEP PASTORAL
@@ -2450,6 +2863,13 @@ summary(gross_margin_ideal_s_past)
 
 summary_ideal_s_past = results_ideal_s_past[[2]]
 
+gross_margin_mortality_zero_s_past = results_mortality_zero_s_past[[1]]
+mean(gross_margin_mortality_zero_s_past)
+sd(gross_margin_mortality_zero_s_past)
+summary(gross_margin_mortality_zero_s_past)
+
+summary_mortality_zero_s_past = results_mortality_zero_s_past[[2]]
+
 AHLE_s_past <- gross_margin_ideal_s_past - gross_margin_current_s_past
 mean(AHLE_s_past)
 sd(AHLE_s_past)
@@ -2480,9 +2900,11 @@ print('Distribution of gross margin difference (ideal minus current):')
 summary(AHLE_s_past)
 plot(density(AHLE_s_past))
 hist(AHLE_s_past)
+
 # Write files
-write.csv(summary_current_s_past, file.path(cmd_output_directory, 'ahle_sheep_past_summary_current.csv'), row.names=FALSE)
-write.csv(summary_ideal_s_past, file.path(cmd_output_directory, 'ahle_sheep_past_summary_ideal.csv'), row.names=FALSE)
+write.csv(summary_current_s_past, file.path(cmd_output_directory, 'ahle_sheep_past_summary_current.csv'), row.names = FALSE)
+write.csv(summary_ideal_s_past, file.path(cmd_output_directory, 'ahle_sheep_past_summary_ideal.csv'), row.names = FALSE)
+write.csv(summary_mortality_zero_s_past, file.path(cmd_output_directory, 'ahle_sheep_past_summary_mortality_zero.csv'), row.names = FALSE)
 
 
 
@@ -2491,6 +2913,142 @@ write.csv(summary_ideal_s_past, file.path(cmd_output_directory, 'ahle_sheep_past
 #### GOATS PASTORAL   ###
 
 # =================================================================
+# -----------------------------------------------------------------
+# MORTALITY ZERO GOAT Pastoral
+# -----------------------------------------------------------------
+results_mortality_zero_g_past <- compartmental_model(
+  ## Number of iterations (duration of simulation)
+  # representing days 
+  nruns = cmd_nruns
+  
+  ## NOTE - if you change this you must change rates to be monthly 
+  ,Num_months = 12
+  
+  ## population structure from 2021 survey PAST goats
+  ,N_NF_t0 = 2931658   # neonatal female
+  ,N_JF_t0 = 2563862    # juvenile female
+  ,N_AF_t0 = 15741790  # adult female
+  ,N_NM_t0 = 1974212  # neonatal male
+  ,N_JM_t0 = 1533797  # juvenile male
+  ,N_AM_t0 = 5555576	# adult male
+  
+  ## Growth rate N -> J and J-> A
+  ,Beta = 1/6
+  
+  # Fertility
+  ,part = rpert(10000, 0.37, 0.50, 0.46)
+  ,prolif = rtruncnorm(10000, 0, 3, 1.7, 0.12)
+  
+  ,prop_F_milked = 0 # for now half lambed are milked
+  ,lac_duration = 0 #(days)
+  ,avg_daily_yield_ltr = 0 # example on avg 100ml a day for 60 days from half of ewes lambed
+  ,milk_value_ltr = 0 #
+  
+  # Offtake
+  ## Currently fixed, but, should this be dependant on new pop size, to keep pop size as it was at t0
+  ## offtake must = offtake + dif between NNFt0 etc and NJF current
+  ,GammaF = 0.13/12 	# offtake rate female (juv and adult only) 
+  ,GammaM = 0.63/12 	# offtake rate male
+  
+  # Mortality ## informed from META analysis
+  ,AlphaN = 0		# the neonate mort is taken from a single stdu and used as fixed value instead of distribution
+  ,AlphaJ = 0	 # no study for juvenile and adult mort so derived from  CSA crude mort using the neonate mort and used as fixed value instead of distribution 
+  ,AlphaF = 0  # no study for juvenile and adult mort so derived from  CSA crude mort using the neonate mort and used as fixed value instead of distribution
+  ,AlphaM = 0  # no study for juvenile and adult mort so derived from  CSA crude mort using the neonate mort and used as fixed value instead of distribution
+  
+  # Culls
+  ,CullF = 1/108 	# cullrate Adult Female ## These will be valueless
+  ,CullM = 1/48 		# cullrate Adult Male  ## These will still have a value
+  
+  ## Production parameters (kg)
+  
+  # Liveweight conversion (kg) ## Informed from META analysis
+  ,lwNF = rtruncnorm(10000, a = 1, b = 15, mean = 8.8, sd = 1.3)  	# Liveweight Neonate## parameters derived from meta pooled mean and variance 
+  ,lwNM = rtruncnorm(10000, a = 1, b = 15, mean =8.8, sd = 1.3)  	# Liveweight Neonateparameters derived from meta pooled mean and variance
+  ,lwJF = rnorm(10000, 13.04, sd = 2.6) 										# Liveweight Juvenille # Same here ##parameters derived from meta pooled mean and variance
+  ,lwJM = rnorm(10000, 13.04, sd = 2.6) 										# Liveweight Juvenille # Same here##parameters derived from meta pooled mean and variance
+  ,lwAF = rnorm(10000, 25.1, sd = 0.2) 										# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+  ,lwAM = rnorm(10000, 25.1, sd = 0.2) 										# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+  
+  # carcase yeild
+  ,ccy = 0.42 		# As a % of liveweight for all groups
+  
+  ## Financial value of live animals
+  # Ethiopian Birr
+  ,fvNF = rpert(10000, 808,	850,	825) 	## Financial value of neonatal Female
+  ,fvJF = rpert(10000, 1375,	2300,	1837.5) 	## Financial value of neonatal Male
+  ,fvAF = rpert(10000, 1925,	3800,	3378.3) 	## Financial value of juv Female
+  ,fvNM = rpert(10000, 1170,	1800,	1450) 	## Financial value of juv Male
+  ,fvJM = rpert(10000, 1650,	3000,	2495) 	## Financial value of adult Female
+  ,fvAM = rpert(10000, 3440,	5833,	4600) 	## Financial value of adult Male  
+  
+  ## Off take which go for fertility in females (used when calculating hide numbers)
+  #,fert_offtake = 0.25		# for breeding age females only 75% of offtake contribute to skins (25% remain in national breeding herd)
+  
+  ## skin/hides  
+  ## parameters can be updated through expert opinion but adding options for flexibility here
+  ,hides_rate = 1 			# 1 skin per animal offtake for males
+  ,hides_rate_mor = 0.5 	# 50% of dead animals contribute to hides count
+  
+  # 1 usd per piece = 51 eth birr
+  ,hides_value = 20
+  
+  # manure rate (kg produced/animal/day)
+  ,Man_N = rnorm(10000, 0.1, 0.016) 	# Manure kg/ day from neonates ## means and Sds  are derived from  body wt
+  ,Man_J = rnorm(10000, 0.2, 0.01) 	# Manure kg/ day from juvenile## means and Sds  are derived from  body wt
+  ,Man_A = rnorm(10000, 0.3, 0.002) 	# Manure kg/ day from adults ##means and Sds  are derived from  body wt
+  
+  # 0.0125 USD / kg = 0.65 eth birr per kg 2021 price
+  ,Man_value = 0.5
+  
+  ## dry matter requirements per kg of liveweight
+  ,DM_req_prpn_NF = 0.026  	# Dry matter required by neonates
+  ,DM_req_prpn_NM = 0.026  	# Dry matter required by neonates
+  ,DM_req_prpn_JF = 0.026  	# Dry matter required by juvenile
+  ,DM_req_prpn_JM = 0.026  	# Dry matter required by juvenile
+  ,DM_req_prpn_AF = 0.026  	# Dry matter required by adults
+  ,DM_req_prpn_AM = 0.026  	# Dry matter required by adults
+  
+  ## Proportion of livestock keepers that spend any money on feed
+  ## NOTE Currently the same for all age*sex groups
+  ,prpn_lskeepers_purch_feed = 0 	## only 25% of ls keepers spend money on feed 
+  
+  ## For those spending any money on feed, the proportion of feed that is purchased
+  ## NOTE Currently the same for all age*sex groups
+  ,prpn_feed_paid_for = 0 	## We make the assumption that 50% of feed used by those spending any money on feed is purchased
+  
+  ## Input parameters ## just example distributions for now
+  ## If we are saying Pastoralists dont spend money on feed for their livestock
+  ## we could just change feed cost to 0, or change the equation within the function
+  
+  ,Feed_cost_kg = 0 	## Ethiopian birr/kg wheat and barley
+  
+  ## variable results for the amount of dry matter in wheat and barley and tef in Ethiopia
+  ## range 30-90%
+  ## taking 70% as an estimate for this trial
+  ,DM_in_feed = rpert(10000, 0.85, 0.95, 0.9)  	## change this to choose from data informed distribution
+  
+  ## Labour cost
+  ## for this we have taken estimate from MS: Legesse '2010 work as its between two other estimates
+  ## the estimate was birr per head per year so dividing by 12 = birr/head/month
+  #,Lab_SR = 368/12
+  ## example code to change labour cost to selecting from distribution
+  ,Lab_SR = rpert(10000, (260/12), (649/12), (368/12))
+  ,lab_non_health = 1
+  
+  ## Helath care costs
+  ## for this we have used single point estimate from  LFDP data (other estimates 2.2 - 14.3)
+  ## the estimate is birr per head per year so dividing by 12 = birr/head/month
+  ## this includes medicines and veterinary care
+  #,Health_exp = 2.8/12
+  ## and changing health care costs to select from distribution
+  ,Health_exp = runif(10000, (2.2/12), (2.8/12)) 	# the two national level estimates(national production and import of vet drugs and vaccines, and LFSDP and RPLRP projects) are used as bound for the price and used for unif distribution 14.3 was from an earlier study covering only two districts 
+  
+  ## Capital costs
+  ## for this we are using bank of Ethiopia inflation rate
+  ,Interest_rate = 0.00 	## this is made zero because the inflation is greater than nominal interest rate henec real interest rate is zero
+)
+
 # -----------------------------------------------------------------
 # Current GOAT Pastoral
 # -----------------------------------------------------------------
@@ -2627,7 +3185,8 @@ results_current_g_past <- compartmental_model(
   ,Interest_rate = 0.00 	## this is made zero because the inflation is greater than nominal interest rate henec real interest rate is zero
 )
 
-results_current_g_past[[2]]
+
+
 
 # -----------------------------------------------------------------
 # Ideal SHEEP PASTORAL
@@ -2821,10 +3380,11 @@ print('Distribution of gross margin difference (ideal minus current):')
 summary(AHLE_g_past)
 plot(density(AHLE_g_past))
 hist(AHLE_g_past)
+
 # Write files
 write.csv(summary_current_g_past, file.path(cmd_output_directory, 'ahle_goat_past_summary_current.csv'), row.names=FALSE)
 write.csv(summary_ideal_g_past, file.path(cmd_output_directory, 'ahle_goat_past_summary_ideal.csv'), row.names=FALSE)
-
+write.csv(results_mortality_zero_g_past, file.path(cmd_output_directory, 'ahle_goat_past_summary_mortality_zero.csv'), row.names = FALSE)
 
 
 

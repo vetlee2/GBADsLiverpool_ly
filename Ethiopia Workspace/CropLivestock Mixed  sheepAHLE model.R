@@ -3189,7 +3189,7 @@ results_current_g_past <- compartmental_model(
 
 
 # -----------------------------------------------------------------
-# Ideal SHEEP PASTORAL
+# Ideal GOAT PASTORAL
 # -----------------------------------------------------------------
 results_ideal_g_past <- compartmental_model(
   ## Number of iterations (duration of simulation)

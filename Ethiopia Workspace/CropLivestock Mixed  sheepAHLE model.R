@@ -1011,17 +1011,17 @@ compartmental_model <- function(
 			## now calculation is change in population since t0 
 			## multiplied by price per head (each month compares to t0)
 			##
-			  Value_Herd_Increase_NF[month] = ((NF - N_NF_t0) * sample(fvNF, 1))
+			Value_Herd_Increase_NF[month] = ((NF - N_NF_t0) * sample(fvNF, 1))
 			Value_herd_inc_NF = Value_Herd_Increase_NF[month]
-		  	Value_Herd_Increase_NM[month] = ((NM - N_NM_t0) * sample(fvNM, 1))
-  		Value_herd_inc_NM = Value_Herd_Increase_NM[month]
-			  Value_Herd_Increase_JF[month] = ((JF - N_JF_t0) * sample(fvJF, 1))
+			Value_Herd_Increase_NM[month] = ((NM - N_NM_t0) * sample(fvNM, 1))
+			Value_herd_inc_NM = Value_Herd_Increase_NM[month]
+			Value_Herd_Increase_JF[month] = ((JF - N_JF_t0) * sample(fvJF, 1))
 			Value_herd_inc_JF = Value_Herd_Increase_JF[month]
-		  	Value_Herd_Increase_JM[month] =  ((JM - N_JM_t0) * sample(fvJM, 1))
+			Value_Herd_Increase_JM[month] =  ((JM - N_JM_t0) * sample(fvJM, 1))
 			Value_herd_inc_JM = Value_Herd_Increase_JM[month]
-		  	Value_Herd_Increase_AF[month] = ((AF - N_AF_t0) * sample(fvAF, 1))
+			Value_Herd_Increase_AF[month] = ((AF - N_AF_t0) * sample(fvAF, 1))
 			Value_herd_inc_AF = Value_Herd_Increase_AF[month]
-		  	Value_Herd_Increase_AM[month] =  ((AM - N_AM_t0) * sample(fvAM, 1))
+			Value_Herd_Increase_AM[month] =  ((AM - N_AM_t0) * sample(fvAM, 1))
 			Value_herd_inc_AM = Value_Herd_Increase_AM[month]
 
 			# total pop value of herd increase
@@ -1383,7 +1383,62 @@ compartmental_model <- function(
 	Gross_margin_AF_M <- Production_value_herd_offteake_hide_man_AF_M - Total_expenditure_AF_M
 	Gross_margin_AM_M <- Production_value_herd_offteake_hide_man_AM_M - Total_expenditure_AM_M
 
+	# -----------------------------------------------------------------
+	# Sum sex groups for neonates and juveniles
+	# -----------------------------------------------------------------
+	Num_Offtake_N_M <- Num_Offtake_NF_M + Num_Offtake_NM_M
+	Num_Offtake_J_M <- Num_Offtake_JF_M + Num_Offtake_JM_M
+	Cumilative_Pop_growth_N_M <- Cumilative_Pop_growth_NF_M + Cumilative_Pop_growth_NM_M
+	Cumilative_Pop_growth_J_M <- Cumilative_Pop_growth_JF_M + Cumilative_Pop_growth_JM_M
+	Total_Mortality_N_M <- Total_Mortality_NF_M + Total_Mortality_NM_M
+	Total_Mortality_J_M <- Total_Mortality_JF_M + Total_Mortality_JM_M
+	#Quant_Liveweight_kg_N_M <- Quant_Liveweight_kg_NF_M + Quant_Liveweight_kg_NM_M
+	Quant_Liveweight_kg_J_M <- Quant_Liveweight_kg_JF_M + Quant_Liveweight_kg_JM_M
+	#Quant_Meat_kg_N_M <- Quant_Meat_kg_NF_M + Quant_Meat_kg_NM_M
+	#Quant_Meat_kg_J_M <- Quant_Meat_kg_JF_M + Quant_Meat_kg_JM_M
+	Quant_Manure_N_M <- Quant_Manure_NF_M + Quant_Manure_NM_M
+	Quant_Manure_J_M <- Quant_Manure_JF_M + Quant_Manure_JM_M
+	#Quant_Hides_N_M <- Quant_Hides_NF_M + Quant_Hides_NM_M
+	Quant_Hides_J_M <- Quant_Hides_JF_M + Quant_Hides_JM_M
+	#Quant_Milk_N_M <- Quant_Milk_NF_M + Quant_Milk_NM_M
+	#Quant_Milk_J_M <- Quant_Milk_JF_M + Quant_Milk_JM_M
+	#Quant_Wool_N_M <- Quant_Wool_NF_M + Quant_Wool_NM_M
+	#Quant_Wool_J_M <- Quant_Wool_JF_M + Quant_Wool_JM_M
+	Cumilative_Dry_Matter_N_M <- Cumilative_Dry_Matter_NF_M + Cumilative_Dry_Matter_NM_M
+	Cumilative_Dry_Matter_J_M <- Cumilative_Dry_Matter_JF_M + Cumilative_Dry_Matter_JM_M
+
+	Value_Offtake_N_M <- Value_Offtake_NF_M + Value_Offtake_NM_M
+	Value_Offtake_J_M <- Value_Offtake_JF_M + Value_Offtake_JM_M
+	Value_Herd_Increase_N_M <- Value_Herd_Increase_NF_M + Value_Herd_Increase_NM_M
+	Value_Herd_Increase_J_M <- Value_Herd_Increase_JF_M + Value_Herd_Increase_JM_M
+	Total_Value_increase_N_M <- Total_Value_increase_NF_M + Total_Value_increase_NM_M
+	Total_Value_increase_J_M <- Total_Value_increase_JF_M + Total_Value_increase_JM_M
+	Value_Manure_N_M <- Value_Manure_NF_M + Value_Manure_NM_M
+	Value_Manure_J_M <- Value_Manure_JF_M + Value_Manure_JM_M
+	#Value_Hides_N_M <- Value_Hides_NF_M + Value_Hides_NM_M
+	Value_Hides_J_M <- Value_Hides_JF_M + Value_Hides_JM_M
+	#Value_Milk_N_M <- Value_Milk_NF_M + Value_Milk_NM_M
+	#Value_Milk_J_M <- Value_Milk_JF_M + Value_Milk_JM_M
+	Production_value_herd_offteake_hide_man_N_M <- Production_value_herd_offteake_hide_man_NF_M + Production_value_herd_offteake_hide_man_NM_M
+	Production_value_herd_offteake_hide_man_J_M <- Production_value_herd_offteake_hide_man_JF_M + Production_value_herd_offteake_hide_man_JM_M
+	
+	Feed_cost_N_M <- Feed_cost_NF_M + Feed_cost_NM_M
+	Feed_cost_J_M <- Feed_cost_JF_M + Feed_cost_JM_M
+	Labour_cost_N_M <- Labour_cost_NF_M + Labour_cost_NM_M
+	Labour_cost_J_M <- Labour_cost_JF_M + Labour_cost_JM_M
+	Health_cost_N_M <- Health_cost_NF_M + Health_cost_NM_M
+	Health_cost_J_M <- Health_cost_JF_M + Health_cost_JM_M
+	Capital_cost_N_M <- Capital_cost_NF_M + Capital_cost_NM_M
+	Capital_cost_J_M <- Capital_cost_JF_M + Capital_cost_JM_M
+	Total_expenditure_N_M <- Total_expenditure_NF_M + Total_expenditure_NM_M
+	Total_expenditure_J_M <- Total_expenditure_JF_M + Total_expenditure_JM_M
+
+	Gross_margin_N_M <- Gross_margin_NF_M + Gross_margin_NM_M
+	Gross_margin_J_M <- Gross_margin_JF_M + Gross_margin_JM_M
+
+	# =================================================================
 	# Summarize items and build data frame
+	# =================================================================
 	summary_df <- build_summary_df(
 		# Labeled list of matrices to summarize. Matrix names should be WITHOUT SUFFIXES (without _M, _NF_M, etc.). Labels will be used in output data.
 		items_to_summarize = c(
@@ -1429,8 +1484,10 @@ build_summary_df <- function(
 		'Overall' = '_M'
 		,'Neonatal Female' = '_NF_M'
 		,'Neonatal Male' = '_NM_M'
+		,'Neonates combined' = '_N_M'
 		,'Juvenile Female' = '_JF_M'
 		,'Juvenile Male' = '_JM_M'
+		,'Juveniles combined' = '_J_M'
 		,'Adult Female' = '_AF_M'
 		,'Adult Male' = '_AM_M'
 	)
@@ -3358,6 +3415,8 @@ summary(AHLE_g_past)
 AHLE_g_past_table <- summary_ideal_g_past[,(3:9)] - summary_current_g_past[,(3:9)] 
 AHLE_g_past_table <- cbind(summary_ideal_g_past[,1:2], AHLE_g_past_table[,(1:7)])
 
+summary_mortality_zero_g_past = results_mortality_zero_g_past[[2]]
+
 ## AHLE in dollars
 print('AHLE in USD')
 print(mean(AHLE_g_past*0.019))
@@ -3384,7 +3443,7 @@ hist(AHLE_g_past)
 # Write files
 write.csv(summary_current_g_past, file.path(cmd_output_directory, 'ahle_goat_past_summary_current.csv'), row.names=FALSE)
 write.csv(summary_ideal_g_past, file.path(cmd_output_directory, 'ahle_goat_past_summary_ideal.csv'), row.names=FALSE)
-write.csv(results_mortality_zero_g_past, file.path(cmd_output_directory, 'ahle_goat_past_summary_mortality_zero.csv'), row.names = FALSE)
+write.csv(summary_mortality_zero_g_past, file.path(cmd_output_directory, 'ahle_goat_past_summary_mortality_zero.csv'), row.names = FALSE)
 
 
 

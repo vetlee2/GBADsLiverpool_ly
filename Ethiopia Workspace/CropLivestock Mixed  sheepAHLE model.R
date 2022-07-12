@@ -1480,14 +1480,14 @@ build_summary_df <- function(
 	items_to_summarize 	# Labeled list of matrices to summarize. Matrix names should be WITHOUT SUFFIXES (without _M, _NF_M, etc.). Will iterate through all suffixes. Labels will be used in output data.
 )
 {
-	suffixes = c( 			# Labeled list of matrix name suffixes. Suffixes will be appended to matrix names in items_to_summarize and must match matrices created above. Labels will be appended to labels in items_to_summarize.
+	suffixes = c( 			# Labeled list of matrix name suffixes. Suffixes will be appended to matrix names in items_to_summarize and must match matrices created above. Labels will be used to describe the group summarized.
 		'Overall' = '_M'
 		,'Neonatal Female' = '_NF_M'
 		,'Neonatal Male' = '_NM_M'
-		,'Neonates combined' = '_N_M'
+		,'Neonatal Combined' = '_N_M'
 		,'Juvenile Female' = '_JF_M'
 		,'Juvenile Male' = '_JM_M'
-		,'Juveniles combined' = '_J_M'
+		,'Juvenile Combined' = '_J_M'
 		,'Adult Female' = '_AF_M'
 		,'Adult Male' = '_AM_M'
 	)

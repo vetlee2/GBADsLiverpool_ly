@@ -963,7 +963,6 @@ def create_ahle_sunburst_ecs(input_df):
 
     return sunburst_fig
 
-
 #%% 4. LAYOUT
 ##################################################################################################
 # Here we layout the webpage, including dcc (Dash Core Component) controls we want to use, such as dropdowns.

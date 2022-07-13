@@ -132,7 +132,7 @@ swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'
 ecs_ahle_summary_sheep = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_sheep_clm_summary_envelope.csv'))
 
 # Attribution Summary
-ecs_attribution_summary = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'attribution_summary.csv'))
+ecs_ahle_all_summary2 = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
 
 # =============================================================================
 #### User options and defaults
@@ -361,43 +361,51 @@ swine_lookup_breed_df = {
 # =============================================================================
 #### Ethiopia case study options
 # =============================================================================
-# Year options
-ecs_year_options = [{'label': i, 'value': i, 'disabled': True} for i in ["2011",
-                                                                        "2012",
-                                                                       "2013",
-                                                                       "2014",
-                                                                       "2015",
-                                                                       "2016",
-                                                                       "2017",
-                                                                       "2018",
-                                                                       "2019",
-                                                                       "2020",
-                                                                       ]] # Include, but disable
-ecs_year_options += [{'label': "2021", 'value': "2021", 'disabled': False}]
+# # Year options
+# ecs_year_options = [{'label': i, 'value': i, 'disabled': True} for i in ["2011",
+#                                                                         "2012",
+#                                                                        "2013",
+#                                                                        "2014",
+#                                                                        "2015",
+#                                                                        "2016",
+#                                                                        "2017",
+#                                                                        "2018",
+#                                                                        "2019",
+#                                                                        "2020",
+#                                                                        ]] # Include, but disable
+# ecs_year_options += [{'label': "2021", 'value': "2021", 'disabled': False}]
 
 # Species
-ecs_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["All Small Ruminants",
-                                                                            "Goats",
-                                                                            "Sheep"
-                                                                            ]]
+ecs_species_options = [{'label': "All Small Ruminants", 'value': "All Small Ruminants", 'disabled': False}]
+
+for i in np.sort(ecs_ahle_all_summary2['species'].unique()):
+   str(ecs_species_options.append({'label':i,'value':(i)}))
 
 # Age
-ecs_age_options = [{'label': i, 'value': i, 'disabled': True} for i in ["All",
-                                                                        "Neonate",
-                                                                        "Juvenile",
-                                                                        "Adult",
-                                                                        ]]
+# Rename Overall to more descriptive
+# Drop rows with overall for age since the sum is going to be provided at the top level in the treemap
+ecs_ahle_all_summary2 = ecs_ahle_all_summary2[ecs_ahle_all_summary2.age_group != 'Overall']
+ 
+# ecs_ahle_all_summary2['age_group'] = ecs_ahle_all_summary2['age_group'].replace({'Overall': 'Overall Age'})
+
+ecs_age_options = [{'label': "Overall Age", 'value': "Overall Age", 'disabled': False}]
+
+for i in np.sort(ecs_ahle_all_summary2['age_group'].unique()):
+   str(ecs_age_options.append({'label':i,'value':(i)}))
+
 
 # Sex
+# Rename Overall to more descriptive
+ecs_ahle_all_summary2['sex'] = ecs_ahle_all_summary2['sex'].replace({'Overall': 'Overall Sex'})
 ecs_sex_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Male",
                                                                         "Female",
                                                                        ]]
 
 # Production system
-ecs_prodsys_options = [{'label': i, 'value': i, 'disabled': True} for i in ["All",
-                                                                            "Mixed crop livestock",
-                                                                            "Pastoral",
-                                                                            ]]
+ecs_prodsys_options = [{'label': "All Production Systems", 'value': "All Production Systems", 'disabled': False}]
+
+for i in np.sort(ecs_ahle_all_summary2['production_system'].unique()):
+   str(ecs_prodsys_options.append({'label':i,'value':(i)}))
 
 # Metric
 ecs_metric_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Number of animals",
@@ -764,6 +772,47 @@ def prep_bod_forstackedbar_swine(INPUT_DF):
 
    return OUTPUT_DF
 
+
+def prep_ahle_fortreemap_ecs(INPUT_DF):
+   working_df = INPUT_DF.copy()
+   
+   # Trim the data to keep things needed for the treemap
+   ecs_ahle_summary_sheep_sunburst = working_df[['species',
+                                                 'production_system',
+                                                 'age_group',
+                                                 'sex',
+                                                 'ahle_due_to_mortality',
+                                                 'ahle_due_to_productionloss',
+                                                 'ahle_due_to_healthcost']]
+
+   # Transpose data
+   ecs_ahle_summary_tree_pivot = ecs_ahle_summary_sheep_sunburst.melt(
+       id_vars=['species',
+                'production_system',
+                'age_group',
+                'sex',], 
+       value_vars=['ahle_due_to_mortality',
+                   'ahle_due_to_productionloss',
+                   'ahle_due_to_healthcost'])
+
+   # Rename to use in treemap
+   ecs_ahle_summary_tree_pivot['AHLE'] = np.where(ecs_ahle_summary_tree_pivot.variable == 'ahle_due_to_mortality', "Mortality",
+                                         np.where(ecs_ahle_summary_tree_pivot.variable == 'ahle_due_to_productionloss', "Production Loss",
+                                         np.where(ecs_ahle_summary_tree_pivot.variable == 'ahle_due_to_healthcost', "Health Cost", "None")))
+   
+   # Replace 'overall' values with more descriptive values
+   # ecs_ahle_summary_tree_pivot['age_group'] = ecs_ahle_summary_tree_pivot['age_group'].replace({'Overall': 'Overall Age'})
+   ecs_ahle_summary_tree_pivot['sex'] = ecs_ahle_summary_tree_pivot['sex'].replace({'Overall': 'Overall Sex'})
+     
+   # Drop rows with overall for age since the sum is going to be provided at the top level in the treemap
+   ecs_ahle_summary_tree_pivot = ecs_ahle_summary_tree_pivot[ecs_ahle_summary_tree_pivot.age_group != 'Overall']
+    
+   
+   OUTPUT_DF = ecs_ahle_summary_tree_pivot
+                                    
+   return OUTPUT_DF
+
+
 def prep_ahle_forsunburst_ecs(INPUT_DF):
    working_df = INPUT_DF.copy()
    
@@ -812,6 +861,7 @@ def prep_ahle_forsunburst_ecs(INPUT_DF):
    OUTPUT_DF = working_df
 
    return OUTPUT_DF
+
 
 # =============================================================================
 #### Define the figures
@@ -920,22 +970,17 @@ def create_stacked_bar_swine(input_df, x, y, color):
 
 # Define the attribution treemap
 def create_attr_treemap_ecs(input_df):
-    # Make mean more legible 
-    input_df["humanize_mean"]= input_df['mean'].apply(lambda x: humanize.intword(x))
-
     treemap_fig = px.treemap(input_df, 
-                                path=['Production system',
-                                      'AHLE', 
-                                      'Age class',
-                                      'Cause'], 
-                                values='mean',
-                                custom_data=['humanize_mean'])
+                             path=['species', 
+                                   'production_system',
+                                   'AHLE',
+                                   'age_group',
+                                   'sex'], 
+                             values='value')
     
     treemap_fig.update_traces(root_color="white",
-                              # hovertemplate='Attribution=%{label}<br>Value=%{customdata[0]}<extra></extra>')
                                hovertemplate='Attribution=%{label}<br>Value=$%{value:,.2f}<extra></extra>')
 
-    # treemap_fig.update_layout(hovermode=False)
 
     return treemap_fig
 
@@ -948,20 +993,18 @@ def create_ahle_sunburst_ecs(input_df):
     # Make mean more legible 
     input_df["humanize_envelope"]= input_df['envelope'].apply(lambda x: humanize.intword(x))
     
-    sunburst_fig = px.icicle(input_df, 
+    icicle_fig = px.icicle(input_df, 
                               path=['Total', 'item'], 
                               values='envelope',
                               custom_data=['humanize_envelope'])
     
-    sunburst_fig.update_traces(root_color="white",
+    icicle_fig.update_traces(root_color="white",
                                # hovertemplate='Category=%{label}<br>Value=$%{customdata[0]}<extra></extra>')
-                                hovertemplate='Category=%{label}<br>Value=$%{value:,humanize.intword(value)}<extra></extra>')
-                                # hovertemplate='Category=%{label}<br>Value=$%{value:,.2f}<extra></extra>')
+                                # hovertemplate='Category=%{label}<br>Value=$%{value:,humanize.intword(value)}<extra></extra>')
+                                hovertemplate='Category=%{label}<br>Value=$%{value:,.2f}<extra></extra>')
 
 
-    # sunburst_fig.update_layout(hovermode=False)
-
-    return sunburst_fig
+    return icicle_fig
 
 #%% 4. LAYOUT
 ##################################################################################################
@@ -1636,26 +1679,26 @@ gbadsDash.layout = html.Div([
 
             #### -- DROPDOWNS CONTROLS
             dbc.Row([
-                # Year
-                dbc.Col([
-                    html.H6("Year"),
-                    dcc.Dropdown(id='select-year-ecs',
-                                 options=ecs_year_options,
-                                 value='2021',
-                                 clearable = False,
-                                 ),
-                    ],style={
-                             "order":1,
-                             "margin-top":"10px"
-                             }
-                    ),
+                # # Year
+                # dbc.Col([
+                #     html.H6("Year"),
+                #     dcc.Dropdown(id='select-year-ecs',
+                #                  options=ecs_year_options,
+                #                  value='2021',
+                #                  clearable = False,
+                #                  ),
+                #     ],style={
+                #              "order":1,
+                #              "margin-top":"10px"
+                #              }
+                #     ),
 
                 # Species
                 dbc.Col([
                     html.H6("Species"),
                     dcc.Dropdown(id='select-species-ecs',
                                  options=ecs_species_options,
-                                 value='Sheep',
+                                 value='All Small Ruminants',
                                  clearable = False,
                                  ),
                     ],style={
@@ -1663,17 +1706,31 @@ gbadsDash.layout = html.Div([
                              "margin-top":"10px"
                              },
                     ),
+                
+                # Production System
+                dbc.Col([
+                    html.H6("Production System"),
+                    dcc.Dropdown(id='select-prodsys-ecs',
+                                 options=ecs_prodsys_options,
+                                 value='All Production Systems',
+                                 clearable = False,
+                                 ),
+                    ],style={
+                             "order":3,
+                             "margin-top":"10px",
+                             }
+                    ),
 
                 # Age
                  dbc.Col([
                      html.H6("Age"),
                      dcc.Dropdown(id='select-age-ecs',
                                   options=ecs_age_options,
-                                  value='Juvenile',
+                                  value='Overall Age',
                                   clearable = False,
                                   )
                      ],style={
-                              'order': 3,
+                              'order': 4,
                               "margin-top":"10px"
                               },
                      ),
@@ -1687,24 +1744,10 @@ gbadsDash.layout = html.Div([
                                  clearable = False,
                                  )
                     ],style={
-                             "order": 4,
+                             "order": 5,
                              "margin-top":"10px",
                              },
-                    ),
-
-                # Production System
-                dbc.Col([
-                    html.H6("Production System"),
-                    dcc.Dropdown(id='select-prodsys-ecs',
-                                 options=ecs_prodsys_options,
-                                 value='Mixed crop livestock',
-                                 clearable = False,
-                                 ),
-                    ],style={
-                             "order":5,
-                             "margin-top":"10px",
-                             }
-                    ),
+                    ),                
 
                 # Metric
                 dbc.Col([
@@ -3180,7 +3223,7 @@ def update_waterfall_swine(input_json, metric, country, year, producerprice):
    y = waterfall_df[metric]
 
    # Burden of disease
-   mortality = waterfall_df.loc[waterfall_df['Component'] == 'Mortality & Condemns', metric ].iloc[0]
+   mortality = waterfall_df.loc[waterfall_df['Component'] == 'Mortality & Condemns', metric].iloc[0]
    morbidity = waterfall_df.loc[waterfall_df['Component'] == 'Morbidity', metric].iloc[0]
    BOD = abs(mortality + morbidity)
 
@@ -3535,50 +3578,67 @@ def reset_to_default_ecs(reset):
 # ------------------------------------------------------------------------------
 #### -- Data
 # ------------------------------------------------------------------------------
-# MUST HAPPEN FIRST: Calculate burden of disease components on core data
-# Updates when user changes achievable proportion slider
-# Does not care about simple filtering (country and year)
-# @gbadsDash.callback(
-#    Output('core-data-ecs','data'),
-#    Input('achievable-pct-slider-poultry','value'),
-#    Input('dof-slider-poultry','value'),
-#    Input('select-country-poultry','value'),
-#    Input('ration-price-slider-poultry','value'),
-#    Input('fcr-slider-poultry','value')
-#    )
-# def update_core_data_poultry(achievable_pct, avg_dof, country, feedprice, fcr):
-#    breed_label_touse = poultry_lookup_breed_from_country[country]
-#    breed_df_touse = poultry_lookup_breed_df[breed_label_touse]
-#    poultry_data_withbod = bod.calc_bod_master_poultry(
-#       gbads_chickens_merged_fordash
-#       ,ACHIEVABLE_PCT_MASTER=achievable_pct      # Integer [0, 120]: proportion of ideal production that is achievable without disease, i.e. efficiency of feed, medications, and practices
-#       ,AVG_DOF_MASTER=avg_dof                      # Integer (0, 63]: Average days on feed. Will lookup breed standard weight for this day on feed.
-#       ,BREED_DF_MASTER=breed_df_touse     # Data frame with breed reference information. Must contain columns 'dayonfeed' and 'bodyweight_g'.
-#       ,FEEDPRICE_USDPERTONNE_MASTER=feedprice           # Float
-#       ,IDEAL_FCR_LIVE_MASTER=fcr                        # Float: ideal FCR per kg live weight
-#       # ,AVG_CARC_YIELD_MASTER=0.695                 # Float [0, 1]: average carcass yield as proportion of live weight. If blank, will use 'bod_breedstdyield_prpn'.
-#    )
-#    poultry_data_withbod['year'] = poultry_data_withbod['year'].astype(str)   # Change Year type to text
-#    return poultry_data_withbod.to_json(date_format='iso', orient='split')
+@gbadsDash.callback(
+    Output('core-data-ecs','data'),
+    Input('select-species-ecs','value'),
+    Input('select-prodsys-ecs','value'),
+    Input('select-age-ecs','value'),
+    )
+def update_core_data_ecs(species, prodsys, age):
+    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
+    
+    # Species filter
+    if species == 'Goat':
+        input_df=input_df.loc[(input_df['species'] == species)]
+    elif species == "Sheep":
+        input_df=input_df.loc[(input_df['species'] == species)]
+    else:
+        input_df=input_df
+        
+    # Prodicton System filter
+    if prodsys == 'Crop Livestock Mixed':
+        input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+    elif prodsys == "Pastoral":
+        input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+    else:
+        input_df=input_df
+        
+    # Age filter
+    if age == 'Adult':
+        input_df=input_df.loc[(input_df['age_group'] == age)]
+    elif age == "Juvenile":
+        input_df=input_df.loc[(input_df['age_group'] == age)]
+    elif age == "Neonatal":
+        input_df=input_df.loc[(input_df['age_group'] == age)]
+    else:
+        input_df=input_df
+    
+    return input_df.to_json(date_format='iso', orient='split')
+
 
 # ------------------------------------------------------------------------------
 #### -- Figures
 # ------------------------------------------------------------------------------
 @gbadsDash.callback(
    Output('ecs-attr-treemap','figure'),
+   Input('core-data-ecs','data'),
    Input('select-species-ecs','value'),
    )
-def update_attr_treemap_ecs(species):
+def update_attr_treemap_ecs(input_json, species):
    # Data
-   input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'attribution_summary.csv'))
+   input_df = pd.read_json(input_json, orient='split')
+   # input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
    
-   # Apply absolute value to only show positive values (proportions of Gross Margin)
-   input_df['mean'] = abs(input_df['mean'])
+   # Prep data
+   input_df = prep_ahle_fortreemap_ecs(input_df)
 
+    # Set up treemap structure
    ecs_treemap_fig = create_attr_treemap_ecs(input_df)
    
-   ecs_treemap_fig.update_layout(title_text='Ethiopia Attribution for Small Ruminants',
-                               font_size=15)
+   # Add title
+   ecs_treemap_fig.update_layout(title_text=f'Attribution for {species}',
+                               font_size=15,
+                               margin=dict(t=100))
 
    return ecs_treemap_fig
 
@@ -3605,8 +3665,9 @@ def update_ahle_sunburst_ecs(species):
 
    ecs_sunburst_fig = create_ahle_sunburst_ecs(sunburst_df)
    
-   ecs_sunburst_fig.update_layout(title_text=f'Ethiopia AHLE | {species} <br><sup>Gross Margin: {Gross_Margin} (Total Value Increase - Total Expenditure)</sup><br>',
-                               font_size=15)
+   ecs_sunburst_fig.update_layout(title_text=f'Health Loss Envelope | {species} <br><sup>Gross Margin: {Gross_Margin} (Total Value Increase - Total Expenditure)</sup><br>',
+                               font_size=15,
+                               margin=dict(t=100))
 
    return ecs_sunburst_fig
 

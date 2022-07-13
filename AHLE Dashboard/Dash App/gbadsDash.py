@@ -32,6 +32,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
+import humanize
 
 # private (fa) libraries
 import lib.fa_dash_utils as fa
@@ -375,10 +376,10 @@ ecs_year_options = [{'label': i, 'value': i, 'disabled': True} for i in ["2011",
 ecs_year_options += [{'label': "2021", 'value': "2021", 'disabled': False}]
 
 # Species
-ecs_species_options = [{'label': i, 'value': i, 'disabled': True} for i in ["All",
+ecs_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["All Small Ruminants",
                                                                             "Goats",
+                                                                            "Sheep"
                                                                             ]]
-ecs_species_options += [{'label': "Sheep", 'value': "Sheep", 'disabled': False}]
 
 # Age
 ecs_age_options = [{'label': i, 'value': i, 'disabled': True} for i in ["All",
@@ -919,16 +920,22 @@ def create_stacked_bar_swine(input_df, x, y, color):
 
 # Define the attribution treemap
 def create_attr_treemap_ecs(input_df):
+    # Make mean more legible 
+    input_df["humanize_mean"]= input_df['mean'].apply(lambda x: humanize.intword(x))
+
     treemap_fig = px.treemap(input_df, 
-                                path=['AHLE', 
-                                      'Production system',
+                                path=['Production system',
+                                      'AHLE', 
                                       'Age class',
                                       'Cause'], 
-                                values='mean')
-
-    treemap_fig.update_traces(root_color="white")
+                                values='mean',
+                                custom_data=['humanize_mean'])
     
-    treemap_fig.update_layout(hovermode=False)
+    treemap_fig.update_traces(root_color="white",
+                              # hovertemplate='Attribution=%{label}<br>Value=%{customdata[0]}<extra></extra>')
+                               hovertemplate='Attribution=%{label}<br>Value=$%{value:,.2f}<extra></extra>')
+
+    # treemap_fig.update_layout(hovermode=False)
 
     return treemap_fig
 
@@ -938,16 +945,23 @@ def create_ahle_sunburst_ecs(input_df):
     #                             path=['Total', 'item'], 
     #                             values='envelope')
     
+    # Make mean more legible 
+    input_df["humanize_envelope"]= input_df['envelope'].apply(lambda x: humanize.intword(x))
+    
     sunburst_fig = px.icicle(input_df, 
                               path=['Total', 'item'], 
-                              values='envelope')
+                              values='envelope',
+                              custom_data=['humanize_envelope'])
     
-    sunburst_fig.update_traces(root_color="grey")
-    
-    sunburst_fig.update_layout(hovermode=False)
+    sunburst_fig.update_traces(root_color="white",
+                               # hovertemplate='Category=%{label}<br>Value=$%{customdata[0]}<extra></extra>')
+                                hovertemplate='Category=%{label}<br>Value=$%{value:,humanize.intword(value)}<extra></extra>')
+                                # hovertemplate='Category=%{label}<br>Value=$%{value:,.2f}<extra></extra>')
+
+
+    # sunburst_fig.update_layout(hovermode=False)
 
     return sunburst_fig
-
 
 #%% 4. LAYOUT
 ##################################################################################################
@@ -3583,7 +3597,8 @@ def update_ahle_sunburst_ecs(species):
    Total_Value_Increase = sunburst_df.loc[sunburst_df['Total'] == 'Total Value Increase', 'envelope'].sum()
    Total_Expenditure = sunburst_df.loc[sunburst_df['Total'] == 'Total Expenditure', 'envelope'].sum()
    Gross_Margin = Total_Value_Increase - Total_Expenditure
-   Gross_Margin = '${:,.0f} USD'.format(Gross_Margin)
+   # Gross_Margin = '${:,.0f} USD'.format(Gross_Margin)
+   Gross_Margin = '$' + humanize.intword(Gross_Margin)
 
    # Apply absolute value to only show positive values (proportions of Gross Margin)
    sunburst_df['envelope'] = abs(sunburst_df['envelope'])

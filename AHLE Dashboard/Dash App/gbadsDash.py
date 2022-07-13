@@ -382,12 +382,9 @@ for i in np.sort(ecs_ahle_all_summary2['species'].unique()):
    str(ecs_species_options.append({'label':i,'value':(i)}))
 
 # Age
-# Rename Overall to more descriptive
 # Drop rows with overall for age since the sum is going to be provided at the top level in the treemap
 ecs_ahle_all_summary2 = ecs_ahle_all_summary2[ecs_ahle_all_summary2.age_group != 'Overall']
  
-# ecs_ahle_all_summary2['age_group'] = ecs_ahle_all_summary2['age_group'].replace({'Overall': 'Overall Age'})
-
 ecs_age_options = [{'label': "Overall Age", 'value': "Overall Age", 'disabled': False}]
 
 for i in np.sort(ecs_ahle_all_summary2['age_group'].unique()):
@@ -397,9 +394,11 @@ for i in np.sort(ecs_ahle_all_summary2['age_group'].unique()):
 # Sex
 # Rename Overall to more descriptive
 ecs_ahle_all_summary2['sex'] = ecs_ahle_all_summary2['sex'].replace({'Overall': 'Overall Sex'})
-ecs_sex_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Male",
-                                                                        "Female",
-                                                                       ]]
+
+ecs_sex_options = []
+for i in np.sort(ecs_ahle_all_summary2['sex'].unique()):
+   str(ecs_sex_options.append({'label':i,'value':(i)}))
+
 
 # Production system
 ecs_prodsys_options = [{'label': "All Production Systems", 'value': "All Production Systems", 'disabled': False}]
@@ -1740,7 +1739,7 @@ gbadsDash.layout = html.Div([
                     html.H6("Sex"),
                     dcc.Dropdown(id='select-sex-ecs',
                                  options=ecs_sex_options,
-                                 value="Male",
+                                 value="Overall Sex",
                                  clearable = False,
                                  )
                     ],style={
@@ -1754,7 +1753,7 @@ gbadsDash.layout = html.Div([
                     html.H6("Metric"),
                     dcc.Dropdown(id='select-metric-ecs',
                                  options=ecs_metric_options,
-                                 value='Number of animals',
+                                 value='Value of outputs',
                                  clearable = False,
                                  ),
                     ],style={

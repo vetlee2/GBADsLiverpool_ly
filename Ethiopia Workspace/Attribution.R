@@ -1,17 +1,14 @@
 # =================================================================
 # Top-level program parameters
 # =================================================================
+cmd_n_samples <- 1000 				# Number of samples to take from distribution
+
 # -----------------------------------------------------------------
 # Set manually
 # -----------------------------------------------------------------
-# Folder location of input files (AHLE.xlsx and data.xlsx)
-cmd_input_directory <- '.'
-
-# Folder location for saving output files
-cmd_output_directory <- '.'
-
-#> Set number of samples to take from distribution
-cmd_n_samples = 1000
+cmd_input_ahle <- 'AHLE.csv'					# First argument: full path to AHLE estimates file (csv)
+cmd_input_expert <- 'data.csv' 				# Second argument: full path to expert opinion attribution file (csv)
+cmd_output_file <- 'attribution_summary.csv' 		# Third argument: folder location for saving output files
 
 # -----------------------------------------------------------------
 # Get from command line arguments
@@ -20,35 +17,36 @@ cmd_n_samples = 1000
 if (grepl('Rterm.exe', paste(commandArgs(), collapse=" "), ignore.case = TRUE, fixed = TRUE))
 {
 	cmd_args <- commandArgs(trailingOnly=TRUE)	# Fetch command line arguments
-	cmd_input_directory <- cmd_args[1] 				# First argument: folder location of input files (AHLE.xlsx and data.xlsx)
-	cmd_output_directory <- cmd_args[2] 			# Second argument: folder location for saving output files
-	cmd_n_samples <- as.numeric(cmd_args[3]) 		# Third argument: number of samples to take from distribution
+	cmd_input_ahle <- cmd_args[1] 					# First argument: full path to AHLE estimates file (csv)
+	cmd_input_expert <- cmd_args[2] 					# Second argument: full path to expert opinion attribution file (csv)
+	cmd_output_file <- cmd_args[3] 					# Third argument: full path to output file (csv)
 }
 
 # -----------------------------------------------------------------
 # Show in console
 # -----------------------------------------------------------------
 print('Using the following program parameters:')
-print('   Input directory')
-print(cmd_input_directory)
-print('   Output directory')
-print(cmd_output_directory)
+print('   Input files')
+print(cmd_input_ahle)
+print(cmd_input_expert)
+print('   Output file')
+print(cmd_output_file)
 
 # =================================================================
 # Define functions
 # =================================================================
 #> Attribution function
-attribute <- function(AHLE, Att, num_sample){
+attribute <- function(ahle_estimates, expert_attribution, num_sample){
   n = num_sample
   #> Split AHLE data and take samples from each AHLE, system, age group
-  LA <- split(AHLE, seq(nrow(AHLE)))
+  LA <- split(ahle_estimates, seq(nrow(ahle_estimates)))
   
   RA <- lapply(LA, function(x) rnorm(n, mean=x[[5]], sd=x[[6]])) %>%
     do.call(rbind,.) %>%
-    cbind(select(AHLE,!5:6),.)
+    cbind(select(ahle_estimates,!5:6),.)
   
   #> Average expert min, avg, and max values. Take samples from this distribution
-  a <- select(Att,!Expert) %>%
+  a <- select(expert_attribution,!Expert) %>%
     mutate(min = min/100,
            avg = avg/100,
            max = max/100) %>%
@@ -93,7 +91,7 @@ attribute <- function(AHLE, Att, num_sample){
 }
 
 # =================================================================
-# Prep
+# Preliminaries
 # =================================================================
 # Load pkgs
 pA <- c("tidyverse", "readxl", "mc2d", "reshape2")
@@ -103,8 +101,8 @@ lapply(pA, require, character.only = T)
 set.seed(123)
 
 #> Read AHLE and Attribution sheets
-AHLE <- read_xlsx(file.path(cmd_input_directory, "AHLE.xlsx"), sheet = 2)
-Att <- read_xlsx(file.path(cmd_input_directory, "data.xlsx"), sheet = 5)
+AHLE <- read_csv(cmd_input_ahle)
+Att <- read_csv(cmd_input_expert)
 
 # =================================================================
 # Run attribution
@@ -129,4 +127,4 @@ attribution_summary <- Ethiopia[[1]]
 #               fontcolor.labels="black", palette = "Set3")
 
 # Write to file
-write.csv(attribution_summary, file.path(cmd_output_directory, 'attribution_summary.csv'), row.names=FALSE)
+write.csv(attribution_summary, cmd_output_file, row.names=FALSE)

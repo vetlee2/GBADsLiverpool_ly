@@ -780,9 +780,9 @@ def prep_ahle_fortreemap_ecs(INPUT_DF):
                                                  'production_system',
                                                  'age_group',
                                                  'sex',
-                                                 'ahle_due_to_mortality',
-                                                 'ahle_due_to_productionloss',
-                                                 'ahle_due_to_healthcost']]
+                                                 'ahle_due_to_mortality_mean',
+                                                 'ahle_due_to_productionloss_mean',
+                                                 'ahle_due_to_healthcost_mean']]
 
    # Transpose data
    ecs_ahle_summary_tree_pivot = ecs_ahle_summary_sheep_sunburst.melt(
@@ -790,14 +790,14 @@ def prep_ahle_fortreemap_ecs(INPUT_DF):
                 'production_system',
                 'age_group',
                 'sex',], 
-       value_vars=['ahle_due_to_mortality',
-                   'ahle_due_to_productionloss',
-                   'ahle_due_to_healthcost'])
+       value_vars=['ahle_due_to_mortality_mean',
+                   'ahle_due_to_productionloss_mean',
+                   'ahle_due_to_healthcost_mean'])
 
    # Rename to use in treemap
-   ecs_ahle_summary_tree_pivot['AHLE'] = np.where(ecs_ahle_summary_tree_pivot.variable == 'ahle_due_to_mortality', "Mortality",
-                                         np.where(ecs_ahle_summary_tree_pivot.variable == 'ahle_due_to_productionloss', "Production Loss",
-                                         np.where(ecs_ahle_summary_tree_pivot.variable == 'ahle_due_to_healthcost', "Health Cost", "None")))
+   ecs_ahle_summary_tree_pivot['AHLE'] = np.where(ecs_ahle_summary_tree_pivot.variable == 'ahle_due_to_mortality_mean', "Mortality",
+                                         np.where(ecs_ahle_summary_tree_pivot.variable == 'ahle_due_to_productionloss_mean', "Production Loss",
+                                         np.where(ecs_ahle_summary_tree_pivot.variable == 'ahle_due_to_healthcost_mean', "Health Cost", "None")))
    
    # Replace 'overall' values with more descriptive values
    # ecs_ahle_summary_tree_pivot['age_group'] = ecs_ahle_summary_tree_pivot['age_group'].replace({'Overall': 'Overall Age'})
@@ -978,7 +978,7 @@ def create_attr_treemap_ecs(input_df):
                              values='value')
     
     treemap_fig.update_traces(root_color="white",
-                               hovertemplate='Attribution=%{label}<br>Value=$%{value:,.2f}<extra></extra>')
+                               hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} birr<extra></extra>')
 
 
     return treemap_fig
@@ -1000,7 +1000,7 @@ def create_ahle_sunburst_ecs(input_df):
     icicle_fig.update_traces(root_color="white",
                                # hovertemplate='Category=%{label}<br>Value=$%{customdata[0]}<extra></extra>')
                                 # hovertemplate='Category=%{label}<br>Value=$%{value:,humanize.intword(value)}<extra></extra>')
-                                hovertemplate='Category=%{label}<br>Value=$%{value:,.2f}<extra></extra>')
+                                hovertemplate='Category=%{label}<br>Value=$%{value:,.0f} birr<extra></extra>')
 
 
     return icicle_fig
@@ -3657,7 +3657,7 @@ def update_ahle_sunburst_ecs(species):
    Total_Expenditure = sunburst_df.loc[sunburst_df['Total'] == 'Total Expenditure', 'envelope'].sum()
    Gross_Margin = Total_Value_Increase - Total_Expenditure
    # Gross_Margin = '${:,.0f} USD'.format(Gross_Margin)
-   Gross_Margin = '$' + humanize.intword(Gross_Margin)
+   Gross_Margin = humanize.intword(Gross_Margin) + ' birr'
 
    # Apply absolute value to only show positive values (proportions of Gross Margin)
    sunburst_df['envelope'] = abs(sunburst_df['envelope'])

@@ -93,8 +93,8 @@ compartmental_model <- function(
 	,GammaM 		# offtake rate male
 	
 	# Mortality ## informed from META analysis
-	,AlphaN		# mortality rate juveniel ## parameter derived from meat pooled proportion and variance 
-	,AlphaJ		# mortality rate juveniel ## parameter derived from meat pooled proportion and variance 
+	,AlphaN		# mortality rate neonate ## parameter derived from meat pooled proportion and variance 
+	,AlphaJ		# mortality rate juvenile ## parameter derived from meat pooled proportion and variance 
 	,AlphaF		# mortality  adult female ##Parameter derived from meat pooled proportion and variance
 	,AlphaM		# motality adult male ##Parameter derived from meat pooled proportion and variancethin the national herd for breeding
 

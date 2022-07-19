@@ -100,7 +100,8 @@ DASH_DATA_FOLDER = os.path.join(CWD ,'data')
 
 # Folder location for ethiopia case study
 GBADsLiverpool=Path(os.getcwd()).parent.parent
-ECS_PROGRAM_OUTPUT_FOLDER = os.path.join(GBADsLiverpool, "Ethiopia Workspace\Program outputs")
+Ethiopia_Workspace = "Ethiopia Workspace"
+ECS_PROGRAM_OUTPUT_FOLDER = os.path.join(GBADsLiverpool, Ethiopia_Workspace, "Program outputs")
 
 # -----------------------------------------------------------------------------
 # Poultry

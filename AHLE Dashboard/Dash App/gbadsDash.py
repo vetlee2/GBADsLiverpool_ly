@@ -129,8 +129,8 @@ swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'
 # -----------------------------------------------------------------------------
 # Ethiopia Case Study
 # -----------------------------------------------------------------------------
-# AHLE Summary - Sheep
-ecs_ahle_summary_sheep = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_sheep_clm_summary_envelope.csv'))
+# AHLE Summary
+ecs_ahle_summary = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary.csv'))
 
 # Attribution Summary
 ecs_ahle_all_withattr = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
@@ -377,10 +377,11 @@ swine_lookup_breed_df = {
 # ecs_year_options += [{'label': "2021", 'value': "2021", 'disabled': False}]
 
 # Species
-ecs_species_options = [{'label': "All Small Ruminants", 'value': "All Small Ruminants", 'disabled': False}]
+# ecs_species_options = [{'label': "All Small Ruminants", 'value': "All Small Ruminants", 'disabled': False}]
 
-# for i in np.sort(ecs_ahle_all_summary2['species'].unique()):
-#    str(ecs_species_options.append({'label':i,'value':(i)}))
+ecs_species_options = []
+for i in np.sort(ecs_ahle_summary['species'].unique()):
+    str(ecs_species_options.append({'label':i,'value':(i)}))
 
 # Age
 # # Drop rows with overall for age since the sum is going to be provided at the top level in the treemap
@@ -800,47 +801,77 @@ def prep_ahle_fortreemap_ecs(INPUT_DF):
 def prep_ahle_forsunburst_ecs(INPUT_DF):
    working_df = INPUT_DF.copy()
    
-   # Trim the data to keep things needed for the sunburst chart
-   working_df = working_df[['item','envelope']]
+   # Trim the data to keep things needed for the treemap
+   ecs_ahle_summary_sheep_sunburst = working_df[['species',
+                                                             'production_system',
+                                                             'age_group',
+                                                             'sex',
+                                                             'item',
+                                                             'mean_current',
+                                                             'mean_ideal',
+                                                             'mean_mortality_zero']]
 
-   # Keep the lowest level of granularity
-   options = ['Value of Offtake',
-              'Value of Herd Increase',
-              'Value of Manure',
-              'Value of Hides', 
-              'Feed Cost', 
-              'Labour Cost',
-              'Health Cost', 
-              'Capital Cost']  
-   # Selecting rows based on item
-   working_df = working_df[working_df['item'].isin(options)]
+   # Keep only items for the waterfall
+   waterfall_plot_values = ('Value of Offtake',
+                            'Value of Herd Increase',
+                            'Value of Manure',
+                            'Value of Hides',
+                            'Feed Cost',
+                            'Labour Cost',
+                            'Health Cost',
+                            'Capital Cost',
+                            'Gross Margin')
+   ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['item'].isin(waterfall_plot_values)]
+
+   # Make costs negative
+   costs = ('Feed Cost',
+            'Labour Cost',
+            'Health Cost',
+            'Capital Cost')
+   ecs_ahle_summary_sheep_sunburst['mean_current'] = np.where(ecs_ahle_summary_sheep_sunburst.item.isin(costs), ecs_ahle_summary_sheep_sunburst['mean_current']* -1, ecs_ahle_summary_sheep_sunburst['mean_current'])
+
+   # TODO: Need to apply filters to the data
+   # # Apply filters as if dropdowns were applied
+   # ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['species'] == 'Sheep']
+   # ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['production_system'] == 'Crop livestock mixed']
+   # ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['age_group'] == 'Adult']
+   # ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['sex'] == 'Male']
+
    
-   # # Set the absolute value to show the proportions
-   # working_df['envelope'] = abs(working_df['envelope'])
+   # # Trim the data to keep things needed for the sunburst chart
+   # working_df = working_df[['item','envelope']]
 
-   # Set up structure for sunburst chart
-   # Center (Total) value is Gross Margin
-   # working_df['Margin'] = 'Gross Margin'
+   # # Keep the lowest level of granularity
+   # options = ['Value of Offtake',
+   #            'Value of Herd Increase',
+   #            'Value of Manure',
+   #            'Value of Hides', 
+   #            'Feed Cost', 
+   #            'Labour Cost',
+   #            'Health Cost', 
+   #            'Capital Cost']  
+   # # Selecting rows based on item
+   # working_df = working_df[working_df['item'].isin(options)]
 
-   # Next Level is Totals for Expenditure and Value Increase
-   value_rows = ['Value of Offtake',
-                 'Value of Herd Increase',
-                 'Value of Manure',
-                 'Value of Hides']
+   # # Next Level is Totals for Expenditure and Value Increase
+   # value_rows = ['Value of Offtake',
+   #               'Value of Herd Increase',
+   #               'Value of Manure',
+   #               'Value of Hides']
 
-   total_expenditure_rows = ['Feed Cost',
-                             'Labour Cost',
-                             'Health Cost',
-                             'Capital Cost']
+   # total_expenditure_rows = ['Feed Cost',
+   #                           'Labour Cost',
+   #                           'Health Cost',
+   #                           'Capital Cost']
 
 
-   for row in working_df['item']:
-       if row in value_rows:
-           i = working_df.index[working_df['item'] == row].tolist()
-           working_df.loc[i,['Total']] = 'Total Value Increase'
-       elif row in total_expenditure_rows:
-           i = working_df.index[working_df['item'] == row].tolist()
-           working_df.loc[i,['Total']] = 'Total Expenditure'
+   # for row in working_df['item']:
+   #     if row in value_rows:
+   #         i = working_df.index[working_df['item'] == row].tolist()
+   #         working_df.loc[i,['Total']] = 'Total Value Increase'
+   #     elif row in total_expenditure_rows:
+   #         i = working_df.index[working_df['item'] == row].tolist()
+   #         working_df.loc[i,['Total']] = 'Total Expenditure'
            
    OUTPUT_DF = working_df
 
@@ -974,21 +1005,35 @@ def create_ahle_sunburst_ecs(input_df):
     #                             path=['Total', 'item'], 
     #                             values='envelope')
     
-    # Make mean more legible 
-    input_df["humanize_envelope"]= input_df['envelope'].apply(lambda x: humanize.intword(x))
+    # # Make mean more legible 
+    # input_df["humanize_envelope"]= input_df['envelope'].apply(lambda x: humanize.intword(x))
     
-    icicle_fig = px.icicle(input_df, 
-                              path=['Total', 'item'], 
-                              values='envelope',
-                              custom_data=['humanize_envelope'])
+    # icicle_fig = px.icicle(input_df, 
+    #                           path=['Total', 'item'], 
+    #                           values='envelope',
+    #                           custom_data=['humanize_envelope'])
     
-    icicle_fig.update_traces(root_color="white",
-                               # hovertemplate='Category=%{label}<br>Value=$%{customdata[0]}<extra></extra>')
-                                # hovertemplate='Category=%{label}<br>Value=$%{value:,humanize.intword(value)}<extra></extra>')
-                                hovertemplate='Category=%{label}<br>Value=$%{value:,.0f} birr<extra></extra>')
+    # icicle_fig.update_traces(root_color="white",
+    #                          hovertemplate='Category=%{label}<br>Value=$%{value:,.0f} birr<extra></extra>')
 
+    waterfall_fig = go.Figure(go.Waterfall(
+       orientation = "v",
+       measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"],  # This needs to change with number of columns in waterfalll
+       x=input_df['item'],
+       y=input_df['mean_current'],
+       # text=text,
+       hoverinfo = 'none',
+       # textposition = ["outside","outside","auto","auto","outside"],
+       decreasing = {'marker':{"color":'#E84C3D'}},
+       increasing = {'marker':{"color":'#3598DB'}},
+       totals = {'marker':{"color":'#F7931D'}},
+       connector = {"line":{"color":"darkgrey"}}#"rgb(63, 63, 63)"}},
+       ))
 
-    return icicle_fig
+    waterfall_fig.update_layout(clickmode='event+select', ### EVENT SELECT ??????
+                                plot_bgcolor="#ededed")
+
+    return waterfall_fig
 
 #%% 4. LAYOUT
 ##################################################################################################
@@ -1018,7 +1063,8 @@ gbadsDash.layout = html.Div([
     #### Data to pass between callbacks
     dcc.Store(id='core-data-poultry'),
     dcc.Store(id='core-data-swine'),
-    dcc.Store(id='core-data-ecs'),
+    dcc.Store(id='core-data-attr-ecs'),
+    dcc.Store(id='core-data-ahle-ecs'),
 
     #### TABS
     dcc.Tabs([
@@ -1682,7 +1728,7 @@ gbadsDash.layout = html.Div([
                     html.H6("Species"),
                     dcc.Dropdown(id='select-species-ecs',
                                  options=ecs_species_options,
-                                 value='All Small Ruminants',
+                                 value='All small ruminants',
                                  clearable = False,
                                  ),
                     ],style={
@@ -3562,13 +3608,14 @@ def reset_to_default_ecs(reset):
 # ------------------------------------------------------------------------------
 #### -- Data
 # ------------------------------------------------------------------------------
+# Attribution Data
 @gbadsDash.callback(
-    Output('core-data-ecs','data'),
+    Output('core-data-attr-ecs','data'),
     Input('select-species-ecs','value'),
     Input('select-prodsys-ecs','value'),
     Input('select-age-ecs','value'),
     )
-def update_core_data_ecs(species, prodsys, age):
+def update_core_data_attr_ecs(species, prodsys, age):
     input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
     
     # # Species filter
@@ -3599,13 +3646,69 @@ def update_core_data_ecs(species, prodsys, age):
     
     return input_df.to_json(date_format='iso', orient='split')
 
+# AHLE Data
+@gbadsDash.callback(
+    Output('core-data-ahle-ecs','data'),
+    Input('select-species-ecs','value'),
+    Input('select-prodsys-ecs','value'),
+    Input('select-age-ecs','value'),
+    Input('select-sex-ecs','value'),
+    
+    )
+def update_core_data_ahle_ecs(species, prodsys, age, sex):
+    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary.csv'))
+    
+    # Species filter
+    if species == 'Goat':
+        input_df=input_df.loc[(input_df['species'] == species)]
+    elif species == "Sheep":
+        input_df=input_df.loc[(input_df['species'] == species)]
+    elif species == "All small ruminants":
+        input_df=input_df.loc[(input_df['species'] == species)]
+    else:
+        input_df=input_df
+        
+    # Prodicton System filter
+    if prodsys == 'Crop Livestock Mixed':
+        input_df=input_df.loc[(input_df['production_system'] == 'Crop livestock mixed')]
+    elif prodsys == "Pastoral":
+        input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+    elif prodsys == "All Production Systems":
+        input_df=input_df.loc[(input_df['production_system'] == 'overall')]
+    else:
+        input_df=input_df
+        
+    # Age filter
+    if age == 'Adult':
+        input_df=input_df.loc[(input_df['age_group'] == age)]
+    elif age == "Juvenile":
+        input_df=input_df.loc[(input_df['age_group'] == age)]
+    elif age == "Neonatal":
+        input_df=input_df.loc[(input_df['age_group'] == age)]
+    elif age == "Overall":
+        input_df=input_df.loc[(input_df['age_group'] == age)]
+    else:
+        input_df=input_df
+        
+    # Sex filter
+    if age == 'Male':
+        input_df=input_df.loc[(input_df['age_group'] == age)]
+    elif age == "Female":
+        input_df=input_df.loc[(input_df['age_group'] == age)]
+    elif age == "Overall":
+        input_df=input_df.loc[(input_df['age_group'] == age)]
+    else:
+        input_df=input_df
+    
+    return input_df.to_json(date_format='iso', orient='split')
+
 
 # ------------------------------------------------------------------------------
 #### -- Figures
 # ------------------------------------------------------------------------------
 @gbadsDash.callback(
    Output('ecs-attr-treemap','figure'),
-   Input('core-data-ecs','data'),
+   Input('core-data-attr-ecs','data'),
    )
 def update_attr_treemap_ecs(input_json):
    # Data
@@ -3627,32 +3730,64 @@ def update_attr_treemap_ecs(input_json):
 
 
 @gbadsDash.callback(
-   Output('ecs-ahle-sunburst','figure'),
-   Input('select-species-ecs','value'),
-   )
-def update_ahle_sunburst_ecs(species):
-   # Data
-   input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_sheep_clm_summary_envelope.csv'))
+    Output('ecs-ahle-sunburst','figure'),
+    Input('core-data-ahle-ecs','data'),
+    Input('select-species-ecs','value'),
+    )
+def update_ahle_sunburst_ecs(input_json, species):
+    # Data
+    # input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv'))
+    input_df = pd.read_json(input_json, orient='split')
+    
+    # Prep the data 
+    sunburst_df = prep_ahle_forsunburst_ecs(input_df)
    
-   sunburst_df = prep_ahle_forsunburst_ecs(input_df)
+    # # Calculate Gross Margin to display
+    # Total_Value_Increase = sunburst_df.loc[sunburst_df['Total'] == 'Total Value Increase', 'envelope'].sum()
+    # Total_Expenditure = sunburst_df.loc[sunburst_df['Total'] == 'Total Expenditure', 'envelope'].sum()
+    # Gross_Margin = Total_Value_Increase - Total_Expenditure
+    # # Gross_Margin = '${:,.0f} USD'.format(Gross_Margin)
+    # Gross_Margin = humanize.intword(Gross_Margin) + ' birr'
+
+    # # Apply absolute value to only show positive values (proportions of Gross Margin)
+    # sunburst_df['envelope'] = abs(sunburst_df['envelope'])
+
+    ecs_sunburst_fig = create_ahle_sunburst_ecs(sunburst_df)
    
-   # Calculate Gross Margin to display
-   Total_Value_Increase = sunburst_df.loc[sunburst_df['Total'] == 'Total Value Increase', 'envelope'].sum()
-   Total_Expenditure = sunburst_df.loc[sunburst_df['Total'] == 'Total Expenditure', 'envelope'].sum()
-   Gross_Margin = Total_Value_Increase - Total_Expenditure
-   # Gross_Margin = '${:,.0f} USD'.format(Gross_Margin)
-   Gross_Margin = humanize.intword(Gross_Margin) + ' birr'
+    # Add title
+    ecs_sunburst_fig.update_layout(title_text=f'Health Loss Envelope | {species} <br><sup>Gross Margin = Total Value Increase - Total Expenditure</sup><br>',
+                                font_size=15,
+                                margin=dict(t=100))
 
-   # Apply absolute value to only show positive values (proportions of Gross Margin)
-   sunburst_df['envelope'] = abs(sunburst_df['envelope'])
+    return ecs_sunburst_fig
 
-   ecs_sunburst_fig = create_ahle_sunburst_ecs(sunburst_df)
+# @gbadsDash.callback(
+#     Output('ecs-ahle-sunburst','figure'),
+#     Input('select-species-ecs','value'),
+#     )
+# def update_ahle_sunburst_ecs(species):
+#     # Data
+#     input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv'))
    
-   ecs_sunburst_fig.update_layout(title_text=f'Health Loss Envelope | {species} <br><sup>Gross Margin: {Gross_Margin} (Total Value Increase - Total Expenditure)</sup><br>',
-                               font_size=15,
-                               margin=dict(t=100))
+#     sunburst_df = prep_ahle_forsunburst_ecs(input_df)
+   
+#     # Calculate Gross Margin to display
+#     Total_Value_Increase = sunburst_df.loc[sunburst_df['Total'] == 'Total Value Increase', 'envelope'].sum()
+#     Total_Expenditure = sunburst_df.loc[sunburst_df['Total'] == 'Total Expenditure', 'envelope'].sum()
+#     Gross_Margin = Total_Value_Increase - Total_Expenditure
+#     # Gross_Margin = '${:,.0f} USD'.format(Gross_Margin)
+#     Gross_Margin = humanize.intword(Gross_Margin) + ' birr'
 
-   return ecs_sunburst_fig
+#     # Apply absolute value to only show positive values (proportions of Gross Margin)
+#     sunburst_df['envelope'] = abs(sunburst_df['envelope'])
+
+#     ecs_sunburst_fig = create_ahle_sunburst_ecs(sunburst_df)
+   
+#     ecs_sunburst_fig.update_layout(title_text=f'Health Loss Envelope | {species} <br><sup>Gross Margin: {Gross_Margin} (Total Value Increase - Total Expenditure)</sup><br>',
+#                                 font_size=15,
+#                                 margin=dict(t=100))
+
+#     return ecs_sunburst_fig
 
 
 

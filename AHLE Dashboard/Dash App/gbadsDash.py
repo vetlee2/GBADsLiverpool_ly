@@ -100,7 +100,8 @@ DASH_DATA_FOLDER = os.path.join(CWD ,'data')
 
 # Folder location for ethiopia case study
 GBADsLiverpool=Path(os.getcwd()).parent.parent
-ECS_PROGRAM_OUTPUT_FOLDER = os.path.join(GBADsLiverpool, "Ethiopia Workspace\Program outputs")
+Ethiopia_Workspace = "Ethiopia Workspace"
+ECS_PROGRAM_OUTPUT_FOLDER = os.path.join(GBADsLiverpool, Ethiopia_Workspace, "Program outputs")
 
 # -----------------------------------------------------------------------------
 # Poultry
@@ -132,7 +133,7 @@ swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'
 ecs_ahle_summary_sheep = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_sheep_clm_summary_envelope.csv'))
 
 # Attribution Summary
-ecs_ahle_all_summary2 = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
+ecs_ahle_all_withattr = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
 
 # =============================================================================
 #### User options and defaults
@@ -378,32 +379,32 @@ swine_lookup_breed_df = {
 # Species
 ecs_species_options = [{'label': "All Small Ruminants", 'value': "All Small Ruminants", 'disabled': False}]
 
-for i in np.sort(ecs_ahle_all_summary2['species'].unique()):
-   str(ecs_species_options.append({'label':i,'value':(i)}))
+# for i in np.sort(ecs_ahle_all_summary2['species'].unique()):
+#    str(ecs_species_options.append({'label':i,'value':(i)}))
 
 # Age
-# Drop rows with overall for age since the sum is going to be provided at the top level in the treemap
-ecs_ahle_all_summary2 = ecs_ahle_all_summary2[ecs_ahle_all_summary2.age_group != 'Overall']
+# # Drop rows with overall for age since the sum is going to be provided at the top level in the treemap
+# ecs_ahle_all_withattr = ecs_ahle_all_withattr[ecs_ahle_all_withattr.age_group != 'Overall']
  
 ecs_age_options = [{'label': "Overall Age", 'value': "Overall Age", 'disabled': False}]
 
-for i in np.sort(ecs_ahle_all_summary2['age_group'].unique()):
+for i in np.sort(ecs_ahle_all_withattr['age_group'].unique()):
    str(ecs_age_options.append({'label':i,'value':(i)}))
 
 
 # Sex
 # Rename Overall to more descriptive
-ecs_ahle_all_summary2['sex'] = ecs_ahle_all_summary2['sex'].replace({'Overall': 'Overall Sex'})
+ecs_ahle_all_withattr['sex'] = ecs_ahle_all_withattr['sex'].replace({'Overall': 'Overall Sex'})
 
 ecs_sex_options = []
-for i in np.sort(ecs_ahle_all_summary2['sex'].unique()):
+for i in np.sort(ecs_ahle_all_withattr['sex'].unique()):
    str(ecs_sex_options.append({'label':i,'value':(i)}))
 
 
 # Production system
 ecs_prodsys_options = [{'label': "All Production Systems", 'value': "All Production Systems", 'disabled': False}]
 
-for i in np.sort(ecs_ahle_all_summary2['production_system'].unique()):
+for i in np.sort(ecs_ahle_all_withattr['production_system'].unique()):
    str(ecs_prodsys_options.append({'label':i,'value':(i)}))
 
 # Metric
@@ -776,38 +777,22 @@ def prep_ahle_fortreemap_ecs(INPUT_DF):
    working_df = INPUT_DF.copy()
    
    # Trim the data to keep things needed for the treemap
-   ecs_ahle_summary_sheep_sunburst = working_df[['species',
-                                                 'production_system',
+   ecs_ahle_attr_treemap = working_df[['production_system',
                                                  'age_group',
                                                  'sex',
-                                                 'ahle_due_to_mortality_mean',
-                                                 'ahle_due_to_productionloss_mean',
-                                                 'ahle_due_to_healthcost_mean']]
+                                                 'ahle_component',
+                                                 'cause',
+                                                 'mean']]
 
-   # Transpose data
-   ecs_ahle_summary_tree_pivot = ecs_ahle_summary_sheep_sunburst.melt(
-       id_vars=['species',
-                'production_system',
-                'age_group',
-                'sex',], 
-       value_vars=['ahle_due_to_mortality_mean',
-                   'ahle_due_to_productionloss_mean',
-                   'ahle_due_to_healthcost_mean'])
 
-   # Rename to use in treemap
-   ecs_ahle_summary_tree_pivot['AHLE'] = np.where(ecs_ahle_summary_tree_pivot.variable == 'ahle_due_to_mortality_mean', "Mortality",
-                                         np.where(ecs_ahle_summary_tree_pivot.variable == 'ahle_due_to_productionloss_mean', "Production Loss",
-                                         np.where(ecs_ahle_summary_tree_pivot.variable == 'ahle_due_to_healthcost_mean', "Health Cost", "None")))
-   
    # Replace 'overall' values with more descriptive values
    # ecs_ahle_summary_tree_pivot['age_group'] = ecs_ahle_summary_tree_pivot['age_group'].replace({'Overall': 'Overall Age'})
-   ecs_ahle_summary_tree_pivot['sex'] = ecs_ahle_summary_tree_pivot['sex'].replace({'Overall': 'Overall Sex'})
+   ecs_ahle_attr_treemap['sex'] = ecs_ahle_attr_treemap['sex'].replace({'Overall': 'Overall Sex'})
      
-   # Drop rows with overall for age since the sum is going to be provided at the top level in the treemap
-   ecs_ahle_summary_tree_pivot = ecs_ahle_summary_tree_pivot[ecs_ahle_summary_tree_pivot.age_group != 'Overall']
-    
+   # Replace mortality with mortality loss 
+   ecs_ahle_attr_treemap['ahle_component'] = ecs_ahle_attr_treemap['ahle_component'].replace({'Mortality': 'Mortality Loss'})
    
-   OUTPUT_DF = ecs_ahle_summary_tree_pivot
+   OUTPUT_DF = ecs_ahle_attr_treemap
                                     
    return OUTPUT_DF
 
@@ -970,12 +955,12 @@ def create_stacked_bar_swine(input_df, x, y, color):
 # Define the attribution treemap
 def create_attr_treemap_ecs(input_df):
     treemap_fig = px.treemap(input_df, 
-                             path=['species', 
-                                   'production_system',
-                                   'AHLE',
-                                   'age_group',
-                                   'sex'], 
-                             values='value')
+                      path=['production_system',
+                            'age_group',
+                            'sex',
+                            'ahle_component',
+                            'cause'], 
+                      values='mean')
     
     treemap_fig.update_traces(root_color="white",
                                hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} birr<extra></extra>')
@@ -3584,15 +3569,15 @@ def reset_to_default_ecs(reset):
     Input('select-age-ecs','value'),
     )
 def update_core_data_ecs(species, prodsys, age):
-    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
+    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
     
-    # Species filter
-    if species == 'Goat':
-        input_df=input_df.loc[(input_df['species'] == species)]
-    elif species == "Sheep":
-        input_df=input_df.loc[(input_df['species'] == species)]
-    else:
-        input_df=input_df
+    # # Species filter
+    # if species == 'Goat':
+    #     input_df=input_df.loc[(input_df['species'] == species)]
+    # elif species == "Sheep":
+    #     input_df=input_df.loc[(input_df['species'] == species)]
+    # else:
+    #     input_df=input_df
         
     # Prodicton System filter
     if prodsys == 'Crop Livestock Mixed':
@@ -3621,9 +3606,8 @@ def update_core_data_ecs(species, prodsys, age):
 @gbadsDash.callback(
    Output('ecs-attr-treemap','figure'),
    Input('core-data-ecs','data'),
-   Input('select-species-ecs','value'),
    )
-def update_attr_treemap_ecs(input_json, species):
+def update_attr_treemap_ecs(input_json):
    # Data
    input_df = pd.read_json(input_json, orient='split')
    # input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
@@ -3635,7 +3619,7 @@ def update_attr_treemap_ecs(input_json, species):
    ecs_treemap_fig = create_attr_treemap_ecs(input_df)
    
    # Add title
-   ecs_treemap_fig.update_layout(title_text=f'Attribution for {species}',
+   ecs_treemap_fig.update_layout(title_text='Attribution for All Small Ruminants',
                                font_size=15,
                                margin=dict(t=100))
 

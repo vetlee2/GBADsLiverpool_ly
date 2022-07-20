@@ -960,8 +960,7 @@ def create_ahle_waterfall_ecs(input_df, x):
     #                           path=['Total', 'item'], 
     #                           values='envelope',
     #                           custom_data=['humanize_envelope'])
-    
-    # icicle_fig.update_traces(root_color="white",
+    # icicle_fig.update_tra0c1es(root_color="white",
     #                          hovertemplate='Category=%{label}<br>Value=$%{value:,.0f} birr<extra></extra>')
 
     waterfall_fig = go.Figure(go.Waterfall(

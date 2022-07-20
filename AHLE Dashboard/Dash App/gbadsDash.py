@@ -784,7 +784,7 @@ def prep_ahle_fortreemap_ecs(INPUT_DF):
    return OUTPUT_DF
 
 
-def prep_ahle_forsunburst_ecs(INPUT_DF):
+def prep_ahle_forwaterfall_ecs(INPUT_DF):
    working_df = INPUT_DF.copy()
    
    # Trim the data to keep things needed for the treemap
@@ -820,51 +820,8 @@ def prep_ahle_forsunburst_ecs(INPUT_DF):
    ecs_ahle_summary_sheep_sunburst['item'] = ecs_ahle_summary_sheep_sunburst['item'].astype('category')
    ecs_ahle_summary_sheep_sunburst.item.cat.set_categories(waterfall_plot_values, inplace=True)
    ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.sort_values(["item"])
-   
-   
-   # # Apply filters as if dropdowns were applied
-   # ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['species'] == 'Sheep']
-   # ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['production_system'] == 'Crop livestock mixed']
-   # ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['age_group'] == 'Adult']
-   # ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['sex'] == 'Male']
-
-   
-   # # Trim the data to keep things needed for the sunburst chart
-   # working_df = working_df[['item','envelope']]
-
-   # # Keep the lowest level of granularity
-   # options = ['Value of Offtake',
-   #            'Value of Herd Increase',
-   #            'Value of Manure',
-   #            'Value of Hides', 
-   #            'Feed Cost', 
-   #            'Labour Cost',
-   #            'Health Cost', 
-   #            'Capital Cost']  
-   # # Selecting rows based on item
-   # working_df = working_df[working_df['item'].isin(options)]
-
-   # # Next Level is Totals for Expenditure and Value Increase
-   # value_rows = ['Value of Offtake',
-   #               'Value of Herd Increase',
-   #               'Value of Manure',
-   #               'Value of Hides']
-
-   # total_expenditure_rows = ['Feed Cost',
-   #                           'Labour Cost',
-   #                           'Health Cost',
-   #                           'Capital Cost']
-
-
-   # for row in working_df['item']:
-   #     if row in value_rows:
-   #         i = working_df.index[working_df['item'] == row].tolist()
-   #         working_df.loc[i,['Total']] = 'Total Value Increase'
-   #     elif row in total_expenditure_rows:
-   #         i = working_df.index[working_df['item'] == row].tolist()
-   #         working_df.loc[i,['Total']] = 'Total Expenditure'
            
-   OUTPUT_DF = working_df
+   OUTPUT_DF = ecs_ahle_summary_sheep_sunburst
 
    return OUTPUT_DF
 
@@ -991,7 +948,7 @@ def create_attr_treemap_ecs(input_df):
     return treemap_fig
 
 # Define the AHLE sunburst
-def create_ahle_sunburst_ecs(input_df):
+def create_ahle_waterfall_ecs(input_df, x):
     # sunburst_fig = px.sunburst(input_df, 
     #                             path=['Total', 'item'], 
     #                             values='envelope')
@@ -1010,7 +967,7 @@ def create_ahle_sunburst_ecs(input_df):
     waterfall_fig = go.Figure(go.Waterfall(
        orientation = "v",
        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"],  # This needs to change with number of columns in waterfalll
-       x=input_df['item'],
+       x=x,
        y=input_df['mean_current'],
        # text=text,
        # hoverinfo = 'none',
@@ -3675,25 +3632,23 @@ def update_core_data_attr_ecs(prodsys, age, sex, attr):
     else:
         input_df=input_df
     
-    # # Sex filter
-    # if sex == 'Male':
-    #     input_df=input_df.loc[(input_df['sex'] == sex)]
-    # elif sex == "Female":
-    #     input_df=input_df.loc[(input_df['sex'] == sex)]
-    # elif sex == "Overall Sex":
-    #     input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-    # else:
-    #     input_df=input_df
+    # Sex filter
+    if sex == 'Male':
+        input_df=input_df.loc[(input_df['sex'] == sex)]
+    elif sex == "Female":
+        input_df=input_df.loc[(input_df['sex'] == sex)]
+    else:
+        input_df=input_df
         
-    # # Attribution filter
-    # if attr == 'External':
-    #     input_df=input_df.loc[(input_df['cause'] == attr)]
-    # elif attr == "Infectious":
-    #     input_df=input_df.loc[(input_df['cause'] == attr)]
-    # elif attr == "Non-infectious":
-    #     input_df=input_df.loc[(input_df['cause'] == attr)]
-    # else:
-    #     input_df=input_df
+    # Attribution filter
+    if attr == 'External':
+        input_df=input_df.loc[(input_df['cause'] == attr)]
+    elif attr == "Infectious":
+        input_df=input_df.loc[(input_df['cause'] == attr)]
+    elif attr == "Non-infectious":
+        input_df=input_df.loc[(input_df['cause'] == attr)]
+    else:
+        input_df=input_df
     
     return input_df.to_json(date_format='iso', orient='split')
 
@@ -3867,60 +3822,41 @@ def update_attr_treemap_ecs(input_json, prodsys):
 @gbadsDash.callback(
     Output('ecs-ahle-sunburst','figure'),
     Input('core-data-ahle-ecs','data'),
+    Input('select-age-ecs','value'),
     Input('select-species-ecs','value'),
     )
-def update_ahle_sunburst_ecs(input_json, species):
+def update_ahle_waterfall_ecs(input_json, age, species):
     # Data
     # input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv'))
     input_df = pd.read_json(input_json, orient='split')
     
     # Prep the data 
-    # sunburst_df = prep_ahle_forsunburst_ecs(input_df)
-    working_df = input_df.copy()
+    prep_df = prep_ahle_forsunburst_ecs(input_df)
     
-    # Trim the data to keep things needed for the treemap
-    ecs_ahle_summary_sheep_sunburst = working_df[['species',
-                                                  'production_system',
-                                                  'age_group',
-                                                  'sex',
-                                                  'item',
-                                                  'mean_current',
-                                                  'mean_ideal',
-                                                  'mean_mortality_zero']]
+    # Age filter
+    if age == "Neonatal": # Removing value of hides for neonatal
+        waterfall_plot_values = ('Value of Offtake',
+                                 'Value of Herd Increase',
+                                 'Value of Manure',
+                                 'Feed Cost',
+                                 'Labour Cost',
+                                 'Health Cost',
+                                 'Capital Cost',
+                                 'Gross Margin')
+        prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
+        x = prep_df['item']
+    else:
+        x = prep_df['item']
 
-    # Keep only items for the waterfall
-    waterfall_plot_values = ('Value of Offtake',
-                             'Value of Herd Increase',
-                             'Value of Manure',
-                             'Value of Hides',
-                             'Feed Cost',
-                             'Labour Cost',
-                             'Health Cost',
-                             'Capital Cost',
-                             'Gross Margin')
-    ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['item'].isin(waterfall_plot_values)]
-
-    # Make costs negative
-    costs = ('Feed Cost',
-             'Labour Cost',
-             'Health Cost',
-             'Capital Cost')
-    ecs_ahle_summary_sheep_sunburst['mean_current'] = np.where(ecs_ahle_summary_sheep_sunburst.item.isin(costs), ecs_ahle_summary_sheep_sunburst['mean_current']* -1, ecs_ahle_summary_sheep_sunburst['mean_current'])
-
-    # Sort Item column to keep values and costs together
-    ecs_ahle_summary_sheep_sunburst['item'] = ecs_ahle_summary_sheep_sunburst['item'].astype('category')
-    ecs_ahle_summary_sheep_sunburst.item.cat.set_categories(waterfall_plot_values, inplace=True)
-    ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.sort_values(["item"])
-   
     # Create graph
-    ecs_sunburst_fig = create_ahle_sunburst_ecs(ecs_ahle_summary_sheep_sunburst)
+    ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, x)
    
     # Add title
-    ecs_sunburst_fig.update_layout(title_text=f'Animal Health Loss Envelope (AHLE) | {species} <br><sup>Gross Margin = Total Value Increase - Total Expenditure</sup><br>',
+    ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope (AHLE) | {species} <br><sup>Gross Margin = Total Value Increase - Total Expenditure</sup><br>',
                                 font_size=15,
                                 margin=dict(t=100))
 
-    return ecs_sunburst_fig
+    return ecs_waterfall_fig
 
 # @gbadsDash.callback(
 #     Output('ecs-ahle-sunburst','figure'),

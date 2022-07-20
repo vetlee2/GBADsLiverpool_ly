@@ -3659,6 +3659,9 @@ def update_core_data_attr_ecs(prodsys, age, sex, attr):
 def update_ecs_attr_data(input_json):
     input_df = pd.read_json(input_json, orient='split')
     
+    # Format numbers
+    input_df.update(input_df[['mean']].applymap('{:,.0f}'.format))
+    
     columns_to_display_with_labels = {
       'production_system':'Production System'
       ,'age_group':'Age'
@@ -3667,16 +3670,10 @@ def update_ecs_attr_data(input_json):
       ,'cause':'Attribution'
       ,'mean':'Mean (birr)'
     }
-   # breed_data = swinebreedstd_pic_growthandfeed.copy()
 
     # Subset columns
     input_df = input_df[list(columns_to_display_with_labels)]
 
-   # # Format numbers
-   # breed_data.update(breed_data[['dayonfeed']].applymap('{:,.0f}'.format))
-   # breed_data.update(breed_data[['bodyweight_kg' ,'cml_feedintake_kg']].applymap('{:,.1f}'.format))
-   # breed_data.update(breed_data[['cml_fcr']].applymap('{:,.2f}'.format))
-   
     return [
             html.H4("Attribution Data"),
             dash_table.DataTable(
@@ -3755,25 +3752,34 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
 def update_ecs_ahle_data(input_json):
     input_df = pd.read_json(input_json, orient='split')
     
+    # Format numbers
+    input_df.update(input_df[['mean_current','mean_ideal' , 'mean_mortality_zero']].applymap('{:,.0f}'.format))
+
     columns_to_display_with_labels = {
       'species':'Species'
       ,'production_system':'Production System'
       ,'item':'Value or Cost'
       ,'age_group':'Age'
       ,'sex':'Sex'
-      ,'mean_current':'Current (mean)'
-      ,'mean_ideal':'Ideal (mean)'
-      ,'mean_mortality_zero':'Zero Mortality (mean)'
+      ,'mean_current':'Current Mean (birr)'
+      ,'mean_ideal':'Ideal Mean (birr)'
+      ,'mean_mortality_zero':'Zero Mortality Mean (birr)'
     }
-   # breed_data = swinebreedstd_pic_growthandfeed.copy()
-
+    
     # Subset columns
     input_df = input_df[list(columns_to_display_with_labels)]
-
-   # # Format numbers
-   # breed_data.update(breed_data[['dayonfeed']].applymap('{:,.0f}'.format))
-   # breed_data.update(breed_data[['bodyweight_kg' ,'cml_feedintake_kg']].applymap('{:,.1f}'.format))
-   # breed_data.update(breed_data[['cml_fcr']].applymap('{:,.2f}'.format))
+    
+    # Keep only items for the waterfall
+    waterfall_plot_values = ('Value of Offtake',
+                             'Value of Herd Increase',
+                             'Value of Manure',
+                             'Value of Hides',
+                             'Feed Cost',
+                             'Labour Cost',
+                             'Health Cost',
+                             'Capital Cost',
+                             'Gross Margin')
+    input_df = input_df.loc[input_df['item'].isin(waterfall_plot_values)]
 
 
     return [
@@ -3830,7 +3836,7 @@ def update_ahle_waterfall_ecs(input_json, age, species):
     input_df = pd.read_json(input_json, orient='split')
     
     # Prep the data 
-    prep_df = prep_ahle_forsunburst_ecs(input_df)
+    prep_df = prep_ahle_forwaterfall_ecs(input_df)
     
     # Age filter
     if age == "Neonatal": # Removing value of hides for neonatal

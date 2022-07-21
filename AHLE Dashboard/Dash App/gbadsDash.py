@@ -394,9 +394,14 @@ for i in np.sort(ecs_ahle_summary['species'].unique()):
     str(ecs_species_options.append({'label':i,'value':(i)}))
 
 
-# Metric
-ecs_metric_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Number of animals",
-                                                                            "Value of outputs",
+# # Metric
+# ecs_metric_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Number of animals",
+#                                                                             "Value of outputs",
+#                                                                             ]]
+
+# Scenario
+ecs_scenario_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Current",
+                                                                            "Ideal",
                                                                             ]]
 
 # Defaults for sliders
@@ -815,11 +820,18 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
             'Health Cost',
             'Capital Cost')
    ecs_ahle_summary_sheep_sunburst['mean_current'] = np.where(ecs_ahle_summary_sheep_sunburst.item.isin(costs), ecs_ahle_summary_sheep_sunburst['mean_current']* -1, ecs_ahle_summary_sheep_sunburst['mean_current'])
+   ecs_ahle_summary_sheep_sunburst['mean_ideal'] = np.where(ecs_ahle_summary_sheep_sunburst.item.isin(costs), ecs_ahle_summary_sheep_sunburst['mean_ideal']* -1, ecs_ahle_summary_sheep_sunburst['mean_ideal'])
+   ecs_ahle_summary_sheep_sunburst['mean_mortality_zero'] = np.where(ecs_ahle_summary_sheep_sunburst.item.isin(costs), ecs_ahle_summary_sheep_sunburst['mean_mortality_zero']* -1, ecs_ahle_summary_sheep_sunburst['mean_mortality_zero'])
 
    # Sort Item column to keep values and costs together
    ecs_ahle_summary_sheep_sunburst['item'] = ecs_ahle_summary_sheep_sunburst['item'].astype('category')
    ecs_ahle_summary_sheep_sunburst.item.cat.set_categories(waterfall_plot_values, inplace=True)
    ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.sort_values(["item"])
+   
+   # Create AHLE columns
+   ecs_ahle_summary_sheep_sunburst['mean_AHLE'] = ecs_ahle_summary_sheep_sunburst['mean_ideal'] - ecs_ahle_summary_sheep_sunburst['mean_current']
+   ecs_ahle_summary_sheep_sunburst['mean_AHLE_mortality'] = ecs_ahle_summary_sheep_sunburst['mean_mortality_zero'] - ecs_ahle_summary_sheep_sunburst['mean_current']
+   
            
    OUTPUT_DF = ecs_ahle_summary_sheep_sunburst
 
@@ -948,7 +960,7 @@ def create_attr_treemap_ecs(input_df):
     return treemap_fig
 
 # Define the AHLE sunburst
-def create_ahle_waterfall_ecs(input_df, x):
+def create_ahle_waterfall_ecs(input_df, x, y):
     # sunburst_fig = px.sunburst(input_df, 
     #                             path=['Total', 'item'], 
     #                             values='envelope')
@@ -967,7 +979,7 @@ def create_ahle_waterfall_ecs(input_df, x):
        orientation = "v",
        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"],  # This needs to change with number of columns in waterfalll
        x=x,
-       y=input_df['mean_current'],
+       y=y,
        # text=text,
        # hoverinfo = 'none',
        # textposition = ["outside","outside","auto","auto","outside"],
@@ -1668,6 +1680,20 @@ gbadsDash.layout = html.Div([
 
             #### -- DROPDOWNS CONTROLS
             dbc.Row([
+                
+                # Attribution
+                dbc.Col([
+                    html.H6("Attribution"),
+                    dcc.Dropdown(id='select-attr-ecs',
+                                 options=ecs_attr_options,
+                                 value='All Causes',
+                                 clearable = False,
+                                 ),
+                    ],style={
+                        "order":6,
+                        "margin-top":"10px"
+                        },
+                 ),
                                 
                 # Production System
                 dbc.Col([
@@ -1711,20 +1737,6 @@ gbadsDash.layout = html.Div([
                              },
                     ), 
                         
-                # Attribution
-                dbc.Col([
-                    html.H6("Attribution"),
-                    dcc.Dropdown(id='select-attr-ecs',
-                                 options=ecs_attr_options,
-                                 value='All Causes',
-                                 clearable = False,
-                                 ),
-                    ],style={
-                        "order":6,
-                        "margin-top":"10px"
-                        },
-                 ),
-                        
                 # Species
                 dbc.Col([
                     html.H6("Species"),
@@ -1739,21 +1751,36 @@ gbadsDash.layout = html.Div([
                              },
                     ),
 
-                # Metric
+                # # Metric
+                # dbc.Col([
+                #     html.H6("Metric"),
+                #     dcc.Dropdown(id='select-metric-ecs',
+                #                  options=ecs_metric_options,
+                #                  value='Value of outputs',
+                #                  clearable = False,
+                #                  ),
+                #     ],style={
+                #              "order":8,
+                #              "margin-top":"10px",
+                #              "margin-right": '10px'
+                #              },
+                #     ),
+                # Scenario
                 dbc.Col([
-                    html.H6("Metric"),
-                    dcc.Dropdown(id='select-metric-ecs',
-                                 options=ecs_metric_options,
-                                 value='Value of outputs',
-                                 clearable = False,
+                    html.H6("Scenario"),
+                    dcc.RadioItems(id='select-scenario-ecs',
+                                 options=ecs_scenario_options,
+                                 value='Current',
+                                 labelStyle={'display': 'block'},
+                                 inputStyle={"margin-right": "10px"}, # This pulls the words off of the button
                                  ),
                     ],style={
                              "order":8,
                              "margin-top":"10px",
                              "margin-right": '10px'
                              },
+                        
                     ),
-
                 ], justify='evenly'),
 
 
@@ -1950,7 +1977,7 @@ gbadsDash.layout = html.Div([
                ]),
                dbc.Col([
                   # Cost Assumptions
-                  html.P("*Ideal costs assume there were no mortality or morbidity."),
+                  html.P("*Ideal assumes there were no mortality or morbidity."),
                ]),
             ], style={'margin-left':"40px", 'font-style': 'italic'}
             ),
@@ -3763,7 +3790,9 @@ def update_ecs_ahle_data(input_json):
       ,'sex':'Sex'
       ,'mean_current':'Current Mean (birr)'
       ,'mean_ideal':'Ideal Mean (birr)'
-      ,'mean_mortality_zero':'Zero Mortality Mean (birr)'
+      ,'mean_mortality_zero':'Mortality Zero Mean (birr)'
+      ,'mean_AHLE':'AHLE (Ideal - Current)'
+      ,'mean_AHLE_mortality_zero':'AHLE due to Mortality (Mortality Zero - Current)'
     }
     
     # Subset columns
@@ -3829,8 +3858,9 @@ def update_attr_treemap_ecs(input_json, prodsys):
     Input('core-data-ahle-ecs','data'),
     Input('select-age-ecs','value'),
     Input('select-species-ecs','value'),
+    Input('select-scenario-ecs','value'),
     )
-def update_ahle_waterfall_ecs(input_json, age, species):
+def update_ahle_waterfall_ecs(input_json, age, species, scenario):
     # Data
     # input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv'))
     input_df = pd.read_json(input_json, orient='split')
@@ -3852,12 +3882,18 @@ def update_ahle_waterfall_ecs(input_json, age, species):
         x = prep_df['item']
     else:
         x = prep_df['item']
+        
+    # Scenario filter
+    if scenario == "Current":
+        y = prep_df['mean_current']
+    else:
+        y = prep_df['mean_ideal']
 
     # Create graph
-    ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, x)
+    ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, x, y)
    
     # Add title
-    ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope (AHLE) | {species} <br><sup>Gross Margin = Total Value Increase - Total Expenditure</sup><br>',
+    ecs_waterfall_fig.update_layout(title_text=f'{scenario} Animal Health Loss Envelope (AHLE) | {species} <br><sup>Gross Margin = Total Value Increase - Total Expenditure</sup><br>',
                                 font_size=15,
                                 margin=dict(t=100))
 

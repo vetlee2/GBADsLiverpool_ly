@@ -2345,7 +2345,7 @@ results_ideal_g_cl <- compartmental_model(
   
   ## Financial value of live animals
   # Ethiopian Birr
-  ,fvNF = rpert(10000, 1111,	1180,	1145) ## Financial value of neonatal Female
+  ,fvNF = rpert(10000, 1111, 1180,	1145) ## Financial value of neonatal Female
   ,fvJF = rpert(10000, 2393,	4324,	3011) ## Financial value of neonatal Male
   ,fvAF = rpert(10000, 2404,	4599,	3606) ## Financial value of juv Female
   ,fvNM = rpert(10000, 1324,	3235,	2279) ## Financial value of juv Male
@@ -2361,7 +2361,7 @@ results_ideal_g_cl <- compartmental_model(
   ,hides_rate_mor = 0.5 	# 50% of dead animals contribute to hides count
   
   # 1 usd per piece = 51 eth birr
-  ,hides_value = 40
+  ,hides_value = 20
   
   # manure rate (kg produced/animal/day)
   ,Man_N = rnorm(10000, 0.1, 0.016) 	# Manure kg/ day from neonates ## means and Sds  are derived from  body wt
@@ -2565,7 +2565,7 @@ results_current_s_past <- compartmental_model(
   ,hides_rate_mor = 0.5 	# 50% of dead animals contribute to hides count
   
   # 1 usd per piece = 51 eth birr
-  ,hides_value = 40
+  ,hides_value = 20
   
   # manure rate (kg produced/animal/day)
   ,Man_N = rnorm(10000, 0.1, 0.022) 	# Manure kg/ day from neonates ## means and Sds  are derived from  body wt

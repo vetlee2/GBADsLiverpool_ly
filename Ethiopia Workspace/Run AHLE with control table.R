@@ -1532,5 +1532,26 @@ build_summary_df <- function(
 # =================================================================
 # Run scenarios
 # =================================================================
-# function to read control file and loop through scenarios
-# AHLE scenario parameters_examples_WT_GC_complete.xlsx
+library(readxl)
+library(gtools)
+
+# Read control table
+ahle_scenarios <- read_excel('F:\\First Analytics\\Clients\\University of Liverpool\\GBADs Github\\GBADsLiverpool\\Ethiopia Workspace\\AHLE scenario parameters_examples_WT_GC_complete.xlsx')
+
+# Drop rows where parameter name is empty or commented
+ahle_scenarios <- ahle_scenarios[!is.na(ahle_scenarios$'AHLE Parameter') ,]
+ahle_scenarios <- ahle_scenarios[!grepl('#', ahle_scenarios$'AHLE Parameter') ,]
+
+# Construct function arguments as "name = value"
+# CLM Sheep Current scenario
+ahle_scenarios$arglist_clm_s_current <- do.call(paste, c(ahle_scenarios[c("AHLE Parameter", "CLM_S_Current")], sep="="))
+
+# Get as single string and append cmd arguments
+argstring_clm_s_current <- toString(ahle_scenarios$arglist_clm_s_current)
+argstring_clm_s_current_touse <- paste('nruns =' ,cmd_nruns ,',' ,argstring_clm_s_current)
+
+# Define macro
+run_scenario <- strmacro(ARGLIST ,expr = compartmental_model(ARGLIST))
+
+# Call macro
+run_scenario(argstring_clm_s_current_touse)

@@ -6,9 +6,9 @@ cmd_n_samples <- 1000 				# Number of samples to take from distribution
 # -----------------------------------------------------------------
 # Set manually
 # -----------------------------------------------------------------
-cmd_input_ahle <- 'AHLE.csv'					# First argument: full path to AHLE estimates file (csv)
-cmd_input_expert <- 'data.csv' 				# Second argument: full path to expert opinion attribution file (csv)
-cmd_output_file <- 'attribution_summary.csv' 		# Third argument: folder location for saving output files
+cmd_input_ahle <- 'Attribution function input - example AHLE.csv'					# First argument: full path to AHLE estimates file (csv)
+cmd_input_expert <- 'Attribution function input - expert opinions.csv' 				# Second argument: full path to expert opinion attribution file (csv)
+cmd_output_file <- 'attribution_summary.csv' 		# Third argument: output file for saving results
 
 # -----------------------------------------------------------------
 # Get from command line arguments

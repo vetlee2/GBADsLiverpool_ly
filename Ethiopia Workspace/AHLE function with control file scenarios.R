@@ -1544,7 +1544,7 @@ build_summary_df <- function(
 library(readxl)
 
 # Read control table
-ahle_scenarios <- read_excel(cmd_scenario_file)
+ahle_scenarios <- read_excel(cmd_scenario_file ,'Sheet1')
 
 # Drop rows where parameter name is empty or commented
 ahle_scenarios <- ahle_scenarios[!is.na(ahle_scenarios$'AHLE Parameter') ,]

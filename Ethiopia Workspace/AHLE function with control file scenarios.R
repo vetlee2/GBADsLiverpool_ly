@@ -19,10 +19,10 @@
 cmd_nruns <- 1000
 
 # Folder location to save outputs
-cmd_output_directory <- '.'   # '.' to write to same folder this code is in
+cmd_output_directory <- 'Program outputs'   # '.' to write to same folder this code is in
 
 # Full path to scenario control file
-cmd_scenario_file <- 'AHLE scenario parameters_examples_WT_GC_complete.xlsx'
+cmd_scenario_file <- 'AHLE scenario parameters.xlsx'
 
 # -----------------------------------------------------------------
 # Get from command line arguments

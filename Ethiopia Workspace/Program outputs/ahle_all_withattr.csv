@@ -1,73 +1,73 @@
 production_system,group,age_group,sex,ahle_component,cause,median,mean,sd,lower95,upper95
-Crop livestock mixed,Adult female,Adult,Female,Mortality,External,1992733804.4949,2005436627.30308,333692160.490321,1984754552.96399,2026118701.64216
-Crop livestock mixed,Adult female,Adult,Female,Mortality,Infectious,4043880671.60895,4053467559.17069,480459305.148405,4023688930.11514,4083246188.22623
-Crop livestock mixed,Adult female,Adult,Female,Mortality,Non-infectious,2631560870.08396,2642189948.88888,402664381.405231,2617233010.56078,2667146887.21697
-Crop livestock mixed,Adult male,Adult,Male,Mortality,External,1998386238.91882,2020374782.65035,483402828.955536,1990413715.45149,2050335849.84921
-Crop livestock mixed,Adult male,Adult,Male,Mortality,Infectious,3815952855.12368,3847266140.19433,788817645.006557,3798375614.41741,3896156665.97126
-Crop livestock mixed,Adult male,Adult,Male,Mortality,Non-infectious,2254907844.85486,2282106912.5423,504121874.458063,2250861689.19578,2313352135.88881
-Crop livestock mixed,Juvenile,Juvenile,Overall,Mortality,External,1227161021.48222,1234674981.64469,209067258.997096,1221717096.79029,1247632866.49908
-Crop livestock mixed,Juvenile,Juvenile,Overall,Mortality,Infectious,2599927624.34831,2618071177.08798,331130697.073432,2597547860.97902,2638594493.19695
-Crop livestock mixed,Juvenile,Juvenile,Overall,Mortality,Non-infectious,1510021340.78118,1502591528.07681,241110245.598109,1487647634.83087,1517535421.32276
-Crop livestock mixed,Neonate,Neonatal,Overall,Mortality,External,490846435.718015,498350750.890243,126321375.040234,490521414.817862,506180086.962625
-Crop livestock mixed,Neonate,Neonatal,Overall,Mortality,Infectious,1315596054.71355,1313964818.45229,261515925.480982,1297756191.30413,1330173445.60045
-Crop livestock mixed,Neonate,Neonatal,Overall,Mortality,Non-infectious,639449399.399777,646224421.257487,152972136.523803,636743284.22764,655705558.287334
-Pastoral,Adult female,Adult,Female,Mortality,External,1984317681.40706,1997482518.26485,362860895.629984,1974992580.21194,2019972456.31775
-Pastoral,Adult female,Adult,Female,Mortality,Infectious,3242872782.53184,3253075833.79922,517113026.464942,3221025425.30492,3285126242.29351
-Pastoral,Adult female,Adult,Female,Mortality,Non-infectious,2110081811.67855,2139756586.59455,391064092.370822,2115518628.41814,2163994544.77096
-Pastoral,Adult male,Adult,Male,Mortality,External,1723040323.48806,1726537929.57824,365720312.770775,1703870766.27142,1749205092.88506
-Pastoral,Adult male,Adult,Male,Mortality,Infectious,2338465046.35598,2379072210.8993,456714644.300094,2350765264.12751,2407379157.6711
-Pastoral,Adult male,Adult,Male,Mortality,Non-infectious,1559241710.08834,1570069810.61177,338233534.150857,1549106264.18922,1591033357.03432
-Pastoral,Juvenile,Juvenile,Overall,Mortality,External,1008408280.36736,1011406977.98969,173326753.915356,1000664271.88547,1022149684.09391
-Pastoral,Juvenile,Juvenile,Overall,Mortality,Infectious,1971288064.60052,1968390793.27696,261744746.442633,1952167983.91927,1984613602.63466
-Pastoral,Juvenile,Juvenile,Overall,Mortality,Non-infectious,947635296.124332,961521257.438709,161104337.402753,951536090.638214,971506424.239203
-Pastoral,Neonate,Neonatal,Overall,Mortality,External,484660295.274025,490773910.009712,121920634.482516,483217329.650943,498330490.36848
-Pastoral,Neonate,Neonatal,Overall,Mortality,Infectious,900247959.891248,900659991.095993,196708633.905984,888468087.685358,912851894.506627
-Pastoral,Neonate,Neonatal,Overall,Mortality,Non-infectious,423265606.771237,429141536.876607,104320253.001953,422675819.418671,435607254.334544
-Crop livestock mixed,Adult female,Adult,Female,Production loss,External,1795447024.57156,1820994618.18822,484656576.015727,1790955844.36939,1851033392.00705
-Crop livestock mixed,Adult female,Adult,Female,Production loss,Infectious,4048087294.60258,4063760866.08446,984155557.765685,4002763393.51265,4124758338.65627
-Crop livestock mixed,Adult female,Adult,Female,Production loss,Non-infectious,2832308592.15156,2850172089.83943,718148498.835062,2805661602.63593,2894682577.04292
-Crop livestock mixed,Adult male,Adult,Male,Production loss,External,4270964289.26818,4256305580.0931,868244196.699773,4202492236.09892,4310118924.08727
-Crop livestock mixed,Adult male,Adult,Male,Production loss,Infectious,8949485629.84344,8987511186.51003,1509816002.46144,8893933540.70808,9081088832.31198
-Crop livestock mixed,Adult male,Adult,Male,Production loss,Non-infectious,6165321155.40651,6208591031.03838,1154332616.0862,6137046068.93065,6280135993.14612
-Crop livestock mixed,Juvenile,Juvenile,Overall,Production loss,External,4751176513.07219,4742874264.64915,815555114.2098,4692326563.81337,4793421965.48493
-Crop livestock mixed,Juvenile,Juvenile,Overall,Production loss,Infectious,10938420097.5893,10937413557.6523,1268215750.33984,10858810175.4572,11016016939.8474
-Crop livestock mixed,Juvenile,Juvenile,Overall,Production loss,Non-infectious,6768612856.35093,6791098841.27358,924405860.611726,6733804625.24955,6848393057.29762
-Crop livestock mixed,Neonate,Neonatal,Overall,Production loss,External,2339869136.1587,2366492104.48423,449920325.20057,2338606266.23501,2394377942.73345
-Crop livestock mixed,Neonate,Neonatal,Overall,Production loss,Infectious,5221765813.37985,5265807910.79147,748350088.09082,5219425544.08914,5312190277.49381
-Crop livestock mixed,Neonate,Neonatal,Overall,Production loss,Non-infectious,3000235150.54395,3027127007.51936,505845463.024302,2995774957.00973,3058479058.02899
-Pastoral,Adult female,Adult,Female,Production loss,External,1975260772.71716,1991986554.64932,446545343.833865,1964309896.06863,2019663213.23002
-Pastoral,Adult female,Adult,Female,Production loss,Infectious,3232858686.73552,3238381804.00969,666080333.38187,3197098475.8351,3279665132.18427
-Pastoral,Adult female,Adult,Female,Production loss,Non-infectious,2052954211.39704,2066569450.95727,458826631.719717,2038131604.25438,2095007297.66017
-Pastoral,Adult male,Adult,Male,Production loss,External,2912064869.90695,2946031936.92644,628397120.392625,2907084195.57305,2984979678.27982
-Pastoral,Adult male,Adult,Male,Production loss,Infectious,4121014416.41572,4163130297.92311,806029732.844003,4113172975.49246,4213087620.35376
-Pastoral,Adult male,Adult,Male,Production loss,Non-infectious,2810540949.6314,2846129377.81266,590740534.12034,2809515572.96978,2882743182.65553
-Pastoral,Juvenile,Juvenile,Overall,Production loss,External,3299522030.92862,3304804553.1909,514419188.551932,3272921107.43224,3336687998.94957
-Pastoral,Juvenile,Juvenile,Overall,Production loss,Infectious,5940979619.93661,5926164691.14691,694770144.269302,5883103182.74574,5969226199.54807
-Pastoral,Juvenile,Juvenile,Overall,Production loss,Non-infectious,3434598452.44071,3466378489.91812,489419316.014281,3436044523.84017,3496712455.99608
-Pastoral,Neonate,Neonatal,Overall,Production loss,External,2621838386.92961,2630279214.59835,457420571.7376,2601928514.79466,2658629914.40203
-Pastoral,Neonate,Neonatal,Overall,Production loss,Infectious,5287578559.10498,5308195924.63321,686590036.029031,5265641415.27715,5350750433.98927
-Pastoral,Neonate,Neonatal,Overall,Production loss,Non-infectious,2704792429.31687,2708395907.27992,431110722.31079,2681675878.87378,2735115935.68607
-Crop livestock mixed,Adult female,Adult,Female,Health cost,Infectious,,21384794.19046733,,,
-Crop livestock mixed,Adult female,Adult,Female,Health cost,Non-infectious,,21384794.19046733,,,
-Crop livestock mixed,Adult female,Adult,Female,Health cost,External,,21384794.19046733,,,
-Crop livestock mixed,Adult male,Adult,Male,Health cost,Infectious,,5002676.490944403,,,
-Crop livestock mixed,Adult male,Adult,Male,Health cost,Non-infectious,,5002676.490944403,,,
-Crop livestock mixed,Adult male,Adult,Male,Health cost,External,,5002676.490944403,,,
-Crop livestock mixed,Juvenile,Juvenile,Overall,Health cost,Infectious,,5396030.38837702,,,
-Crop livestock mixed,Juvenile,Juvenile,Overall,Health cost,Non-infectious,,5396030.38837702,,,
-Crop livestock mixed,Juvenile,Juvenile,Overall,Health cost,External,,5396030.38837702,,,
-Crop livestock mixed,Neonate,Neonatal,Overall,Health cost,Infectious,,6992255.348127063,,,
-Crop livestock mixed,Neonate,Neonatal,Overall,Health cost,Non-infectious,,6992255.348127063,,,
-Crop livestock mixed,Neonate,Neonatal,Overall,Health cost,External,,6992255.348127063,,,
-Pastoral,Adult female,Adult,Female,Health cost,Infectious,,21498616.703406766,,,
-Pastoral,Adult female,Adult,Female,Health cost,Non-infectious,,21498616.703406766,,,
-Pastoral,Adult female,Adult,Female,Health cost,External,,21498616.703406766,,,
-Pastoral,Adult male,Adult,Male,Health cost,Infectious,,6914938.604262809,,,
-Pastoral,Adult male,Adult,Male,Health cost,Non-infectious,,6914938.604262809,,,
-Pastoral,Adult male,Adult,Male,Health cost,External,,6914938.604262809,,,
-Pastoral,Juvenile,Juvenile,Overall,Health cost,Infectious,,5388319.020520757,,,
-Pastoral,Juvenile,Juvenile,Overall,Health cost,Non-infectious,,5388319.020520757,,,
-Pastoral,Juvenile,Juvenile,Overall,Health cost,External,,5388319.020520757,,,
-Pastoral,Neonate,Neonatal,Overall,Health cost,Infectious,,6513677.66776934,,,
-Pastoral,Neonate,Neonatal,Overall,Health cost,Non-infectious,,6513677.66776934,,,
-Pastoral,Neonate,Neonatal,Overall,Health cost,External,,6513677.66776934,,,
+Crop livestock mixed,Adult female,Adult,Female,Mortality,External,1140671240.61476,1156694587.63773,271726278.300334,1139853127.89401,1173536047.38144
+Crop livestock mixed,Adult female,Adult,Female,Mortality,Infectious,2329818093.2179,2334380144.84143,460987534.785592,2305808366.43999,2362951923.24288
+Crop livestock mixed,Adult female,Adult,Female,Mortality,Non-infectious,1509375920.20501,1521542469.6494,332633534.004272,1500926008.45403,1542158930.84478
+Crop livestock mixed,Adult male,Adult,Male,Mortality,External,698508048.794082,720429472.984269,300554889.514536,701801230.238674,739057715.729865
+Crop livestock mixed,Adult male,Adult,Male,Mortality,Infectious,1352792909.51161,1371485385.66722,542105275.9198,1337885969.96711,1405084801.36734
+Crop livestock mixed,Adult male,Adult,Male,Mortality,Non-infectious,806037823.988887,813284782.889509,329627531.678574,792854632.224989,833714933.554028
+Crop livestock mixed,Juvenile,Juvenile,Overall,Mortality,External,414658384.167183,418162313.742249,122389415.987298,410576678.53869,425747948.945807
+Crop livestock mixed,Juvenile,Juvenile,Overall,Mortality,Infectious,879970436.267008,886781828.566382,239991043.203713,871907302.928857,901656354.203907
+Crop livestock mixed,Juvenile,Juvenile,Overall,Mortality,Non-infectious,498610242.84002,509607926.689845,148595275.243633,500398065.347852,518817788.031838
+Crop livestock mixed,Neonate,Neonatal,Overall,Mortality,External,375757521.159182,381256228.976452,108792249.030822,374513339.426198,387999118.526706
+Crop livestock mixed,Neonate,Neonatal,Overall,Mortality,Infectious,1005223539.45962,1004970155.72522,238287423.500114,990201219.59062,1019739091.85983
+Crop livestock mixed,Neonate,Neonatal,Overall,Mortality,Non-infectious,487999114.106544,494288128.885493,133426315.650009,486018432.123635,502557825.64735
+Pastoral,Adult female,Adult,Female,Mortality,External,1234666595.01076,1246825318.39524,280845138.981839,1229418676.19646,1264231960.59402
+Pastoral,Adult female,Adult,Female,Mortality,Infectious,2018759332.18582,2030263273.13789,418517795.610631,2004323748.07283,2056202798.20294
+Pastoral,Adult female,Adult,Female,Mortality,Non-infectious,1311331773.61739,1335093468.99433,299565020.817187,1316526577.81886,1353660360.1698
+Pastoral,Adult male,Adult,Male,Mortality,External,800629962.910547,798852503.722599,384146775.609648,775043277.402732,822661730.042467
+Pastoral,Adult male,Adult,Male,Mortality,Infectious,1085657756.35148,1097011785.42094,510686390.444534,1065359696.63463,1128663874.20724
+Pastoral,Adult male,Adult,Male,Mortality,Non-infectious,718849069.020103,726115420.269208,349563638.967915,704449639.578546,747781200.95987
+Pastoral,Juvenile,Juvenile,Overall,Mortality,External,307102002.114504,306864136.326022,102909582.615097,300485851.517885,313242421.134159
+Pastoral,Juvenile,Juvenile,Overall,Mortality,Infectious,601897847.004626,596303142.255014,186555236.691337,584740541.359845,607865743.150183
+Pastoral,Juvenile,Juvenile,Overall,Mortality,Non-infectious,288714333.185963,291682613.614987,97611449.1955486,285632704.484242,297732522.745732
+Pastoral,Neonate,Neonatal,Overall,Mortality,External,389353106.821779,395419708.934,107852855.931863,388735042.501357,402104375.366643
+Pastoral,Neonate,Neonatal,Overall,Mortality,Infectious,724278747.770894,725419221.189938,177068339.223268,714444613.487038,736393828.892838
+Pastoral,Neonate,Neonatal,Overall,Mortality,Non-infectious,340410292.297807,345571501.565011,91905648.3935816,339875235.133504,351267767.996518
+Crop livestock mixed,Adult female,Adult,Female,Production loss,External,931741942.760561,939498131.353311,352049267.976736,917678292.611467,961317970.095155
+Crop livestock mixed,Adult female,Adult,Female,Production loss,Infectious,2092221066.42548,2096560214.03048,745288361.705377,2050367611.60854,2142752816.45242
+Crop livestock mixed,Adult female,Adult,Female,Production loss,Non-infectious,1452026860.83002,1471075708.68759,533352254.872554,1438018800.88375,1504132616.49144
+Crop livestock mixed,Adult male,Adult,Male,Production loss,External,1252688590.24921,1262948252.44705,405379772.033209,1237823015.55675,1288073489.33734
+Crop livestock mixed,Adult male,Adult,Male,Production loss,Infectious,2684885477.63273,2665045045.1325,797502239.848967,2615616252.48149,2714473837.78352
+Crop livestock mixed,Adult male,Adult,Male,Production loss,Non-infectious,1853111609.44763,1842078409.28887,573432141.962721,1806537369.99364,1877619448.58409
+Crop livestock mixed,Juvenile,Juvenile,Overall,Production loss,External,-26309995.5073727,-29272728.5273381,141475253.585002,-38041294.4639393,-20504162.5907368
+Crop livestock mixed,Juvenile,Juvenile,Overall,Production loss,Infectious,-57782347.8546299,-67321046.5342496,325628731.414838,-87503353.5449049,-47138739.5235943
+Crop livestock mixed,Juvenile,Juvenile,Overall,Production loss,Non-infectious,-39518210.248962,-42948263.3797025,203692066.352591,-55572996.4642212,-30323530.2951838
+Crop livestock mixed,Neonate,Neonatal,Overall,Production loss,External,-69523534.2257509,-68515967.0193369,126731007.309909,-76370691.8963004,-60661242.1423734
+Crop livestock mixed,Neonate,Neonatal,Overall,Production loss,Infectious,-159805698.455688,-155168633.437831,283459178.150158,-172737292.485691,-137599974.389971
+Crop livestock mixed,Neonate,Neonatal,Overall,Production loss,Non-infectious,-88563320.0785898,-88430393.937655,163326288.169566,-98553276.142879,-78307511.7324309
+Pastoral,Adult female,Adult,Female,Production loss,External,1825610738.48049,1836398163.16971,496628539.579114,1805617372.99653,1867178953.34289
+Pastoral,Adult female,Adult,Female,Production loss,Infectious,2977323128.34454,2985889189.60313,762485025.606104,2938630746.4954,3033147632.71086
+Pastoral,Adult female,Adult,Female,Production loss,Non-infectious,1899027837.36906,1904930994.67406,511308764.963327,1873240331.42426,1936621657.92387
+Pastoral,Adult male,Adult,Male,Production loss,External,1484496719.56074,1519314682.95647,558925673.340858,1484672747.38005,1553956618.53288
+Pastoral,Adult male,Adult,Male,Production loss,Infectious,2114757977.77978,2144724433.35999,764743188.34033,2097326030.44778,2192122836.27219
+Pastoral,Adult male,Adult,Male,Production loss,Non-infectious,1450560019.97905,1468182159.85918,533827614.138194,1435095789.52419,1501268530.19416
+Pastoral,Juvenile,Juvenile,Overall,Production loss,External,687107928.803379,693140199.848063,168203772.181497,682715013.606765,703565386.089361
+Pastoral,Juvenile,Juvenile,Overall,Production loss,Infectious,1240446013.4545,1241831189.59988,268222953.929952,1225206864.16029,1258455515.03946
+Pastoral,Juvenile,Juvenile,Overall,Production loss,Non-infectious,720238642.75203,726443478.393974,167955867.077918,716033657.187844,736853299.600104
+Pastoral,Neonate,Neonatal,Overall,Production loss,External,133228390.123504,135980173.501363,125387517.998946,128208717.424489,143751629.578238
+Pastoral,Neonate,Neonatal,Overall,Production loss,Infectious,271783010.789823,272830075.128659,248304723.23552,257440271.732745,288219878.524572
+Pastoral,Neonate,Neonatal,Overall,Production loss,Non-infectious,134607199.536308,138894594.042445,128263110.184149,130944910.190438,146844277.894452
+Crop livestock mixed,Adult female,Adult,Female,Health cost,Infectious,,21286475.2909423,,,
+Crop livestock mixed,Adult female,Adult,Female,Health cost,Non-infectious,,21286475.2909423,,,
+Crop livestock mixed,Adult female,Adult,Female,Health cost,External,,21286475.2909423,,,
+Crop livestock mixed,Adult male,Adult,Male,Health cost,Infectious,,4956035.820958546,,,
+Crop livestock mixed,Adult male,Adult,Male,Health cost,Non-infectious,,4956035.820958546,,,
+Crop livestock mixed,Adult male,Adult,Male,Health cost,External,,4956035.820958546,,,
+Crop livestock mixed,Juvenile,Juvenile,Overall,Health cost,Infectious,,5367995.750547574,,,
+Crop livestock mixed,Juvenile,Juvenile,Overall,Health cost,Non-infectious,,5367995.750547574,,,
+Crop livestock mixed,Juvenile,Juvenile,Overall,Health cost,External,,5367995.750547574,,,
+Crop livestock mixed,Neonate,Neonatal,Overall,Health cost,Infectious,,6928371.686282183,,,
+Crop livestock mixed,Neonate,Neonatal,Overall,Health cost,Non-infectious,,6928371.686282183,,,
+Crop livestock mixed,Neonate,Neonatal,Overall,Health cost,External,,6928371.686282183,,,
+Pastoral,Adult female,Adult,Female,Health cost,Infectious,,21334316.5328608,,,
+Pastoral,Adult female,Adult,Female,Health cost,Non-infectious,,21334316.5328608,,,
+Pastoral,Adult female,Adult,Female,Health cost,External,,21334316.5328608,,,
+Pastoral,Adult male,Adult,Male,Health cost,Infectious,,6917807.962773656,,,
+Pastoral,Adult male,Adult,Male,Health cost,Non-infectious,,6917807.962773656,,,
+Pastoral,Adult male,Adult,Male,Health cost,External,,6917807.962773656,,,
+Pastoral,Juvenile,Juvenile,Overall,Health cost,Infectious,,5389476.759488343,,,
+Pastoral,Juvenile,Juvenile,Overall,Health cost,Non-infectious,,5389476.759488343,,,
+Pastoral,Juvenile,Juvenile,Overall,Health cost,External,,5389476.759488343,,,
+Pastoral,Neonate,Neonatal,Overall,Health cost,Infectious,,6481474.004907575,,,
+Pastoral,Neonate,Neonatal,Overall,Health cost,Non-infectious,,6481474.004907575,,,
+Pastoral,Neonate,Neonatal,Overall,Health cost,External,,6481474.004907575,,,

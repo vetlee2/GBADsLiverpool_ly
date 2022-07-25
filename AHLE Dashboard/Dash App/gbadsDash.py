@@ -972,7 +972,11 @@ def create_attr_treemap_ecs(input_df):
                             'sex',
                             'ahle_component',
                             'cause'], 
-                      values='mean')
+                      values='mean',
+                      color='cause', # cause only applys to the cause level
+                      # color_discrete_map={'Crop livestock mixed':'#2A80B9', 'Pastoral':'#9B58B5',})
+                       color_discrete_map={'Infectious':'#68000D', 'Non-infectious':'#08316C', 'External':'#00441B'}) # Cause colors matches the Human health dashboard
+
     
     treemap_fig.update_traces(root_color="white",
                                hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} birr<extra></extra>')
@@ -993,7 +997,7 @@ def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
     #                           path=['Total', 'item'], 
     #                           values='envelope',
     #                           custom_data=['humanize_envelope'])
-    # icicle_fig.update_tra0c1es(root_color="white",
+    # icicle_fig.update_traces(root_color="white",
     #                          hovertemplate='Category=%{label}<br>Value=$%{value:,.0f} birr<extra></extra>')
 
     waterfall_fig = go.Figure(go.Waterfall(
@@ -3931,13 +3935,10 @@ def update_ecs_attr_data(input_json):
     )
 def update_ahle_waterfall_ecs(input_json, age, species, scenario, compare):
     # Data
-    # input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv'))
     input_df = pd.read_json(input_json, orient='split')
-    
+       
     # Prep the data 
     prep_df = prep_ahle_forwaterfall_ecs(input_df)
-    
-    
     
     # Age filter
     if age == "Neonatal": # Removing value of hides for neonatal
@@ -3958,6 +3959,9 @@ def update_ahle_waterfall_ecs(input_json, age, species, scenario, compare):
         
     # Scenario and Compare filters
     if scenario == "AHLE":
+        # Applying the condition
+        prep_df["item"] = np.where(prep_df["item"] == "Gross Margin", "AHLE", prep_df["item"])
+        x = prep_df['item']
         if compare == 'Ideal':
             y = prep_df['mean_AHLE']
         else:
@@ -3965,6 +3969,10 @@ def update_ahle_waterfall_ecs(input_json, age, species, scenario, compare):
         # Create graph
         name = 'AHLE'
         ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
+        # Add title
+        ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({scenario}) | {species} <br><sup>Difference between {compare} and Current scenario</sup><br>',
+                                    font_size=15,
+                                    margin=dict(t=100))
     else:
         if compare == 'Ideal':
             y = prep_df['mean_ideal']
@@ -3985,6 +3993,10 @@ def update_ahle_waterfall_ecs(input_json, age, species, scenario, compare):
             ecs_waterfall_fig.update_layout(
                 waterfallgroupgap = 0.5,
                 )
+            # Add title
+            ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({scenario}) | {species} <br><sup>{compare} and Current scenario</sup><br>',
+                                        font_size=15,
+                                        margin=dict(t=100))
         else:
             y = prep_df['mean_mortality_zero']
             name = 'Mortality 0'
@@ -4004,11 +4016,15 @@ def update_ahle_waterfall_ecs(input_json, age, species, scenario, compare):
             ecs_waterfall_fig.update_layout(
                 waterfallgroupgap = 0.5,
                 ) 
+            # Add title
+            ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({scenario}) | {species} <br><sup>{compare} and Current scenario</sup><br>',
+                                        font_size=15,
+                                        margin=dict(t=100))
             
-    # Add title
-    ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({scenario}) | {species} <br><sup>Gross Margin = Total Value Increase - Total Expenditure</sup><br>',
-                                font_size=15,
-                                margin=dict(t=100))
+    # # Add title
+    # ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({scenario}) | {species} <br><sup>Gross Margin = Total Value Increase - Total Expenditure</sup><br>',
+    #                             font_size=15,
+    #                             margin=dict(t=100))
 
     return ecs_waterfall_fig
 

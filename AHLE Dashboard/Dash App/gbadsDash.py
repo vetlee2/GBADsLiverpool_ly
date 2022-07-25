@@ -412,18 +412,25 @@ ecs_scenario_options = [{'label': i, 'value': i, 'disabled': False} for i in ["A
 ecs_compare_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Ideal",
                                                                              "Mortality 0",
                                                                              ]]
-# Mortality reduction:
-    
-ecs_mort_redu_options = [{'label': i, 'value': i, 'disabled': False} for i in ['25%',
-                                                                               '50%',
-                                                                               '75%',
-                                                                               ]]
+
+# Factor
+ecs_factor_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Mortality"
+                                                                            ]]
+
+ecs_factor_options += [{'label': i, 'value': i, 'disabled': True} for i in ["Live Weight",
+                                                                            "Parturition Rate",
+                                                                            "Lactation"
+                                                                            ]]
+
+# Reduction
+ecs_redu_options = [{'label': i, 'value': i, 'disabled': False} for i in ['Current',
+                                                                          '25%',
+                                                                          '50%',
+                                                                          '75%',
+                                                                          ]]
 
 # Defaults for sliders
-growth_ecs_default = 0.16
-reproduction_ecs_default = 0.5
-costs_ecs_default = 60
-offtake_ecs_default = 1
+factor_ecs_default = 'Current'
 
 # =============================================================================
 #### Burden of disease calcs
@@ -1696,75 +1703,153 @@ gbadsDash.layout = html.Div([
             #### -- DROPDOWNS CONTROLS
             dbc.Row([
                 
-                # Attribution
+                # AHLE Specific Controls
                 dbc.Col([
-                    html.H6("Attribution"),
-                    dcc.Dropdown(id='select-attr-ecs',
-                                 options=ecs_attr_options,
-                                 value='All Causes',
-                                 clearable = False,
-                                 ),
-                    ],style={
-                        "order":6,
-                        "margin-top":"10px"
-                        },
-                 ),
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H4("AHLE Graph Controls", className="card-title"),
+                        dbc.Row([
+                        # Scenario
+                        dbc.Col([
+                            html.H6("Scenario"),
+                            dcc.RadioItems(id='select-scenario-ecs',
+                                         options=ecs_scenario_options,
+                                         value='AHLE',
+                                         labelStyle={'display': 'block'},
+                                         inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
+                                         ),
+                            ],style={
+                                     "margin-top":"10px",
+                                     },        
+                        ),
                                 
-                # Production System
-                dbc.Col([
-                    html.H6("Production System"),
-                    dcc.Dropdown(id='select-prodsys-ecs',
-                                 options=ecs_prodsys_options,
-                                 value='All Production Systems',
-                                 clearable = False,
-                                 ),
-                    ],style={
-                             "order":3,
-                             "margin-top":"10px",
-                             }
-                    ),
+                        # Compare
+                        dbc.Col([
+                            html.H6("Compare"),
+                            dcc.RadioItems(id='select-compare-ecs',
+                                         options=ecs_compare_options,
+                                         value='Ideal',
+                                         labelStyle={'display': 'block'},
+                                         inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
+                                         ),
+                            ],style={
+                                     "margin-top":"10px",
+                                     },
+                        ),
+                                
+                         # Species
+                         dbc.Col([
+                             html.H6("Species"),
+                             dcc.Dropdown(id='select-species-ecs',
+                                          options=ecs_species_options,
+                                          value='All small ruminants',
+                                          clearable = False,
+                                          ),
+                             ],style={
+                                      "order":7,
+                                      "margin-top":"10px"
+                                      },
+                             ),
+                        ]), # END OF ROW
+                                                
+                # END OF CARD BODY             
+                ],), 
+                             
+               # END OF CARD              
+               ], color='#F2F2F2'), 
+               ]),
+                                 
+               # Controls for Both Visuals
+               dbc.Col([
+               dbc.Card([
+                   dbc.CardBody([
+                       html.H4("Controls for Both", className="card-title"),
+                       dbc.Row([
+                           
+                           # Production System
+                           dbc.Col([
+                               html.H6("Production System"),
+                               dcc.Dropdown(id='select-prodsys-ecs',
+                                            options=ecs_prodsys_options,
+                                            value='All Production Systems',
+                                            clearable = False,
+                                            ),
+                               ],style={
+                                        "order":3,
+                                        "margin-top":"10px",
+                                        "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                                        }
+                               ),
 
-                # Age
-                 dbc.Col([
-                     html.H6("Age"),
-                     dcc.Dropdown(id='select-age-ecs',
-                                  options=ecs_age_options,
-                                  value='Overall Age',
-                                  clearable = False,
-                                  )
-                     ],style={
-                              'order': 4,
-                              "margin-top":"10px"
-                              },
+                           # Age
+                            dbc.Col([
+                                html.H6("Age"),
+                                dcc.Dropdown(id='select-age-ecs',
+                                             options=ecs_age_options,
+                                             value='Overall Age',
+                                             clearable = False,
+                                             )
+                                ],style={
+                                         'order': 4,
+                                         "margin-top":"10px",
+                                         "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                                         },
+                                ),
+
+                           # Sex
+                           dbc.Col([
+                               html.H6("Sex"),
+                               dcc.Dropdown(id='select-sex-ecs',
+                                            options=ecs_sex_options_all,
+                                            value="Overall Sex",
+                                            clearable = False,
+                                            )
+                               ],style={
+                                        "order": 5,
+                                        "margin-top":"10px",
+                                        "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                                        },
+                               ), 
+                           
+                           
+                           ]), # END OF ROW
+                                                   
+                   # END OF CARD BODY             
+                   ],), 
+                                
+                  # END OF CARD              
+                  ], color='#F2F2F2'), 
+                  ]),
+                           
+            # Attribution Specific Controls
+            dbc.Col([
+            dbc.Card([
+                dbc.CardBody([
+                    html.H4("Attribution Graph Controls", className="card-title"),
+                    dbc.Row([
+                    # Attribution
+                    dbc.Col([
+                        html.H6("Attribution"),
+                        dcc.Dropdown(id='select-attr-ecs',
+                                     options=ecs_attr_options,
+                                     value='All Causes',
+                                     clearable = False,
+                                     ),
+                        ],style={
+                            "order":6,
+                            "margin-top":"10px",
+                            "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                            },
                      ),
-
-                # Sex
-                dbc.Col([
-                    html.H6("Sex"),
-                    dcc.Dropdown(id='select-sex-ecs',
-                                 options=ecs_sex_options_all,
-                                 value="Overall Sex",
-                                 clearable = False,
-                                 )
-                    ],style={
-                             "order": 5,
-                             "margin-top":"10px",
-                             },
-                    ), 
-                        
-                # Species
-                dbc.Col([
-                    html.H6("Species"),
-                    dcc.Dropdown(id='select-species-ecs',
-                                 options=ecs_species_options,
-                                 value='All small ruminants',
-                                 clearable = False,
-                                 ),
-                    ],style={
-                             "order":7,
-                             "margin-top":"10px"
-                             },
-                    ),
+                ]), # END OF ROW
+                                        
+                # END OF CARD BODY             
+                ],), 
+                             
+               # END OF CARD              
+               ], color='#F2F2F2'), 
+               ]),
+                                
 
                 # # Metric
                 # dbc.Col([
@@ -1781,35 +1866,6 @@ gbadsDash.layout = html.Div([
                 #              },
                 #     ),
                 
-                # Scenario
-                dbc.Col([
-                    html.H6("Scenario"),
-                    dcc.RadioItems(id='select-scenario-ecs',
-                                 options=ecs_scenario_options,
-                                 value='AHLE',
-                                 labelStyle={'display': 'block'},
-                                 inputStyle={"margin-right": "10px"}, # This pulls the words off of the button
-                                 ),
-                    ],style={
-                             "order":8,
-                             "margin-top":"10px",
-                             },        
-                ),
-                        
-                # Compare
-                dbc.Col([
-                    html.H6("Compare"),
-                    dcc.RadioItems(id='select-compare-ecs',
-                                 options=ecs_compare_options,
-                                 value='Ideal',
-                                 labelStyle={'display': 'block'},
-                                 inputStyle={"margin-right": "10px"}, # This pulls the words off of the button
-                                 ),
-                    ],style={
-                             "order":9,
-                             "margin-top":"10px",
-                             },
-                ),
                 
                 # END OF DROPDOWN CONTROLS
                 ], justify='evenly'),
@@ -1823,98 +1879,49 @@ gbadsDash.layout = html.Div([
                     html.H4("Exploring Relative Contribution to Gross Margin and AHLE", className="card-title"),
             dbc.Row([  # Line up all the controls in the same row.
 
-                # Growth Rate
+                # Factor dropdown
                 dbc.Col([
-                    html.H6("Growth rate"),
+                    html.H6("Factor"),
                     html.Br(),
-                    daq.Slider(
-                        id='growth-slider-ecs',
-                        min=0.16,
-                        max=0.30,
-                        handleLabel={"showCurrentValue": True,"label": "%"},
-                        step=.01,
-                        value=growth_ecs_default,
-                        ),
-                     ],style={'width': "auto",
-                              "order":1,
-                              # 'margin-left':'-40px',
-                              }
+                    dcc.Dropdown(id='select-factor-ecs',
+                                 options=ecs_factor_options,
+                                 value='All Causes',
+                                 clearable = True,
+                                 ),
+                     ],
+                    style={
+                         "margin-top":"10px",
+                         },
                     ),
 
-                # Reproduction rate
+                # Reduction
                 dbc.Col([
-                    html.H6("Reproduction rate"),
-                    html.Br(),
-                    daq.Slider(
-                        id='reproduction-slider-ecs',
-                        min=.5,
-                        max=1.4,
-                        handleLabel={"showCurrentValue": True,"label": "%"},
-                        step=.05,
-                        value=reproduction_ecs_default,
-                        ),
-                    ],style={'width': "auto",
-                             "order":2,}
-                    ),
-
-                # Mortality Reduction
-                dbc.Col([
-                    html.H6("Mortality Reduction"),
-                    dcc.RadioItems(id='select-mort-redu-ecs',
-                                  options=ecs_mort_redu_options,
-                                  value= "25%",
-                                  inputStyle={"margin-right": "10px",
-                                              "margin-left": "5px"}, # This pulls the words off of the button
+                    html.H6("Reduction"),
+                    dcc.RadioItems(id='select-redu-ecs',
+                                  options=ecs_redu_options,
+                                  value= "Current",
+                                  inputStyle={"margin-right": "2px", # This pulls the words off of the button
+                                              "margin-left": "10px"}, 
                                   ),
-                    ],style={
-                              "order":3,
-                              "margin-top":"10px",
-                              },
+                    ],width=3,
+                    style={
+                        "margin-top":"10px",
+                        },
                 ),
-
-                # Costs in USD per head (feed, labour, healthcare)
-                dbc.Col([
-                    html.H6("Costs (USD per head)"),
-                    html.Br(),
-                    daq.Slider(
-                        id='costs-slider-ecs',
-                        min=20,
-                        max=150,
-                        handleLabel={"showCurrentValue": True,"label": "$"},
-                        step=10,
-                        value=costs_ecs_default
-                        ),
-                    ],style={'width': "auto",
-                             "order":4,}
-                    ),
-
-                # Offtake rate
-                dbc.Col([
-                    html.H6("Offtake rate"),
-                    html.Br(),
-                    daq.Slider(
-                        id='offtake-slider-ecs',
-                        min=0,
-                        max=20,
-                        handleLabel={"showCurrentValue": True,"label": "%"},
-                        step=1,
-                        value=costs_ecs_default
-                        ),
-                    ],style={'width': "auto",
-                             "order":5,}
-                    ),
 
                 # Reset to defaults button
                 dbc.Col([
-                    html.Button('Reset to default', id='reset-val-ecs', n_clicks=0),
-                ],style={'width': "auto",
-                         "order":6,
+                    html.Button('Reset to Current Values', id='reset-val-ecs', n_clicks=0),
+                ], width=3,
+                    style={
                          'textAlign':'center',
                          'margin':'auto',}
                 ),
 
                 ## END OF ETHIOPIAN TAB CONTROLS ROW ##
-                ], justify='evenly'),
+                ], 
+                         # justify='evenly'
+                         ),
                          
             # END OF CARD BODY             
             ],), 
@@ -1926,6 +1933,33 @@ gbadsDash.layout = html.Div([
 
             #### -- GRAPHICS
                 dbc.Row([  # Row with GRAPHICS
+                         
+                    # AHLE Sunburst
+                    dbc.Col([
+                        dbc.Spinner(children=[
+                        dcc.Graph(id='ecs-ahle-sunburst',
+                                   style = {"height":"650px"},
+                                  config = {
+                                      "displayModeBar" : True,
+                                      "displaylogo": False,
+                                      'toImageButtonOptions': {
+                                          'format': 'png', # one of png, svg, jpeg, webp
+                                          'filename': 'GBADs_Ethiopia_AHLE_Sunburst'
+                                          },
+                                      'modeBarButtonsToRemove': ['zoom',
+                                                                 'zoomIn',
+                                                                 'zoomOut',
+                                                                 'autoScale',
+                                                                 #'resetScale',  # Removes home button
+                                                                 'pan',
+                                                                 'select2d',
+                                                                 'lasso2d']
+                                      }
+                                  )
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                        # End of AHLE Sunburst
+                        ],style={"width":5}),
 
                     # Attribution Treemap
                     dbc.Col(
@@ -1963,32 +1997,6 @@ gbadsDash.layout = html.Div([
                         # End of Attribution Treemap
                         style={"width":5}),
 
-                    # AHLE Sunburst
-                    dbc.Col([
-                        dbc.Spinner(children=[
-                        dcc.Graph(id='ecs-ahle-sunburst',
-                                   style = {"height":"650px"},
-                                  config = {
-                                      "displayModeBar" : True,
-                                      "displaylogo": False,
-                                      'toImageButtonOptions': {
-                                          'format': 'png', # one of png, svg, jpeg, webp
-                                          'filename': 'GBADs_Ethiopia_AHLE_Sunburst'
-                                          },
-                                      'modeBarButtonsToRemove': ['zoom',
-                                                                 'zoomIn',
-                                                                 'zoomOut',
-                                                                 'autoScale',
-                                                                 #'resetScale',  # Removes home button
-                                                                 'pan',
-                                                                 'select2d',
-                                                                 'lasso2d']
-                                      }
-                                  )
-                        # End of Spinner
-                        ],size="md", color="#393375", fullscreen=False),
-                        # End of AHLE Sunburst
-                        ],style={"width":5}),
                     
                     # dbc.Col(
                     #     dbc.Spinner(children=[
@@ -2024,18 +2032,22 @@ gbadsDash.layout = html.Div([
             
             #### -- DATATABLE
             dbc.Row([
+                
+               dbc.Col([
+                    html.Div([  # Core data for AHLE
+                         html.Div( id='ecs-ahle-datatable'),
+                    ], style={'margin-left':"20px"}),
+                html.Br() # Spacer for bottom of page
+                ]), 
+                
                dbc.Col([
                    html.Div([  # Core data for attribution
                          html.Div( id='ecs-attr-datatable'),
                     ], style={'margin-left':"20px",}),
                 html.Br(), # Spacer for bottom of page
                 ]),  # END OF COL
-                dbc.Col([
-                    html.Div([  # Core data for AHLE
-                         html.Div( id='ecs-ahle-datatable'),
-                    ], style={'margin-left':"20px"}),
-                html.Br() # Spacer for bottom of page
-                ]), # END OF COL
+               
+                # END OF COL
             ]),
             html.Br(),
             ### END OF DATATABLE
@@ -3562,14 +3574,11 @@ def update_stacked_bar_swine(input_json, country, year):
 # ------------------------------------------------------------------------------
 # ECS reset to defaults button
 @gbadsDash.callback(
-    Output('growth-slider-ecs', 'value'),
-    Output('reproduction-slider-ecs', 'value'),
-    Output('costs-slider-ecs', 'value'),
-    Output('offtake-slider-ecs', 'value'),
+    Output('select-redu-ecs', 'value'),
     Input('reset-val-ecs', 'n_clicks')
     )
 def reset_to_default_ecs(reset):
-    return growth_ecs_default, reproduction_ecs_default, costs_ecs_default, offtake_ecs_default
+    return factor_ecs_default
 
 # # Update sex based on age selection:
 # @gbadsDash.callback(
@@ -3677,6 +3686,127 @@ def reset_to_default_ecs(reset):
 # ------------------------------------------------------------------------------
 #### -- Data
 # ------------------------------------------------------------------------------
+# AHLE Data
+@gbadsDash.callback(
+    Output('core-data-ahle-ecs','data'),
+    Input('select-species-ecs','value'),
+    Input('select-prodsys-ecs','value'),
+    Input('select-age-ecs','value'),
+    Input('select-sex-ecs','value'),
+    
+    )
+def update_core_data_ahle_ecs(species, prodsys, age, sex):
+    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary.csv'))
+    
+    # Species filter
+    if species == 'Goat':
+        input_df=input_df.loc[(input_df['species'] == species)]
+    elif species == "Sheep":
+        input_df=input_df.loc[(input_df['species'] == species)]
+    elif species == "All small ruminants":
+        input_df=input_df.loc[(input_df['species'] == species)]
+    else:
+        input_df=input_df
+        
+    # Prodicton System filter
+    if prodsys == 'Crop livestock mixed':
+        input_df=input_df.loc[(input_df['production_system'] == 'Crop livestock mixed')]
+    elif prodsys == "Pastoral":
+        input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+    elif prodsys == "All Production Systems":
+        input_df=input_df.loc[(input_df['production_system'] == 'Overall')]
+    else:
+        input_df=input_df
+        
+    # Age filter
+    if age == 'Adult':
+        input_df=input_df.loc[(input_df['age_group'] == age)]
+    elif age == "Juvenile":
+        input_df=input_df.loc[(input_df['age_group'] == age)]
+    elif age == "Neonatal":
+        input_df=input_df.loc[(input_df['age_group'] == age)]
+    elif age == "Overall Age":
+        input_df=input_df.loc[(input_df['age_group'] == 'Overall')]
+    else:
+        input_df=input_df
+        
+    # Sex filter
+    if sex == 'Male':
+        input_df=input_df.loc[(input_df['sex'] == sex)]
+    elif sex == "Female":
+        input_df=input_df.loc[(input_df['sex'] == sex)]
+    elif sex == "Overall Sex":
+        input_df=input_df.loc[(input_df['sex'] == 'Overall')]
+    else:
+        input_df=input_df
+    
+    return input_df.to_json(date_format='iso', orient='split')
+
+
+# AHLE datatable below graphic
+@gbadsDash.callback(
+   Output('ecs-ahle-datatable', 'children'),
+   Input('core-data-ahle-ecs','data'),
+   )
+def update_ecs_ahle_data(input_json):
+    input_df = pd.read_json(input_json, orient='split')
+    
+    # Create AHLE columns
+    input_df['mean_AHLE'] = input_df['mean_ideal'] - input_df['mean_current']
+    input_df['mean_AHLE_mortality'] = input_df['mean_mortality_zero'] - input_df['mean_current']
+    
+    
+    # Format numbers
+    input_df.update(input_df[['mean_current',
+                              'mean_ideal',
+                              'mean_mortality_zero',
+                              'mean_AHLE',
+                              'mean_AHLE_mortality',]].applymap('{:,.0f}'.format))
+
+    columns_to_display_with_labels = {
+      'species':'Species'
+      ,'production_system':'Production System'
+      ,'item':'Value or Cost'
+      ,'age_group':'Age'
+      ,'sex':'Sex'
+      ,'mean_current':'Current Mean (birr)'
+      ,'mean_ideal':'Ideal Mean (birr)'
+      ,'mean_mortality_zero':'Mortality Zero Mean (birr)'
+      ,'mean_AHLE':'AHLE (Ideal - Current)'
+      ,'mean_AHLE_mortality':'AHLE due to Mortality (Mortality Zero - Current)'
+    }
+    
+    # Subset columns
+    input_df = input_df[list(columns_to_display_with_labels)]
+    
+    # Keep only items for the waterfall
+    waterfall_plot_values = ('Value of Offtake',
+                             'Value of Herd Increase',
+                             'Value of Manure',
+                             'Value of Hides',
+                             'Feed Cost',
+                             'Labour Cost',
+                             'Health Cost',
+                             'Capital Cost',
+                             'Gross Margin')
+    input_df = input_df.loc[input_df['item'].isin(waterfall_plot_values)]
+
+
+    return [
+            html.H4("AHLE Data"),
+            dash_table.DataTable(
+                columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+                data=input_df.to_dict('records'),
+                export_format="csv",
+                style_cell={
+                    # 'minWidth': '250px',
+                    'font-family':'sans-serif',
+                    },
+                style_table={'overflowX': 'scroll'},
+            )
+        ]
+
+
 # Attribution Data
 @gbadsDash.callback(
     Output('core-data-attr-ecs','data'),
@@ -3786,154 +3916,11 @@ def update_ecs_attr_data(input_json):
             )
         ]
 
-# AHLE Data
-@gbadsDash.callback(
-    Output('core-data-ahle-ecs','data'),
-    Input('select-species-ecs','value'),
-    Input('select-prodsys-ecs','value'),
-    Input('select-age-ecs','value'),
-    Input('select-sex-ecs','value'),
-    
-    )
-def update_core_data_ahle_ecs(species, prodsys, age, sex):
-    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary.csv'))
-    
-    # Species filter
-    if species == 'Goat':
-        input_df=input_df.loc[(input_df['species'] == species)]
-    elif species == "Sheep":
-        input_df=input_df.loc[(input_df['species'] == species)]
-    elif species == "All small ruminants":
-        input_df=input_df.loc[(input_df['species'] == species)]
-    else:
-        input_df=input_df
-        
-    # Prodicton System filter
-    if prodsys == 'Crop livestock mixed':
-        input_df=input_df.loc[(input_df['production_system'] == 'Crop livestock mixed')]
-    elif prodsys == "Pastoral":
-        input_df=input_df.loc[(input_df['production_system'] == prodsys)]
-    elif prodsys == "All Production Systems":
-        input_df=input_df.loc[(input_df['production_system'] == 'Overall')]
-    else:
-        input_df=input_df
-        
-    # Age filter
-    if age == 'Adult':
-        input_df=input_df.loc[(input_df['age_group'] == age)]
-    elif age == "Juvenile":
-        input_df=input_df.loc[(input_df['age_group'] == age)]
-    elif age == "Neonatal":
-        input_df=input_df.loc[(input_df['age_group'] == age)]
-    elif age == "Overall Age":
-        input_df=input_df.loc[(input_df['age_group'] == 'Overall')]
-    else:
-        input_df=input_df
-        
-    # Sex filter
-    if sex == 'Male':
-        input_df=input_df.loc[(input_df['sex'] == sex)]
-    elif sex == "Female":
-        input_df=input_df.loc[(input_df['sex'] == sex)]
-    elif sex == "Overall Sex":
-        input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-    else:
-        input_df=input_df
-    
-    return input_df.to_json(date_format='iso', orient='split')
-
-
-# Attribution datatable below graphic
-@gbadsDash.callback(
-   Output('ecs-ahle-datatable', 'children'),
-   Input('core-data-ahle-ecs','data'),
-   )
-def update_ecs_ahle_data(input_json):
-    input_df = pd.read_json(input_json, orient='split')
-    
-    # Create AHLE columns
-    input_df['mean_AHLE'] = input_df['mean_ideal'] - input_df['mean_current']
-    input_df['mean_AHLE_mortality'] = input_df['mean_mortality_zero'] - input_df['mean_current']
-    
-    
-    # Format numbers
-    input_df.update(input_df[['mean_current',
-                              'mean_ideal',
-                              'mean_mortality_zero',
-                              'mean_AHLE',
-                              'mean_AHLE_mortality',]].applymap('{:,.0f}'.format))
-
-    columns_to_display_with_labels = {
-      'species':'Species'
-      ,'production_system':'Production System'
-      ,'item':'Value or Cost'
-      ,'age_group':'Age'
-      ,'sex':'Sex'
-      ,'mean_current':'Current Mean (birr)'
-      ,'mean_ideal':'Ideal Mean (birr)'
-      ,'mean_mortality_zero':'Mortality Zero Mean (birr)'
-      ,'mean_AHLE':'AHLE (Ideal - Current)'
-      ,'mean_AHLE_mortality':'AHLE due to Mortality (Mortality Zero - Current)'
-    }
-    
-    # Subset columns
-    input_df = input_df[list(columns_to_display_with_labels)]
-    
-    # Keep only items for the waterfall
-    waterfall_plot_values = ('Value of Offtake',
-                             'Value of Herd Increase',
-                             'Value of Manure',
-                             'Value of Hides',
-                             'Feed Cost',
-                             'Labour Cost',
-                             'Health Cost',
-                             'Capital Cost',
-                             'Gross Margin')
-    input_df = input_df.loc[input_df['item'].isin(waterfall_plot_values)]
-
-
-    return [
-            html.H4("AHLE Data"),
-            dash_table.DataTable(
-                columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
-                data=input_df.to_dict('records'),
-                export_format="csv",
-                style_cell={
-                    # 'minWidth': '250px',
-                    'font-family':'sans-serif',
-                    },
-            )
-        ]
-
-
 
 # ------------------------------------------------------------------------------
 #### -- Figures
 # ------------------------------------------------------------------------------
-@gbadsDash.callback(
-   Output('ecs-attr-treemap','figure'),
-   Input('core-data-attr-ecs','data'),
-   Input('select-prodsys-ecs','value'),
-   )
-def update_attr_treemap_ecs(input_json, prodsys):
-   # Data
-   input_df = pd.read_json(input_json, orient='split')
-   # input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
-   
-   # Prep data
-   input_df = prep_ahle_fortreemap_ecs(input_df)
-
-    # Set up treemap structure
-   ecs_treemap_fig = create_attr_treemap_ecs(input_df)
-   
-   # Add title
-   ecs_treemap_fig.update_layout(title_text=f'Attribution for All small ruminants using {prodsys}',
-                               font_size=15,
-                               margin=dict(t=100))
-
-   return ecs_treemap_fig
-
-
+# AHLE Waterfall 
 @gbadsDash.callback(
     Output('ecs-ahle-sunburst','figure'),
     Input('core-data-ahle-ecs','data'),
@@ -4025,34 +4012,30 @@ def update_ahle_waterfall_ecs(input_json, age, species, scenario, compare):
 
     return ecs_waterfall_fig
 
-# @gbadsDash.callback(
-#     Output('ecs-ahle-sunburst','figure'),
-#     Input('select-species-ecs','value'),
-#     )
-# def update_ahle_sunburst_ecs(species):
-#     # Data
-#     input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv'))
+
+# Attribution Treemap
+@gbadsDash.callback(
+   Output('ecs-attr-treemap','figure'),
+   Input('core-data-attr-ecs','data'),
+   Input('select-prodsys-ecs','value'),
+   )
+def update_attr_treemap_ecs(input_json, prodsys):
+   # Data
+   input_df = pd.read_json(input_json, orient='split')
+   # input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
    
-#     sunburst_df = prep_ahle_forsunburst_ecs(input_df)
+   # Prep data
+   input_df = prep_ahle_fortreemap_ecs(input_df)
+
+    # Set up treemap structure
+   ecs_treemap_fig = create_attr_treemap_ecs(input_df)
    
-#     # Calculate Gross Margin to display
-#     Total_Value_Increase = sunburst_df.loc[sunburst_df['Total'] == 'Total Value Increase', 'envelope'].sum()
-#     Total_Expenditure = sunburst_df.loc[sunburst_df['Total'] == 'Total Expenditure', 'envelope'].sum()
-#     Gross_Margin = Total_Value_Increase - Total_Expenditure
-#     # Gross_Margin = '${:,.0f} USD'.format(Gross_Margin)
-#     Gross_Margin = humanize.intword(Gross_Margin) + ' birr'
+   # Add title
+   ecs_treemap_fig.update_layout(title_text=f'Attribution for All small ruminants using {prodsys}',
+                               font_size=15,
+                               margin=dict(t=100))
 
-#     # Apply absolute value to only show positive values (proportions of Gross Margin)
-#     sunburst_df['envelope'] = abs(sunburst_df['envelope'])
-
-#     ecs_sunburst_fig = create_ahle_sunburst_ecs(sunburst_df)
-   
-#     ecs_sunburst_fig.update_layout(title_text=f'Health Loss Envelope | {species} <br><sup>Gross Margin: {Gross_Margin} (Total Value Increase - Total Expenditure)</sup><br>',
-#                                 font_size=15,
-#                                 margin=dict(t=100))
-
-#     return ecs_sunburst_fig
-
+   return ecs_treemap_fig
 
 
 #%% 6. RUN APP
@@ -4062,7 +4045,6 @@ if __name__ == "__main__":
    # NOTE: These statements are not executed when in gunicorn, because in gunicorn this program is loaded as module
 
    # use_port = fa.get_open_port()  # selects first unused port >= 8050
-   # use_port = 8050                  # set to fixed fixed number
    use_port = 8050                 # set to fixed fixed number
 
    fa.run_server(app, use_port, debug=True)

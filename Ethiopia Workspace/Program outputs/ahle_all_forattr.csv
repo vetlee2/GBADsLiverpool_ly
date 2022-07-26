@@ -1,49 +1,49 @@
 Species,Production system,Age class,AHLE,mean,sd
-Goat,Crop livestock mixed,Adult female,Mortality,2825208192.4802704,637945495.9967391
-Goat,Crop livestock mixed,Adult male,Mortality,1631584012.0671005,999899564.6487355
-Goat,Crop livestock mixed,Juvenile,Mortality,991186622.954864,305294537.0461288
-Goat,Crop livestock mixed,Neonate,Mortality,778414677.3618903,282674647.8679793
-Goat,Pastoral,Adult female,Mortality,4102099976.046055,688426527.3137882
-Goat,Pastoral,Adult male,Mortality,2002102801.6542988,1110747458.8799777
-Goat,Pastoral,Juvenile,Mortality,1032068267.8754828,306276329.3177412
-Goat,Pastoral,Neonate,Mortality,865944018.4781381,251852800.08952677
-Sheep,Crop livestock mixed,Adult female,Mortality,2165465565.45006,584600680.7604423
-Sheep,Crop livestock mixed,Adult male,Mortality,1253952945.2747002,476536684.6728047
-Sheep,Crop livestock mixed,Juvenile,Mortality,820388662.7256832,349323361.06202096
-Sheep,Crop livestock mixed,Neonate,Mortality,1096988725.754177,308889853.44193333
-Sheep,Pastoral,Adult female,Mortality,563714620.7301459,499401674.01784915
-Sheep,Pastoral,Adult male,Mortality,564398889.1669798,483409998.5201713
-Sheep,Pastoral,Juvenile,Mortality,169314053.68763906,204507127.98159388
-Sheep,Pastoral,Neonate,Mortality,598301129.0404289,215741331.77159423
-Goat,Crop livestock mixed,Adult female,Health cost,27601242.8554291,587781.419276661
-Goat,Crop livestock mixed,Adult male,Health cost,7132249.74407608,143339.71847947
-Goat,Crop livestock mixed,Juvenile,Health cost,7615103.292417251,129478.86875243955
-Goat,Crop livestock mixed,Neonate,Health cost,9735904.0509151,189080.1872870512
-Goat,Pastoral,Adult female,Health cost,38913497.7997415,786974.4662814
-Goat,Pastoral,Adult male,Health cost,11470644.7121828,238443.858842975
-Goat,Pastoral,Juvenile,Health cost,9658965.184847891,175476.90165743817
-Goat,Pastoral,Neonate,Health cost,12274065.530666199,281184.2444475725
-Sheep,Crop livestock mixed,Adult female,Health cost,36258183.0173978,754710.0234346
-Sheep,Crop livestock mixed,Adult male,Health cost,7735857.71879956,169814.250892337
-Sheep,Crop livestock mixed,Juvenile,Health cost,8488883.95922547,170566.6601468822
-Sheep,Crop livestock mixed,Neonate,Health cost,11049211.00793145,280517.2671310312
-Sheep,Pastoral,Adult female,Health cost,25089451.7988409,503906.606594303
-Sheep,Pastoral,Adult male,Health cost,9282779.17613817,188586.938691276
-Sheep,Pastoral,Juvenile,Health cost,6509465.093617139,150489.72076812523
-Sheep,Pastoral,Neonate,Health cost,7170356.4840565305,239076.49566723438
-Goat,Crop livestock mixed,Adult female,Production loss,2080550678.9917407,1108194254.4128199
-Goat,Crop livestock mixed,Adult male,Production loss,4419408317.232523,1499387345.6887856
-Goat,Crop livestock mixed,Juvenile,Production loss,-115735371.67069694,430169142.60881126
-Goat,Crop livestock mixed,Neonate,Production loss,-322043325.95837533,403193344.61531824
-Goat,Pastoral,Adult female,Production loss,5962266340.663399,1400868751.1937723
-Goat,Pastoral,Adult male,Production loss,4624926841.723518,1573439337.5200143
-Goat,Pastoral,Juvenile,Production loss,1695927993.5681665,443249064.2730864
-Goat,Pastoral,Neonate,Production loss,422381336.4680558,371138370.1992835
-Sheep,Crop livestock mixed,Adult female,Production loss,2407482961.654462,1144326208.5533442
-Sheep,Crop livestock mixed,Adult male,Production loss,1336288210.0376015,683678640.6409801
-Sheep,Crop livestock mixed,Juvenile,Production loss,-27476908.894853406,491181476.752863
-Sheep,Crop livestock mixed,Neonate,Production loss,20570805.851835035,440222715.6937253
-Sheep,Pastoral,Adult female,Production loss,790023234.9465433,760650194.5231383
-Sheep,Pastoral,Adult male,Production loss,521882202.37027144,738819922.128921
-Sheep,Pastoral,Juvenile,Production loss,947395243.8659211,318250124.25814164
-Sheep,Pastoral,Neonate,Production loss,109093257.0937404,313196701.8196855
+Goat,Crop livestock mixed,Adult female,Mortality,3326863195.8280983,1427269683.3816211
+Goat,Crop livestock mixed,Adult male,Mortality,1325168667.780899,1093539805.101753
+Goat,Crop livestock mixed,Juvenile,Mortality,2599007635.430298,1431431500.7934456
+Goat,Crop livestock mixed,Neonate,Mortality,3949006295.6457977,1203379280.6610944
+Goat,Pastoral,Adult female,Mortality,4480529867.0611,1502434050.4749198
+Goat,Pastoral,Adult male,Mortality,1666582688.5284996,1585291512.627474
+Goat,Pastoral,Juvenile,Mortality,2930371260.8989983,1735470060.8834789
+Goat,Pastoral,Neonate,Mortality,3334638376.5872993,1488065441.1466193
+Sheep,Crop livestock mixed,Adult female,Mortality,3240202602.625,1027498259.1307254
+Sheep,Crop livestock mixed,Adult male,Mortality,1775356719.5600014,1145038582.2081194
+Sheep,Crop livestock mixed,Juvenile,Mortality,2524331337.508499,988204804.8544495
+Sheep,Crop livestock mixed,Neonate,Mortality,4938851376.311001,991970549.8136903
+Sheep,Pastoral,Adult female,Mortality,272387561.59834003,608049330.4552556
+Sheep,Pastoral,Adult male,Mortality,526379340.65830994,578757222.307065
+Sheep,Pastoral,Juvenile,Mortality,275173221.7313404,542193788.5523878
+Sheep,Pastoral,Neonate,Mortality,2584049020.85096,777685914.8429466
+Goat,Crop livestock mixed,Adult female,Health cost,9833990.55515639,220528.111151137
+Goat,Crop livestock mixed,Adult male,Health cost,9833990.55515639,220528.111151137
+Goat,Crop livestock mixed,Juvenile,Health cost,9833990.55515639,220528.111151137
+Goat,Crop livestock mixed,Neonate,Health cost,9833990.55515639,220528.111151137
+Goat,Pastoral,Adult female,Health cost,12306253.7072404,278889.76813121
+Goat,Pastoral,Adult male,Health cost,12306253.7072404,278889.76813121
+Goat,Pastoral,Juvenile,Health cost,12306253.7072404,278889.76813121
+Goat,Pastoral,Neonate,Health cost,12306253.7072404,278889.76813121
+Sheep,Crop livestock mixed,Adult female,Health cost,10913710.2499408,248198.608584024
+Sheep,Crop livestock mixed,Adult male,Health cost,10913710.2499408,248198.608584024
+Sheep,Crop livestock mixed,Juvenile,Health cost,10913710.2499408,248198.608584024
+Sheep,Crop livestock mixed,Neonate,Health cost,10913710.2499408,248198.608584024
+Sheep,Pastoral,Adult female,Health cost,7281450.30581549,145081.810093588
+Sheep,Pastoral,Adult male,Health cost,7281450.30581549,145081.810093588
+Sheep,Pastoral,Juvenile,Health cost,7281450.30581549,145081.810093588
+Sheep,Pastoral,Neonate,Health cost,7281450.30581549,145081.810093588
+Goat,Crop livestock mixed,Adult female,Production loss,18114036347.45964,2943760864.6466823
+Goat,Crop livestock mixed,Adult male,Production loss,4560744891.892944,1847972556.3202271
+Goat,Crop livestock mixed,Juvenile,Production loss,475738433.94044524,1965355729.746094
+Goat,Crop livestock mixed,Neonate,Production loss,1098187653.9633448,1660369970.2491353
+Goat,Pastoral,Adult female,Production loss,36839764440.72027,3119629468.0665402
+Goat,Pastoral,Adult male,Production loss,15233544106.393162,2335808451.035029
+Goat,Pastoral,Juvenile,Production loss,12381628405.352661,2416896233.9975553
+Goat,Pastoral,Neonate,Production loss,11636932042.959259,2148807450.4064035
+Sheep,Crop livestock mixed,Adult female,Production loss,17899212369.581463,4525515716.723404
+Sheep,Crop livestock mixed,Adult male,Production loss,549595344.0091573,1506759284.0975897
+Sheep,Crop livestock mixed,Juvenile,Production loss,545626599.5521604,1527047983.9826596
+Sheep,Crop livestock mixed,Neonate,Production loss,449455781.11375624,1542772550.9065404
+Sheep,Pastoral,Adult female,Production loss,5729835258.141405,1120165782.5652852
+Sheep,Pastoral,Adult male,Production loss,3846683627.495034,1021407510.4322317
+Sheep,Pastoral,Juvenile,Production loss,4490319088.085805,1169026144.8340595
+Sheep,Pastoral,Neonate,Production loss,1955007700.9609845,1182775394.828127

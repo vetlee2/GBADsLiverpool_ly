@@ -393,6 +393,8 @@ for i in np.sort(ecs_ahle_all_withattr['cause'].unique()):
    str(ecs_attr_options.append({'label':i,'value':(i)}))
 
 # Species
+ecs_ahle_summary['species'] = ecs_ahle_summary['species'].replace({'All small ruminants': 'All Small Ruminants'})
+
 ecs_species_options = []
 for i in np.sort(ecs_ahle_summary['species'].unique()):
     str(ecs_species_options.append({'label':i,'value':(i)}))
@@ -403,7 +405,7 @@ for i in np.sort(ecs_ahle_summary['species'].unique()):
 #                                                                             "Value of outputs",
 #                                                                             ]]
 
-# Scenario
+# display
 ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Difference (AHLE)",
                                                                             "Split",
                                                                             ]]
@@ -414,20 +416,18 @@ ecs_compare_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Id
                                                                              ]]
 
 # Factor
-ecs_factor_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Mortality"
-                                                                            ]]
-
-ecs_factor_options += [{'label': i, 'value': i, 'disabled': True} for i in ["Live Weight",
-                                                                            "Parturition Rate",
-                                                                            "Lactation"
-                                                                            ]]
+ecs_factor_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Mortality",
+                                                                           "Live Weight",
+                                                                           "Parturition Rate",
+                                                                           "Lactation"
+                                                                           ]]
 
 # Reduction
-ecs_redu_options = [{'label': i, 'value': i, 'disabled': False} for i in ['Current',
-                                                                          '25%',
-                                                                          '50%',
-                                                                          '75%',
-                                                                          ]]
+ecs_redu_options = [{'label': i, 'value': i, 'disabled': True} for i in ['Current',
+                                                                         '25%',
+                                                                         '50%',
+                                                                         '75%',
+                                                                         ]]
 
 # Defaults for sliders
 factor_ecs_default = 'Current'
@@ -796,7 +796,9 @@ def prep_ahle_fortreemap_ecs(INPUT_DF):
                                        'ahle_component',
                                        'cause',
                                        'mean']]
-
+   
+   # Can only have positive values
+   ecs_ahle_attr_treemap['mean'] = abs( ecs_ahle_attr_treemap['mean'])
 
    # Replace 'overall' values with more descriptive values
    # ecs_ahle_summary_tree_pivot['age_group'] = ecs_ahle_summary_tree_pivot['age_group'].replace({'Overall': 'Overall Age'})
@@ -1714,12 +1716,12 @@ gbadsDash.layout = html.Div([
                     dbc.CardBody([
                         html.H4("AHLE Graph Controls", className="card-title"),
                         dbc.Row([
-                        # Scenario
+                        # display
                         dbc.Col([
                             html.H6("Display"),
                             dcc.RadioItems(id='select-display-ecs',
                                          options=ecs_display_options,
-                                         value='AHLE',
+                                         value='Difference (AHLE)',
                                          labelStyle={'display': 'block'},
                                          inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                          ),
@@ -1747,7 +1749,7 @@ gbadsDash.layout = html.Div([
                              html.H6("Species"),
                              dcc.Dropdown(id='select-species-ecs',
                                           options=ecs_species_options,
-                                          value='All small ruminants',
+                                          value='All Small Ruminants',
                                           clearable = False,
                                           ),
                              ],style={
@@ -3705,8 +3707,8 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
         input_df=input_df.loc[(input_df['species'] == species)]
     elif species == "Sheep":
         input_df=input_df.loc[(input_df['species'] == species)]
-    elif species == "All small ruminants":
-        input_df=input_df.loc[(input_df['species'] == species)]
+    elif species == "All Small Ruminants":
+        input_df=input_df.loc[(input_df['species'] == 'All small ruminants')]
     else:
         input_df=input_df
         
@@ -3927,7 +3929,7 @@ def update_ecs_attr_data(input_json):
     Input('select-display-ecs','value'),
     Input('select-compare-ecs','value'),
     )
-def update_ahle_waterfall_ecs(input_json, age, species, scenario, compare):
+def update_ahle_waterfall_ecs(input_json, age, species, display, compare):
     # Data
     input_df = pd.read_json(input_json, orient='split')
        
@@ -3951,8 +3953,8 @@ def update_ahle_waterfall_ecs(input_json, age, species, scenario, compare):
         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
         x = prep_df['item']
         
-    # Scenario and Compare filters
-    if scenario == "AHLE":
+    # display and Compare filters
+    if display == "Difference (AHLE)":
         # Applying the condition
         prep_df["item"] = np.where(prep_df["item"] == "Gross Margin", "AHLE", prep_df["item"])
         x = prep_df['item']
@@ -3964,7 +3966,7 @@ def update_ahle_waterfall_ecs(input_json, age, species, scenario, compare):
         name = 'AHLE'
         ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
         # Add title
-        ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({scenario}) | {species} <br><sup>Difference between {compare} and Current scenario</sup><br>',
+        ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope (AHLE) | {species} <br><sup>Difference between {compare} and Current scenario</sup><br>',
                                     font_size=15,
                                     margin=dict(t=100))
     else:
@@ -3988,7 +3990,7 @@ def update_ahle_waterfall_ecs(input_json, age, species, scenario, compare):
                 waterfallgroupgap = 0.5,
                 )
             # Add title
-            ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({scenario}) | {species} <br><sup>{compare} and Current scenario</sup><br>',
+            ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario</sup><br>',
                                         font_size=15,
                                         margin=dict(t=100))
         else:
@@ -4011,7 +4013,7 @@ def update_ahle_waterfall_ecs(input_json, age, species, scenario, compare):
                 waterfallgroupgap = 0.5,
                 ) 
             # Add title
-            ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({scenario}) | {species} <br><sup>{compare} and Current scenario</sup><br>',
+            ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario</sup><br>',
                                         font_size=15,
                                         margin=dict(t=100))
 
@@ -4035,7 +4037,7 @@ def update_attr_treemap_ecs(input_json, prodsys):
    ecs_treemap_fig = create_attr_treemap_ecs(input_df)
    
    # Add title
-   ecs_treemap_fig.update_layout(title_text=f'Attribution | All small ruminants using {prodsys}',
+   ecs_treemap_fig.update_layout(title_text=f'Attribution | All Small Ruminants using {prodsys}',
                                font_size=15,
                                margin=dict(t=100))
 

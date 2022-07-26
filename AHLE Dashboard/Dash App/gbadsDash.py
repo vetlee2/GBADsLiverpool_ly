@@ -968,6 +968,9 @@ def create_stacked_bar_swine(input_df, x, y, color):
 
 # Define the attribution treemap
 def create_attr_treemap_ecs(input_df):
+    # # Make mean more legible 
+    # input_df["humanize_mean"]= input_df['mean'].apply(lambda x: humanize.intword(x))
+    
     treemap_fig = px.treemap(input_df, 
                       path=['production_system',
                             'age_group',
@@ -982,7 +985,6 @@ def create_attr_treemap_ecs(input_df):
     
     treemap_fig.update_traces(root_color="white",
                                hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} birr<extra></extra>')
-
 
     return treemap_fig
 
@@ -1766,11 +1768,11 @@ gbadsDash.layout = html.Div([
                ], color='#F2F2F2'), 
                ]),
                                  
-               # Controls for Both Visuals
+               # Controls for Both Graphs
                dbc.Col([
                dbc.Card([
                    dbc.CardBody([
-                       html.H4("Controls for Both", className="card-title"),
+                       html.H4("Controls for Both Graphs", className="card-title"),
                        dbc.Row([
                            
                            # Production System
@@ -3928,8 +3930,10 @@ def update_ecs_attr_data(input_json):
     Input('select-species-ecs','value'),
     Input('select-display-ecs','value'),
     Input('select-compare-ecs','value'),
+    Input('select-prodsys-ecs','value'),
+    Input('select-sex-ecs','value'),
     )
-def update_ahle_waterfall_ecs(input_json, age, species, display, compare):
+def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsys, sex):
     # Data
     input_df = pd.read_json(input_json, orient='split')
        
@@ -3966,7 +3970,7 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare):
         name = 'AHLE'
         ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
         # Add title
-        ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope (AHLE) | {species} <br><sup>Difference between {compare} and Current scenario</sup><br>',
+        ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope (AHLE) | {species} <br><sup>Difference between {compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
                                     font_size=15,
                                     margin=dict(t=100))
     else:
@@ -3990,9 +3994,12 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare):
                 waterfallgroupgap = 0.5,
                 )
             # Add title
-            ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario</sup><br>',
+            ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
                                         font_size=15,
                                         margin=dict(t=100))
+            # Adjust hoverover
+            ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} birr<extra></extra>')
+
         else:
             y = prep_df['mean_mortality_zero']
             name = 'Mortality 0'
@@ -4013,9 +4020,11 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare):
                 waterfallgroupgap = 0.5,
                 ) 
             # Add title
-            ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario</sup><br>',
+            ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
                                         font_size=15,
                                         margin=dict(t=100))
+            # Adjust hoverover
+            ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} birr<extra></extra>')
 
     return ecs_waterfall_fig
 
@@ -4025,8 +4034,11 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare):
    Output('ecs-attr-treemap','figure'),
    Input('core-data-attr-ecs','data'),
    Input('select-prodsys-ecs','value'),
+   Input('select-age-ecs','value'),
+   Input('select-sex-ecs','value'),
+   Input('select-attr-ecs','value'),
    )
-def update_attr_treemap_ecs(input_json, prodsys):
+def update_attr_treemap_ecs(input_json, prodsys, age, sex, cause):
    # Data
    input_df = pd.read_json(input_json, orient='split')
    
@@ -4037,7 +4049,7 @@ def update_attr_treemap_ecs(input_json, prodsys):
    ecs_treemap_fig = create_attr_treemap_ecs(input_df)
    
    # Add title
-   ecs_treemap_fig.update_layout(title_text=f'Attribution | All Small Ruminants using {prodsys}',
+   ecs_treemap_fig.update_layout(title_text=f'Attribution | All Small Ruminants <br><sup> Using {prodsys} for {age} and {sex} attributed to {cause}</sup><br>',
                                font_size=15,
                                margin=dict(t=100))
 

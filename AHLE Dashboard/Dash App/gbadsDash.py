@@ -404,7 +404,7 @@ for i in np.sort(ecs_ahle_summary['species'].unique()):
 #                                                                             ]]
 
 # Scenario
-ecs_scenario_options = [{'label': i, 'value': i, 'disabled': False} for i in ["AHLE",
+ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Difference (AHLE)",
                                                                             "Split",
                                                                             ]]
 
@@ -975,7 +975,7 @@ def create_attr_treemap_ecs(input_df):
                       values='mean',
                       color='cause', # cause only applys to the cause level
                       # color_discrete_map={'Crop livestock mixed':'#2A80B9', 'Pastoral':'#9B58B5',})
-                       color_discrete_map={'Infectious':'#68000D', 'Non-infectious':'#08316C', 'External':'#00441B'}) # Cause colors matches the Human health dashboard
+                       color_discrete_map={'(?)':'lightgrey','Infectious':'#68000D', 'Non-infectious':'#08316C', 'External':'#00441B'}) # Cause colors matches the Human health dashboard
 
     
     treemap_fig.update_traces(root_color="white",
@@ -1029,6 +1029,7 @@ def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
                                      color="black"
                                      )
                                  )
+    waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} birr<extra></extra>')
 
     return waterfall_fig
 
@@ -1715,9 +1716,9 @@ gbadsDash.layout = html.Div([
                         dbc.Row([
                         # Scenario
                         dbc.Col([
-                            html.H6("Scenario"),
-                            dcc.RadioItems(id='select-scenario-ecs',
-                                         options=ecs_scenario_options,
+                            html.H6("Display"),
+                            dcc.RadioItems(id='select-display-ecs',
+                                         options=ecs_display_options,
                                          value='AHLE',
                                          labelStyle={'display': 'block'},
                                          inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
@@ -1729,7 +1730,7 @@ gbadsDash.layout = html.Div([
                                 
                         # Compare
                         dbc.Col([
-                            html.H6("Compare"),
+                            html.H6("Compare (Current)"),
                             dcc.RadioItems(id='select-compare-ecs',
                                          options=ecs_compare_options,
                                          value='Ideal',
@@ -1886,7 +1887,6 @@ gbadsDash.layout = html.Div([
                 # Factor dropdown
                 dbc.Col([
                     html.H6("Factor"),
-                    html.Br(),
                     dcc.Dropdown(id='select-factor-ecs',
                                  options=ecs_factor_options,
                                  value='All Causes',
@@ -1923,9 +1923,7 @@ gbadsDash.layout = html.Div([
                 ),
 
                 ## END OF ETHIOPIAN TAB CONTROLS ROW ##
-                ], 
-                         # justify='evenly'
-                         ),
+                ]),
                          
             # END OF CARD BODY             
             ],), 
@@ -3759,7 +3757,6 @@ def update_ecs_ahle_data(input_json):
     input_df['mean_AHLE'] = input_df['mean_ideal'] - input_df['mean_current']
     input_df['mean_AHLE_mortality'] = input_df['mean_mortality_zero'] - input_df['mean_current']
     
-    
     # Format numbers
     input_df.update(input_df[['mean_current',
                               'mean_ideal',
@@ -3862,15 +3859,12 @@ def update_core_data_attr_ecs(prodsys, age, sex, attr):
             input_df=input_df.loc[(input_df['age_group'] == age)]
             input_df=input_df.loc[(input_df['sex'] == 'Overall')]
     else:
-        input_df=input_df
-    
-    # # Sex filter
-    # if sex == 'Male':
-    #     input_df=input_df.loc[(input_df['sex'] == sex)]
-    # elif sex == "Female":
-    #     input_df=input_df.loc[(input_df['sex'] == sex)]
-    # else:
-    #     input_df=input_df
+        if sex == 'Male':
+            input_df=input_df.loc[(input_df['sex'] == sex)]
+        elif sex == "Female":
+            input_df=input_df.loc[(input_df['sex'] == sex)]
+        else:
+            input_df=input_df
         
     # Attribution filter
     if attr == 'External':
@@ -3930,7 +3924,7 @@ def update_ecs_attr_data(input_json):
     Input('core-data-ahle-ecs','data'),
     Input('select-age-ecs','value'),
     Input('select-species-ecs','value'),
-    Input('select-scenario-ecs','value'),
+    Input('select-display-ecs','value'),
     Input('select-compare-ecs','value'),
     )
 def update_ahle_waterfall_ecs(input_json, age, species, scenario, compare):
@@ -4020,11 +4014,6 @@ def update_ahle_waterfall_ecs(input_json, age, species, scenario, compare):
             ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({scenario}) | {species} <br><sup>{compare} and Current scenario</sup><br>',
                                         font_size=15,
                                         margin=dict(t=100))
-            
-    # # Add title
-    # ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({scenario}) | {species} <br><sup>Gross Margin = Total Value Increase - Total Expenditure</sup><br>',
-    #                             font_size=15,
-    #                             margin=dict(t=100))
 
     return ecs_waterfall_fig
 
@@ -4038,7 +4027,6 @@ def update_ahle_waterfall_ecs(input_json, age, species, scenario, compare):
 def update_attr_treemap_ecs(input_json, prodsys):
    # Data
    input_df = pd.read_json(input_json, orient='split')
-   # input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
    
    # Prep data
    input_df = prep_ahle_fortreemap_ecs(input_df)
@@ -4047,7 +4035,7 @@ def update_attr_treemap_ecs(input_json, prodsys):
    ecs_treemap_fig = create_attr_treemap_ecs(input_df)
    
    # Add title
-   ecs_treemap_fig.update_layout(title_text=f'Attribution for All small ruminants using {prodsys}',
+   ecs_treemap_fig.update_layout(title_text=f'Attribution | All small ruminants using {prodsys}',
                                font_size=15,
                                margin=dict(t=100))
 

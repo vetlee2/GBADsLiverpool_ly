@@ -1716,7 +1716,9 @@ gbadsDash.layout = html.Div([
                 dbc.Col([
                 dbc.Card([
                     dbc.CardBody([
-                        html.H4("AHLE Graph Controls", className="card-title"),
+                        html.H5("Animal Health Loss Envelope Graph Controls", 
+                                className="card-title",
+                                style={"font-weight": "bold"}),
                         dbc.Row([
                         # display
                         dbc.Col([
@@ -1727,9 +1729,10 @@ gbadsDash.layout = html.Div([
                                          labelStyle={'display': 'block'},
                                          inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                          ),
-                            ],style={
-                                     "margin-top":"10px",
-                                     },        
+                            ],
+                            # style={
+                            #          "margin-top":"10px",
+                            #          },        
                         ),
                                 
                         # Compare
@@ -1741,9 +1744,10 @@ gbadsDash.layout = html.Div([
                                          labelStyle={'display': 'block'},
                                          inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                          ),
-                            ],style={
-                                     "margin-top":"10px",
-                                     },
+                            ],
+                            # style={
+                            #          "margin-top":"10px",
+                            #          },
                         ),
                                 
                          # Species
@@ -1754,10 +1758,10 @@ gbadsDash.layout = html.Div([
                                           value='All Small Ruminants',
                                           clearable = False,
                                           ),
-                             ],style={
-                                      "order":7,
-                                      "margin-top":"10px"
-                                      },
+                             ],
+                             # style={
+                             #          "margin-top":"10px"
+                             #          },
                              ),
                         ]), # END OF ROW
                                                 
@@ -1772,7 +1776,10 @@ gbadsDash.layout = html.Div([
                dbc.Col([
                dbc.Card([
                    dbc.CardBody([
-                       html.H4("Controls for Both Graphs", className="card-title"),
+                       html.H5("Controls for Both Graphs", 
+                               className="card-title",
+                               style={"font-weight": "bold"}
+                               ),
                        dbc.Row([
                            
                            # Production System
@@ -1784,8 +1791,7 @@ gbadsDash.layout = html.Div([
                                             clearable = False,
                                             ),
                                ],style={
-                                        "order":3,
-                                        "margin-top":"10px",
+                                        # "margin-top":"10px",
                                         "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
                                         }
                                ),
@@ -1799,8 +1805,7 @@ gbadsDash.layout = html.Div([
                                              clearable = False,
                                              )
                                 ],style={
-                                         'order': 4,
-                                         "margin-top":"10px",
+                                         # "margin-top":"10px",
                                          "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
                                          },
                                 ),
@@ -1814,8 +1819,7 @@ gbadsDash.layout = html.Div([
                                             clearable = False,
                                             )
                                ],style={
-                                        "order": 5,
-                                        "margin-top":"10px",
+                                        # "margin-top":"10px",
                                         "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
                                         },
                                ), 
@@ -1834,7 +1838,9 @@ gbadsDash.layout = html.Div([
             dbc.Col([
             dbc.Card([
                 dbc.CardBody([
-                    html.H4("Attribution Graph Controls", className="card-title"),
+                    html.H5("Attribution Graph Controls", 
+                            className="card-title",
+                            style={"font-weight": "bold"}),
                     dbc.Row([
                     # Attribution
                     dbc.Col([
@@ -1845,8 +1851,7 @@ gbadsDash.layout = html.Div([
                                      clearable = False,
                                      ),
                         ],style={
-                            "order":6,
-                            "margin-top":"10px",
+                            # "margin-top":"10px",
                             "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
                             },
                      ),
@@ -1880,12 +1885,14 @@ gbadsDash.layout = html.Div([
                 ], justify='evenly'),
 
 
-            html.Hr(style={'margin-right':'10px'}),
+            # html.Hr(style={'margin-right':'10px'}),
 
             #### -- CALCULATION CONTROLS
             dbc.Card([
                 dbc.CardBody([
-                    html.H4("Exploring Relative Contribution to Gross Margin and AHLE", className="card-title"),
+                    html.H5("Exploring Relative Contribution to Gross Margin and AHLE", 
+                            className="card-title",
+                            style={"font-weight": "bold"}),
             dbc.Row([  # Line up all the controls in the same row.
 
                 # Factor dropdown
@@ -1897,9 +1904,9 @@ gbadsDash.layout = html.Div([
                                  clearable = True,
                                  ),
                      ],
-                    style={
-                         "margin-top":"10px",
-                         },
+                    # style={
+                    #      "margin-top":"10px",
+                    #      },
                     ),
 
                 # Reduction
@@ -1912,9 +1919,9 @@ gbadsDash.layout = html.Div([
                                               "margin-left": "10px"}, 
                                   ),
                     ],width=3,
-                    style={
-                        "margin-top":"10px",
-                        },
+                    # style={
+                    #     "margin-top":"10px",
+                    #     },
                 ),
 
                 # Reset to defaults button

@@ -381,10 +381,13 @@ ecs_ahle_all_withattr['sex'] = ecs_ahle_all_withattr['sex'].replace({'Overall': 
 ecs_sex_options_all = []
 for i in np.sort(ecs_ahle_all_withattr['sex'].unique()):
    str(ecs_sex_options_all.append({'label':i,'value':(i)}))
-   
+
 # Filter for juvenile and neonates
 ecs_sex_options_filter = [{'label': "Overall Sex", 'value': "Overall Sex", 'disabled': False}]
 
+# Currency
+ecs_currency_options = [{'label': "Birr", 'value': "Birr", 'disabled': False},
+                        {'label': "USD", 'value': "USD", 'disabled': False}]
 
 # Attribution
 ecs_attr_options = [{'label': "All Causes", 'value': "All Causes", 'disabled': False}]
@@ -406,8 +409,8 @@ for i in np.sort(ecs_ahle_summary['species'].unique()):
 #                                                                             ]]
 
 # display
-ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Difference (AHLE)",
-                                                                            "Split",
+ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Split",
+                                                                             "Difference (AHLE)",
                                                                             ]]
 
 # Compare
@@ -788,7 +791,7 @@ def prep_bod_forstackedbar_swine(INPUT_DF):
 
 def prep_ahle_fortreemap_ecs(INPUT_DF):
    working_df = INPUT_DF.copy()
-   
+
    # Trim the data to keep things needed for the treemap
    ecs_ahle_attr_treemap = working_df[['production_system',
                                        'age_group',
@@ -796,25 +799,25 @@ def prep_ahle_fortreemap_ecs(INPUT_DF):
                                        'ahle_component',
                                        'cause',
                                        'mean']]
-   
+
    # Can only have positive values
    ecs_ahle_attr_treemap['mean'] = abs( ecs_ahle_attr_treemap['mean'])
 
    # Replace 'overall' values with more descriptive values
    # ecs_ahle_summary_tree_pivot['age_group'] = ecs_ahle_summary_tree_pivot['age_group'].replace({'Overall': 'Overall Age'})
    ecs_ahle_attr_treemap['sex'] = ecs_ahle_attr_treemap['sex'].replace({'Overall': 'Overall Sex'})
-     
-   # Replace mortality with mortality loss 
+
+   # Replace mortality with mortality loss
    ecs_ahle_attr_treemap['ahle_component'] = ecs_ahle_attr_treemap['ahle_component'].replace({'Mortality': 'Mortality Loss'})
-   
+
    OUTPUT_DF = ecs_ahle_attr_treemap
-                                    
+
    return OUTPUT_DF
 
 
 def prep_ahle_forwaterfall_ecs(INPUT_DF):
    working_df = INPUT_DF.copy()
-   
+
    # Trim the data to keep things needed for the treemap
    ecs_ahle_summary_sheep_sunburst = working_df[['species',
                                                  'production_system',
@@ -850,12 +853,12 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
    ecs_ahle_summary_sheep_sunburst['item'] = ecs_ahle_summary_sheep_sunburst['item'].astype('category')
    ecs_ahle_summary_sheep_sunburst.item.cat.set_categories(waterfall_plot_values, inplace=True)
    ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.sort_values(["item"])
-   
+
    # Create AHLE columns
    ecs_ahle_summary_sheep_sunburst['mean_AHLE'] = ecs_ahle_summary_sheep_sunburst['mean_ideal'] - ecs_ahle_summary_sheep_sunburst['mean_current']
    ecs_ahle_summary_sheep_sunburst['mean_AHLE_mortality'] = ecs_ahle_summary_sheep_sunburst['mean_mortality_zero'] - ecs_ahle_summary_sheep_sunburst['mean_current']
-   
-           
+
+
    OUTPUT_DF = ecs_ahle_summary_sheep_sunburst
 
    return OUTPUT_DF
@@ -968,41 +971,46 @@ def create_stacked_bar_swine(input_df, x, y, color):
 
 # Define the attribution treemap
 def create_attr_treemap_ecs(input_df):
-    # # Make mean more legible 
+    # # Make mean more legible
     # input_df["humanize_mean"]= input_df['mean'].apply(lambda x: humanize.intword(x))
-    
-    treemap_fig = px.treemap(input_df, 
-                      path=['production_system',
-                            'age_group',
-                            'sex',
-                            'ahle_component',
-                            'cause'], 
+
+    treemap_fig = px.treemap(input_df,
+                      # path=[
+                      #    'production_system',
+                      #    'age_group',
+                      #    'sex',
+                      #    'ahle_component',
+                      #    'cause'
+                      #    ],
+                      path=[
+                         'cause',
+                         'production_system',
+                         'age_group',
+                         'sex',
+                         'ahle_component',
+                         ],
                       values='mean',
                       color='cause', # cause only applys to the cause level
                       # color_discrete_map={'Crop livestock mixed':'#2A80B9', 'Pastoral':'#9B58B5',})
-                       color_discrete_map={'(?)':'lightgrey','Infectious':'#68000D', 'Non-infectious':'#08316C', 'External':'#00441B'}) # Cause colors matches the Human health dashboard
-
-    
-    treemap_fig.update_traces(root_color="white",
-                               hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} birr<extra></extra>')
+                      color_discrete_map={'(?)':'lightgrey','Infectious':'#68000D', 'Non-infectious':'#08316C', 'External':'#00441B'}) # Cause colors matches the Human health dashboard
 
     return treemap_fig
 
 # Define the AHLE sunburst
 def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
-    # sunburst_fig = px.sunburst(input_df, 
-    #                             path=['Total', 'item'], 
+    # sunburst_fig = px.sunburst(input_df,
+    #                             path=['Total', 'item'],
     #                             values='envelope')
-    
-    # # Make mean more legible 
+
+    # # Make mean more legible
     # input_df["humanize_envelope"]= input_df['envelope'].apply(lambda x: humanize.intword(x))
-    
-    # icicle_fig = px.icicle(input_df, 
-    #                           path=['Total', 'item'], 
+
+    # icicle_fig = px.icicle(input_df,
+    #                           path=['Total', 'item'],
     #                           values='envelope',
     #                           custom_data=['humanize_envelope'])
     # icicle_fig.update_traces(root_color="white",
-    #                          hovertemplate='Category=%{label}<br>Value=$%{value:,.0f} birr<extra></extra>')
+    #                          hovertemplate='Category=%{label}<br>Value=$%{value:,.0f} <extra></extra>')
 
     waterfall_fig = go.Figure(go.Waterfall(
         name = name,
@@ -1021,7 +1029,7 @@ def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
 
     waterfall_fig.update_layout(clickmode='event+select', ### EVENT SELECT ??????
                                 plot_bgcolor="#ededed",)
-    
+
     waterfall_fig.add_annotation(x=4, xref='x',         # x position is absolute on axis
                                  y=0, yref='paper',     # y position is relative [0,1] to work regardless of scale
                                  text="Source: GBADs",
@@ -1033,7 +1041,6 @@ def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
                                      color="black"
                                      )
                                  )
-    waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} birr<extra></extra>')
 
     return waterfall_fig
 
@@ -1711,12 +1718,12 @@ gbadsDash.layout = html.Div([
 
             #### -- DROPDOWNS CONTROLS
             dbc.Row([
-                
+
                 # AHLE Specific Controls
                 dbc.Col([
                 dbc.Card([
                     dbc.CardBody([
-                        html.H5("Animal Health Loss Envelope Graph Controls", 
+                        html.H5("Animal Health Loss Envelope Graph Controls",
                                 className="card-title",
                                 style={"font-weight": "bold"}),
                         dbc.Row([
@@ -1725,16 +1732,16 @@ gbadsDash.layout = html.Div([
                             html.H6("Display"),
                             dcc.RadioItems(id='select-display-ecs',
                                          options=ecs_display_options,
-                                         value='Difference (AHLE)',
+                                         value='Split',
                                          labelStyle={'display': 'block'},
                                          inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                          ),
                             ],
                             # style={
                             #          "margin-top":"10px",
-                            #          },        
+                            #          },
                         ),
-                                
+
                         # Compare
                         dbc.Col([
                             html.H6("Compare (Current)"),
@@ -1749,7 +1756,7 @@ gbadsDash.layout = html.Div([
                             #          "margin-top":"10px",
                             #          },
                         ),
-                                
+
                          # Species
                          dbc.Col([
                              html.H6("Species"),
@@ -1764,24 +1771,24 @@ gbadsDash.layout = html.Div([
                              #          },
                              ),
                         ]), # END OF ROW
-                                                
-                # END OF CARD BODY             
-                ],), 
-                             
-               # END OF CARD              
-               ], color='#F2F2F2'), 
+
+                # END OF CARD BODY
+                ],),
+
+               # END OF CARD
+               ], color='#F2F2F2'),
                ]),
-                                 
+
                # Controls for Both Graphs
                dbc.Col([
                dbc.Card([
                    dbc.CardBody([
-                       html.H5("Controls for Both Graphs", 
+                       html.H5("Controls for Both Graphs",
                                className="card-title",
                                style={"font-weight": "bold"}
                                ),
                        dbc.Row([
-                           
+
                            # Production System
                            dbc.Col([
                                html.H6("Production System"),
@@ -1822,23 +1829,31 @@ gbadsDash.layout = html.Div([
                                         # "margin-top":"10px",
                                         "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
                                         },
-                               ), 
-                           
-                           
+                               ),
+
+
                            ]), # END OF ROW
-                                                   
-                   # END OF CARD BODY             
-                   ],), 
-                                
-                  # END OF CARD              
-                  ], color='#F2F2F2'), 
+                       dbc.Row([
+                           # Currency selector
+                           html.H6("Currency"),
+                           dcc.Dropdown(id='select-currency-ecs',
+                                        options=ecs_currency_options,
+                                        value='Birr',
+                                        clearable = False,
+                                        ),
+                           ]), # END OF ROW
+                   # END OF CARD BODY
+                   ],),
+
+                  # END OF CARD
+                  ], color='#F2F2F2'),
                   ]),
-                           
+
             # Attribution Specific Controls
             dbc.Col([
             dbc.Card([
                 dbc.CardBody([
-                    html.H5("Attribution Graph Controls", 
+                    html.H5("Attribution Graph Controls",
                             className="card-title",
                             style={"font-weight": "bold"}),
                     dbc.Row([
@@ -1856,14 +1871,14 @@ gbadsDash.layout = html.Div([
                             },
                      ),
                 ]), # END OF ROW
-                                        
-                # END OF CARD BODY             
-                ],), 
-                             
-               # END OF CARD              
-               ], color='#F2F2F2'), 
+
+                # END OF CARD BODY
+                ],),
+
+               # END OF CARD
+               ], color='#F2F2F2'),
                ]),
-                                
+
 
                 # # Metric
                 # dbc.Col([
@@ -1879,8 +1894,8 @@ gbadsDash.layout = html.Div([
                 #              "margin-right": '10px'
                 #              },
                 #     ),
-                
-                
+
+
                 # END OF DROPDOWN CONTROLS
                 ], justify='evenly'),
 
@@ -1890,7 +1905,7 @@ gbadsDash.layout = html.Div([
             #### -- CALCULATION CONTROLS
             dbc.Card([
                 dbc.CardBody([
-                    html.H5("Exploring Relative Contribution to Gross Margin and AHLE", 
+                    html.H5("Exploring Relative Contribution to Gross Margin and AHLE",
                             className="card-title",
                             style={"font-weight": "bold"}),
             dbc.Row([  # Line up all the controls in the same row.
@@ -1916,7 +1931,7 @@ gbadsDash.layout = html.Div([
                                   options=ecs_redu_options,
                                   value= "Current",
                                   inputStyle={"margin-right": "2px", # This pulls the words off of the button
-                                              "margin-left": "10px"}, 
+                                              "margin-left": "10px"},
                                   ),
                     ],width=3,
                     # style={
@@ -1935,18 +1950,18 @@ gbadsDash.layout = html.Div([
 
                 ## END OF ETHIOPIAN TAB CONTROLS ROW ##
                 ]),
-                         
-            # END OF CARD BODY             
-            ],), 
-                         
-           # END OF CARD              
-           ], color='#F2F2F2'), 
+
+            # END OF CARD BODY
+            ],),
+
+           # END OF CARD
+           ], color='#F2F2F2'),
 
             html.Br(),
 
             #### -- GRAPHICS
                 dbc.Row([  # Row with GRAPHICS
-                         
+
                     # AHLE Sunburst
                     dbc.Col([
                         dbc.Spinner(children=[
@@ -1984,7 +1999,7 @@ gbadsDash.layout = html.Div([
                         # html.P(id='dung-text-ecs'),
                         # html.P(id='hides-text-ecs'),
                         # html.P(id='milk-text-ecs'),
-                        
+
                         dcc.Graph(id='ecs-attr-treemap',
                                    style = {"height":"650px"},
                                   config = {
@@ -2010,7 +2025,7 @@ gbadsDash.layout = html.Div([
                         # End of Attribution Treemap
                         style={"width":5}),
 
-                    
+
                     # dbc.Col(
                     #     dbc.Spinner(children=[
                     #     html.Div(children=[
@@ -2027,7 +2042,7 @@ gbadsDash.layout = html.Div([
                     #         ),
                     ]),
                 html.Br(),
-            
+
             #### -- FOOTNOTES
             dbc.Row([
                dbc.Col([
@@ -2042,30 +2057,30 @@ gbadsDash.layout = html.Div([
             ),
             html.Br(),
             ### END OF FOOTNOTES
-            
+
             #### -- DATATABLE
             dbc.Row([
-                
+
                dbc.Col([
                     html.Div([  # Core data for AHLE
                          html.Div( id='ecs-ahle-datatable'),
                     ], style={'margin-left':"20px"}),
                 html.Br() # Spacer for bottom of page
-                ]), 
-                
+                ]),
+
                dbc.Col([
                    html.Div([  # Core data for attribution
                          html.Div( id='ecs-attr-datatable'),
                     ], style={'margin-left':"20px",}),
                 html.Br(), # Spacer for bottom of page
                 ]),  # END OF COL
-               
+
                 # END OF COL
             ]),
             html.Br(),
             ### END OF DATATABLE
-            
-                              
+
+
         ### END OF ETHIOPIA TAB
             ]),
 
@@ -3706,11 +3721,11 @@ def reset_to_default_ecs(reset):
     Input('select-prodsys-ecs','value'),
     Input('select-age-ecs','value'),
     Input('select-sex-ecs','value'),
-    
+
     )
 def update_core_data_ahle_ecs(species, prodsys, age, sex):
     input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary.csv'))
-    
+
     # Species filter
     if species == 'Goat':
         input_df=input_df.loc[(input_df['species'] == species)]
@@ -3720,7 +3735,7 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
         input_df=input_df.loc[(input_df['species'] == 'All small ruminants')]
     else:
         input_df=input_df
-        
+
     # Prodicton System filter
     if prodsys == 'Crop livestock mixed':
         input_df=input_df.loc[(input_df['production_system'] == 'Crop livestock mixed')]
@@ -3730,7 +3745,7 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
         input_df=input_df.loc[(input_df['production_system'] == 'Overall')]
     else:
         input_df=input_df
-        
+
     # Age filter
     if age == 'Adult':
         input_df=input_df.loc[(input_df['age_group'] == age)]
@@ -3742,7 +3757,7 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
         input_df=input_df.loc[(input_df['age_group'] == 'Overall')]
     else:
         input_df=input_df
-        
+
     # Sex filter
     if sex == 'Male':
         input_df=input_df.loc[(input_df['sex'] == sex)]
@@ -3752,7 +3767,7 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
         input_df=input_df.loc[(input_df['sex'] == 'Overall')]
     else:
         input_df=input_df
-    
+
     return input_df.to_json(date_format='iso', orient='split')
 
 
@@ -3760,14 +3775,27 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
 @gbadsDash.callback(
    Output('ecs-ahle-datatable', 'children'),
    Input('core-data-ahle-ecs','data'),
-   )
-def update_ecs_ahle_data(input_json):
+   Input('select-currency-ecs','value'),
+)
+def update_ecs_ahle_data(input_json ,currency):
     input_df = pd.read_json(input_json, orient='split')
-    
+
+    # If currency is USD, use USD columns
+    display_currency = 'Birr'
+    if currency == 'USD':
+        display_currency = 'USD'
+
+        input_df['mean_current'] = input_df['mean_current_usd']
+        input_df['stdev_current'] = input_df['stdev_current_usd']
+        input_df['mean_mortality_zero'] = input_df['mean_mortality_zero_usd']
+        input_df['stdev_mortality_zero'] = input_df['stdev_mortality_zero_usd']
+        input_df['mean_ideal'] = input_df['mean_ideal_usd']
+        input_df['stdev_ideal'] = input_df['stdev_ideal_usd']
+
     # Create AHLE columns
     input_df['mean_AHLE'] = input_df['mean_ideal'] - input_df['mean_current']
     input_df['mean_AHLE_mortality'] = input_df['mean_mortality_zero'] - input_df['mean_current']
-    
+
     # Format numbers
     input_df.update(input_df[['mean_current',
                               'mean_ideal',
@@ -3781,16 +3809,16 @@ def update_ecs_ahle_data(input_json):
       ,'item':'Value or Cost'
       ,'age_group':'Age'
       ,'sex':'Sex'
-      ,'mean_current':'Current Mean (birr)'
-      ,'mean_ideal':'Ideal Mean (birr)'
-      ,'mean_mortality_zero':'Mortality Zero Mean (birr)'
+      ,'mean_current':f'Current Mean ({display_currency})'
+      ,'mean_ideal':f'Ideal Mean ({display_currency})'
+      ,'mean_mortality_zero':f'Mortality Zero Mean ({display_currency})'
       ,'mean_AHLE':'AHLE (Ideal - Current)'
       ,'mean_AHLE_mortality':'AHLE due to Mortality (Mortality Zero - Current)'
     }
-    
+
     # Subset columns
     input_df = input_df[list(columns_to_display_with_labels)]
-    
+
     # Keep only items for the waterfall
     waterfall_plot_values = ('Value of Offtake',
                              'Value of Herd Increase',
@@ -3829,7 +3857,7 @@ def update_ecs_ahle_data(input_json):
     )
 def update_core_data_attr_ecs(prodsys, age, sex, attr):
     input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
-        
+
     # Prodicton System filter
     if prodsys == 'Crop livestock mixed':
         input_df=input_df.loc[(input_df['production_system'] == 'Crop livestock mixed')]
@@ -3837,7 +3865,7 @@ def update_core_data_attr_ecs(prodsys, age, sex, attr):
         input_df=input_df.loc[(input_df['production_system'] == prodsys)]
     else:
         input_df=input_df
-        
+
     # Age filter
     if age == 'Adult':
         if sex == 'Male':
@@ -3876,7 +3904,7 @@ def update_core_data_attr_ecs(prodsys, age, sex, attr):
             input_df=input_df.loc[(input_df['sex'] == sex)]
         else:
             input_df=input_df
-        
+
     # Attribution filter
     if attr == 'External':
         input_df=input_df.loc[(input_df['cause'] == attr)]
@@ -3886,27 +3914,42 @@ def update_core_data_attr_ecs(prodsys, age, sex, attr):
         input_df=input_df.loc[(input_df['cause'] == attr)]
     else:
         input_df=input_df
-    
+
     return input_df.to_json(date_format='iso', orient='split')
 
 # Attribution datatable below graphic
 @gbadsDash.callback(
    Output('ecs-attr-datatable', 'children'),
-   Input('core-data-attr-ecs','data')   # Currently only one breed used, so no inputs needed. But Dash wants an input here.
+   Input('core-data-attr-ecs','data'),   # Currently only one breed used, so no inputs needed. But Dash wants an input here.
+   Input('select-currency-ecs','value'),
    )
-def update_ecs_attr_data(input_json):
+def update_ecs_attr_data(input_json, currency):
     input_df = pd.read_json(input_json, orient='split')
-    
+
+    # If currency is USD, use USD columns
+    display_currency = 'Birr'
+    if currency == 'USD':
+        display_currency = 'USD'
+
     # Format numbers
-    input_df.update(input_df[['mean']].applymap('{:,.0f}'.format))
-    
+    input_df.update(input_df[['mean',
+                              'sd',
+                              'lower95',
+                              'upper95',
+                              ]].applymap('{:,.0f}'.format))
+    input_df.update(input_df[['pct_of_total']].applymap('{:,.1f}%'.format))
+
     columns_to_display_with_labels = {
       'production_system':'Production System'
       ,'age_group':'Age'
       ,'sex':'Sex'
       ,'ahle_component':'AHLE Component'
       ,'cause':'Attribution'
-      ,'mean':'Mean (birr)'
+      ,'mean':f'Mean ({display_currency})'
+      ,'sd':'Std. Dev.'
+      ,'lower95':'Lower 95%'
+      ,'upper95':'Upper 95%'
+      ,'pct_of_total':'Percent of Total AHLE'
     }
 
     # Subset columns
@@ -3922,6 +3965,7 @@ def update_ecs_attr_data(input_json):
                     # 'minWidth': '250px',
                     'font-family':'sans-serif',
                     },
+                style_table={'overflowX': 'scroll'},
             )
         ]
 
@@ -3929,7 +3973,7 @@ def update_ecs_attr_data(input_json):
 # ------------------------------------------------------------------------------
 #### -- Figures
 # ------------------------------------------------------------------------------
-# AHLE Waterfall 
+# AHLE Waterfall
 @gbadsDash.callback(
     Output('ecs-ahle-sunburst','figure'),
     Input('core-data-ahle-ecs','data'),
@@ -3939,14 +3983,27 @@ def update_ecs_attr_data(input_json):
     Input('select-compare-ecs','value'),
     Input('select-prodsys-ecs','value'),
     Input('select-sex-ecs','value'),
+    Input('select-currency-ecs','value'),
     )
-def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsys, sex):
+def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsys, sex, currency):
     # Data
     input_df = pd.read_json(input_json, orient='split')
-       
-    # Prep the data 
+
+    # If currency is USD, use USD columns
+    display_currency = 'Ethiopian Birr'
+    if currency == 'USD':
+        display_currency = 'USD'
+
+        input_df['mean_current'] = input_df['mean_current_usd']
+        input_df['stdev_current'] = input_df['stdev_current_usd']
+        input_df['mean_mortality_zero'] = input_df['mean_mortality_zero_usd']
+        input_df['stdev_mortality_zero'] = input_df['stdev_mortality_zero_usd']
+        input_df['mean_ideal'] = input_df['mean_ideal_usd']
+        input_df['stdev_ideal'] = input_df['stdev_ideal_usd']
+
+    # Prep the data
     prep_df = prep_ahle_forwaterfall_ecs(input_df)
-    
+
     # Age filter
     if age == "Neonatal": # Removing value of hides for neonatal
         waterfall_plot_values = ('Value of Offtake',
@@ -3963,7 +4020,7 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
     else:
         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
         x = prep_df['item']
-        
+
     # display and Compare filters
     if display == "Difference (AHLE)":
         # Applying the condition
@@ -3978,8 +4035,9 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
         ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
         # Add title
         ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope (AHLE) | {species} <br><sup>Difference between {compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
-                                    font_size=15,
-                                    margin=dict(t=100))
+                                        yaxis_title=display_currency,
+                                        font_size=15,
+                                        margin=dict(t=100))
     else:
         if compare == 'Ideal':
             y = prep_df['mean_ideal']
@@ -4002,10 +4060,11 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
                 )
             # Add title
             ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
-                                        font_size=15,
-                                        margin=dict(t=100))
+                                            yaxis_title=display_currency,
+                                            font_size=15,
+                                            margin=dict(t=100))
             # Adjust hoverover
-            ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} birr<extra></extra>')
+            # ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} <extra></extra>')
 
         else:
             y = prep_df['mean_mortality_zero']
@@ -4025,13 +4084,22 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
                 ))
             ecs_waterfall_fig.update_layout(
                 waterfallgroupgap = 0.5,
-                ) 
+                )
             # Add title
             ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
-                                        font_size=15,
-                                        margin=dict(t=100))
+                                            yaxis_title=display_currency,
+                                            font_size=15,
+                                            margin=dict(t=100))
             # Adjust hoverover
-            ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} birr<extra></extra>')
+            # ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} <extra></extra>')
+
+    # Add tooltip
+    if currency == 'Birr':
+        ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} Birr<extra></extra>')
+    elif currency == 'USD':
+        ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} USD<extra></extra>')
+    else:
+        ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} <extra></extra>')
 
     return ecs_waterfall_fig
 
@@ -4044,21 +4112,43 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
    Input('select-age-ecs','value'),
    Input('select-sex-ecs','value'),
    Input('select-attr-ecs','value'),
+   Input('select-currency-ecs','value'),
    )
-def update_attr_treemap_ecs(input_json, prodsys, age, sex, cause):
+def update_attr_treemap_ecs(input_json, prodsys, age, sex, cause, currency):
    # Data
    input_df = pd.read_json(input_json, orient='split')
-   
-   # Prep data
+
+   # If currency is USD, use USD columns
+   display_currency = 'Birr'
+   if currency == 'USD':
+       display_currency = 'USD'
+       input_df['median'] = input_df['median_usd']
+       input_df['mean'] = input_df['mean_usd']
+       input_df['sd'] = input_df['sd_usd']
+       input_df['lower95'] = input_df['lower95_usd']
+       input_df['upper95'] = input_df['upper95_usd']
+
+    # Prep data
    input_df = prep_ahle_fortreemap_ecs(input_df)
 
     # Set up treemap structure
    ecs_treemap_fig = create_attr_treemap_ecs(input_df)
-   
+
    # Add title
    ecs_treemap_fig.update_layout(title_text=f'Attribution | All Small Ruminants <br><sup> Using {prodsys} for {age} and {sex} attributed to {cause}</sup><br>',
-                               font_size=15,
-                               margin=dict(t=100))
+                                 font_size=15,
+                                 margin=dict(t=100))
+
+   # Add tooltip
+   if currency == 'Birr':
+       ecs_treemap_fig.update_traces(root_color="white",
+                                     hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} Birr<extra></extra>')
+   elif currency == 'USD':
+       ecs_treemap_fig.update_traces(root_color="white",
+                                     hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} USD<extra></extra>')
+   else:
+       ecs_treemap_fig.update_traces(root_color="white",
+                                     hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} <extra></extra>')
 
    return ecs_treemap_fig
 

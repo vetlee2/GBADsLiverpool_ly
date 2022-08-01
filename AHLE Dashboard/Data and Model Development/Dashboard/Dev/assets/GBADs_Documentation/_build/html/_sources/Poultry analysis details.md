@@ -1,1 +1,0 @@
-# Poultry analysis details

@@ -1,1 +1,0 @@
-# Using US dollars as the metric

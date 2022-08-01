@@ -798,7 +798,8 @@ def prep_ahle_fortreemap_ecs(INPUT_DF):
                                        'sex',
                                        'ahle_component',
                                        'cause',
-                                       'mean']]
+                                       'mean',
+                                       'pct_of_total']]
 
    # Can only have positive values
    ecs_ahle_attr_treemap['mean'] = abs( ecs_ahle_attr_treemap['mean'])
@@ -818,7 +819,7 @@ def prep_ahle_fortreemap_ecs(INPUT_DF):
 def prep_ahle_forwaterfall_ecs(INPUT_DF):
    working_df = INPUT_DF.copy()
 
-   # Trim the data to keep things needed for the treemap
+   # Trim the data to keep things needed for the waterfall
    ecs_ahle_summary_sheep_sunburst = working_df[['species',
                                                  'production_system',
                                                  'age_group',
@@ -973,7 +974,10 @@ def create_stacked_bar_swine(input_df, x, y, color):
 def create_attr_treemap_ecs(input_df):
     # # Make mean more legible
     # input_df["humanize_mean"]= input_df['mean'].apply(lambda x: humanize.intword(x))
-
+    
+    # input_df["pct_of_total"]= input_df['pct_of_total'].astype('float')
+    
+    
     treemap_fig = px.treemap(input_df,
                       # path=[
                       #    'production_system',
@@ -990,28 +994,15 @@ def create_attr_treemap_ecs(input_df):
                          'ahle_component',
                          ],
                       values='mean',
+                      hover_data=['pct_of_total'],
+                      custom_data=['pct_of_total'],
                       color='cause', # cause only applys to the cause level
-                      # color_discrete_map={'Crop livestock mixed':'#2A80B9', 'Pastoral':'#9B58B5',})
                       color_discrete_map={'(?)':'lightgrey','Infectious':'#68000D', 'Non-infectious':'#08316C', 'External':'#00441B'}) # Cause colors matches the Human health dashboard
 
     return treemap_fig
 
 # Define the AHLE sunburst
 def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
-    # sunburst_fig = px.sunburst(input_df,
-    #                             path=['Total', 'item'],
-    #                             values='envelope')
-
-    # # Make mean more legible
-    # input_df["humanize_envelope"]= input_df['envelope'].apply(lambda x: humanize.intword(x))
-
-    # icicle_fig = px.icicle(input_df,
-    #                           path=['Total', 'item'],
-    #                           values='envelope',
-    #                           custom_data=['humanize_envelope'])
-    # icicle_fig.update_traces(root_color="white",
-    #                          hovertemplate='Category=%{label}<br>Value=$%{value:,.0f} <extra></extra>')
-
     waterfall_fig = go.Figure(go.Waterfall(
         name = name,
         orientation = "v",
@@ -4138,17 +4129,20 @@ def update_attr_treemap_ecs(input_json, prodsys, age, sex, cause, currency):
    ecs_treemap_fig.update_layout(title_text=f'Attribution | All Small Ruminants <br><sup> Using {prodsys} for {age} and {sex} attributed to {cause}</sup><br>',
                                  font_size=15,
                                  margin=dict(t=100))
-
-   # Add tooltip
+   # Add % of total AHLE
+   ecs_treemap_fig.data[0].texttemplate = "%{label}<br>% of Total AHLE=%{customdata[0]:,.2f}%"
+   
+    # Add tooltip
    if currency == 'Birr':
-       ecs_treemap_fig.update_traces(root_color="white",
-                                     hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} Birr<extra></extra>')
+        ecs_treemap_fig.update_traces(root_color="white",
+                                      hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} Birr<extra></extra>')
+        
    elif currency == 'USD':
-       ecs_treemap_fig.update_traces(root_color="white",
-                                     hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} USD<extra></extra>')
+        ecs_treemap_fig.update_traces(root_color="white",
+                                      hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} USD<extra></extra>')
    else:
-       ecs_treemap_fig.update_traces(root_color="white",
-                                     hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} <extra></extra>')
+        ecs_treemap_fig.update_traces(root_color="white",
+                                      hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f}<br><extra></extra>')
 
    return ecs_treemap_fig
 

@@ -2070,6 +2070,24 @@ gbadsDash.layout = html.Div([
             ]),
             html.Br(),
             ### END OF DATATABLE
+            
+            #### -- SANKEY
+            dbc.Row([
+                dbc.Spinner(children=[
+                    html.H4("Sankey for Attribution"),
+                        html.Div(children=[
+                                html.Img(src='/assets/ECS_Sanky_diagram_from_Gemma.png',
+                                style = {'width':'80vw'}),
+                                ],
+                                 style = {'margin-left':"10px",
+                                          "margin-bottom":"10px",
+                                          'margin-right':"10px",},
+                                 ),
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                    ]),
+                    html.Br(),
+            ### END OF SANKEY
 
 
         ### END OF ETHIOPIA TAB
@@ -3928,7 +3946,7 @@ def update_ecs_attr_data(input_json, currency):
                               'lower95',
                               'upper95',
                               ]].applymap('{:,.0f}'.format))
-    input_df.update(input_df[['pct_of_total']].applymap('{:,.1f}%'.format))
+    input_df.update(input_df[['pct_of_total']].applymap('{:,.2f}%'.format))
 
     columns_to_display_with_labels = {
       'production_system':'Production System'
@@ -3956,7 +3974,10 @@ def update_ecs_attr_data(input_json, currency):
                     # 'minWidth': '250px',
                     'font-family':'sans-serif',
                     },
-                style_table={'overflowX': 'scroll'},
+                style_table={'overflowX': 'scroll',
+                             'height': '320px', 
+                             'overflowY': 'auto'},
+                page_action='none',
             )
         ]
 

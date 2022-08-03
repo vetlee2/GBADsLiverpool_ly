@@ -2076,8 +2076,8 @@ gbadsDash.layout = html.Div([
                 dbc.Spinner(children=[
                     html.H4("Sankey for Attribution"),
                         html.Div(children=[
-                                html.Img(src='/assets/EthiopianCaseStudyUpdatedSankeyFromGemma.png',
-                                style = {'width':'80%'}),
+                                html.Img(src='/assets/ECS_Sanky_diagram_from_Gemma.png',
+                                style = {'width':'80vw'}),
                                 ],
                                  style = {'margin-left':"10px",
                                           "margin-bottom":"10px",

@@ -37,30 +37,15 @@ def gbadske_get_column_names(
     elif RESP_TYPE == 'string':
         return fieldnames_str
 
-cols_biomass_oie = gbadske_get_column_names('biomass_oie' ,'string')
-
-# =============================================================================
-#### Write table list to Excel
-# =============================================================================
-with pd.ExcelWriter(os.path.join(RAWDATA_FOLDER ,'gbadske_tables_20220801.xlsx')) as writer:
-    # First sheet: table list
-    gbadske_tablelist_df = pd.DataFrame({'table_name':gbadske_tablelist})
-    gbadske_tablelist_df.to_excel(writer ,sheet_name='Table List' ,index=False)
-
-    # Subsequent sheets: column list for each table
-    for table in gbadske_tablelist:
-        collist = gbadske_get_column_names(table)
-        collist_df = pd.DataFrame({'column_name':collist})
-        sheetname = table[0:31]     # Sheet name must be <= 31 characters
-        collist_df.to_excel(writer, sheet_name=sheetname ,index=False)
+# cols_biomass_oie = gbadske_get_column_names('biomass_oie' ,'string')
 
 #%% Retrieve a table
+
+gbadske_query_uri = 'http://gbadske.org:9000/GBADsPublicQuery/'
 
 # -----------------------------------------------------------------------------
 # Pieces
 # -----------------------------------------------------------------------------
-gbadske_query_uri = 'http://gbadske.org:9000/GBADsPublicQuery/'
-
 gbadske_query_table_name = 'biomass_oie'
 gbadske_query_params = {
     'fields':gbadske_get_column_names(gbadske_query_table_name ,'string')   # All columns in table
@@ -78,19 +63,66 @@ gbadske_query_df = pd.read_csv(io.StringIO(gbadske_query_resp.text))
 # Return a table as a pandas dataframe
 # Usage: table_df = gbadske_import_to_pandas(table)
 def gbadske_import_to_pandas(
-        TABLE_NAME      # String: name of table
-        ,QUERY=None     # String (optional): data query in DOUBLE QUOTES e.g. "year=2017 AND member_country='Australia'". Values for character columns value must be in SINGLE QUOTES.
+        table_name      # String: name of table
+        ,query=""       # String (optional): data query in DOUBLE QUOTES e.g. "year=2017 AND member_country='Australia'". Values for character columns value must be in SINGLE QUOTES.
+        ,nrows=None     # Integer (optional): limit number of rows to read
     ):
     query_params = {
-        'fields':gbadske_get_column_names(TABLE_NAME ,'string')
-        ,'query':QUERY
+        'fields':gbadske_get_column_names(table_name ,'string')
+        ,'query':query
         ,'format':'file'
         }
-    query_resp = req.get(gbadske_query_uri + TABLE_NAME , params=query_params)
+    query_resp = req.get(gbadske_query_uri + table_name , params=query_params)
 
     # Read table into pandas dataframe
-    query_df = pd.read_csv(io.StringIO(query_resp.text))
+    if nrows:
+        query_df = pd.read_csv(io.StringIO(query_resp.text) ,nrows=nrows)
+    else:
+        query_df = pd.read_csv(io.StringIO(query_resp.text))
 
     return query_df
 
-biomass_oie_df = gbadske_import_to_pandas('biomass_oie' ,"year=2017 AND member_country='Australia'")
+# biomass_oie_df = gbadske_import_to_pandas('biomass_oie' ,"year=2017 AND member_country='Australia'")
+# biomass_oie_df = gbadske_import_to_pandas('biomass_oie' ,nrows=100)
+
+#%% Create summaries
+
+# Get list of all available tables
+gbadske_tablelist_uri = 'http://gbadske.org:9000/GBADsTables/public?format=text'
+gbadske_tablelist = req.get(gbadske_tablelist_uri).text.split(',')   # Get table list and convert to list
+
+# =============================================================================
+#### Write table list to Excel
+# =============================================================================
+with pd.ExcelWriter(os.path.join(RAWDATA_FOLDER ,'gbadske_tables_20220801.xlsx')) as writer:
+    # First sheet: table list
+    gbadske_tablelist_df = pd.DataFrame({'table_name':gbadske_tablelist})
+    gbadske_tablelist_df.to_excel(writer ,sheet_name='Table List' ,index=False)
+
+    # Subsequent sheets: column list for each table
+    for table in gbadske_tablelist:
+        print(f'> Processing table {table}')
+        collist = gbadske_get_column_names(table)
+        collist_df = pd.DataFrame({'column_name':collist})
+        sheetname = table.replace('population' ,'pop')
+        sheetname_short = sheetname[0:31]     # Sheet name must be <= 31 characters
+        collist_df.to_excel(writer, sheet_name=sheetname_short ,index=False)
+
+del collist ,collist_df
+
+# =============================================================================
+#### Write sample of each table to Excel
+# =============================================================================
+with pd.ExcelWriter(os.path.join(RAWDATA_FOLDER ,'gbadske_tables_100rows_20220801.xlsx')) as writer:
+    for table in gbadske_tablelist:
+        print(f'> Processing table {table}')
+        if 'eth' not in table:      # Exclude Ethiopia-specific tables
+            try:
+                table_df = gbadske_import_to_pandas(table ,nrows=100)   # First 100 rows
+            except:
+                table_df = pd.DataFrame({'Status':'Error reading table'} ,index=[0])
+            sheetname = table.replace('population' ,'pop')
+            sheetname_short = sheetname[0:31]     # Sheet name must be <= 31 characters
+            table_df.to_excel(writer, sheet_name=sheetname_short ,index=False)
+
+del table_df

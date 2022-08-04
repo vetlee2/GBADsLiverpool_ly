@@ -103,6 +103,9 @@ GBADsLiverpool=Path(os.getcwd()).parent.parent
 Ethiopia_Workspace = "Ethiopia Workspace"
 ECS_PROGRAM_OUTPUT_FOLDER = os.path.join(GBADsLiverpool, Ethiopia_Workspace, "Program outputs")
 
+# Folder location for global aggregate
+Global_Agg_Workspace = "Global Aggregate workspace"
+GA_DATA_FOLDER = os.path.join(GBADsLiverpool, Global_Agg_Workspace, "Data")
 # -----------------------------------------------------------------------------
 # Poultry
 # -----------------------------------------------------------------------------
@@ -134,6 +137,12 @@ ecs_ahle_summary = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all
 
 # Attribution Summary
 ecs_ahle_all_withattr = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
+
+# -----------------------------------------------------------------------------
+# Global Aggregate
+# -----------------------------------------------------------------------------
+# Biomass FAOSTAT
+ga_countries_biomass = pd.read_pickle(os.path.join(GA_DATA_FOLDER ,'countries_biomass.pkl.gz'))
 
 # =============================================================================
 #### User options and defaults
@@ -1068,6 +1077,13 @@ gbadsDash.layout = html.Div([
 
     #### TABS
     dcc.Tabs([
+        
+        #### GLOBAL AGGREGATE TAB
+        dcc.Tab(label="Global Aggregate", children = [
+            
+        
+        ### END OF GLOBAL AGGREGATE TAB
+        ], ),
 
         #### POULTRY TAB
         dcc.Tab(label="Poultry", children = [

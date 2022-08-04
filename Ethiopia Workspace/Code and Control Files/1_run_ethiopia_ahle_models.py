@@ -107,25 +107,25 @@ Bonus: this prints plots to Rplots.pdf. I cannot find any line in the code which
 #    return dfcombined
 
 # ahle_combo_sheep_clm = combine_ahle_scenarios(
-#    input_folder=os.path.join(ETHIOPIA_CODE_FOLDER ,'Program outputs')
+#    input_folder=ETHIOPIA_OUTPUT_FOLDER
 #    ,input_file_prefix='ahle_sheep_clm_summary'
 #    ,label_species='Sheep'
 #    ,label_prodsys='Crop livestock mixed'
 # )
 # ahle_combo_sheep_past = combine_ahle_scenarios(
-#    input_folder=os.path.join(ETHIOPIA_CODE_FOLDER ,'Program outputs')
+#    input_folder=ETHIOPIA_OUTPUT_FOLDER
 #    ,input_file_prefix='ahle_sheep_past_summary'
 #    ,label_species='Sheep'
 #    ,label_prodsys='Pastoral'
 # )
 # ahle_combo_goat_clm = combine_ahle_scenarios(
-#    input_folder=os.path.join(ETHIOPIA_CODE_FOLDER ,'Program outputs')
+#    input_folder=ETHIOPIA_OUTPUT_FOLDER
 #    ,input_file_prefix='ahle_goat_clm_summary'
 #    ,label_species='Goat'
 #    ,label_prodsys='Crop livestock mixed'
 # )
 # ahle_combo_goat_past = combine_ahle_scenarios(
-#    input_folder=os.path.join(ETHIOPIA_CODE_FOLDER ,'Program outputs')
+#    input_folder=ETHIOPIA_OUTPUT_FOLDER
 #    ,input_file_prefix='ahle_goat_past_summary'
 #    ,label_species='Goat'
 #    ,label_prodsys='Pastoral'
@@ -246,7 +246,7 @@ Bonus: this prints plots to Rplots.pdf. I cannot find any line in the code which
 # )
 
 # # Export
-# ahle_combo.to_csv(os.path.join(ETHIOPIA_CODE_FOLDER ,'Program outputs' ,'ahle_all_summary.csv') ,index=False)
+# ahle_combo.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.csv') ,index=False)
 
 # # =============================================================================
 # #### Restructure and calculate AHLE components
@@ -304,7 +304,7 @@ Bonus: this prints plots to Rplots.pdf. I cannot find any line in the code which
 # #### Export second summary
 # # =============================================================================
 # datainfo(ahle_combo_p)
-# ahle_combo_p.to_csv(os.path.join(ETHIOPIA_CODE_FOLDER ,'Program outputs' ,'ahle_all_summary2.csv') ,index=False)
+# ahle_combo_p.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary2.csv') ,index=False)
 
 #%% Run AHLE with control file scenarios
 '''
@@ -387,28 +387,28 @@ def combine_ahle_scenarios(
    return dfcombined
 
 ahle_combo_sheep_clm = combine_ahle_scenarios(
-   input_folder=os.path.join(ETHIOPIA_CODE_FOLDER ,'Program outputs')
+   input_folder=ETHIOPIA_OUTPUT_FOLDER
    ,input_file_prefix='ahle_CLM_S'
    ,label_species='Sheep'
    ,label_prodsys='Crop livestock mixed'
 )
 datainfo(ahle_combo_sheep_clm)
 ahle_combo_sheep_past = combine_ahle_scenarios(
-   input_folder=os.path.join(ETHIOPIA_CODE_FOLDER ,'Program outputs')
+   input_folder=ETHIOPIA_OUTPUT_FOLDER
    ,input_file_prefix='ahle_Past_S'
    ,label_species='Sheep'
    ,label_prodsys='Pastoral'
 )
 datainfo(ahle_combo_sheep_past)
 ahle_combo_goat_clm = combine_ahle_scenarios(
-   input_folder=os.path.join(ETHIOPIA_CODE_FOLDER ,'Program outputs')
+   input_folder=ETHIOPIA_OUTPUT_FOLDER
    ,input_file_prefix='ahle_CLM_G'
    ,label_species='Goat'
    ,label_prodsys='Crop livestock mixed'
 )
 datainfo(ahle_combo_goat_clm)
 ahle_combo_goat_past = combine_ahle_scenarios(
-   input_folder=os.path.join(ETHIOPIA_CODE_FOLDER ,'Program outputs')
+   input_folder=ETHIOPIA_OUTPUT_FOLDER
    ,input_file_prefix='ahle_Past_G'
    ,label_species='Goat'
    ,label_prodsys='Pastoral'
@@ -430,7 +430,7 @@ datainfo(ahle_combo_raw)
 #### Export stacked data
 # =============================================================================
 # Export
-ahle_combo_raw.to_csv(os.path.join(ETHIOPIA_CODE_FOLDER ,'Program outputs' ,'ahle_all_stacked.csv') ,index=False)
+ahle_combo_raw.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_stacked.csv') ,index=False)
 
 # =============================================================================
 #### Create rows to filter scenarios
@@ -761,7 +761,7 @@ ahle_combo = ahle_combo.sort_values(
 datainfo(ahle_combo)
 
 # Export
-ahle_combo.to_csv(os.path.join(ETHIOPIA_CODE_FOLDER ,'Program outputs' ,'ahle_all_summary.csv') ,index=False)
+ahle_combo.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.csv') ,index=False)
 
 #%% Calculate AHLE components
 
@@ -823,7 +823,7 @@ plt.bar(
 #### Export summary2
 # =============================================================================
 datainfo(ahle_combo_p)
-ahle_combo_p.to_csv(os.path.join(ETHIOPIA_CODE_FOLDER ,'Program outputs' ,'ahle_all_summary2.csv') ,index=False)
+ahle_combo_p.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary2.csv') ,index=False)
 
 #%% Run Attribution using example inputs
 
@@ -1009,37 +1009,37 @@ ahle_combo_withattr = pd.concat(
 #### Add placeholder for attribution to specific diseases
 # =============================================================================
 # # Create placeholders
-# diseases_ext = pd.DataFrame({
-#    "cause":'External'
-#    ,"disease":['Cause 1' ,'Cause 2' ,'Cause 3' ,'Cause 4' ,'Cause 5']
-#    })
-# diseases_inf = pd.DataFrame({
-#    "cause":'Infectious'
-#    ,"disease":['Pathogen 1' ,'Pathogen 2' ,'Pathogen 3' ,'Pathogen 4' ,'Pathogen 5']
-#    })
-# diseases_non = pd.DataFrame({
-#    "cause":'Non-infectious'
-#    ,"disease":['Non-inf 1' ,'Non-inf 2' ,'Non-inf 3' ,'Non-inf 4' ,'Non-inf 5']
-#    })
-# diseases = pd.concat(
-#    [diseases_ext ,diseases_inf ,diseases_non]
-#    ,axis=0
-#    ,join='outer'        # 'outer': keep all index values from all data frames
-#    ,ignore_index=True   # True: do not keep index values on concatenation axis
-# )
+diseases_ext = pd.DataFrame({
+    "cause":'External'
+    ,"disease":['Cause 1' ,'Cause 2' ,'Cause 3' ,'Cause 4' ,'Cause 5']
+    })
+diseases_inf = pd.DataFrame({
+    "cause":'Infectious'
+    ,"disease":['Pathogen 1' ,'Pathogen 2' ,'Pathogen 3' ,'Pathogen 4' ,'Pathogen 5']
+    })
+diseases_non = pd.DataFrame({
+    "cause":'Non-infectious'
+    ,"disease":['Non-inf 1' ,'Non-inf 2' ,'Non-inf 3' ,'Non-inf 4' ,'Non-inf 5']
+    })
+diseases = pd.concat(
+    [diseases_ext ,diseases_inf ,diseases_non]
+    ,axis=0
+    ,join='outer'        # 'outer': keep all index values from all data frames
+    ,ignore_index=True   # True: do not keep index values on concatenation axis
+)
 
 # # Merge
-# ahle_combo_withattr = pd.merge(
-#    left=ahle_combo_withattr
-#    ,right=diseases
-#    ,on='cause'
-#    ,how='outer'
-#    )
-# ahle_combo_withattr['median'] = ahle_combo_withattr['median'] / 5
-# ahle_combo_withattr['mean'] = ahle_combo_withattr['mean'] / 5
-# ahle_combo_withattr['sd'] = np.sqrt(ahle_combo_withattr['sd']**2 / 25)
-# ahle_combo_withattr['lower95'] = ahle_combo_withattr['lower95'] / 5
-# ahle_combo_withattr['upper95'] = ahle_combo_withattr['upper95'] / 5
+ahle_combo_withattr = pd.merge(
+    left=ahle_combo_withattr
+    ,right=diseases
+    ,on='cause'
+    ,how='outer'
+    )
+ahle_combo_withattr['median'] = ahle_combo_withattr['median'] / 5
+ahle_combo_withattr['mean'] = ahle_combo_withattr['mean'] / 5
+ahle_combo_withattr['sd'] = np.sqrt(ahle_combo_withattr['sd']**2 / 25)
+ahle_combo_withattr['lower95'] = ahle_combo_withattr['lower95'] / 5
+ahle_combo_withattr['upper95'] = ahle_combo_withattr['upper95'] / 5
 
 # =============================================================================
 #### Calculate as percent of total
@@ -1088,10 +1088,11 @@ recode_age = {
 ahle_combo_withattr['age_group'] = ahle_combo_withattr['age_group'].replace(recode_age)
 
 # Reorder columns
-cols_first = ['production_system' ,'group' ,'age_group' ,'sex' ,'ahle_component' ,'cause']# ,'disease']
+cols_first = ['production_system' ,'group' ,'age_group' ,'sex' ,'ahle_component' ,'cause' ,'disease']
 cols_other = [i for i in list(ahle_combo_withattr) if i not in cols_first]
 ahle_combo_withattr = ahle_combo_withattr.reindex(columns=cols_first + cols_other)
 datainfo(ahle_combo_withattr)
 
 # Write CSV
-ahle_combo_withattr.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_withattr.csv') ,index=False)
+# ahle_combo_withattr.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_withattr.csv') ,index=False)
+ahle_combo_withattr.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_withattr_extra.csv') ,index=False)

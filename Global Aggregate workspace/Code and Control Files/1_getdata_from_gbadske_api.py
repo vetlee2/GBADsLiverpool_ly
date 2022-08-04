@@ -109,10 +109,7 @@ for i in get_years:
 
 # Export
 countries_biomass.to_csv(os.path.join(RAWDATA_FOLDER ,'livestock_countries_biomass.csv') ,index=False)
-countries_biomass.to_pickle(os.path.join(RAWDATA_FOLDER ,'countries_biomass.pkl.gz') ,protocol=4)
-# countries_biomass.to_pickle(os.path.join(RAWDATA_FOLDER ,'countries_biomass.pkl.gz') ,protocol=3)
-
-pkg.get_distribution('pandas').version
+countries_biomass.to_pickle(os.path.join(RAWDATA_FOLDER ,'countries_biomass.pkl.gz'))
 
 # -----------------------------------------------------------------------------
 # National population biomass

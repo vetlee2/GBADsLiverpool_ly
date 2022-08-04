@@ -1038,8 +1038,8 @@ ahle_combo_withattr = pd.merge(
 ahle_combo_withattr['median'] = ahle_combo_withattr['median'] / 5
 ahle_combo_withattr['mean'] = ahle_combo_withattr['mean'] / 5
 ahle_combo_withattr['sd'] = np.sqrt(ahle_combo_withattr['sd']**2 / 25)
-ahle_combo_withattr['lower95'] = ahle_combo_withattr['lower95'] / 5
-ahle_combo_withattr['upper95'] = ahle_combo_withattr['upper95'] / 5
+ahle_combo_withattr['lower95'] = ahle_combo_withattr['mean'] - (1.96 * ahle_combo_withattr['sd'])
+ahle_combo_withattr['upper95'] = ahle_combo_withattr['mean'] + (1.96 * ahle_combo_withattr['sd'])
 
 # =============================================================================
 #### Calculate as percent of total

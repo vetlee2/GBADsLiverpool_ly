@@ -38,8 +38,6 @@ def gbadske_get_column_names(
     elif RESP_TYPE == 'string':
         return fieldnames_str
 
-# cols_biomass_oie = gbadske_get_column_names('biomass_oie' ,'string')
-
 #%% Retrieve a table
 
 gbadske_query_uri = 'http://gbadske.org:9000/GBADsPublicQuery/'
@@ -91,43 +89,82 @@ def gbadske_import_to_pandas(
 # biomass_oie_df = gbadske_import_to_pandas('biomass_oie' ,"year=2017 AND member_country='Australia'")
 # biomass_oie_df = gbadske_import_to_pandas('biomass_oie' ,NROWS=100)
 
-# =============================================================================
-#### Get tables needed for calcs
-#!!! When run without a table query (e.g. year=2018), the gbadske API takes a long time to respond
-# =============================================================================
+#%% Get tables needed for AHLE
+
 get_years = range(2000 ,2022)
 
-# -----------------------------------------------------------------------------
-# Countries_biomass
-# -----------------------------------------------------------------------------
+# =============================================================================
+#### livestock_countries_biomass
+# 2022-8-4: Guelph says this is the correct table to use
+# =============================================================================
 # Get data for range of years
-countries_biomass_cols = gbadske_get_column_names('livestock_countries_biomass')
-countries_biomass = pd.DataFrame()    # Initialize
+biomass_cols = gbadske_get_column_names('livestock_countries_biomass')
+biomass = pd.DataFrame()    # Initialize
 for i in get_years:
     single_year = gbadske_import_to_pandas('livestock_countries_biomass' ,QUERY=f"year={i}")
-    countries_biomass = pd.concat([countries_biomass ,single_year] ,ignore_index=True)
+    biomass = pd.concat([biomass ,single_year] ,ignore_index=True)
+
+# Profile
+# profile = biomass.profile_report()
+# profile.to_file(os.path.join(RAWDATA_FOLDER ,'livestock_countries_biomass_profile.html'))
 
 # Export
-countries_biomass.to_csv(os.path.join(RAWDATA_FOLDER ,'livestock_countries_biomass.csv') ,index=False)
-countries_biomass.to_pickle(os.path.join(RAWDATA_FOLDER ,'countries_biomass.pkl.gz'))
+biomass.to_csv(os.path.join(RAWDATA_FOLDER ,'livestock_countries_biomass.csv') ,index=False)
+biomass.to_pickle(os.path.join(RAWDATA_FOLDER ,'livestock_countries_biomass.pkl.gz'))
 
-# -----------------------------------------------------------------------------
-# National population biomass
-# -----------------------------------------------------------------------------
+# =============================================================================
+#### livestock_national_population_biomass_faostat
+# 2022-8-4: Guelph says this is out of date
+# =============================================================================
 # Get data for range of years
-biomass_faostat_cols = gbadske_get_column_names('livestock_national_population_biomass_faostat')
-biomass_faostat = pd.DataFrame()    # Initialize
-for i in get_years:
-    single_year = gbadske_import_to_pandas('livestock_national_population_biomass_faostat' ,QUERY=f"year={i}")
-    biomass_faostat = pd.concat([biomass_faostat ,single_year] ,ignore_index=True)
+# biomass_faostat_cols = gbadske_get_column_names('livestock_national_population_biomass_faostat')
+# biomass_faostat = pd.DataFrame()    # Initialize
+# for i in get_years:
+#     single_year = gbadske_import_to_pandas('livestock_national_population_biomass_faostat' ,QUERY=f"year={i}")
+#     biomass_faostat = pd.concat([biomass_faostat ,single_year] ,ignore_index=True)
 
 # Profile
 # profile = biomass_faostat.profile_report()
 # profile.to_file(os.path.join(RAWDATA_FOLDER ,'biomass_faostat_profile.html'))
 
 # Export
-biomass_faostat.to_csv(os.path.join(RAWDATA_FOLDER ,'livestock_national_population_biomass_faostat.csv') ,index=False)
-biomass_faostat.to_pickle(os.path.join(RAWDATA_FOLDER ,'biomass_faostat.pkl.gz'))
+# biomass_faostat.to_csv(os.path.join(RAWDATA_FOLDER ,'livestock_national_population_biomass_faostat.csv') ,index=False)
+# biomass_faostat.to_pickle(os.path.join(RAWDATA_FOLDER ,'biomass_faostat.pkl.gz'))
+
+# =============================================================================
+#### World Bank
+# =============================================================================
+wb_income = pd.DataFrame()    # Initialize
+for i in get_years:
+    single_year = gbadske_import_to_pandas('countries_incomegroups_worldbank' ,QUERY=f"year={i}")
+    wb_income = pd.concat([wb_income ,single_year] ,ignore_index=True)
+
+wb_region = gbadske_import_to_pandas('regions_worldbank')
+
+# Export
+wb_income.to_csv(os.path.join(RAWDATA_FOLDER ,'wb_income.csv') ,index=False)
+wb_income.to_pickle(os.path.join(RAWDATA_FOLDER ,'wb_income.pkl.gz'))
+
+wb_region.to_csv(os.path.join(RAWDATA_FOLDER ,'wb_region.csv') ,index=False)
+wb_region.to_pickle(os.path.join(RAWDATA_FOLDER ,'wb_region.pkl.gz'))
+
+# =============================================================================
+#### Geo codes
+# =============================================================================
+un_geo_codes = gbadske_import_to_pandas('un_geo_codes')
+
+# Export
+un_geo_codes.to_csv(os.path.join(RAWDATA_FOLDER ,'un_geo_codes.csv') ,index=False)
+un_geo_codes.to_pickle(os.path.join(RAWDATA_FOLDER ,'un_geo_codes.pkl.gz'))
+
+# =============================================================================
+#### Check others
+# =============================================================================
+check_faoprod = gbadske_import_to_pandas('livestock_production_faostat' ,"year=2019")
+check_faoprodanimals = gbadske_import_to_pandas('prodanimals_national_faostat' ,"year=2019")
+check_idtable = gbadske_import_to_pandas('idtable')
+check_admin = gbadske_import_to_pandas('countries_adminunits_iso')
+check_country_info = gbadske_import_to_pandas('country_info')
 
 #%% Create summaries
 
@@ -154,7 +191,8 @@ biomass_faostat.to_pickle(os.path.join(RAWDATA_FOLDER ,'biomass_faostat.pkl.gz')
 
 # =============================================================================
 #### Write sample of each table to Excel
-# Run time 3 hours!!
+#!!! Run time 3 hours!!
+# When run without a table query (e.g. year=2018), the gbadske API takes a long time to respond
 # =============================================================================
 # timerstart('Sample of rows from each table')
 # with pd.ExcelWriter(os.path.join(RAWDATA_FOLDER ,'gbadske_tables_100rows_20220801.xlsx')) as writer:

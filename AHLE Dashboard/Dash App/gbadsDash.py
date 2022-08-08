@@ -15,6 +15,8 @@
 import os, sys, datetime as dt
 from pathlib import Path
 import inspect
+import requests
+import io
 
 print(f"[{dt.datetime.now().strftime('%Y%m%d_%H%M%S.%f')[:19]}] Starting {__name__}")
 print(f"[{dt.datetime.now().strftime('%Y%m%d_%H%M%S.%f')[:19]}] cwd = {os.getcwd()}")
@@ -142,7 +144,16 @@ ecs_ahle_all_withattr = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahl
 # Global Aggregate
 # -----------------------------------------------------------------------------
 # Biomass FAOSTAT
-ga_countries_biomass = pd.read_pickle(os.path.join(GA_DATA_FOLDER ,'countries_biomass.pkl.gz'))
+ga_countries_biomass = pd.read_pickle(os.path.join(GA_DATA_FOLDER ,'world_ahle_abt.pkl.gz'))
+
+# Drop missing values from species
+ga_countries_biomass['species'].replace('', np.nan, inplace=True)
+ga_countries_biomass.dropna(subset=['species'], inplace=True)
+
+# # ISO Alpha 3 letter country abbrevation data from GitHub (https://gist.github.com/tadast/8827699)
+# url = "https://gist.githubusercontent.com/tadast/8827699/raw/f5cac3d42d16b78348610fc4ec301e9234f82821/countries_codes_and_coordinates.csv" # Make sure the url is the raw version of the file on GitHub
+# download = requests.get(url).content
+# iso_alpha3_data = pd.read_csv(io.StringIO(download.decode('utf-8')))
 
 # =============================================================================
 #### User options and defaults
@@ -417,7 +428,7 @@ for i in np.sort(ecs_ahle_summary['species'].unique()):
 #                                                                             "Value of outputs",
 #                                                                             ]]
 
-# display
+# Display
 ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Split",
                                                                              "Difference (AHLE)",
                                                                             ]]
@@ -443,6 +454,111 @@ ecs_redu_options = [{'label': i, 'value': i, 'disabled': True} for i in ['Curren
 
 # Defaults for sliders
 factor_ecs_default = 'Current'
+
+# =============================================================================
+#### Global Aggregate options
+# =============================================================================
+# Species
+ga_species_options = []
+for i in ga_countries_biomass['species'].unique():
+    str(ga_species_options.append({'label':i,'value':(i)}))
+    
+
+
+# -----------------------------------------------------------------------------
+# Region - Country Alignment 
+# -----------------------------------------------------------------------------
+# TODO: CURRENTLY DIFFERENT FROM POULTRY/SWINE TABS DUE TO DATA AVAILABILITY -eventually want these to be the same
+
+# OIE regions
+oie_region_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["ALL",
+                                                                        "Africa",
+                                                                       "Americas",
+                                                                       "Asia & the Pacific",
+                                                                       "Europe"
+                                                                       "Middle East"
+                                                                       ]]
+# OIE region-country mapping
+oie_africa_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Ethiopia"]]
+
+oie_americas_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Brazil",
+                                                                              "France",
+                                                                          "United States of America"]]
+
+oie_asia_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["India",
+                                                                          "United States of America"]]
+
+oie_europe_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["France",
+                                                                        "Germany",
+                                                                       "Italy",
+                                                                       "Netherlands",
+                                                                       "Poland",
+                                                                       "United Kingdom"]]
+
+oie_me_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["TEST"]]
+
+
+# FAO regions
+fao_region_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["ALL",
+                                                                               "Africa",
+                                                                               "Asia",
+                                                                               "Europe and Central Asia",
+                                                                               "Latin America and the Caribbean",
+                                                                               "Near East and North Africa"
+                                                                               "South West Pacific"
+                                                                               ]]
+
+# FAO region-country mapping
+fao_africa_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Ethiopia"]]
+
+fao_asia_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["India"]]
+
+fao_eca_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["France",
+                                                                        "Germany",
+                                                                       "Italy",
+                                                                       "Netherlands",
+                                                                       "Poland",
+                                                                       "United Kingdom"]]
+
+fao_lac_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Brazil"]]
+
+fao_ena_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["TEST"]]
+
+
+fao_swp_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["France",
+                                                                          "United States of America"]]
+
+# World Bank regions
+wb_region_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["ALL",
+                                                                              "Africa",
+                                                                              "East Asia & Pacific",
+                                                                              "Europe & Central Asia",
+                                                                              "Latin America & the Caribbean",
+                                                                              "Middle East & North Africa"
+                                                                              "North America",
+                                                                              "South Asia"
+                                                                              ]]
+# World Bank region-country mapping
+
+wb_africa_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Ethiopia"]]
+
+wb_eap_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["TEST"]]
+
+wb_eca_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["France",
+                                                                        "Germany",
+                                                                       "Italy",
+                                                                       "Netherlands",
+                                                                       "Poland",
+                                                                       "United Kingdom"]]
+
+wb_lac_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Brazil"]]
+
+wb_mena_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["TEST"]]
+
+wb_na_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["United States of America"]]
+
+wb_southasia_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["India"]]
+
 
 # =============================================================================
 #### Burden of disease calcs
@@ -1010,7 +1126,7 @@ def create_attr_treemap_ecs(input_df):
 
     return treemap_fig
 
-# Define the AHLE sunburst
+# Define the AHLE waterfall
 def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
     waterfall_fig = go.Figure(go.Waterfall(
         name = name,
@@ -1044,6 +1160,34 @@ def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
 
     return waterfall_fig
 
+
+# Define the Biomass map
+def create_biomass_map_ga(input_df, iso_alpha3, biomass, country):
+    biomass_map_fig = px.choropleth(input_df, locations=iso_alpha3,
+                                    color=biomass, # lifeExp is a column of gapminder
+                                    hover_name=country, # column to add to hover information
+                                    color_continuous_scale=px.colors.sequential.Plasma)
+    biomass_map_fig.update_layout(
+        geo=dict(
+            showframe=False,
+            showcoastlines=False,
+            projection_type='equirectangular'
+            )
+        )
+
+    biomass_map_fig.add_annotation(x=0.50, xref='paper',         # x position is absolute on axis
+                                 y=0.05, yref='paper',     # y position is relative [0,1] to work regardless of scale
+                                 text="Source: GBADs",
+                                 showarrow=False,
+                                 font=dict(
+                                     family="Helvetica",
+                                     size=18,
+                                     color="black"
+                                     )
+                                 )
+
+    return biomass_map_fig
+
 #%% 4. LAYOUT
 ##################################################################################################
 # Here we layout the webpage, including dcc (Dash Core Component) controls we want to use, such as dropdowns.
@@ -1074,12 +1218,107 @@ gbadsDash.layout = html.Div([
     dcc.Store(id='core-data-swine'),
     dcc.Store(id='core-data-attr-ecs'),
     dcc.Store(id='core-data-ahle-ecs'),
+    dcc.Store(id='core-data-world-ahle-abt-ga'),
 
     #### TABS
     dcc.Tabs([
         
         #### GLOBAL AGGREGATE TAB
         dcc.Tab(label="Global Aggregate", children = [
+            
+            #### -- COUNTRY AND SPECIES CONTROLS
+            dbc.Row([
+                # Region-country alignment
+                dbc.Col([
+                    html.H6('Region-country alignment'),
+                    dcc.RadioItems(id='Region-country-alignment-ga',
+                                   options=region_structure_options,
+                                   inputStyle={"margin-right": "10px", # This pulls the words off of the button
+                                               "margin-left":"20px"},
+                                   value="World Bank",
+                                   style={"margin-left":'-20px'})
+                    ],
+                    style={
+                           "margin-top":"10px",
+                           "margin-right":"70px",
+                           }
+
+                    ),
+                # Region
+                dbc.Col([
+                    html.H6("Region"),
+                    dcc.Dropdown(id='select-region-ga',
+                                  options=wb_region_options_ga,
+                                  value='ALL',
+                                  clearable = False,
+                                  ),
+                    ],style={
+                              "margin-top":"10px",
+                              },
+                    ),
+
+                # # Country
+                # dbc.Col([
+                #     html.H6("Country"),
+                #     dcc.Dropdown(id='select-country-poultry',
+                #                  options=country_options_poultry,
+                #                  value='United Kingdom',
+                #                  clearable = False,
+                #                  ),
+                #     ],style={
+                #              "margin-top":"10px",
+                #              },
+                #     ),
+
+                  # Species
+                  dbc.Col([
+                      html.H6("Species"),
+                      dcc.Dropdown(id='select-species-ga',
+                                  options=ga_species_options,
+                                  value='Cattle',
+                                  clearable = False,
+                                  )
+                      ],style={
+                              "margin-top":"10px",
+                              },
+                      ),
+                         
+                ], justify='evenly'),
+
+
+            html.Hr(style={'margin-right':'10px',}),
+            
+            #### -- GRAPHICS
+            dbc.Row([  # Row with GRAPHICS
+
+                dbc.Col([ # Aggregate Map
+                    dbc.Spinner(children=[
+                    dcc.Graph(id='ga-bio-map',
+                               style = {"height":"650px"},
+                              config = {
+                                  "displayModeBar" : True,
+                                  "displaylogo": False,
+                                  'toImageButtonOptions': {
+                                      'format': 'png', # one of png, svg, jpeg, webp
+                                      'filename': 'GBADs_Global_Agg_Map'
+                                      },
+                                  # 'modeBarButtonsToRemove': ['zoom',
+                                  #                            'zoomIn',
+                                  #                            'zoomOut',
+                                  #                            'autoScale',
+                                  #                            #'resetScale',  # Removes home button
+                                  #                            'pan',
+                                  #                            'select2d',
+                                  #                            'lasso2d']
+                                  }
+                              )
+                    # End of Spinner
+                    ],size="md", color="#393375", fullscreen=False),
+                    # End of Waterfall
+                    ]),
+
+                ]),
+            html.Br(),
             
         
         ### END OF GLOBAL AGGREGATE TAB
@@ -3633,18 +3872,6 @@ def update_stacked_bar_swine(input_json, country, year):
 def reset_to_default_ecs(reset):
     return factor_ecs_default
 
-# # Update sex based on age selection:
-# @gbadsDash.callback(
-#     Output(component_id='select-sex-ecs', component_property='options'),
-#     Input(component_id='select-age-ecs', component_property='value'),
-#     )
-# def update_sex_options_ecs(age):
-#     if age == "Adults" or age == "Overall Age":
-#         options = ecs_sex_options_all
-#     else:
-#         options = ecs_sex_options_filter
-#     return options
-
 # # Add text display for outputs
 # # Herd growth
 # @gbadsDash.callback(
@@ -4182,6 +4409,80 @@ def update_attr_treemap_ecs(input_json, prodsys, age, sex, cause, currency):
                                       hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f}<br><extra></extra>')
 
    return ecs_treemap_fig
+
+
+# ==============================================================================
+#### UPDATE GLOBAL AGGREGATE
+# ==============================================================================
+# ------------------------------------------------------------------------------
+#### -- Controls
+# ------------------------------------------------------------------------------
+# Update regions based on region contry aligment selection:
+@gbadsDash.callback(
+    Output(component_id='select-region-ga', component_property='options'),
+    Input(component_id='Region-country-alignment-ga', component_property='value'),
+    )
+def update_region_options_ga(region_country):
+    if region_country == "OIE":
+        options = oie_region_options_ga
+    elif region_country =="FAO":
+        options = fao_region_options_ga
+    elif region_country == "World Bank":
+        options = wb_region_options_ga
+    return options
+# ------------------------------------------------------------------------------
+#### -- Data
+# ------------------------------------------------------------------------------
+# World AHLE ABT Data
+@gbadsDash.callback(
+    Output('core-data-world-ahle-abt-ga','data'),
+    Input('select-species-ga','value'),
+    # Input('select-prodsys-ecs','value'),
+    # Input('select-age-ecs','value'),
+    # Input('select-sex-ecs','value'),
+
+    )
+def update_core_data_world_ahle_abt_ga(species):
+    input_df = pd.read_pickle(os.path.join(GA_DATA_FOLDER ,'world_ahle_abt.pkl.gz'))
+        
+    # Filter Species
+    input_df=input_df.loc[(input_df['species'] == species)]
+
+    return input_df.to_json(date_format='iso', orient='split')
+
+
+# ------------------------------------------------------------------------------
+#### -- Figures
+# ------------------------------------------------------------------------------
+# Biomass Map
+@gbadsDash.callback(
+   Output('ga-bio-map','figure'),
+   Input('core-data-world-ahle-abt-ga','data'),
+   Input('select-species-ga','value'),
+   # Input('select-prodsys-ecs','value'),
+   # Input('select-age-ecs','value'),
+   # Input('select-sex-ecs','value'),
+   # Input('select-attr-ecs','value'),
+   # Input('select-currency-ecs','value'),
+   )
+def update_bio_map_ga(input_json, species):
+   # Data
+   input_df = pd.read_json(input_json, orient='split')
+   
+   # Set values from the data
+   iso_alpha3 = input_df['iso3']
+   biomass = input_df['biomass']
+   country = input_df['country_x']
+   
+   # Set up map structure
+   ga_biomass_map = create_biomass_map_ga(input_df, iso_alpha3, biomass, country)
+
+   # Add title
+   ga_biomass_map.update_layout(title_text=f'Global Biomass by {species}',
+                                 font_size=15,
+                                 margin=dict(t=100))
+   
+   return ga_biomass_map
 
 
 #%% 6. RUN APP

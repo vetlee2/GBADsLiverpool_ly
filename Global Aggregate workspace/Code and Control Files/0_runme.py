@@ -10,5 +10,6 @@ PARENT_FOLDER = os.path.dirname(CURRENT_FOLDER)
 GRANDPARENT_FOLDER = os.path.dirname(PARENT_FOLDER)
 
 # Folder for shared code with Liverpool
-RAWDATA_FOLDER = os.path.join(PARENT_FOLDER, 'Data')
+RAWDATA_FOLDER = os.path.join(PARENT_FOLDER, 'Data' ,'Downloaded')
+PRODATA_FOLDER = os.path.join(PARENT_FOLDER, 'Data')
 PROGRAM_OUTPUT_FOLDER = os.path.join(PARENT_FOLDER ,'Program outputs')

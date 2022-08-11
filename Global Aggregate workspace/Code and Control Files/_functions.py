@@ -305,3 +305,64 @@ def run_cmd(
    print(f'<{funcname}> Ended with returncode = {cmd_status.returncode}')
 
    return None    # If you want to use something that is returned, add it here. Assign it when you call the function e.g. returned_object = run_cmd().
+
+# To calculate a weighted average with optional grouping and return a summarized dataframe
+# Returned df will have 5 columns: sum_weightedvalue, sum_weights, count_weightedvalue, count_weights, and {AVG_VAR}_wtavg
+# BY_VARS if passed will be keys in returned df
+# Usage: wtavg_df = weighted_average(INPUT_DF=mydf ,AVG_VAR='response' ,WT_VAR='weights' ,BY_VARS=['species' ,'year'])
+def weighted_average(
+        INPUT_DF
+        ,AVG_VAR                # String: variable to average
+        ,WT_VAR                 # String: variable to weight by
+        ,BY_VARS=None           # (Optional) List of strings: variables to group by
+        ,RESULT_SUFFIX='_wtavg' # String: resulting weighted average will be named {AVG_VAR}{RESULT_SUFFIX}
+    ):
+    # Calculate product (variable * weight) for each observation on base data
+    if BY_VARS:
+        calc_df = INPUT_DF[[AVG_VAR ,WT_VAR] + BY_VARS].copy()
+    else:
+        calc_df = INPUT_DF[[AVG_VAR ,WT_VAR]].copy()
+
+    calc_df['weights'] = calc_df[WT_VAR]
+    calc_df['weightedvalue'] = calc_df[AVG_VAR] * calc_df[WT_VAR]
+
+    # Sum product and weight for each group
+    if BY_VARS:
+        sum_df = calc_df.pivot_table(index=BY_VARS ,values=['weightedvalue' ,'weights'] ,aggfunc=['sum' ,'count'])
+    else:
+        sum_df = pd.DataFrame(calc_df[['weightedvalue' ,'weights']].agg(['sum' ,'count'])).transpose()
+
+    # Collapse multi-indexed columns
+    sum_df = colnames_from_index(sum_df)
+
+    # If weightedvalue has no non-missing observations, set sum_weightedvalue missing
+    sum_df.loc[sum_df['count_weightedvalue'] == 0 ,'sum_weightedvalue'] = np.nan
+
+    # Calculate weighted average for each group
+    result_var = f"{AVG_VAR}{RESULT_SUFFIX}"
+    sum_df[result_var] = sum_df['sum_weightedvalue'] / sum_df[f"sum_weights"]
+
+    return sum_df
+
+# This function is used to fill in a new column with the first non-missing value
+# from a set of candidate columns.
+# Example usage:
+#   candidates = ['col1' ,'col2']
+#   df['newcol'] = take_first_nonmissing(df ,candidates)
+def take_first_nonmissing(
+      INPUT_DF
+      ,CANDIDATE_COLS       # List of strings: columns to search for non-missing value, in this order
+      ,FILL_ZEROS=False     # True: treat zeros like missing values and continue searching candidate columns until they're nonzero
+   ):
+   # Initialize new column with first candidate column
+   OUTPUT_SERIES = INPUT_DF[CANDIDATE_COLS[0]].copy()
+
+   for CANDIDATE in CANDIDATE_COLS:       # For each candidate column...
+      if FILL_ZEROS:
+         newcol_null = (OUTPUT_SERIES.isnull()) | (OUTPUT_SERIES == 0)   # ...where new column is missing or zero...
+      else:
+         newcol_null = (OUTPUT_SERIES.isnull())                        # ...where new column is missing...
+
+      OUTPUT_SERIES.loc[newcol_null] = INPUT_DF.loc[newcol_null ,CANDIDATE]    # ...fill with candidate
+
+   return OUTPUT_SERIES

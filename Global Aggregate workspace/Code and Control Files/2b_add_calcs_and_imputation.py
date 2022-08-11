@@ -4,6 +4,8 @@
 #%% Read data
 
 world_ahle_combo1 = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'world_ahle_combo1.pkl.gz'))
+
+# Create a copy to be modified
 world_ahle_abt = world_ahle_combo1.copy()
 
 #%% Region and Income group
@@ -41,6 +43,92 @@ fill_iso3_region = {
 }
 for ISO3 ,REGION in fill_iso3_region.items():
     world_ahle_abt.loc[world_ahle_abt['country_iso3'] == ISO3 ,'region'] = REGION
+
+#%% Population and Biomass
+'''
+Biomass table from GBADSKE only has data to 2017. Fill in later years as follows:
+    Impute population with FAOstat stocks
+    Use same liveweight as it is constant for each country and species
+    Calculate biomass as population * liveweight
+'''
+# =============================================================================
+#### Impute Population, Liveweight, and Biomass
+# =============================================================================
+# Create copies of original columns
+world_ahle_abt['population_raw'] = world_ahle_abt['population']
+world_ahle_abt['liveweight_raw'] = world_ahle_abt['liveweight']
+world_ahle_abt['biomass_raw'] = world_ahle_abt['biomass']
+
+# Impute population with FAOstat stocks
+_popln_missing = (world_ahle_abt['population'].isnull())
+print(f"> Filling {_popln_missing.sum(): ,} rows where population is missing.")
+world_ahle_abt.loc[_popln_missing ,'population'] = world_ahle_abt.loc[_popln_missing ,'stocks_hd']
+
+# Use same liveweight as it is constant for each country and species
+liveweight_lookup = world_ahle_abt.pivot_table(
+    index=['country' ,'species']
+    ,values='liveweight'
+    ,aggfunc=['min' ,'mean' ,'max' ,'std']
+)
+liveweight_lookup = colnames_from_index(liveweight_lookup)
+
+world_ahle_abt = pd.merge(
+    left=world_ahle_abt
+    ,right=liveweight_lookup
+    ,on=['country' ,'species']
+    ,how='left'
+)
+_livewt_missing = (world_ahle_abt['liveweight'].isnull())
+print(f"> Filling {_livewt_missing.sum(): ,} rows where liveweight is missing.")
+world_ahle_abt.loc[_livewt_missing ,'liveweight'] = world_ahle_abt.loc[_livewt_missing ,'max_liveweight']
+
+# Calculate biomass as population * liveweight
+world_ahle_abt['biomass'] = world_ahle_abt['liveweight'] * world_ahle_abt['population']
+
+# Cleanup intermediate columns
+world_ahle_abt = world_ahle_abt.drop(columns=[
+    'stocks_hd'
+    ,'min_liveweight'
+    ,'mean_liveweight'
+    ,'max_liveweight'
+    ,'std_liveweight'
+    ])
+
+datainfo(world_ahle_abt)
+
+# =============================================================================
+#### Summarize results of imputation
+# =============================================================================
+imputed_cols = ['population' ,'liveweight' ,'biomass']
+
+for COL in imputed_cols:
+    # Get raw and imputed versions and difference between them
+    check_imputation = world_ahle_abt[['country' ,'species' ,'year' ,COL ,f'{COL}_raw']].copy()
+    check_imputation['impdiff'] = check_imputation[COL] - check_imputation[f'{COL}_raw']
+    check_imputation['impdiff_abs'] = abs(check_imputation['impdiff'])
+    check_imputation['impdiff_pct'] = check_imputation['impdiff'] / check_imputation[f'{COL}_raw']
+
+    # Number of rows different
+    _nrows_impdiff = (check_imputation['impdiff_abs'] > 0)
+    print(f"<check_imputation> {COL}: {_nrows_impdiff.sum(): ,} rows where imputed value is different from original.")
+
+    # Boxplots of differences by Species
+    snplt = sns.catplot(
+        data=check_imputation
+        ,x='species'
+        ,y='impdiff'
+        # ,hue='colorvar'
+        ,kind='box'
+        ,orient='v'
+        )
+    plt.title(COL)
+
+    # Plot imputed vs. raw with reference line
+    # Uses a lot of memory
+    # scatterplot = sns.relplot(data=check_imputation ,x=f'{COL}_raw' ,y=COL ,alpha=0.2)
+    # sns.lineplot(data=check_imputation ,x=f'{COL}_raw' ,y=f'{COL}_raw' ,ci=None ,ax=scatterplot.ax
+    #              ,linestyle='--' ,linewidth=1 ,color='grey')
+    # plt.title(COL)
 
 #%% Production
 '''
@@ -202,6 +290,46 @@ check_imputed_prod_meat_perkg = world_ahle_abt[_check_imputed_prod_meat_perkg]
 _check_imputed_prod_meat = (world_ahle_abt['production_meat_tonnes'] != world_ahle_abt['production_meat_tonnes_raw'])
 check_imputed_prod_meat = world_ahle_abt[_check_imputed_prod_meat]
 
+# =============================================================================
+#### Summarize results of imputation
+# =============================================================================
+# Note: if original column was missing, it will not be counted as different from
+# the imputed value.
+imputed_cols = [
+   'production_meat_tonnes'
+   ,'production_meat_tonnes_perkgbm'
+   ,'production_eggs_tonnes'
+   ,'production_eggs_tonnes_perkgbm'
+   ,'production_milk_tonnes'
+   ,'production_milk_tonnes_perkgbm'
+   ,'production_hides_tonnes'
+   ,'production_hides_tonnes_perkgbm'
+   ,'production_wool_tonnes'
+   ,'production_wool_tonnes_perkgbm'
+]
+
+for COL in imputed_cols:
+    # Get raw and imputed versions and difference between them
+    check_imputation = world_ahle_abt[['country' ,'species' ,'year' ,COL ,f'{COL}_raw']].copy()
+    check_imputation['impdiff'] = check_imputation[COL] - check_imputation[f'{COL}_raw']
+    check_imputation['impdiff_abs'] = abs(check_imputation['impdiff'])
+    check_imputation['impdiff_pct'] = check_imputation['impdiff'] / check_imputation[f'{COL}_raw']
+
+    # Number of rows different
+    _nrows_impdiff = (check_imputation['impdiff_abs'] > 0)
+    print(f"<check_imputation> {COL}: {_nrows_impdiff.sum(): ,} rows where imputed value is different from original.")
+
+    # Boxplots of differences by Species
+    snplt = sns.catplot(
+        data=check_imputation
+        ,x='species'
+        ,y='impdiff'
+        # ,hue='colorvar'
+        ,kind='box'
+        ,orient='v'
+        )
+    plt.title(COL)
+
 #%% Producer Prices
 
 price_cols = [i for i in list(world_ahle_abt) if 'producer_price_' in i]
@@ -305,7 +433,59 @@ for PRICE ,WEIGHT in price_weight_lookup.items():
 # using a conversion rate
 # -----------------------------------------------------------------------------
 
+#%% Data checks
+
+# Population, Liveweight, Biomass
+# Each production metric and price
+
+# =============================================================================
+#### Data summaries
+# =============================================================================
+# Distribution by country and species
+vars_for_distributions = [
+   'population'
+   ,'liveweight'
+   ,'biomass'
+
+   ,'production_meat_tonnes'
+   ,'production_meat_tonnes_perkgbm'
+   ,'production_eggs_tonnes'
+   ,'production_eggs_tonnes_perkgbm'
+   ,'production_milk_tonnes'
+   ,'production_milk_tonnes_perkgbm'
+   ,'production_hides_tonnes'
+   ,'production_hides_tonnes_perkgbm'
+   ,'production_wool_tonnes'
+   ,'production_wool_tonnes_perkgbm'
+]
+dist_bycountryspecies = pd.DataFrame()   # Initialize
+for VAR in vars_for_distributions:
+   df_desc = world_ahle_abt.groupby(['country' ,'species'])[VAR].describe()
+   df_desc = indextocolumns(df_desc)
+   df_desc['variable'] = VAR
+   dist_bycountryspecies = pd.concat([dist_bycountryspecies ,df_desc] ,ignore_index=True)
+
+dist_bycountryspecies['range'] = dist_bycountryspecies['max'] - dist_bycountryspecies['min']
+dist_bycountryspecies['range_scaled'] = dist_bycountryspecies['range'] / dist_bycountryspecies['50%']
+
+# =============================================================================
+#### Plots
+# =============================================================================
+# Box plots by species (& country?)
+checkvar = 'biomass'
+for SPECIES in world_ahle_abt['species'].unique():
+   snplt = sns.catplot(
+      data=world_ahle_abt.query(f"species == '{SPECIES}'")
+      ,y=checkvar
+      ,kind='box'
+      ,orient='v'          # 'v' = vertical, 'h' = horizontal
+   )
+   plt.title(SPECIES)
+
+# Plot over time for each species and country
+
 #%% Describe and output
 
+# Export
 world_ahle_abt.to_csv(os.path.join(PRODATA_FOLDER ,'world_ahle_abt.csv'))
 world_ahle_abt.to_pickle(os.path.join(PRODATA_FOLDER ,'world_ahle_abt.pkl.gz'))

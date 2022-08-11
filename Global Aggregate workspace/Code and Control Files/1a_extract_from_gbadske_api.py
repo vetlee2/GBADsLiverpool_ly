@@ -64,7 +64,6 @@ gbadske_query_df = pd.read_csv(io.StringIO(gbadske_query_resp.text))
 def gbadske_import_to_pandas(
         TABLE_NAME      # String: name of table
         ,QUERY=""       # String (optional): data query in DOUBLE QUOTES e.g. "year=2017 AND member_country='Australia'". Values for character columns value must be in SINGLE QUOTES.
-        ,NROWS=None     # Integer (optional): limit number of rows to read
     ):
     funcname = inspect.currentframe().f_code.co_name
     query_params = {
@@ -76,10 +75,7 @@ def gbadske_import_to_pandas(
 
     if query_resp.status_code == 200:
         # Read table into pandas dataframe
-        if NROWS:
-            query_df = pd.read_csv(io.StringIO(query_resp.text) ,nrows=NROWS)
-        else:
-            query_df = pd.read_csv(io.StringIO(query_resp.text))
+        query_df = pd.read_csv(io.StringIO(query_resp.text))
     else:
         print(f'<{funcname}> HTTP query error.')
         query_df = pd.DataFrame()
@@ -87,7 +83,6 @@ def gbadske_import_to_pandas(
     return query_df
 
 # biomass_oie_df = gbadske_import_to_pandas('biomass_oie' ,"year=2017 AND member_country='Australia'")
-# biomass_oie_df = gbadske_import_to_pandas('biomass_oie' ,NROWS=100)
 
 #%% Get tables needed for AHLE
 
@@ -116,6 +111,10 @@ for COL in convert_cols_to_numeric:
 _row_selection = (biomass['species'].str.upper() == 'DUCKS') & (biomass['liveweight'] > 1000)
 print(f"> Selected {_row_selection.sum(): ,} rows.")
 biomass.loc[_row_selection ,'liveweight'] = biomass.loc[_row_selection ,'liveweight'] / 1000
+
+# Recalculate biomass as population * liveweight
+biomass.loc[_row_selection ,'biomass'] = \
+    biomass.loc[_row_selection ,'liveweight'] * biomass.loc[_row_selection ,'population']
 
 datainfo(biomass)
 

@@ -1,6 +1,40 @@
 #%% About
 '''
 '''
+#%% Extend biomass data
+'''
+Biomass table from GBADSKE only has data to 2017. Extend with FAOstat population data to 2020.
+'''
+biomass = pd.read_pickle(os.path.join(RAWDATA_FOLDER ,'livestock_countries_biomass.pkl.gz'))
+fao_production_p = pd.read_pickle(os.path.join(RAWDATA_FOLDER ,'fao_production.pkl.gz'))
+
+# -----------------------------------------------------------------------------
+# Create extra year rows on biomass data
+# -----------------------------------------------------------------------------
+# Get country*species combos from biomass data
+biomass_country_spec_combos = pd.DataFrame(biomass[['country' ,'species']].value_counts())
+biomass_country_spec_combos = indextocolumns(biomass_country_spec_combos)
+biomass_country_spec_combos['identity'] = 1     # Add constant column for merging
+
+# Create full list of desired years
+extend_years = pd.DataFrame({'year':range(2000 ,2021) ,'identity':1})
+
+# Create dummy data with all desired countries, species, and years
+extended_data = pd.merge(
+    left=biomass_country_spec_combos
+    ,right=extend_years
+    ,on='identity'
+    ,how='outer'
+)
+
+# Merge dummy data with biomass
+biomass_extended = pd.merge(
+    left=biomass
+    ,right=extended_data[['country' ,'species' ,'year']]
+    ,on=['country' ,'species' ,'year']
+    ,how='right'    # Keep all rows from extended data
+)
+
 #%% Merge
 
 # =============================================================================
@@ -26,21 +60,18 @@ countries_geocodes = list(un_geo_codes_tomatch['country'].unique())
 # =============================================================================
 #### Prep Base table: biomass
 # =============================================================================
-biomass = pd.read_pickle(os.path.join(RAWDATA_FOLDER ,'livestock_countries_biomass.pkl.gz'))
-
-countries_biomass = list(biomass['country'].unique())
-
 # Reconcile country names with UN Geo Codes
+countries_biomass = list(biomass_extended['country'].unique())
 recode_countries = {
     "China, Hong Kong SAR":"Hong Kong"
     ,"Cte d'Ivoire":"Côte d'Ivoire"
     ,"Sudan (former)":"Sudan"
 }
-biomass['country'] = biomass['country'].replace(recode_countries)
+biomass_extended['country'] = biomass_extended['country'].replace(recode_countries)
 
 # Add country iso code
 biomass_iso = pd.merge(
-    left=biomass
+    left=biomass_extended
     ,right=un_geo_codes_tomatch
     ,on='country'
     ,how='left'
@@ -52,7 +83,6 @@ biomass_iso_missing = biomass_iso.query("country_iso3.isnull()")
 # =============================================================================
 #### Prep FAO tables
 # =============================================================================
-fao_production_p = pd.read_pickle(os.path.join(RAWDATA_FOLDER ,'fao_production.pkl.gz'))
 fao_producerprice_p = pd.read_pickle(os.path.join(RAWDATA_FOLDER ,'fao_producerprice.pkl.gz'))
 
 # Combine FAO tables
@@ -124,20 +154,20 @@ wb_combo = wb_combo.rename(columns={"iso3":"country_iso3"})
 # =============================================================================
 #### Merge
 # =============================================================================
-# FAO onto Biomass
+# World Bank onto Biomass
 world_ahle_combo1 = pd.merge(
     left=biomass_iso
-    ,right=fao_combo_iso
+    ,right=wb_combo
     ,on=['country_iso3' ,'year']
     ,how='left'
     ,indicator='_merge_1'
     )
 world_ahle_combo1['_merge_1'].value_counts()
 
-# World Bank
+# FAO
 world_ahle_combo1 = pd.merge(
     left=world_ahle_combo1
-    ,right=wb_combo
+    ,right=fao_combo_iso
     ,on=['country_iso3' ,'year']
     ,how='left'
     ,indicator='_merge_2'
@@ -172,10 +202,13 @@ missing_iso3_countries = list(missing_iso3['country'].unique())
 
 species_list = list(world_ahle_combo1['species'].unique())
 prices_lcu = [i for i in list(world_ahle_combo1) if 'lcupertonne' in i]
+fao_stocks_cols = [i for i in list(fao_production_p) if 'stocks' in i]
 
 # Set production to zero for items that don't apply to a species
 def assign_columns_to_species(INPUT_ROW):
    if INPUT_ROW['species'].upper() == 'BUFFALOES':
+       stocks_hd = INPUT_ROW['stocks_buffaloes_head']
+
        prod_eggs = 0
        prod_hides = INPUT_ROW['production_hides_buffalo_fresh_tonnes']
        prod_meat = INPUT_ROW['production_meat_buffalo_tonnes']
@@ -188,6 +221,8 @@ def assign_columns_to_species(INPUT_ROW):
        price_milk = INPUT_ROW['producer_price_milk_whole_fresh_buffalo_lcupertonne']
        price_wool = np.nan
    elif INPUT_ROW['species'].upper() == 'CAMELS':
+       stocks_hd = INPUT_ROW['stocks_camels_head']
+
        prod_eggs = 0
        prod_hides = 0
        prod_meat = INPUT_ROW['production_meat_camel_tonnes']
@@ -200,6 +235,8 @@ def assign_columns_to_species(INPUT_ROW):
        price_milk = INPUT_ROW['producer_price_milk_whole_fresh_camel_lcupertonne']
        price_wool = np.nan
    elif INPUT_ROW['species'].upper() == 'CATTLE':
+       stocks_hd = INPUT_ROW['stocks_cattle_head']
+
        prod_eggs = 0
        prod_hides = INPUT_ROW['production_hides_cattle_fresh_tonnes']
        prod_meat = INPUT_ROW['production_meat_cattle_tonnes']
@@ -212,6 +249,8 @@ def assign_columns_to_species(INPUT_ROW):
        price_milk = INPUT_ROW['producer_price_milk_whole_fresh_cow_lcupertonne']
        price_wool = np.nan
    elif INPUT_ROW['species'].upper() == 'CHICKENS':
+       stocks_hd = INPUT_ROW['stocks_chickens_1000_head'] * 1000
+
        prod_eggs = INPUT_ROW['production_eggs_hen_in_shell_tonnes']
        prod_hides = 0
        prod_meat = INPUT_ROW['production_meat_chicken_tonnes']
@@ -224,6 +263,8 @@ def assign_columns_to_species(INPUT_ROW):
        price_milk = np.nan
        price_wool = np.nan
    elif INPUT_ROW['species'].upper() == 'DUCKS':
+       stocks_hd = INPUT_ROW['stocks_ducks_1000_head'] * 1000
+
        prod_eggs = 0
        prod_hides = 0
        prod_meat = INPUT_ROW['production_meat_duck_tonnes']
@@ -236,6 +277,8 @@ def assign_columns_to_species(INPUT_ROW):
        price_milk = np.nan
        price_wool = np.nan
    elif INPUT_ROW['species'].upper() == 'GOATS':
+       stocks_hd = INPUT_ROW['stocks_goats_head']
+
        prod_eggs = 0
        prod_hides = 0
        prod_meat = INPUT_ROW['production_meat_goat_tonnes']
@@ -248,6 +291,8 @@ def assign_columns_to_species(INPUT_ROW):
        price_milk = INPUT_ROW['producer_price_milk_whole_fresh_goat_lcupertonne']
        price_wool = np.nan
    elif INPUT_ROW['species'].upper() == 'HORSES':
+       stocks_hd = INPUT_ROW['stocks_horses_head']
+
        prod_eggs = 0
        prod_hides = 0
        prod_meat = INPUT_ROW['production_meat_horse_tonnes']
@@ -260,6 +305,8 @@ def assign_columns_to_species(INPUT_ROW):
        price_milk = np.nan
        price_wool = np.nan
    elif INPUT_ROW['species'].upper() == 'PIGS':
+       stocks_hd = INPUT_ROW['stocks_pigs_head']
+
        prod_eggs = 0
        prod_hides = 0
        prod_meat = INPUT_ROW['production_meat_pig_tonnes']
@@ -272,6 +319,8 @@ def assign_columns_to_species(INPUT_ROW):
        price_milk = np.nan
        price_wool = np.nan
    elif INPUT_ROW['species'].upper() == 'SHEEP':
+       stocks_hd = INPUT_ROW['stocks_sheep_head']
+
        prod_eggs = 0
        prod_hides = 0
        prod_meat = INPUT_ROW['production_meat_sheep_tonnes']
@@ -284,6 +333,8 @@ def assign_columns_to_species(INPUT_ROW):
        price_milk = INPUT_ROW['producer_price_milk_whole_fresh_sheep_lcupertonne']
        price_wool = INPUT_ROW['producer_price_wool_greasy_lcupertonne']
    elif INPUT_ROW['species'].upper() == 'TURKEYS':
+       stocks_hd = INPUT_ROW['stocks_turkeys_1000_head'] * 1000
+
        prod_eggs = 0
        prod_hides = 0
        prod_meat = INPUT_ROW['production_meat_turkey_tonnes']
@@ -296,25 +347,32 @@ def assign_columns_to_species(INPUT_ROW):
        price_milk = np.nan
        price_wool = np.nan
    else:
-       prod_eggs = 0
-       prod_hides = 0
-       prod_meat = 0
-       prod_milk = 0
-       prod_wool = 0
+       stocks_hd = np.nan
+
+       prod_eggs = np.nan
+       prod_hides = np.nan
+       prod_meat = np.nan
+       prod_milk = np.nan
+       prod_wool = np.nan
 
        price_eggs = np.nan
        price_meat = np.nan
        price_meat_live = np.nan
        price_milk = np.nan
        price_wool = np.nan
-   return pd.Series([prod_eggs ,prod_hides ,prod_meat ,prod_milk ,prod_wool
-                     ,price_eggs ,price_meat ,price_meat_live ,price_milk ,price_wool])
+   return pd.Series([stocks_hd
+                     ,prod_eggs ,prod_hides ,prod_meat ,prod_milk ,prod_wool
+                     ,price_eggs ,price_meat ,price_meat_live ,price_milk ,price_wool
+                     ])
 world_ahle_combo1[[
-    'productionKEEP_eggs_tonnes'
+    'stocksKEEP_hd'
+
+    ,'productionKEEP_eggs_tonnes'
     ,'productionKEEP_hides_tonnes'
     ,'productionKEEP_meat_tonnes'
     ,'productionKEEP_milk_tonnes'
     ,'productionKEEP_wool_tonnes'
+
     ,'producer_priceKEEP_eggs_lcupertonne'
     ,'producer_priceKEEP_meat_lcupertonne'
     ,'producer_priceKEEP_meat_live_lcupertonne'
@@ -323,9 +381,10 @@ world_ahle_combo1[[
     ]] = world_ahle_combo1.apply(assign_columns_to_species ,axis=1)
 
 # Drop species-specific columns
+orig_stocks_cols = [i for i in list(world_ahle_combo1) if 'stocks_' in i]
 orig_production_cols = [i for i in list(world_ahle_combo1) if 'production_' in i]
 orig_price_cols = [i for i in list(world_ahle_combo1) if 'producer_price_' in i]
-world_ahle_combo1 = world_ahle_combo1.drop(columns=orig_production_cols + orig_price_cols)
+world_ahle_combo1 = world_ahle_combo1.drop(columns=orig_stocks_cols + orig_production_cols + orig_price_cols)
 
 # Remove KEEP flag from new columns
 world_ahle_combo1.columns = world_ahle_combo1.columns.str.replace('KEEP' ,'')
@@ -334,6 +393,16 @@ datainfo(world_ahle_combo1)
 
 # =============================================================================
 # # Not used
+# stocks_asses_head
+# stocks_beehives_no
+# stocks_camelids_other_head
+# stocks_geese_and_guinea_fowls_1000_head
+# stocks_mules_head
+# stocks_pigs_head
+# stocks_rabbits_and_hares_1000_head
+# stocks_rodents_other_1000_head
+
+
 # production_meat_game_tonnes
 # producer_price_meat_game_lcupertonne
 

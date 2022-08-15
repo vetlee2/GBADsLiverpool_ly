@@ -205,6 +205,7 @@ prices_lcu = [i for i in list(world_ahle_combo1) if 'lcupertonne' in i]
 fao_stocks_cols = [i for i in list(fao_production_p) if 'stocks' in i]
 
 # Set production to zero for items that don't apply to a species
+# Set prices to a coded value (np.nan) for items that don't apply to a species
 def assign_columns_to_species(INPUT_ROW):
    if INPUT_ROW['species'].upper() == 'BUFFALOES':
        stocks_hd = INPUT_ROW['stocks_buffaloes_head']
@@ -215,11 +216,11 @@ def assign_columns_to_species(INPUT_ROW):
        prod_milk = INPUT_ROW['production_milk_whole_fresh_buffalo_tonnes']
        prod_wool = 0
 
-       price_eggs = np.nan
+       price_eggs = 999.999
        price_meat = INPUT_ROW['producer_price_meat_buffalo_lcupertonne']
        price_meat_live = INPUT_ROW['producer_price_meat_livewt_buffalo_lcupertonne']
        price_milk = INPUT_ROW['producer_price_milk_whole_fresh_buffalo_lcupertonne']
-       price_wool = np.nan
+       price_wool = 999.999
    elif INPUT_ROW['species'].upper() == 'CAMELS':
        stocks_hd = INPUT_ROW['stocks_camels_head']
 
@@ -229,11 +230,11 @@ def assign_columns_to_species(INPUT_ROW):
        prod_milk = INPUT_ROW['production_milk_whole_fresh_camel_tonnes']
        prod_wool = 0
 
-       price_eggs = np.nan
+       price_eggs = 999.999
        price_meat = INPUT_ROW['producer_price_meat_camel_lcupertonne']
        price_meat_live = INPUT_ROW['producer_price_meat_livewt_camel_lcupertonne']
        price_milk = INPUT_ROW['producer_price_milk_whole_fresh_camel_lcupertonne']
-       price_wool = np.nan
+       price_wool = 999.999
    elif INPUT_ROW['species'].upper() == 'CATTLE':
        stocks_hd = INPUT_ROW['stocks_cattle_head']
 
@@ -243,11 +244,11 @@ def assign_columns_to_species(INPUT_ROW):
        prod_milk = INPUT_ROW['production_milk_whole_fresh_cow_tonnes']
        prod_wool = 0
 
-       price_eggs = np.nan
+       price_eggs = 999.999
        price_meat = INPUT_ROW['producer_price_meat_cattle_lcupertonne']
        price_meat_live = INPUT_ROW['producer_price_meat_livewt_cattle_lcupertonne']
        price_milk = INPUT_ROW['producer_price_milk_whole_fresh_cow_lcupertonne']
-       price_wool = np.nan
+       price_wool = 999.999
    elif INPUT_ROW['species'].upper() == 'CHICKENS':
        stocks_hd = INPUT_ROW['stocks_chickens_1000_head'] * 1000
 
@@ -260,8 +261,8 @@ def assign_columns_to_species(INPUT_ROW):
        price_eggs = INPUT_ROW['producer_price_eggs_hen_in_shell_lcupertonne']
        price_meat = INPUT_ROW['producer_price_meat_chicken_lcupertonne']
        price_meat_live = INPUT_ROW['producer_price_meat_livewt_chicken_lcupertonne']
-       price_milk = np.nan
-       price_wool = np.nan
+       price_milk = 999.999
+       price_wool = 999.999
    elif INPUT_ROW['species'].upper() == 'DUCKS':
        stocks_hd = INPUT_ROW['stocks_ducks_1000_head'] * 1000
 
@@ -271,11 +272,11 @@ def assign_columns_to_species(INPUT_ROW):
        prod_milk = 0
        prod_wool = 0
 
-       price_eggs = np.nan
+       price_eggs = 999.999
        price_meat = INPUT_ROW['producer_price_meat_duck_lcupertonne']
        price_meat_live = INPUT_ROW['producer_price_meat_livewt_duck_lcupertonne']
-       price_milk = np.nan
-       price_wool = np.nan
+       price_milk = 999.999
+       price_wool = 999.999
    elif INPUT_ROW['species'].upper() == 'GOATS':
        stocks_hd = INPUT_ROW['stocks_goats_head']
 
@@ -285,11 +286,11 @@ def assign_columns_to_species(INPUT_ROW):
        prod_milk = INPUT_ROW['production_milk_whole_fresh_goat_tonnes']
        prod_wool = 0
 
-       price_eggs = np.nan
+       price_eggs = 999.999
        price_meat = INPUT_ROW['producer_price_meat_goat_lcupertonne']
        price_meat_live = INPUT_ROW['producer_price_meat_livewt_goat_lcupertonne']
        price_milk = INPUT_ROW['producer_price_milk_whole_fresh_goat_lcupertonne']
-       price_wool = np.nan
+       price_wool = 999.999
    elif INPUT_ROW['species'].upper() == 'HORSES':
        stocks_hd = INPUT_ROW['stocks_horses_head']
 
@@ -299,11 +300,11 @@ def assign_columns_to_species(INPUT_ROW):
        prod_milk = 0
        prod_wool = 0
 
-       price_eggs = np.nan
+       price_eggs = 999.999
        price_meat = INPUT_ROW['producer_price_meat_horse_lcupertonne']
        price_meat_live = INPUT_ROW['producer_price_meat_livewt_horse_lcupertonne']
-       price_milk = np.nan
-       price_wool = np.nan
+       price_milk = 999.999
+       price_wool = 999.999
    elif INPUT_ROW['species'].upper() == 'PIGS':
        stocks_hd = INPUT_ROW['stocks_pigs_head']
 
@@ -313,11 +314,11 @@ def assign_columns_to_species(INPUT_ROW):
        prod_milk = 0
        prod_wool = 0
 
-       price_eggs = np.nan
+       price_eggs = 999.999
        price_meat = INPUT_ROW['producer_price_meat_pig_lcupertonne']
        price_meat_live = INPUT_ROW['producer_price_meat_livewt_pig_lcupertonne']
-       price_milk = np.nan
-       price_wool = np.nan
+       price_milk = 999.999
+       price_wool = 999.999
    elif INPUT_ROW['species'].upper() == 'SHEEP':
        stocks_hd = INPUT_ROW['stocks_sheep_head']
 
@@ -327,7 +328,7 @@ def assign_columns_to_species(INPUT_ROW):
        prod_milk = INPUT_ROW['production_milk_whole_fresh_sheep_tonnes']
        prod_wool = INPUT_ROW['production_wool_greasy_tonnes']
 
-       price_eggs = np.nan
+       price_eggs = 999.999
        price_meat = INPUT_ROW['producer_price_meat_sheep_lcupertonne']
        price_meat_live = INPUT_ROW['producer_price_meat_livewt_sheep_lcupertonne']
        price_milk = INPUT_ROW['producer_price_milk_whole_fresh_sheep_lcupertonne']
@@ -341,11 +342,11 @@ def assign_columns_to_species(INPUT_ROW):
        prod_milk = 0
        prod_wool = 0
 
-       price_eggs = np.nan
+       price_eggs = 999.999
        price_meat = INPUT_ROW['producer_price_meat_turkey_lcupertonne']
        price_meat_live = INPUT_ROW['producer_price_meat_livewt_turkey_lcupertonne']
-       price_milk = np.nan
-       price_wool = np.nan
+       price_milk = 999.999
+       price_wool = 999.999
    else:
        stocks_hd = np.nan
 

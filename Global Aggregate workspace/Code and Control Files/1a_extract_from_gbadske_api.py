@@ -116,6 +116,13 @@ biomass.loc[_row_selection ,'liveweight'] = biomass.loc[_row_selection ,'livewei
 biomass.loc[_row_selection ,'biomass'] = \
     biomass.loc[_row_selection ,'liveweight'] * biomass.loc[_row_selection ,'population']
 
+# Remove duplicates (country-species-year combinations that appear twice)
+csy_counts = biomass[['country' ,'species' ,'year']].value_counts()
+biomass = biomass.drop_duplicates(
+   subset=['country' ,'species' ,'year']          # List (opt): only consider these columns when identifying duplicates. If None, consider all columns.
+   ,keep='first'                   # String: which occurrence to keep, 'first' or 'last'
+)
+
 datainfo(biomass)
 
 # Profile
@@ -218,7 +225,7 @@ un_geo_codes.to_pickle(os.path.join(RAWDATA_FOLDER ,'un_geo_codes.pkl.gz'))
 #         print(f'> Processing table {table}')
 #         if 'eth' not in table:      # Exclude Ethiopia-specific tables
 #             try:
-#                 table_df = gbadske_import_to_pandas(table ,nrows=100)   # First 100 rows
+#                 table_df = gbadske_import_to_pandas(table).head(100)
 #             except:
 #                 table_df = pd.DataFrame({'Status':'Error reading table'} ,index=[0])
 #             sheetname = table.replace('population' ,'pop')

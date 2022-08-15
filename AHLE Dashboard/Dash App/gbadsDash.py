@@ -179,7 +179,6 @@ oie_region_options += [{'label': "Middle East", 'value': "Middle East", 'disable
 oie_africa_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Ethiopia"]]
 
 oie_americas_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Brazil",
-                                                                              "France",
                                                                           "United States of America"]]
 
 oie_asia_options = [{'label': i, 'value': i, 'disabled': False} for i in ["India",
@@ -482,32 +481,31 @@ for i in np.sort(ga_countries_biomass['country'].unique()) :
 region_structure_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["World Bank",]]
 
 region_structure_options_ga += [{'label': i, 'value': i, 'disabled': True} for i in ["OIE",
-                                                                                      "FAO",]]
+                                                                                     "FAO",]]
 
 # OIE regions
 oie_region_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
-                                                                        "Africa",
-                                                                       "Americas",
-                                                                       "Asia & the Pacific",
-                                                                       "Europe"
-                                                                       "Middle East"
-                                                                       ]]
+                                                                               "Africa",
+                                                                               "Americas",
+                                                                               "Asia & the Pacific",
+                                                                               "Europe"
+                                                                               "Middle East"
+                                                                               ]]
 # OIE region-country mapping
 oie_africa_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Ethiopia"]]
 
 oie_americas_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Brazil",
-                                                                              "France",
-                                                                          "United States of America"]]
+                                                                                 "United States of America"]]
 
 oie_asia_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["India",
-                                                                          "United States of America"]]
+                                                                             "United States of America"]]
 
 oie_europe_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["France",
-                                                                        "Germany",
-                                                                       "Italy",
-                                                                       "Netherlands",
-                                                                       "Poland",
-                                                                       "United Kingdom"]]
+                                                                               "Germany",
+                                                                               "Italy",
+                                                                               "Netherlands",
+                                                                               "Poland",
+                                                                               "United Kingdom"]]
 
 oie_me_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["TEST"]]
 
@@ -528,11 +526,11 @@ fao_africa_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["
 fao_asia_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["India"]]
 
 fao_eca_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["France",
-                                                                        "Germany",
-                                                                       "Italy",
-                                                                       "Netherlands",
-                                                                       "Poland",
-                                                                       "United Kingdom"]]
+                                                                            "Germany",
+                                                                            "Italy",
+                                                                            "Netherlands",
+                                                                            "Poland",
+                                                                            "United Kingdom"]]
 
 fao_lac_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Brazil"]]
 
@@ -540,24 +538,71 @@ fao_ena_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["TES
 
 
 fao_swp_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["France",
-                                                                          "United States of America"]]
+                                                                            "United States of America"]]
 
 # World Bank regions
 wb_region_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
-                                                                              "Sub-Saharan Africa",
                                                                               "East Asia & Pacific",
                                                                               "Europe & Central Asia",
                                                                               "Latin America & the Caribbean",
                                                                               "Middle East & North Africa",
                                                                               "North America",
-                                                                              "South Asia"
+                                                                              "South Asia",
+                                                                              "Sub-Saharan Africa",
                                                                               ]]
 # World Bank region-country mapping
 # Pulled from World Bank site (https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups)
 
-wb_africa_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Ethiopia"]]
+wb_africa_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
+                                                                              "Angola",
+                                                                              "Benin",
+                                                                              "Botswana",
+                                                                              "Burkina Faso",
+                                                                              "Burundi",
+                                                                              "Cameroon",
+                                                                              "Central African Republic",
+                                                                              "Chad",
+                                                                              "Comoros",
+                                                                              "Congo",
+                                                                              "Côte d'Ivoire",
+                                                                              "Democratic Republic of the Congo",
+                                                                              "Eritrea",
+                                                                              "Eswatini",
+                                                                              "Ethiopia",
+                                                                              "Gabon",
+                                                                              "Gambia",
+                                                                              "Ghana",
+                                                                              "Guinea",
+                                                                              "Guinea-Bissau",
+                                                                              "Kenya",
+                                                                              "Lesotho",
+                                                                              "Liberia",
+                                                                              "Madagascar",
+                                                                              "Malawi",
+                                                                              "Mali",
+                                                                              "Mauritania",
+                                                                              "Mauritius",
+                                                                              "Mozambique",
+                                                                              "Namibia",
+                                                                              "Niger",
+                                                                              "Nigeria",
+                                                                              "Rwanda",
+                                                                              "Sao Tome and Principe",
+                                                                              "Senegal",
+                                                                              "Seychelles",
+                                                                              "Sierra Leone",
+                                                                              "Somalia",
+                                                                              "South Africa",
+                                                                              "Sudan",
+                                                                              "Togo",
+                                                                              "Uganda",
+                                                                              "United Republic of Tanzania",
+                                                                              "Zambia",
+                                                                              "Zimbabwe",
+                                                                              ]]
 
-wb_eap_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Australia",
+wb_eap_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
+                                                                           "Australia",
                                                                            "Brunei Darussalam",
                                                                            "Cambodia",
                                                                            "China",
@@ -576,6 +621,7 @@ wb_eap_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Aust
                                                                            "New Caledonia",
                                                                            "New Zealand",
                                                                            "Philippines",
+                                                                           "Republic of Korea",
                                                                            "Samoa",
                                                                            "Singapore",
                                                                            "Solomon Islands",
@@ -586,7 +632,8 @@ wb_eap_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Aust
                                                                            "Vanuatu",
                                                                            "Viet Nam"]]
 
-wb_eca_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Albania",
+wb_eca_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
+                                                                           "Albania",
                                                                            "Armenia",
                                                                            "Austria",
                                                                            "Azerbaijan",
@@ -616,6 +663,7 @@ wb_eca_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Alba
                                                                            "Norway",
                                                                            "Poland",
                                                                            "Portugal",
+                                                                           "Republic of Moldova",
                                                                            "Romania",
                                                                            "Russian Federation",
                                                                            "Slovakia",
@@ -630,7 +678,8 @@ wb_eca_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Alba
                                                                            "United Kingdom of Great Britain and Northern Ireland",
                                                                            "Uzbekistan"]]
 
-wb_lac_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Antigua and Barbuda",
+wb_lac_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
+                                                                           "Antigua and Barbuda",
                                                                            "Argentina",
                                                                            "Bahamas",
                                                                            "Barbados",
@@ -658,12 +707,14 @@ wb_lac_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Anti
                                                                            "Puerto Rico",
                                                                            "Saint Kitts and Nevis",
                                                                            "Saint Lucia",
+                                                                           "Saint Vincent and the Grenadines",
                                                                            "Suriname",
                                                                            "Trinidad and Tobago",
                                                                            "Uruguay",
                                                                            "Venezuela (Bolivarian Republic of)",]]
 
-wb_mena_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Algeria",
+wb_mena_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
+                                                                            "Algeria",
                                                                             "Bahrain",
                                                                             "Djibouti",
                                                                             "Egypt",
@@ -685,9 +736,19 @@ wb_mena_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Alg
                                                                             "Yemen",
                                                                             ]]
 
-wb_na_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["United States of America"]]
+wb_na_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
+                                                                          "Canada",
+                                                                          "United States of America"]]
 
-wb_southasia_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["India"]]
+wb_southasia_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
+                                                                                 "Afghanistan",
+                                                                                 "Bangladesh",
+                                                                                 "Bhutan",
+                                                                                 "India",
+                                                                                 "Nepal",
+                                                                                 "Pakistan",
+                                                                                 "Sri Lanka",
+                                                                                 ]]
 
 
 # =============================================================================
@@ -2386,14 +2447,14 @@ gbadsDash.layout = html.Div([
                                           'format': 'png', # one of png, svg, jpeg, webp
                                           'filename': 'GBADs_Ethiopia_Attribution_Treemap'
                                           },
-                                      'modeBarButtonsToRemove': ['zoom',
-                                                                 'zoomIn',
-                                                                 'zoomOut',
-                                                                 'autoScale',
-                                                                 #'resetScale',  # Removes home button
-                                                                 'pan',
-                                                                 'select2d',
-                                                                 'lasso2d']
+                                      # 'modeBarButtonsToRemove': ['zoom',
+                                      #                            'zoomIn',
+                                      #                            'zoomOut',
+                                      #                            'autoScale',
+                                      #                            #'resetScale',  # Removes home button
+                                      #                            'pan',
+                                      #                            'select2d',
+                                      #                            'lasso2d']
                                       }
                                   )
 
@@ -2402,21 +2463,6 @@ gbadsDash.layout = html.Div([
                         # End of Attribution Treemap
                         style={"width":5}),
 
-
-                    # dbc.Col(
-                    #     dbc.Spinner(children=[
-                    #     html.Div(children=[
-                    #             html.Img(src='/assets/EthiopianCaseStudyUpdatedSankeyFromGemma.png')
-                    #         ],
-                    #              style = {'margin-left':"10px",
-                    #                         "margin-bottom":"10px",
-                    #                         'margin-right':"10px"},
-                    #     ),
-                    #         # End of Spinner
-                    #         ],size="md", color="#393375", fullscreen=False),
-                    #         # End of Output
-                    #         width=9
-                    #         ),
                     ]),
                 html.Br(),
 
@@ -4660,75 +4706,57 @@ def update_core_data_world_ahle_abt_ga(species,region_country,region,country):
         input_df
     else:
         input_df=input_df.loc[(input_df['country'] == country)]
-        
-    # if region == "All":
-    #     # input_df=input_df.loc[(input_df['country'] == country_options_ga)]
-    #     input_df[input_df['country'].isin(country_options_ga)]
-    # elif region == "Africa":
-    #     # input_df=input_df.loc[(input_df['country'] == wb_africa_options_ga)]
-    #     input_df[input_df['country'].isin(wb_africa_options_ga)]
-    # elif region == "East Asia & Pacific":
-    #     input_df=input_df.loc[(input_df['country'] == wb_eap_options_ga)]
-    # elif region == "Europe & Central Asia":
-    #     # input_df=input_df.loc[(input_df['country'] == wb_eca_options_ga)]
-    #     input_df[input_df['country'].isin(wb_eca_options_ga)]
-    # elif region == "Latin America & the Caribbean":
-    #     input_df=input_df.loc[(input_df['country'] == wb_lac_options_ga)]
-    # elif region == "Middle East & North Africa":
-    #     input_df=input_df.loc[(input_df['country'] == wb_mena_options_ga)]
-    # elif region == "North America":
-    #     input_df=input_df.loc[(input_df['country'] == wb_na_options_ga)]
-    # else:
-    #     input_df=input_df.loc[(input_df['country'] == wb_southasia_options_ga)]
     
-    # # Filter Region & country
-    # if region_country == "OIE":
-    #     if region == "All":
-    #         input_df=input_df.loc[(input_df['country'] == country_options_ga)]
-    #     elif region == "Africa":
-    #         input_df=input_df.loc[(input_df['country'] == oie_africa_options_ga)]
-    #     elif region == "Americas":
-    #         input_df=input_df.loc[(input_df['country'] == oie_americas_options_ga)]
-    #     elif region == "Asia & the Pacific":
-    #         input_df=input_df.loc[(input_df['country'] == oie_asia_options_ga)]
-    #     elif region == "Europe":
-    #         input_df=input_df.loc[(input_df['country'] == oie_europe_options_ga)]
-    #     else:
-    #         input_df=input_df.loc[(input_df['country'] == oie_me_options_ga)]
-    # elif region_country =="FAO":
-    #     if region == "All":
-    #         input_df=input_df.loc[(input_df['country'] == country_options_ga)]
-    #     elif region == "Africa":
-    #         input_df=input_df.loc[(input_df['country'] == fao_africa_options_ga)]
-    #     elif region == "Asia":
-    #         input_df=input_df.loc[(input_df['country'] == fao_asia_options_ga)]
-    #     elif region == "Europe and Central Asia":
-    #         input_df=input_df.loc[(input_df['country'] == fao_eca_options_ga)]
-    #     elif region == "Latin America and the Caribbean":
-    #         input_df=input_df.loc[(input_df['country'] == fao_lac_options_ga)]
-    #     elif region == "Near East and North Africa":
-    #         input_df=input_df.loc[(input_df['country'] == fao_ena_options_ga)]
-    #     else:
-    #         input_df=input_df.loc[(input_df['country'] == fao_swp_options_ga)]
-    # elif region_country == "World Bank":
-    #     if region == "All":
-    #         input_df=input_df.loc[(input_df['country'] == country_options_ga)]
-    #     elif region == "Africa":
-    #         input_df=input_df.loc[(input_df['country'] == wb_africa_options_ga)]
-    #     elif region == "East Asia & Pacific":
-    #         input_df=input_df.loc[(input_df['country'] == wb_eap_options_ga)]
-    #     elif region == "Europe & Central Asia":
-    #         input_df=input_df.loc[(input_df['country'] == wb_eca_options_ga)]
-    #     elif region == "Latin America & the Caribbean":
-    #         input_df=input_df.loc[(input_df['country'] == wb_lac_options_ga)]
-    #     elif region == "Middle East & North Africa":
-    #         input_df=input_df.loc[(input_df['country'] == wb_mena_options_ga)]
-    #     elif region == "North America":
-    #         input_df=input_df.loc[(input_df['country'] == wb_na_options_ga)]
-    #     else:
-    #         input_df=input_df.loc[(input_df['country'] == wb_southasia_options_ga)]
-    # else:
-    #     input_df=input_df['country'] == country_options_ga
+    # Filter Region & country
+    if region == "All":
+        # input_df=input_df.loc[(input_df['country'] == country_options_ga)]
+        if country == 'All':
+            input_df = input_df[input_df['country'].isin(country_options_ga)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "Sub-Saharan Africa":
+        # input_df=input_df.loc[(input_df['country'] == wb_africa_options_ga)]
+        if country == 'All':
+            input_df = input_df[input_df['country'].isin(wb_africa_options_ga)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "East Asia & Pacific":
+        # input_df=input_df.loc[(input_df['country'] == wb_eap_options_ga)]
+        if country == 'All':
+            input_df = input_df[input_df['country'].isin(wb_eap_options_ga)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "Europe & Central Asia":
+        # input_df=input_df.loc[(input_df['country'] == wb_eca_options_ga)]
+        if country == 'All':
+            input_df = input_df[input_df['country'].isin(wb_eca_options_ga)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "Latin America & the Caribbean":
+        # input_df=input_df.loc[(input_df['country'] == wb_lac_options_ga)]
+        if country == 'All':
+            input_df = input_df[input_df['country'].isin(wb_lac_options_ga)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "Middle East & North Africa":
+        # input_df=input_df.loc[(input_df['country'] == wb_mena_options_ga)]
+        if country == 'All':
+            input_df = input_df[input_df['country'].isin(wb_mena_options_ga)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "North America":
+        # input_df=input_df.loc[(input_df['country'] == wb_na_options_ga)]
+        if country == 'All':
+            input_df = input_df[input_df['country'].isin(wb_na_options_ga)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+    else:
+        # input_df=input_df.loc[(input_df['country'] == wb_southasia_options_ga)]
+        if country == 'All':
+            input_df = input_df[input_df['country'].isin(wb_southasia_options_ga)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+    
 
     return input_df.to_json(date_format='iso', orient='split')
 

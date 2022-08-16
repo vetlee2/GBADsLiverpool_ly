@@ -179,85 +179,168 @@ missing_prod_meat_perkgbm = world_ahle_abt.query("production_meat_tonnes_perkgbm
 missing_prod_milk_perkgbm = world_ahle_abt.query("production_milk_tonnes_perkgbm.isnull()")
 missing_prod_wool_perkgbm = world_ahle_abt.query("production_wool_tonnes_perkgbm.isnull()")
 
+# What is the distribution of production per kg biomass for each product?
+for PROD_BASE in production_cols:
+    # Global
+    snplt = sns.catplot(
+        data=world_ahle_abt
+        ,y=f"{PROD_BASE}_perkgbm"
+        ,kind='box'
+        ,orient='v'
+        )
+    plt.title(f"Distribution Globally\n{PROD_BASE} per kg biomass")
+
+    # By Region
+    snplt = sns.catplot(
+        data=world_ahle_abt
+        ,x='region'
+        ,y=f"{PROD_BASE}_perkgbm"
+        ,kind='box'
+        ,orient='v'
+        )
+    plt.title(f"Distribution by Region\n{PROD_BASE} per kg biomass")
+
+    # By Income group
+    snplt = sns.catplot(
+        data=world_ahle_abt
+        ,x='incomegroup'
+        ,y=f"{PROD_BASE}_perkgbm"
+        ,kind='box'
+        ,orient='v'
+        )
+    plt.title(f"Distribution by Income Group\n{PROD_BASE} per kg biomass")
+
 # =============================================================================
 #### Impute
 # =============================================================================
 # Check average for meat at different levels of aggregation
-wtavg1_meat_perkgbm = weighted_average(
-    world_ahle_abt
-    ,AVG_VAR="production_meat_tonnes_perkgbm"
-    ,WT_VAR='biomass'
-    ,BY_VARS=['species' ,'year' ,'region' ,'incomegroup']
-)
-wtavg2a_meat_perkgbm = weighted_average(
-    world_ahle_abt
-    ,AVG_VAR="production_meat_tonnes_perkgbm"
-    ,WT_VAR='biomass'
-    ,BY_VARS=['species' ,'year' ,'incomegroup']
-)
-wtavg2b_meat_perkgbm = weighted_average(
-    world_ahle_abt
-    ,AVG_VAR="production_meat_tonnes_perkgbm"
-    ,WT_VAR='biomass'
-    ,BY_VARS=['species' ,'year' ,'region']
-)
-wtavg3_meat_perkgbm = weighted_average(
-    world_ahle_abt
-    ,AVG_VAR="production_meat_tonnes_perkgbm"
-    ,WT_VAR='biomass'
-    ,BY_VARS=['species' ,'year']
-)
+# wtavg1_meat_perkgbm = weighted_average(
+#     world_ahle_abt
+#     ,AVG_VAR="production_meat_tonnes_perkgbm"
+#     ,WT_VAR='biomass'
+#     ,BY_VARS=['species' ,'year' ,'region' ,'incomegroup']
+# )
+# wtavg2a_meat_perkgbm = weighted_average(
+#     world_ahle_abt
+#     ,AVG_VAR="production_meat_tonnes_perkgbm"
+#     ,WT_VAR='biomass'
+#     ,BY_VARS=['species' ,'year' ,'incomegroup']
+# )
+# wtavg2b_meat_perkgbm = weighted_average(
+#     world_ahle_abt
+#     ,AVG_VAR="production_meat_tonnes_perkgbm"
+#     ,WT_VAR='biomass'
+#     ,BY_VARS=['species' ,'year' ,'region']
+# )
+# wtavg3_meat_perkgbm = weighted_average(
+#     world_ahle_abt
+#     ,AVG_VAR="production_meat_tonnes_perkgbm"
+#     ,WT_VAR='biomass'
+#     ,BY_VARS=['species' ,'year']
+# )
 
 # Find average for each species, year, region, and income group, weighted by biomass
+# UPDATE: Using median price instead of average as it is robust to outliers.
 for PRODCOL in production_cols:
+    # # -----------------------------------------------------------------------------
+    # # Calculate averages at different aggregation levels
+    # # -----------------------------------------------------------------------------
+    # # Get weighted average by group at least aggregate level
+    # wtavg = weighted_average(world_ahle_abt ,AVG_VAR=f"{PRODCOL}_perkgbm" ,WT_VAR='biomass'
+    #     ,BY_VARS=['species' ,'year' ,'region' ,'incomegroup']
+    #     ,RESULT_SUFFIX='_wtavg1'
+    # )
+    # # Merge with data
+    # world_ahle_abt = pd.merge(
+    #     left=world_ahle_abt
+    #     ,right=wtavg[f"{PRODCOL}_perkgbm_wtavg1"]
+    #     ,on=['species' ,'year' ,'region' ,'incomegroup']
+    #     ,how='left'
+    # )
+    # # Get weighted average by group at middle aggregate level
+    # wtavg = weighted_average(world_ahle_abt ,AVG_VAR=f"{PRODCOL}_perkgbm" ,WT_VAR='biomass'
+    #     ,BY_VARS=['species' ,'year' ,'incomegroup']
+    #     ,RESULT_SUFFIX='_wtavg2a'
+    # )
+    # # Merge with data
+    # world_ahle_abt = pd.merge(
+    #     left=world_ahle_abt
+    #     ,right=wtavg[f"{PRODCOL}_perkgbm_wtavg2a"]
+    #     ,on=['species' ,'year' ,'incomegroup']
+    #     ,how='left'
+    # )
+    # # Get weighted average by group at middle aggregate level
+    # wtavg = weighted_average(world_ahle_abt ,AVG_VAR=f"{PRODCOL}_perkgbm" ,WT_VAR='biomass'
+    #     ,BY_VARS=['species' ,'year' ,'region']
+    #     ,RESULT_SUFFIX='_wtavg2b'
+    # )
+    # # Merge with data
+    # world_ahle_abt = pd.merge(
+    #     left=world_ahle_abt
+    #     ,right=wtavg[f"{PRODCOL}_perkgbm_wtavg2b"]
+    #     ,on=['species' ,'year' ,'region']
+    #     ,how='left'
+    # )
+    # # Get weighted average by group at most aggregate level
+    # wtavg = weighted_average(world_ahle_abt ,AVG_VAR=f"{PRODCOL}_perkgbm" ,WT_VAR='biomass'
+    #     ,BY_VARS=['species' ,'year']
+    #     ,RESULT_SUFFIX='_wtavg3'
+    # )
+    # # Merge with data
+    # world_ahle_abt = pd.merge(
+    #     left=world_ahle_abt
+    #     ,right=wtavg[f"{PRODCOL}_perkgbm_wtavg3"]
+    #     ,on=['species' ,'year']
+    #     ,how='left'
+    # )
+
     # -----------------------------------------------------------------------------
-    # Calculate averages at different aggregation levels
+    # Alternative: get median at different aggregation levels
     # -----------------------------------------------------------------------------
-    # Get weighted average by group at least aggregate level
-    wtavg = weighted_average(world_ahle_abt ,AVG_VAR=f"{PRODCOL}_perkgbm" ,WT_VAR='biomass'
-        ,BY_VARS=['species' ,'year' ,'region' ,'incomegroup']
-        ,RESULT_SUFFIX='_wtavg1'
+    # Get median by group at least aggregate level
+    median = world_ahle_abt.pivot_table(
+       index=['species' ,'year' ,'region' ,'incomegroup']
+       ,values=f"{PRODCOL}_perkgbm" ,aggfunc='median'
     )
+    median = median.add_suffix('_median1')
     # Merge with data
-    world_ahle_abt = pd.merge(
-        left=world_ahle_abt
-        ,right=wtavg[f"{PRODCOL}_perkgbm_wtavg1"]
+    world_ahle_abt = pd.merge(left=world_ahle_abt ,right=median
         ,on=['species' ,'year' ,'region' ,'incomegroup']
         ,how='left'
     )
-    # Get weighted average by group at middle aggregate level
-    wtavg = weighted_average(world_ahle_abt ,AVG_VAR=f"{PRODCOL}_perkgbm" ,WT_VAR='biomass'
-        ,BY_VARS=['species' ,'year' ,'incomegroup']
-        ,RESULT_SUFFIX='_wtavg2a'
+
+    # Get median by group at mid aggregate level
+    median = world_ahle_abt.pivot_table(
+       index=['species' ,'year' ,'incomegroup']
+       ,values=f"{PRODCOL}_perkgbm" ,aggfunc='median'
     )
+    median = median.add_suffix('_median2a')
     # Merge with data
-    world_ahle_abt = pd.merge(
-        left=world_ahle_abt
-        ,right=wtavg[f"{PRODCOL}_perkgbm_wtavg2a"]
+    world_ahle_abt = pd.merge(left=world_ahle_abt ,right=median
         ,on=['species' ,'year' ,'incomegroup']
         ,how='left'
     )
-    # Get weighted average by group at middle aggregate level
-    wtavg = weighted_average(world_ahle_abt ,AVG_VAR=f"{PRODCOL}_perkgbm" ,WT_VAR='biomass'
-        ,BY_VARS=['species' ,'year' ,'region']
-        ,RESULT_SUFFIX='_wtavg2b'
+
+    # Get median by group at mid aggregate level
+    median = world_ahle_abt.pivot_table(
+       index=['species' ,'year' ,'region']
+       ,values=f"{PRODCOL}_perkgbm" ,aggfunc='median'
     )
+    median = median.add_suffix('_median2b')
     # Merge with data
-    world_ahle_abt = pd.merge(
-        left=world_ahle_abt
-        ,right=wtavg[f"{PRODCOL}_perkgbm_wtavg2b"]
+    world_ahle_abt = pd.merge(left=world_ahle_abt ,right=median
         ,on=['species' ,'year' ,'region']
         ,how='left'
     )
-    # Get weighted average by group at most aggregate level
-    wtavg = weighted_average(world_ahle_abt ,AVG_VAR=f"{PRODCOL}_perkgbm" ,WT_VAR='biomass'
-        ,BY_VARS=['species' ,'year']
-        ,RESULT_SUFFIX='_wtavg3'
+
+    # Get median by group at most aggregate level
+    median = world_ahle_abt.pivot_table(
+       index=['species' ,'year']
+       ,values=f"{PRODCOL}_perkgbm" ,aggfunc='median'
     )
+    median = median.add_suffix('_median3')
     # Merge with data
-    world_ahle_abt = pd.merge(
-        left=world_ahle_abt
-        ,right=wtavg[f"{PRODCOL}_perkgbm_wtavg3"]
+    world_ahle_abt = pd.merge(left=world_ahle_abt ,right=median
         ,on=['species' ,'year']
         ,how='left'
     )
@@ -271,10 +354,14 @@ for PRODCOL in production_cols:
     world_ahle_abt[f"{PRODCOL}_perkgbm_raw"] = world_ahle_abt[f"{PRODCOL}_perkgbm"]      # Create copy of original column
     candidate_cols_inorder = [
         f"{PRODCOL}_perkgbm_raw"
-        ,f'{PRODCOL}_perkgbm_wtavg1'
-        ,f'{PRODCOL}_perkgbm_wtavg2a'
-        ,f'{PRODCOL}_perkgbm_wtavg2b'
-        ,f'{PRODCOL}_perkgbm_wtavg3'
+        # ,f'{PRODCOL}_perkgbm_wtavg1'
+        # ,f'{PRODCOL}_perkgbm_wtavg2a'
+        # ,f'{PRODCOL}_perkgbm_wtavg2b'
+        # ,f'{PRODCOL}_perkgbm_wtavg3'
+        ,f'{PRODCOL}_perkgbm_median1'
+        ,f'{PRODCOL}_perkgbm_median2a'
+        ,f'{PRODCOL}_perkgbm_median2b'
+        ,f'{PRODCOL}_perkgbm_median3'
         ]
     world_ahle_abt[f"{PRODCOL}_perkgbm"] = take_first_nonmissing(world_ahle_abt ,candidate_cols_inorder)
 
@@ -366,162 +453,236 @@ missing_price_wool = world_ahle_abt.query("producer_price_wool_lcupertonne.isnul
 missing_price_wool_species = list(missing_price_wool['species'].unique())
 
 # =============================================================================
-#### Apply exchange rates
+#### Calculate constant US dollars
 # =============================================================================
-for PRICE_BASE in price_cols_base:
-    # Calculate USD by appling exchange rate
-    world_ahle_abt[f"{PRICE_BASE}_usdpertonne"] = world_ahle_abt[f"{PRICE_BASE}_lcupertonne"] / world_ahle_abt["exchg_lcuperusd"]
+'''
+The World Bank and the IMF seem to agree on an approach for converting prices in LCU to constant US dollars:
+1. Convert LCU each year to constant price for a base year by adjusting for inflation.
+    Calculate the annual growth in constant LCU price.
+2. Convert LCU to USD for the base year by applying the exchange rate for that year.
+3. Apply the annual growth from step 1 to the USD price from step 2 to get the USD price each year.
 
-    # If LCU price is coded missing, code USD the same
+IMF:
+https://www.imf.org/external/pubs/ft/weo/faq.htm#q3c
+
+World Bank:
+These descriptions are not as clear, but upon re-reading, they seem to agree with the IMF.
+
+Short description:
+https://datahelpdesk.worldbank.org/knowledgebase/articles/114943-what-is-your-constant-u-s-dollar-methodology
+
+Longer description in paragraph 2:
+https://datahelpdesk.worldbank.org/knowledgebase/articles/114968-how-do-you-derive-your-constant-price-series-for-t
+'''
+def addcol_constant_currency(INPUT_DF ,CURRENCY_COLUMN ,CPI_COLUMN):
+    # Apply CPI ratio to get constant currency
+    # Using method from https://www.census.gov/topics/income-poverty/income/guidance/current-vs-constant-dollars.html
+    # Also explained here https://www.investopedia.com/terms/c/constantdollar.asp
+    constant_currency = INPUT_DF[CURRENCY_COLUMN] * (100 / INPUT_DF[CPI_COLUMN])  # Will return constant currency for same year that CPI is indexed to
+    return constant_currency
+
+for PRICE_BASE in price_cols_base:
+    # Convert LCU each year to constant price for reference year by adjusting for inflation
+    world_ahle_abt[f"{PRICE_BASE}_lcupertonne_cnst2010"] = \
+        addcol_constant_currency(world_ahle_abt ,f"{PRICE_BASE}_lcupertonne" ,'cpi_2010idx')
+
+    # If LCU price is coded missing, code constant price the same
     _row_selection = (world_ahle_abt[f"{PRICE_BASE}_lcupertonne"] == 999.999)
-    world_ahle_abt.loc[_row_selection ,f"{PRICE_BASE}_usdpertonne"] = 999.999
+    world_ahle_abt.loc[_row_selection ,f"{PRICE_BASE}_lcupertonne_cnst2010"] = 999.999
+
+    # Add reference year price as both LCU and USD to data, by country and species
+    ref_price_rows = (world_ahle_abt['year'] == 2010)
+    ref_price_columns = ['country' ,'species' ,f"{PRICE_BASE}_lcupertonne" ,f"{PRICE_BASE}_usdpertonne"]
+    ref_price_df = world_ahle_abt.loc[ref_price_rows ,ref_price_columns]
+
+    ref_price_df = ref_price_df.set_index(keys=['country' ,'species'] ,drop=True ,append=False)
+    ref_price_df = ref_price_df.add_suffix('_2010')
+    world_ahle_abt = pd.merge(left=world_ahle_abt ,right=ref_price_df ,on=['country' ,'species'] ,how='left')
+
+    # Calculate the annual growth in LCU from reference year
+    world_ahle_abt[f"{PRICE_BASE}_lcupertonne_growth"] = \
+        world_ahle_abt[f"{PRICE_BASE}_lcupertonne_cnst2010"] / world_ahle_abt[f"{PRICE_BASE}_lcupertonne_2010"]
+
+    # Apply the annual growth in LCU to the USD price for reference year
+    world_ahle_abt[f"{PRICE_BASE}_usdpertonne_cnst2010"] = \
+        world_ahle_abt[f"{PRICE_BASE}_usdpertonne_2010"] * world_ahle_abt[f"{PRICE_BASE}_lcupertonne_growth"]
 
 datainfo(world_ahle_abt)
+
+# =============================================================================
+#### Apply exchange rates
+# =============================================================================
+# for PRICE_BASE in price_cols_base:
+#     # Calculate USD by appling exchange rate
+#     world_ahle_abt[f"{PRICE_BASE}_usdpertonne_calc"] = world_ahle_abt[f"{PRICE_BASE}_lcupertonne"] / world_ahle_abt["exchg_lcuperusd"]
+
+#     # If LCU price is coded missing, code USD the same
+#     _row_selection = (world_ahle_abt[f"{PRICE_BASE}_lcupertonne"] == 999.999)
+#     world_ahle_abt.loc[_row_selection ,f"{PRICE_BASE}_usdpertonne_calc"] = 999.999
+
+# datainfo(world_ahle_abt)
 
 # -----------------------------------------------------------------------------
 # Explore
 # -----------------------------------------------------------------------------
-# What is the distribution of price for each product in USD per tonne?
-# Huge variation
+# # Are there differences between USD prices as reported by FAO and as calculated by me?
+# # Yes. Particularly in countries that had wild currency fluctuations where World Bank exchange rate didn't adjust.
+# for PRICE_BASE in price_cols_base:
+#     world_ahle_abt[f'check_diff_{PRICE_BASE}_usdpertonne'] = \
+#         world_ahle_abt[f"{PRICE_BASE}_usdpertonne_calc"] / world_ahle_abt[f"{PRICE_BASE}_usdpertonne"]
+
+# # Test: Does order matter for inflation adjustment and exchange rate calcs?
+# for PRICE_BASE in price_cols_base:
+#     # First adjust for inflation, then apply exchange rate
+#     world_ahle_abt[f"{PRICE_BASE}_lcupertonne_cnst"] = \
+#         addcol_constant_currency(world_ahle_abt ,f"{PRICE_BASE}_lcupertonne" ,'cpi_2010idx')
+#     world_ahle_abt[f"{PRICE_BASE}_cnst_exchg"] = world_ahle_abt[f"{PRICE_BASE}_lcupertonne_cnst"] / world_ahle_abt["exchg_lcuperusd"]
+
+#     # First apply exchange rate, then adjust for inflation
+#     world_ahle_abt[f"{PRICE_BASE}_usdpertonne_calc"] = world_ahle_abt[f"{PRICE_BASE}_lcupertonne"] / world_ahle_abt["exchg_lcuperusd"]
+#     world_ahle_abt[f"{PRICE_BASE}_exchg_cnst"] = \
+#         addcol_constant_currency(world_ahle_abt ,f"{PRICE_BASE}_usdpertonne_calc" ,'cpi_2010idx')
+
+# What is the distribution of price for each product in constant USD per tonne?
 for PRICE_BASE in price_cols_base:
     # Global
     snplt = sns.catplot(
         data=world_ahle_abt
-        ,y=f"{PRICE_BASE}_usdpertonne"
+        ,y=f"{PRICE_BASE}_usdpertonne_cnst2010"
         ,kind='box'
         ,orient='v'
         )
-    plt.title(f"Distribution Globally\n{PRICE_BASE}_usdpertonne")
+    plt.title(f"Distribution Globally\n{PRICE_BASE} per tonne in constant 2010 USD")
 
     # By Region
     snplt = sns.catplot(
         data=world_ahle_abt
         ,x='region'
-        ,y=f"{PRICE_BASE}_usdpertonne"
+        ,y=f"{PRICE_BASE}_usdpertonne_cnst2010"
         ,kind='box'
         ,orient='v'
         )
-    plt.title(f"Distribution by Region\n{PRICE_BASE}_usdpertonne")
+    plt.title(f"Distribution by Region\n{PRICE_BASE} per tonne in constant 2010 USD")
 
     # By Income group
     snplt = sns.catplot(
         data=world_ahle_abt
         ,x='incomegroup'
-        ,y=f"{PRICE_BASE}_usdpertonne"
+        ,y=f"{PRICE_BASE}_usdpertonne_cnst2010"
         ,kind='box'
         ,orient='v'
         )
-    plt.title(f"Distribution by Income Group\n{PRICE_BASE}_usdpertonne")
+    plt.title(f"Distribution by Income Group\n{PRICE_BASE} per tonne in constant 2010 USD")
 
-# Identify countries with outlier prices for each species and year
-# Above 20k USD per tonne
-_row_selection = (world_ahle_abt['producer_price_meat_usdpertonne'] > 20000)
-high_prices_meat = world_ahle_abt.loc[_row_selection].copy()
-high_prices_meat_countries = list(high_prices_meat['country'].unique())
+# # Identify countries with outlier prices for each species and year
+# # Above 20k USD per tonne
+# _row_selection = (world_ahle_abt['producer_price_meat_usdpertonne'] > 20000)
+# high_prices_meat = world_ahle_abt.loc[_row_selection].copy()
+# high_prices_meat_countries = list(high_prices_meat['country'].unique())
 
 # =============================================================================
 #### Impute
 # =============================================================================
 # -----------------------------------------------------------------------------
 # Get average price in USD for each species, year, region, and income group,
-# weighted by production
+# weighted by production.
+# UPDATE: Using median price instead of average as it is robust to outliers.
 # Does not make sense to take average LCU across multiple countries!
 # Convert to USD first, and maybe constant 2010 dollars, and then find averages.
 # -----------------------------------------------------------------------------
-wtavg1_price_meat = weighted_average(
-    world_ahle_abt
-    ,AVG_VAR="producer_price_meat_usdpertonne"
-    ,WT_VAR='production_meat_tonnes'
-    ,BY_VARS=['species' ,'year' ,'region' ,'incomegroup']
-)
-wtavg2a_price_meat = weighted_average(
-    world_ahle_abt
-    ,AVG_VAR="producer_price_meat_usdpertonne"
-    ,WT_VAR='production_meat_tonnes'
-    ,BY_VARS=['species' ,'year' ,'incomegroup']
-)
-wtavg2b_price_meat = weighted_average(
-    world_ahle_abt
-    ,AVG_VAR="producer_price_meat_usdpertonne"
-    ,WT_VAR='production_meat_tonnes'
-    ,BY_VARS=['species' ,'year' ,'region']
-)
-wtavg3_price_meat = weighted_average(
-    world_ahle_abt
-    ,AVG_VAR="producer_price_meat_usdpertonne"
-    ,WT_VAR='production_meat_tonnes'
-    ,BY_VARS=['species' ,'year']
-)
+# wtavg1_price_meat = weighted_average(
+#     world_ahle_abt
+#     ,AVG_VAR="producer_price_meat_usdpertonne"
+#     ,WT_VAR='production_meat_tonnes'
+#     ,BY_VARS=['species' ,'year' ,'region' ,'incomegroup']
+# )
+# wtavg2a_price_meat = weighted_average(
+#     world_ahle_abt
+#     ,AVG_VAR="producer_price_meat_usdpertonne"
+#     ,WT_VAR='production_meat_tonnes'
+#     ,BY_VARS=['species' ,'year' ,'incomegroup']
+# )
+# wtavg2b_price_meat = weighted_average(
+#     world_ahle_abt
+#     ,AVG_VAR="producer_price_meat_usdpertonne"
+#     ,WT_VAR='production_meat_tonnes'
+#     ,BY_VARS=['species' ,'year' ,'region']
+# )
+# wtavg3_price_meat = weighted_average(
+#     world_ahle_abt
+#     ,AVG_VAR="producer_price_meat_usdpertonne"
+#     ,WT_VAR='production_meat_tonnes'
+#     ,BY_VARS=['species' ,'year']
+# )
 
-price_weight_lookup = {
-    'producer_price_eggs_usdpertonne':'production_eggs_tonnes'
-    ,'producer_price_meat_usdpertonne':'production_meat_tonnes'
-    ,'producer_price_meat_live_usdpertonne':'production_meat_tonnes'
-    ,'producer_price_milk_usdpertonne':'production_milk_tonnes'
-    ,'producer_price_wool_usdpertonne':'production_wool_tonnes'
-}
-for PRICE ,WEIGHT in price_weight_lookup.items():
-# =============================================================================
-#     # -----------------------------------------------------------------------------
-#     # Calculate average price in USD at different aggregation levels
-#     # -----------------------------------------------------------------------------
-#     # Get weighted average by group at least aggregate level
-#     wtavg = weighted_average(INPUT_DF=world_ahle_abt ,AVG_VAR=PRICE ,WT_VAR=WEIGHT
-#         ,BY_VARS=['species' ,'year' ,'region' ,'incomegroup']
-#         ,RESULT_SUFFIX='_wtavg1'
-#     )
-#     # Merge with data
-#     world_ahle_abt = pd.merge(
-#         left=world_ahle_abt
-#         ,right=wtavg[f"{PRICE}_wtavg1"]
-#         ,on=['species' ,'year' ,'region' ,'incomegroup']
-#         ,how='left'
-#     )
-#     # Get weighted average by group at middle aggregate level
-#     wtavg = weighted_average(INPUT_DF=world_ahle_abt ,AVG_VAR=PRICE ,WT_VAR=WEIGHT
-#         ,BY_VARS=['species' ,'year' ,'incomegroup']
-#         ,RESULT_SUFFIX='_wtavg2a'
-#     )
-#     # Merge with data
-#     world_ahle_abt = pd.merge(
-#         left=world_ahle_abt
-#         ,right=wtavg[f"{PRICE}_wtavg2a"]
-#         ,on=['species' ,'year' ,'incomegroup']
-#         ,how='left'
-#     )
-#     # Get weighted average by group at middle aggregate level
-#     wtavg = weighted_average(INPUT_DF=world_ahle_abt ,AVG_VAR=PRICE ,WT_VAR=WEIGHT
-#         ,BY_VARS=['species' ,'year' ,'region']
-#         ,RESULT_SUFFIX='_wtavg2b'
-#     )
-#     # Merge with data
-#     world_ahle_abt = pd.merge(
-#         left=world_ahle_abt
-#         ,right=wtavg[f"{PRICE}_wtavg2b"]
-#         ,on=['species' ,'year' ,'region']
-#         ,how='left'
-#     )
-#     # Get weighted average by group at most aggregate level
-#     wtavg = weighted_average(INPUT_DF=world_ahle_abt ,AVG_VAR=PRICE ,WT_VAR=WEIGHT
-#         ,BY_VARS=['species' ,'year']
-#         ,RESULT_SUFFIX='_wtavg3'
-#     )
-#     # Merge with data
-#     world_ahle_abt = pd.merge(
-#         left=world_ahle_abt
-#         ,right=wtavg[f"{PRICE}_wtavg3"]
-#         ,on=['species' ,'year']
-#         ,how='left'
-#     )
-#
-# =============================================================================
+# price_weight_lookup = {
+#     'producer_price_eggs_usdpertonne':'production_eggs_tonnes'
+#     ,'producer_price_meat_usdpertonne':'production_meat_tonnes'
+#     ,'producer_price_meat_live_usdpertonne':'production_meat_tonnes'
+#     ,'producer_price_milk_usdpertonne':'production_milk_tonnes'
+#     ,'producer_price_wool_usdpertonne':'production_wool_tonnes'
+# }
+# for PRICE ,WEIGHT in price_weight_lookup.items():
+    # # -----------------------------------------------------------------------------
+    # # Calculate average price in USD at different aggregation levels
+    # # -----------------------------------------------------------------------------
+    # # Get weighted average by group at least aggregate level
+    # wtavg = weighted_average(INPUT_DF=world_ahle_abt ,AVG_VAR=PRICE ,WT_VAR=WEIGHT
+    #     ,BY_VARS=['species' ,'year' ,'region' ,'incomegroup']
+    #     ,RESULT_SUFFIX='_wtavg1'
+    # )
+    # # Merge with data
+    # world_ahle_abt = pd.merge(
+    #     left=world_ahle_abt
+    #     ,right=wtavg[f"{PRICE}_wtavg1"]
+    #     ,on=['species' ,'year' ,'region' ,'incomegroup']
+    #     ,how='left'
+    # )
+    # # Get weighted average by group at middle aggregate level
+    # wtavg = weighted_average(INPUT_DF=world_ahle_abt ,AVG_VAR=PRICE ,WT_VAR=WEIGHT
+    #     ,BY_VARS=['species' ,'year' ,'incomegroup']
+    #     ,RESULT_SUFFIX='_wtavg2a'
+    # )
+    # # Merge with data
+    # world_ahle_abt = pd.merge(
+    #     left=world_ahle_abt
+    #     ,right=wtavg[f"{PRICE}_wtavg2a"]
+    #     ,on=['species' ,'year' ,'incomegroup']
+    #     ,how='left'
+    # )
+    # # Get weighted average by group at middle aggregate level
+    # wtavg = weighted_average(INPUT_DF=world_ahle_abt ,AVG_VAR=PRICE ,WT_VAR=WEIGHT
+    #     ,BY_VARS=['species' ,'year' ,'region']
+    #     ,RESULT_SUFFIX='_wtavg2b'
+    # )
+    # # Merge with data
+    # world_ahle_abt = pd.merge(
+    #     left=world_ahle_abt
+    #     ,right=wtavg[f"{PRICE}_wtavg2b"]
+    #     ,on=['species' ,'year' ,'region']
+    #     ,how='left'
+    # )
+    # # Get weighted average by group at most aggregate level
+    # wtavg = weighted_average(INPUT_DF=world_ahle_abt ,AVG_VAR=PRICE ,WT_VAR=WEIGHT
+    #     ,BY_VARS=['species' ,'year']
+    #     ,RESULT_SUFFIX='_wtavg3'
+    # )
+    # # Merge with data
+    # world_ahle_abt = pd.merge(
+    #     left=world_ahle_abt
+    #     ,right=wtavg[f"{PRICE}_wtavg3"]
+    #     ,on=['species' ,'year']
+    #     ,how='left'
+    # )
+
+for PRICE_BASE in price_cols_base:
     # -----------------------------------------------------------------------------
     # Alternative: get median price in USD at different aggregation levels
     # -----------------------------------------------------------------------------
     # Get median by group at least aggregate level
     median = world_ahle_abt.pivot_table(
        index=['species' ,'year' ,'region' ,'incomegroup']
-       ,values=PRICE ,aggfunc='median'
+       ,values=f"{PRICE_BASE}_usdpertonne_cnst2010" ,aggfunc='median'
     )
     median = median.add_suffix('_median1')
     # Merge with data
@@ -533,7 +694,7 @@ for PRICE ,WEIGHT in price_weight_lookup.items():
     # Get median by group at mid aggregate level
     median = world_ahle_abt.pivot_table(
        index=['species' ,'year' ,'incomegroup']
-       ,values=PRICE ,aggfunc='median'
+       ,values=f"{PRICE_BASE}_usdpertonne_cnst2010" ,aggfunc='median'
     )
     median = median.add_suffix('_median2a')
     # Merge with data
@@ -545,7 +706,7 @@ for PRICE ,WEIGHT in price_weight_lookup.items():
     # Get median by group at mid aggregate level
     median = world_ahle_abt.pivot_table(
        index=['species' ,'year' ,'region']
-       ,values=PRICE ,aggfunc='median'
+       ,values=f"{PRICE_BASE}_usdpertonne_cnst2010" ,aggfunc='median'
     )
     median = median.add_suffix('_median2b')
     # Merge with data
@@ -557,7 +718,7 @@ for PRICE ,WEIGHT in price_weight_lookup.items():
     # Get median by group at most aggregate level
     median = world_ahle_abt.pivot_table(
        index=['species' ,'year']
-       ,values=PRICE ,aggfunc='median'
+       ,values=f"{PRICE_BASE}_usdpertonne_cnst2010" ,aggfunc='median'
     )
     median = median.add_suffix('_median3')
     # Merge with data
@@ -569,59 +730,60 @@ for PRICE ,WEIGHT in price_weight_lookup.items():
     # -----------------------------------------------------------------------------
     # Where price in USD is missing, fill with average
     # -----------------------------------------------------------------------------
-    _null_rows = (world_ahle_abt[PRICE].isnull())
-    print(f"> Filling {_null_rows.sum() :,} rows where {PRICE} is missing.")
+    _null_rows = (world_ahle_abt[f"{PRICE_BASE}_usdpertonne_cnst2010"].isnull())
+    print(f"> Filling {_null_rows.sum() :,} rows where {PRICE_BASE}_usdpertonne_cnst2010 is missing.")
 
-    world_ahle_abt[f"{PRICE}_raw"] = world_ahle_abt[PRICE]      # Create copy of original column
+    world_ahle_abt[f"{PRICE_BASE}_usdpertonne_cnst2010_raw"] = world_ahle_abt[f"{PRICE_BASE}_usdpertonne_cnst2010"]      # Create copy of original column
     candidate_cols_inorder = [
-        f"{PRICE}_raw"
+        f"{PRICE_BASE}_usdpertonne_cnst2010_raw"
         # ,f'{PRICE}_wtavg1'
         # ,f'{PRICE}_wtavg2a'
         # ,f'{PRICE}_wtavg2b'
         # ,f'{PRICE}_wtavg3'
-        ,f'{PRICE}_median1'
-        ,f'{PRICE}_median2a'
-        ,f'{PRICE}_median2b'
-        ,f'{PRICE}_median3'
+        ,f'{PRICE_BASE}_usdpertonne_cnst2010_median1'
+        ,f'{PRICE_BASE}_usdpertonne_cnst2010_median2a'
+        ,f'{PRICE_BASE}_usdpertonne_cnst2010_median2b'
+        ,f'{PRICE_BASE}_usdpertonne_cnst2010_median3'
         ]
-    world_ahle_abt[PRICE] = take_first_nonmissing(world_ahle_abt ,candidate_cols_inorder)
+    world_ahle_abt[f"{PRICE_BASE}_usdpertonne_cnst2010"] = take_first_nonmissing(world_ahle_abt ,candidate_cols_inorder)
 
     # -----------------------------------------------------------------------------
     # Replace coded values (supposed to be missing) with np.nan
     # -----------------------------------------------------------------------------
-    world_ahle_abt[PRICE] = world_ahle_abt[PRICE].replace(999.999 ,np.nan)
+    world_ahle_abt[f"{PRICE_BASE}_lcupertonne"] = world_ahle_abt[f"{PRICE_BASE}_lcupertonne"].replace(999.999 ,np.nan)
+    world_ahle_abt[f"{PRICE_BASE}_usdpertonne"] = world_ahle_abt[f"{PRICE_BASE}_usdpertonne"].replace(999.999 ,np.nan)
+    world_ahle_abt[f"{PRICE_BASE}_lcupertonne_cnst2010"] = world_ahle_abt[f"{PRICE_BASE}_lcupertonne_cnst2010"].replace(999.999 ,np.nan)
+    world_ahle_abt[f"{PRICE_BASE}_lcupertonne_2010"] = world_ahle_abt[f"{PRICE_BASE}_lcupertonne_2010"].replace(999.999 ,np.nan)
+    world_ahle_abt[f"{PRICE_BASE}_usdpertonne_2010"] = world_ahle_abt[f"{PRICE_BASE}_usdpertonne_2010"].replace(999.999 ,np.nan)
+    world_ahle_abt[f"{PRICE_BASE}_lcupertonne_growth"] = world_ahle_abt[f"{PRICE_BASE}_lcupertonne_growth"].replace(1 ,np.nan)
+    world_ahle_abt[f"{PRICE_BASE}_usdpertonne_cnst2010"] = world_ahle_abt[f"{PRICE_BASE}_usdpertonne_cnst2010"].replace(999.999 ,np.nan)
 
 datainfo(world_ahle_abt)
 
-# -----------------------------------------------------------------------------
-# Recalculate price in LCU
-# -----------------------------------------------------------------------------
-for PRICE_BASE in price_cols_base:
-    world_ahle_abt.eval(
-        f'''
-        {PRICE_BASE}_lcupertonne_raw = {PRICE_BASE}_lcupertonne
-        {PRICE_BASE}_lcupertonne = {PRICE_BASE}_usdpertonne * exchg_lcuperusd
-        '''
-        ,inplace=True
-    )
-
-# -----------------------------------------------------------------------------
-# Alternative: For meat (dead) and meat (live) prices, if one is non-missing,
-# set the other using a conversion rate
-# -----------------------------------------------------------------------------
+# # -----------------------------------------------------------------------------
+# # Recalculate price in LCU
+# # -----------------------------------------------------------------------------
+# for PRICE_BASE in price_cols_base:
+#     world_ahle_abt.eval(
+#         f'''
+#         {PRICE_BASE}_lcupertonne_raw = {PRICE_BASE}_lcupertonne
+#         {PRICE_BASE}_lcupertonne = {PRICE_BASE}_usdpertonne * exchg_lcuperusd
+#         '''
+#         ,inplace=True
+#     )
 
 # =============================================================================
 #### Checks
 # =============================================================================
-# Check meat vs. live meat price for each country, species, and year
-world_ahle_abt.eval(
-    '''
-    check_price_meat_vs_live = producer_price_meat_usdpertonne / producer_price_meat_live_usdpertonne
-    check_price_raw_meat_vs_live = producer_price_meat_usdpertonne_raw / producer_price_meat_live_usdpertonne_raw
-    '''
-    ,inplace=True
-)
-datainfo(world_ahle_abt)
+# # Check meat vs. live meat price for each country, species, and year
+# world_ahle_abt.eval(
+#     '''
+#     check_price_meat_vs_live = producer_price_meat_usdpertonne / producer_price_meat_live_usdpertonne
+#     check_price_raw_meat_vs_live = producer_price_meat_usdpertonne_raw / producer_price_meat_live_usdpertonne_raw
+#     '''
+#     ,inplace=True
+# )
+# datainfo(world_ahle_abt)
 
 # =============================================================================
 #### Summarize imputation changes
@@ -629,16 +791,11 @@ datainfo(world_ahle_abt)
 # Note: if original column was missing, it will not be counted as different from
 # the imputed value.
 imputed_cols = [
-    'producer_price_eggs_lcupertonne'
-    ,'producer_price_meat_lcupertonne'
-    ,'producer_price_meat_live_lcupertonne'
-    ,'producer_price_milk_lcupertonne'
-    ,'producer_price_wool_lcupertonne'
-    ,'producer_price_eggs_usdpertonne'
-    ,'producer_price_meat_usdpertonne'
-    ,'producer_price_meat_live_usdpertonne'
-    ,'producer_price_milk_usdpertonne'
-    ,'producer_price_wool_usdpertonne'
+    'producer_price_eggs_usdpertonne_cnst2010'
+    ,'producer_price_meat_usdpertonne_cnst2010'
+    ,'producer_price_meat_live_usdpertonne_cnst2010'
+    ,'producer_price_milk_usdpertonne_cnst2010'
+    ,'producer_price_wool_usdpertonne_cnst2010'
 ]
 
 for COL in imputed_cols:
@@ -688,16 +845,25 @@ vars_for_distributions = [
     ,'production_wool_tonnes'
     ,'production_wool_tonnes_perkgbm'
 
-    ,'producer_price_eggs_lcupertonne'
-    ,'producer_price_eggs_usdpertonne'
-    ,'producer_price_meat_lcupertonne'
-    ,'producer_price_meat_usdpertonne'
-    ,'producer_price_meat_live_lcupertonne'
-    ,'producer_price_meat_live_usdpertonne'
-    ,'producer_price_milk_lcupertonne'
-    ,'producer_price_milk_usdpertonne'
-    ,'producer_price_wool_lcupertonne'
-    ,'producer_price_wool_usdpertonne'
+    # ,'producer_price_eggs_lcupertonne'
+    # ,'producer_price_eggs_usdpertonne'
+    ,'producer_price_eggs_usdpertonne_cnst2010'
+
+    # ,'producer_price_meat_lcupertonne'
+    # ,'producer_price_meat_usdpertonne'
+    ,'producer_price_meat_usdpertonne_cnst2010'
+
+    # ,'producer_price_meat_live_lcupertonne'
+    # ,'producer_price_meat_live_usdpertonne'
+    ,'producer_price_meat_live_usdpertonne_cnst2010'
+
+    # ,'producer_price_milk_lcupertonne'
+    # ,'producer_price_milk_usdpertonne'
+    ,'producer_price_milk_usdpertonne_cnst2010'
+
+    # ,'producer_price_wool_lcupertonne'
+    # ,'producer_price_wool_usdpertonne'
+    ,'producer_price_wool_usdpertonne_cnst2010'
 ]
 dist_bycountryspecies_aslist = []   # Initialize
 for VAR in vars_for_distributions:
@@ -752,10 +918,14 @@ dist_bycountryspecies.to_csv(os.path.join(PROGRAM_OUTPUT_FOLDER ,'check_distribu
 # =============================================================================
 #### Cleanup
 # =============================================================================
-# Remove average columns
+# Remove intermediate columns
 wtavg_cols = [i for i in list(world_ahle_abt) if '_wtavg' in i]
 median_cols = [i for i in list(world_ahle_abt) if '_median' in i]
-world_ahle_abt = world_ahle_abt.drop(columns=wtavg_cols ,errors='ignore')
+intermed_price_cols = [i for i in list(world_ahle_abt) if 'pertonne_2010' in i]
+intermed_price_cols2 = [i for i in list(world_ahle_abt) if 'pertonne_growth' in i]
+
+dropcols = wtavg_cols + median_cols + intermed_price_cols + intermed_price_cols2
+world_ahle_abt = world_ahle_abt.drop(columns=dropcols ,errors='ignore')
 
 datainfo(world_ahle_abt)
 

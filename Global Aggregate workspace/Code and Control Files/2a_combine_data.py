@@ -206,164 +206,240 @@ fao_stocks_cols = [i for i in list(fao_production_p) if 'stocks' in i]
 
 # Set production to zero for items that don't apply to a species
 # Set prices to a coded value (np.nan) for items that don't apply to a species
+# Note: using Standard Local Currency from FAO.
+'''
+The Standard Local Currency of a country is set as the local currency prevailing in the current year.
+Prices in SLC are equal to producer prices in local currency multiplied by currency conversion factors.
+Currency conversion factors (CCF) are a special kind of exchange rates that convert the new currency
+of a given country into the old currency of the same country.
+These series are consistent over time and do not breaks when a currency change occurs.
+Source: FAO Statistics Division
+'''
 def assign_columns_to_species(INPUT_ROW):
-   if INPUT_ROW['species'].upper() == 'BUFFALOES':
-       stocks_hd = INPUT_ROW['stocks_buffaloes_head']
+    if INPUT_ROW['species'].upper() == 'BUFFALOES':
+        stocks_hd = INPUT_ROW['stocks_buffaloes_head']
 
-       prod_eggs = 0
-       prod_hides = INPUT_ROW['production_hides_buffalo_fresh_tonnes']
-       prod_meat = INPUT_ROW['production_meat_buffalo_tonnes']
-       prod_milk = INPUT_ROW['production_milk_whole_fresh_buffalo_tonnes']
-       prod_wool = 0
+        prod_eggs = 0
+        prod_hides = INPUT_ROW['production_hides_buffalo_fresh_tonnes']
+        prod_meat = INPUT_ROW['production_meat_buffalo_tonnes']
+        prod_milk = INPUT_ROW['production_milk_whole_fresh_buffalo_tonnes']
+        prod_wool = 0
 
-       price_eggs = 999.999
-       price_meat = INPUT_ROW['producer_price_meat_buffalo_lcupertonne']
-       price_meat_live = INPUT_ROW['producer_price_meat_livewt_buffalo_lcupertonne']
-       price_milk = INPUT_ROW['producer_price_milk_whole_fresh_buffalo_lcupertonne']
-       price_wool = 999.999
-   elif INPUT_ROW['species'].upper() == 'CAMELS':
-       stocks_hd = INPUT_ROW['stocks_camels_head']
+        price_eggs_lcu = 999.999
+        price_meat_lcu = INPUT_ROW['producer_price_meat_buffalo_slcpertonne']
+        price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_buffalo_slcpertonne']
+        price_milk_lcu = INPUT_ROW['producer_price_milk_whole_fresh_buffalo_slcpertonne']
+        price_wool_lcu = 999.999
 
-       prod_eggs = 0
-       prod_hides = 0
-       prod_meat = INPUT_ROW['production_meat_camel_tonnes']
-       prod_milk = INPUT_ROW['production_milk_whole_fresh_camel_tonnes']
-       prod_wool = 0
+        price_eggs_usd = 999.999
+        price_meat_usd = INPUT_ROW['producer_price_meat_buffalo_usdpertonne']
+        price_meat_live_usd = INPUT_ROW['producer_price_meat_livewt_buffalo_usdpertonne']
+        price_milk_usd = INPUT_ROW['producer_price_milk_whole_fresh_buffalo_usdpertonne']
+        price_wool_usd = 999.999
+    elif INPUT_ROW['species'].upper() == 'CAMELS':
+        stocks_hd = INPUT_ROW['stocks_camels_head']
 
-       price_eggs = 999.999
-       price_meat = INPUT_ROW['producer_price_meat_camel_lcupertonne']
-       price_meat_live = INPUT_ROW['producer_price_meat_livewt_camel_lcupertonne']
-       price_milk = INPUT_ROW['producer_price_milk_whole_fresh_camel_lcupertonne']
-       price_wool = 999.999
-   elif INPUT_ROW['species'].upper() == 'CATTLE':
-       stocks_hd = INPUT_ROW['stocks_cattle_head']
+        prod_eggs = 0
+        prod_hides = 0
+        prod_meat = INPUT_ROW['production_meat_camel_tonnes']
+        prod_milk = INPUT_ROW['production_milk_whole_fresh_camel_tonnes']
+        prod_wool = 0
 
-       prod_eggs = 0
-       prod_hides = INPUT_ROW['production_hides_cattle_fresh_tonnes']
-       prod_meat = INPUT_ROW['production_meat_cattle_tonnes']
-       prod_milk = INPUT_ROW['production_milk_whole_fresh_cow_tonnes']
-       prod_wool = 0
+        price_eggs_lcu = 999.999
+        price_meat_lcu = INPUT_ROW['producer_price_meat_camel_slcpertonne']
+        price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_camel_slcpertonne']
+        price_milk_lcu = INPUT_ROW['producer_price_milk_whole_fresh_camel_slcpertonne']
+        price_wool_lcu = 999.999
 
-       price_eggs = 999.999
-       price_meat = INPUT_ROW['producer_price_meat_cattle_lcupertonne']
-       price_meat_live = INPUT_ROW['producer_price_meat_livewt_cattle_lcupertonne']
-       price_milk = INPUT_ROW['producer_price_milk_whole_fresh_cow_lcupertonne']
-       price_wool = 999.999
-   elif INPUT_ROW['species'].upper() == 'CHICKENS':
-       stocks_hd = INPUT_ROW['stocks_chickens_1000_head'] * 1000
+        price_eggs_usd = 999.999
+        price_meat_usd = INPUT_ROW['producer_price_meat_camel_usdpertonne']
+        price_meat_live_usd = INPUT_ROW['producer_price_meat_livewt_camel_usdpertonne']
+        price_milk_usd = INPUT_ROW['producer_price_milk_whole_fresh_camel_usdpertonne']
+        price_wool_usd = 999.999
+    elif INPUT_ROW['species'].upper() == 'CATTLE':
+        stocks_hd = INPUT_ROW['stocks_cattle_head']
 
-       prod_eggs = INPUT_ROW['production_eggs_hen_in_shell_tonnes']
-       prod_hides = 0
-       prod_meat = INPUT_ROW['production_meat_chicken_tonnes']
-       prod_milk = 0
-       prod_wool = 0
+        prod_eggs = 0
+        prod_hides = INPUT_ROW['production_hides_cattle_fresh_tonnes']
+        prod_meat = INPUT_ROW['production_meat_cattle_tonnes']
+        prod_milk = INPUT_ROW['production_milk_whole_fresh_cow_tonnes']
+        prod_wool = 0
 
-       price_eggs = INPUT_ROW['producer_price_eggs_hen_in_shell_lcupertonne']
-       price_meat = INPUT_ROW['producer_price_meat_chicken_lcupertonne']
-       price_meat_live = INPUT_ROW['producer_price_meat_livewt_chicken_lcupertonne']
-       price_milk = 999.999
-       price_wool = 999.999
-   elif INPUT_ROW['species'].upper() == 'DUCKS':
-       stocks_hd = INPUT_ROW['stocks_ducks_1000_head'] * 1000
+        price_eggs_lcu = 999.999
+        price_meat_lcu = INPUT_ROW['producer_price_meat_cattle_slcpertonne']
+        price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_cattle_slcpertonne']
+        price_milk_lcu = INPUT_ROW['producer_price_milk_whole_fresh_cow_slcpertonne']
+        price_wool_lcu = 999.999
 
-       prod_eggs = 0
-       prod_hides = 0
-       prod_meat = INPUT_ROW['production_meat_duck_tonnes']
-       prod_milk = 0
-       prod_wool = 0
+        price_eggs_usd = 999.999
+        price_meat_usd = INPUT_ROW['producer_price_meat_cattle_usdpertonne']
+        price_meat_live_usd = INPUT_ROW['producer_price_meat_livewt_cattle_usdpertonne']
+        price_milk_usd = INPUT_ROW['producer_price_milk_whole_fresh_cow_usdpertonne']
+        price_wool_usd = 999.999
+    elif INPUT_ROW['species'].upper() == 'CHICKENS':
+        stocks_hd = INPUT_ROW['stocks_chickens_1000_head'] * 1000
 
-       price_eggs = 999.999
-       price_meat = INPUT_ROW['producer_price_meat_duck_lcupertonne']
-       price_meat_live = INPUT_ROW['producer_price_meat_livewt_duck_lcupertonne']
-       price_milk = 999.999
-       price_wool = 999.999
-   elif INPUT_ROW['species'].upper() == 'GOATS':
-       stocks_hd = INPUT_ROW['stocks_goats_head']
+        prod_eggs = INPUT_ROW['production_eggs_hen_in_shell_tonnes']
+        prod_hides = 0
+        prod_meat = INPUT_ROW['production_meat_chicken_tonnes']
+        prod_milk = 0
+        prod_wool = 0
 
-       prod_eggs = 0
-       prod_hides = 0
-       prod_meat = INPUT_ROW['production_meat_goat_tonnes']
-       prod_milk = INPUT_ROW['production_milk_whole_fresh_goat_tonnes']
-       prod_wool = 0
+        price_eggs_lcu = INPUT_ROW['producer_price_eggs_hen_in_shell_slcpertonne']
+        price_meat_lcu = INPUT_ROW['producer_price_meat_chicken_slcpertonne']
+        price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_chicken_slcpertonne']
+        price_milk_lcu = 999.999
+        price_wool_lcu = 999.999
 
-       price_eggs = 999.999
-       price_meat = INPUT_ROW['producer_price_meat_goat_lcupertonne']
-       price_meat_live = INPUT_ROW['producer_price_meat_livewt_goat_lcupertonne']
-       price_milk = INPUT_ROW['producer_price_milk_whole_fresh_goat_lcupertonne']
-       price_wool = 999.999
-   elif INPUT_ROW['species'].upper() == 'HORSES':
-       stocks_hd = INPUT_ROW['stocks_horses_head']
+        price_eggs_usd = INPUT_ROW['producer_price_eggs_hen_in_shell_usdpertonne']
+        price_meat_usd = INPUT_ROW['producer_price_meat_chicken_usdpertonne']
+        price_meat_live_usd = INPUT_ROW['producer_price_meat_livewt_chicken_usdpertonne']
+        price_milk_usd = 999.999
+        price_wool_usd = 999.999
+    elif INPUT_ROW['species'].upper() == 'DUCKS':
+        stocks_hd = INPUT_ROW['stocks_ducks_1000_head'] * 1000
 
-       prod_eggs = 0
-       prod_hides = 0
-       prod_meat = INPUT_ROW['production_meat_horse_tonnes']
-       prod_milk = 0
-       prod_wool = 0
+        prod_eggs = 0
+        prod_hides = 0
+        prod_meat = INPUT_ROW['production_meat_duck_tonnes']
+        prod_milk = 0
+        prod_wool = 0
 
-       price_eggs = 999.999
-       price_meat = INPUT_ROW['producer_price_meat_horse_lcupertonne']
-       price_meat_live = INPUT_ROW['producer_price_meat_livewt_horse_lcupertonne']
-       price_milk = 999.999
-       price_wool = 999.999
-   elif INPUT_ROW['species'].upper() == 'PIGS':
-       stocks_hd = INPUT_ROW['stocks_pigs_head']
+        price_eggs_lcu = 999.999
+        price_meat_lcu = INPUT_ROW['producer_price_meat_duck_slcpertonne']
+        price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_duck_slcpertonne']
+        price_milk_lcu = 999.999
+        price_wool_lcu = 999.999
 
-       prod_eggs = 0
-       prod_hides = 0
-       prod_meat = INPUT_ROW['production_meat_pig_tonnes']
-       prod_milk = 0
-       prod_wool = 0
+        price_eggs_usd = 999.999
+        price_meat_usd = INPUT_ROW['producer_price_meat_duck_usdpertonne']
+        price_meat_live_usd = INPUT_ROW['producer_price_meat_livewt_duck_usdpertonne']
+        price_milk_usd = 999.999
+        price_wool_usd = 999.999
+    elif INPUT_ROW['species'].upper() == 'GOATS':
+        stocks_hd = INPUT_ROW['stocks_goats_head']
 
-       price_eggs = 999.999
-       price_meat = INPUT_ROW['producer_price_meat_pig_lcupertonne']
-       price_meat_live = INPUT_ROW['producer_price_meat_livewt_pig_lcupertonne']
-       price_milk = 999.999
-       price_wool = 999.999
-   elif INPUT_ROW['species'].upper() == 'SHEEP':
-       stocks_hd = INPUT_ROW['stocks_sheep_head']
+        prod_eggs = 0
+        prod_hides = 0
+        prod_meat = INPUT_ROW['production_meat_goat_tonnes']
+        prod_milk = INPUT_ROW['production_milk_whole_fresh_goat_tonnes']
+        prod_wool = 0
 
-       prod_eggs = 0
-       prod_hides = 0
-       prod_meat = INPUT_ROW['production_meat_sheep_tonnes']
-       prod_milk = INPUT_ROW['production_milk_whole_fresh_sheep_tonnes']
-       prod_wool = INPUT_ROW['production_wool_greasy_tonnes']
+        price_eggs_lcu = 999.999
+        price_meat_lcu = INPUT_ROW['producer_price_meat_goat_slcpertonne']
+        price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_goat_slcpertonne']
+        price_milk_lcu = INPUT_ROW['producer_price_milk_whole_fresh_goat_slcpertonne']
+        price_wool_lcu = 999.999
 
-       price_eggs = 999.999
-       price_meat = INPUT_ROW['producer_price_meat_sheep_lcupertonne']
-       price_meat_live = INPUT_ROW['producer_price_meat_livewt_sheep_lcupertonne']
-       price_milk = INPUT_ROW['producer_price_milk_whole_fresh_sheep_lcupertonne']
-       price_wool = INPUT_ROW['producer_price_wool_greasy_lcupertonne']
-   elif INPUT_ROW['species'].upper() == 'TURKEYS':
-       stocks_hd = INPUT_ROW['stocks_turkeys_1000_head'] * 1000
+        price_eggs_usd = 999.999
+        price_meat_usd = INPUT_ROW['producer_price_meat_goat_usdpertonne']
+        price_meat_live_usd = INPUT_ROW['producer_price_meat_livewt_goat_usdpertonne']
+        price_milk_usd = INPUT_ROW['producer_price_milk_whole_fresh_goat_usdpertonne']
+        price_wool_usd = 999.999
+    elif INPUT_ROW['species'].upper() == 'HORSES':
+        stocks_hd = INPUT_ROW['stocks_horses_head']
 
-       prod_eggs = 0
-       prod_hides = 0
-       prod_meat = INPUT_ROW['production_meat_turkey_tonnes']
-       prod_milk = 0
-       prod_wool = 0
+        prod_eggs = 0
+        prod_hides = 0
+        prod_meat = INPUT_ROW['production_meat_horse_tonnes']
+        prod_milk = 0
+        prod_wool = 0
 
-       price_eggs = 999.999
-       price_meat = INPUT_ROW['producer_price_meat_turkey_lcupertonne']
-       price_meat_live = INPUT_ROW['producer_price_meat_livewt_turkey_lcupertonne']
-       price_milk = 999.999
-       price_wool = 999.999
-   else:
-       stocks_hd = np.nan
+        price_eggs_lcu = 999.999
+        price_meat_lcu = INPUT_ROW['producer_price_meat_horse_slcpertonne']
+        price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_horse_slcpertonne']
+        price_milk_lcu = 999.999
+        price_wool_lcu = 999.999
 
-       prod_eggs = np.nan
-       prod_hides = np.nan
-       prod_meat = np.nan
-       prod_milk = np.nan
-       prod_wool = np.nan
+        price_eggs_usd = 999.999
+        price_meat_usd = INPUT_ROW['producer_price_meat_horse_usdpertonne']
+        price_meat_live_usd = INPUT_ROW['producer_price_meat_livewt_horse_usdpertonne']
+        price_milk_usd = 999.999
+        price_wool_usd = 999.999
+    elif INPUT_ROW['species'].upper() == 'PIGS':
+        stocks_hd = INPUT_ROW['stocks_pigs_head']
 
-       price_eggs = np.nan
-       price_meat = np.nan
-       price_meat_live = np.nan
-       price_milk = np.nan
-       price_wool = np.nan
-   return pd.Series([stocks_hd
+        prod_eggs = 0
+        prod_hides = 0
+        prod_meat = INPUT_ROW['production_meat_pig_tonnes']
+        prod_milk = 0
+        prod_wool = 0
+
+        price_eggs_lcu = 999.999
+        price_meat_lcu = INPUT_ROW['producer_price_meat_pig_slcpertonne']
+        price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_pig_slcpertonne']
+        price_milk_lcu = 999.999
+        price_wool_lcu = 999.999
+
+        price_eggs_usd = 999.999
+        price_meat_usd = INPUT_ROW['producer_price_meat_pig_usdpertonne']
+        price_meat_live_usd = INPUT_ROW['producer_price_meat_livewt_pig_usdpertonne']
+        price_milk_usd = 999.999
+        price_wool_usd = 999.999
+    elif INPUT_ROW['species'].upper() == 'SHEEP':
+        stocks_hd = INPUT_ROW['stocks_sheep_head']
+
+        prod_eggs = 0
+        prod_hides = 0
+        prod_meat = INPUT_ROW['production_meat_sheep_tonnes']
+        prod_milk = INPUT_ROW['production_milk_whole_fresh_sheep_tonnes']
+        prod_wool = INPUT_ROW['production_wool_greasy_tonnes']
+
+        price_eggs_lcu = 999.999
+        price_meat_lcu = INPUT_ROW['producer_price_meat_sheep_slcpertonne']
+        price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_sheep_slcpertonne']
+        price_milk_lcu = INPUT_ROW['producer_price_milk_whole_fresh_sheep_slcpertonne']
+        price_wool_lcu = INPUT_ROW['producer_price_wool_greasy_slcpertonne']
+
+        price_eggs_usd = 999.999
+        price_meat_usd = INPUT_ROW['producer_price_meat_sheep_usdpertonne']
+        price_meat_live_usd = INPUT_ROW['producer_price_meat_livewt_sheep_usdpertonne']
+        price_milk_usd = INPUT_ROW['producer_price_milk_whole_fresh_sheep_usdpertonne']
+        price_wool_usd = INPUT_ROW['producer_price_wool_greasy_usdpertonne']
+    elif INPUT_ROW['species'].upper() == 'TURKEYS':
+        stocks_hd = INPUT_ROW['stocks_turkeys_1000_head'] * 1000
+
+        prod_eggs = 0
+        prod_hides = 0
+        prod_meat = INPUT_ROW['production_meat_turkey_tonnes']
+        prod_milk = 0
+        prod_wool = 0
+
+        price_eggs_lcu = 999.999
+        price_meat_lcu = INPUT_ROW['producer_price_meat_turkey_slcpertonne']
+        price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_turkey_slcpertonne']
+        price_milk_lcu = 999.999
+        price_wool_lcu = 999.999
+
+        price_eggs_usd = 999.999
+        price_meat_usd = INPUT_ROW['producer_price_meat_turkey_usdpertonne']
+        price_meat_live_usd = INPUT_ROW['producer_price_meat_livewt_turkey_usdpertonne']
+        price_milk_usd = 999.999
+        price_wool_usd = 999.999
+    else:
+        stocks_hd = np.nan
+
+        prod_eggs = np.nan
+        prod_hides = np.nan
+        prod_meat = np.nan
+        prod_milk = np.nan
+        prod_wool = np.nan
+
+        price_eggs_lcu = np.nan
+        price_meat_lcu = np.nan
+        price_meat_live_lcu = np.nan
+        price_milk_lcu = np.nan
+        price_wool_lcu = np.nan
+
+        price_eggs_usd = np.nan
+        price_meat_usd = np.nan
+        price_meat_live_usd = np.nan
+        price_milk_usd = np.nan
+        price_wool_usd = np.nan
+    return pd.Series([stocks_hd
                      ,prod_eggs ,prod_hides ,prod_meat ,prod_milk ,prod_wool
-                     ,price_eggs ,price_meat ,price_meat_live ,price_milk ,price_wool
+                     ,price_eggs_lcu ,price_meat_lcu ,price_meat_live_lcu ,price_milk_lcu ,price_wool_lcu
+                     ,price_eggs_usd ,price_meat_usd ,price_meat_live_usd ,price_milk_usd ,price_wool_usd
                      ])
 world_ahle_combo1[[
     'stocksKEEP_hd'
@@ -379,6 +455,12 @@ world_ahle_combo1[[
     ,'producer_priceKEEP_meat_live_lcupertonne'
     ,'producer_priceKEEP_milk_lcupertonne'
     ,'producer_priceKEEP_wool_lcupertonne'
+
+    ,'producer_priceKEEP_eggs_usdpertonne'
+    ,'producer_priceKEEP_meat_usdpertonne'
+    ,'producer_priceKEEP_meat_live_usdpertonne'
+    ,'producer_priceKEEP_milk_usdpertonne'
+    ,'producer_priceKEEP_wool_usdpertonne'
     ]] = world_ahle_combo1.apply(assign_columns_to_species ,axis=1)
 
 # Drop species-specific columns
@@ -405,22 +487,22 @@ datainfo(world_ahle_combo1)
 
 
 # production_meat_game_tonnes
-# producer_price_meat_game_lcupertonne
+# producer_price_meat_game_slcpertonne
 
 # production_meat_rabbit_tonnes
-# producer_price_meat_rabbit_lcupertonne
+# producer_price_meat_rabbit_slcpertonne
 
 # production_meat_ass_tonnes
-# producer_price_meat_ass_lcupertonne
+# producer_price_meat_ass_slcpertonne
 
 # production_meat_goose_and_guinea_fowl_tonnes
-# producer_price_meat_goose_and_guinea_fowl_lcupertonne
+# producer_price_meat_goose_and_guinea_fowl_slcpertonne
 
 # production_meat_mule_tonnes
-# producer_price_meat_mule_lcupertonne
+# producer_price_meat_mule_slcpertonne
 
 # production_meat_other_camelids_tonnes
-# producer_price_meat_other_camelids_lcupertonne
+# producer_price_meat_other_camelids_slcpertonne
 
 # production_meat_other_rodents_tonnes
 # =============================================================================

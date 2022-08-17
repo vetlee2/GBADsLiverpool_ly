@@ -9,10 +9,10 @@ biomass = pd.read_pickle(os.path.join(RAWDATA_FOLDER ,'livestock_countries_bioma
 fao_production_p = pd.read_pickle(os.path.join(RAWDATA_FOLDER ,'fao_production.pkl.gz'))
 
 # -----------------------------------------------------------------------------
-# Create extra year rows on biomass data
+# Create rows for additional years
 # -----------------------------------------------------------------------------
 # Get country*species combos from biomass data
-biomass_country_spec_combos = pd.DataFrame(biomass[['country' ,'species']].value_counts())
+biomass_country_spec_combos = pd.DataFrame(biomass[['iso3' ,'country' ,'species']].value_counts())
 biomass_country_spec_combos = indextocolumns(biomass_country_spec_combos)
 biomass_country_spec_combos['identity'] = 1     # Add constant column for merging
 
@@ -30,8 +30,8 @@ extended_data = pd.merge(
 # Merge dummy data with biomass
 biomass_extended = pd.merge(
     left=biomass
-    ,right=extended_data[['country' ,'species' ,'year']]
-    ,on=['country' ,'species' ,'year']
+    ,right=extended_data[['iso3' ,'country' ,'species' ,'year']]
+    ,on=['iso3' ,'country' ,'species' ,'year']
     ,how='right'    # Keep all rows from extended data
 )
 
@@ -60,22 +60,29 @@ countries_geocodes = list(un_geo_codes_tomatch['country'].unique())
 # =============================================================================
 #### Prep Base table: biomass
 # =============================================================================
-# Reconcile country names with UN Geo Codes
-countries_biomass = list(biomass_extended['country'].unique())
-recode_countries = {
-    "China, Hong Kong SAR":"Hong Kong"
-    ,"Cte d'Ivoire":"Côte d'Ivoire"
-    ,"Sudan (former)":"Sudan"
-}
-biomass_extended['country'] = biomass_extended['country'].replace(recode_countries)
+# =============================================================================
+# # No longer needed because Guelph has added iso3 to biomass table
+# # Reconcile country names with UN Geo Codes
+# countries_biomass = list(biomass_extended['country'].unique())
+# recode_countries = {
+#     "China, Hong Kong SAR":"Hong Kong"
+#     ,"Cte d'Ivoire":"Côte d'Ivoire"
+#     ,"Sudan (former)":"Sudan"
+# }
+# biomass_extended['country'] = biomass_extended['country'].replace(recode_countries)
+#
+# # Add country iso code
+# biomass_iso = pd.merge(
+#     left=biomass_extended
+#     ,right=un_geo_codes_tomatch
+#     ,on='country'
+#     ,how='left'
+#     )
+#
+# =============================================================================
+biomass_iso = biomass_extended.copy()
+biomass_iso = biomass_iso.rename(columns={'iso3':'country_iso3'})
 
-# Add country iso code
-biomass_iso = pd.merge(
-    left=biomass_extended
-    ,right=un_geo_codes_tomatch
-    ,on='country'
-    ,how='left'
-    )
 datainfo(biomass_iso)
 
 biomass_iso_missing = biomass_iso.query("country_iso3.isnull()")
@@ -205,15 +212,15 @@ prices_lcu = [i for i in list(world_ahle_combo1) if 'lcupertonne' in i]
 fao_stocks_cols = [i for i in list(fao_production_p) if 'stocks' in i]
 
 # Set production to zero for items that don't apply to a species
-# Set prices to a coded value (np.nan) for items that don't apply to a species
-# Note: using Standard Local Currency from FAO.
+# Set prices to a coded value (999.999) for items that don't apply to a species
 '''
-The Standard Local Currency of a country is set as the local currency prevailing in the current year.
-Prices in SLC are equal to producer prices in local currency multiplied by currency conversion factors.
-Currency conversion factors (CCF) are a special kind of exchange rates that convert the new currency
-of a given country into the old currency of the same country.
-These series are consistent over time and do not breaks when a currency change occurs.
-Source: FAO Statistics Division
+Using Standard Local Currency from FAO:
+    The Standard Local Currency of a country is set as the local currency prevailing in the current year.
+    Prices in SLC are equal to producer prices in local currency multiplied by currency conversion factors.
+    Currency conversion factors (CCF) are a special kind of exchange rates that convert the new currency
+    of a given country into the old currency of the same country.
+    These series are consistent over time and do not breaks when a currency change occurs.
+    Source: FAO Statistics Division
 '''
 def assign_columns_to_species(INPUT_ROW):
     if INPUT_ROW['species'].upper() == 'BUFFALOES':

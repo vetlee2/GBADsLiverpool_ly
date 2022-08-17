@@ -45,7 +45,7 @@ gbadske_query_uri = 'http://gbadske.org:9000/GBADsPublicQuery/'
 # -----------------------------------------------------------------------------
 # Pieces
 # -----------------------------------------------------------------------------
-gbadske_query_table_name = 'biomass_oie'
+gbadske_query_table_name = 'livestock_countries_biomass'
 gbadske_query_params = {
     'fields':gbadske_get_column_names(gbadske_query_table_name ,'string')   # All columns in table
     ,'query':"year=2017 AND member_country='Australia'"     # Note character column value must be in SINGLE QUOTES (double quotes don't work)
@@ -82,7 +82,7 @@ def gbadske_import_to_pandas(
 
     return query_df
 
-# biomass_oie_df = gbadske_import_to_pandas('biomass_oie' ,"year=2017 AND member_country='Australia'")
+# biomass_oie_df = gbadske_import_to_pandas('livestock_countries_biomass' ,"year=2017 AND member_country='Australia'")
 
 #%% Get tables needed for AHLE
 

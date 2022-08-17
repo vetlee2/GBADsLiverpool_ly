@@ -89,8 +89,8 @@ world_ahle_abt['biomass'] = world_ahle_abt['liveweight'] * world_ahle_abt['popul
 
 # Cleanup intermediate columns
 world_ahle_abt = world_ahle_abt.drop(columns=[
-    'stocks_hd'
-    ,'min_liveweight'
+    # 'stocks_hd'
+    'min_liveweight'
     ,'mean_liveweight'
     ,'max_liveweight'
     ,'std_liveweight'
@@ -132,6 +132,11 @@ for COL in imputed_cols:
     #              ,linestyle='--' ,linewidth=1 ,color='grey')
     # plt.title(COL)
 
+# =============================================================================
+#### Checks
+# =============================================================================
+missing_biomass = world_ahle_abt.loc[world_ahle_abt['biomass'].isnull()]
+
 #%% Production
 '''
 Plan:
@@ -164,132 +169,139 @@ missing_prod_wool_species = list(missing_prod_wool['species'].unique())
 #### Calculate production outputs per kg biomass
 # =============================================================================
 production_cols = [i for i in list(world_ahle_abt) if 'production_' in i]
+production_cols_base = [
+    'production_eggs'
+    ,'production_hides'
+    ,'production_meat'
+    ,'production_milk'
+    ,'production_wool'
+]
 
-for PRODCOL in production_cols:
+for PRODCOL_BASE in production_cols_base:
     # If biomass is zero, set production and production per kg biomass to zero
     _biomass_zero = (world_ahle_abt['biomass'] == 0)
-    world_ahle_abt.loc[_biomass_zero ,f"{PRODCOL}"] = 0
-    world_ahle_abt.loc[_biomass_zero ,f"{PRODCOL}_perkgbm"] = 0
+    world_ahle_abt.loc[_biomass_zero ,f"{PRODCOL_BASE}_tonnes"] = 0
+    world_ahle_abt.loc[_biomass_zero ,f"{PRODCOL_BASE}_kgperkgbm"] = 0
+    world_ahle_abt.loc[~ _biomass_zero ,f"{PRODCOL_BASE}_kgperkgbm"] = \
+        (world_ahle_abt[f"{PRODCOL_BASE}_tonnes"] * 1000) / world_ahle_abt['biomass']
 
-    world_ahle_abt.loc[~ _biomass_zero ,f"{PRODCOL}_perkgbm"] = world_ahle_abt[PRODCOL] / world_ahle_abt['biomass']
-
-missing_prod_eggs_perkgbm = world_ahle_abt.query("production_eggs_tonnes_perkgbm.isnull()")
-missing_prod_hides_perkgbm = world_ahle_abt.query("production_hides_tonnes_perkgbm.isnull()")
-missing_prod_meat_perkgbm = world_ahle_abt.query("production_meat_tonnes_perkgbm.isnull()")
-missing_prod_milk_perkgbm = world_ahle_abt.query("production_milk_tonnes_perkgbm.isnull()")
-missing_prod_wool_perkgbm = world_ahle_abt.query("production_wool_tonnes_perkgbm.isnull()")
+missing_prod_eggs_kgperkgbm = world_ahle_abt.query("production_eggs_kgperkgbm.isnull()")
+missing_prod_hides_kgperkgbm = world_ahle_abt.query("production_hides_kgperkgbm.isnull()")
+missing_prod_meat_kgperkgbm = world_ahle_abt.query("production_meat_kgperkgbm.isnull()")
+missing_prod_milk_kgperkgbm = world_ahle_abt.query("production_milk_kgperkgbm.isnull()")
+missing_prod_wool_kgperkgbm = world_ahle_abt.query("production_wool_kgperkgbm.isnull()")
 
 # What is the distribution of production per kg biomass for each product?
-for PROD_BASE in production_cols:
+for PROD_BASE in production_cols_base:
     # Global
     snplt = sns.catplot(
         data=world_ahle_abt
-        ,y=f"{PROD_BASE}_perkgbm"
+        ,y=f"{PROD_BASE}_kgperkgbm"
         ,kind='box'
         ,orient='v'
         )
-    plt.title(f"Distribution Globally\n{PROD_BASE} per kg biomass")
+    plt.title(f"Distribution Globally\n{PROD_BASE} kg per kg biomass")
 
     # By Region
     snplt = sns.catplot(
         data=world_ahle_abt
         ,x='region'
-        ,y=f"{PROD_BASE}_perkgbm"
+        ,y=f"{PROD_BASE}_kgperkgbm"
         ,kind='box'
         ,orient='v'
         )
-    plt.title(f"Distribution by Region\n{PROD_BASE} per kg biomass")
+    plt.title(f"Distribution by Region\n{PROD_BASE} kg per kg biomass")
 
     # By Income group
     snplt = sns.catplot(
         data=world_ahle_abt
         ,x='incomegroup'
-        ,y=f"{PROD_BASE}_perkgbm"
+        ,y=f"{PROD_BASE}_kgperkgbm"
         ,kind='box'
         ,orient='v'
         )
-    plt.title(f"Distribution by Income Group\n{PROD_BASE} per kg biomass")
+    plt.title(f"Distribution by Income Group\n{PROD_BASE} kg per kg biomass")
 
 # =============================================================================
 #### Impute
 # =============================================================================
 # Check average for meat at different levels of aggregation
-# wtavg1_meat_perkgbm = weighted_average(
+# wtavg1_meat_kgperkgbm = weighted_average(
 #     world_ahle_abt
-#     ,AVG_VAR="production_meat_tonnes_perkgbm"
+#     ,AVG_VAR="production_meat_tonnes_kgperkgbm"
 #     ,WT_VAR='biomass'
 #     ,BY_VARS=['species' ,'year' ,'region' ,'incomegroup']
 # )
-# wtavg2a_meat_perkgbm = weighted_average(
+# wtavg2a_meat_kgperkgbm = weighted_average(
 #     world_ahle_abt
-#     ,AVG_VAR="production_meat_tonnes_perkgbm"
+#     ,AVG_VAR="production_meat_tonnes_kgperkgbm"
 #     ,WT_VAR='biomass'
 #     ,BY_VARS=['species' ,'year' ,'incomegroup']
 # )
-# wtavg2b_meat_perkgbm = weighted_average(
+# wtavg2b_meat_kgperkgbm = weighted_average(
 #     world_ahle_abt
-#     ,AVG_VAR="production_meat_tonnes_perkgbm"
+#     ,AVG_VAR="production_meat_tonnes_kgperkgbm"
 #     ,WT_VAR='biomass'
 #     ,BY_VARS=['species' ,'year' ,'region']
 # )
-# wtavg3_meat_perkgbm = weighted_average(
+# wtavg3_meat_kgperkgbm = weighted_average(
 #     world_ahle_abt
-#     ,AVG_VAR="production_meat_tonnes_perkgbm"
+#     ,AVG_VAR="production_meat_tonnes_kgperkgbm"
 #     ,WT_VAR='biomass'
 #     ,BY_VARS=['species' ,'year']
 # )
 
 # Find average for each species, year, region, and income group, weighted by biomass
 # UPDATE: Using median price instead of average as it is robust to outliers.
-for PRODCOL in production_cols:
+for PRODCOL_BASE in production_cols_base:
     # # -----------------------------------------------------------------------------
     # # Calculate averages at different aggregation levels
     # # -----------------------------------------------------------------------------
     # # Get weighted average by group at least aggregate level
-    # wtavg = weighted_average(world_ahle_abt ,AVG_VAR=f"{PRODCOL}_perkgbm" ,WT_VAR='biomass'
+    # wtavg = weighted_average(world_ahle_abt ,AVG_VAR=f"{PRODCOL_BASE}_kgperkgbm" ,WT_VAR='biomass'
     #     ,BY_VARS=['species' ,'year' ,'region' ,'incomegroup']
     #     ,RESULT_SUFFIX='_wtavg1'
     # )
     # # Merge with data
     # world_ahle_abt = pd.merge(
     #     left=world_ahle_abt
-    #     ,right=wtavg[f"{PRODCOL}_perkgbm_wtavg1"]
+    #     ,right=wtavg[f"{PRODCOL_BASE}_kgperkgbm_wtavg1"]
     #     ,on=['species' ,'year' ,'region' ,'incomegroup']
     #     ,how='left'
     # )
     # # Get weighted average by group at middle aggregate level
-    # wtavg = weighted_average(world_ahle_abt ,AVG_VAR=f"{PRODCOL}_perkgbm" ,WT_VAR='biomass'
+    # wtavg = weighted_average(world_ahle_abt ,AVG_VAR=f"{PRODCOL_BASE}_kgperkgbm" ,WT_VAR='biomass'
     #     ,BY_VARS=['species' ,'year' ,'incomegroup']
     #     ,RESULT_SUFFIX='_wtavg2a'
     # )
     # # Merge with data
     # world_ahle_abt = pd.merge(
     #     left=world_ahle_abt
-    #     ,right=wtavg[f"{PRODCOL}_perkgbm_wtavg2a"]
+    #     ,right=wtavg[f"{PRODCOL_BASE}_kgperkgbm_wtavg2a"]
     #     ,on=['species' ,'year' ,'incomegroup']
     #     ,how='left'
     # )
     # # Get weighted average by group at middle aggregate level
-    # wtavg = weighted_average(world_ahle_abt ,AVG_VAR=f"{PRODCOL}_perkgbm" ,WT_VAR='biomass'
+    # wtavg = weighted_average(world_ahle_abt ,AVG_VAR=f"{PRODCOL_BASE}_kgperkgbm" ,WT_VAR='biomass'
     #     ,BY_VARS=['species' ,'year' ,'region']
     #     ,RESULT_SUFFIX='_wtavg2b'
     # )
     # # Merge with data
     # world_ahle_abt = pd.merge(
     #     left=world_ahle_abt
-    #     ,right=wtavg[f"{PRODCOL}_perkgbm_wtavg2b"]
+    #     ,right=wtavg[f"{PRODCOL_BASE}_kgperkgbm_wtavg2b"]
     #     ,on=['species' ,'year' ,'region']
     #     ,how='left'
     # )
     # # Get weighted average by group at most aggregate level
-    # wtavg = weighted_average(world_ahle_abt ,AVG_VAR=f"{PRODCOL}_perkgbm" ,WT_VAR='biomass'
+    # wtavg = weighted_average(world_ahle_abt ,AVG_VAR=f"{PRODCOL_BASE}_kgperkgbm" ,WT_VAR='biomass'
     #     ,BY_VARS=['species' ,'year']
     #     ,RESULT_SUFFIX='_wtavg3'
     # )
     # # Merge with data
     # world_ahle_abt = pd.merge(
     #     left=world_ahle_abt
-    #     ,right=wtavg[f"{PRODCOL}_perkgbm_wtavg3"]
+    #     ,right=wtavg[f"{PRODCOL_BASE}_kgperkgbm_wtavg3"]
     #     ,on=['species' ,'year']
     #     ,how='left'
     # )
@@ -300,7 +312,7 @@ for PRODCOL in production_cols:
     # Get median by group at least aggregate level
     median = world_ahle_abt.pivot_table(
        index=['species' ,'year' ,'region' ,'incomegroup']
-       ,values=f"{PRODCOL}_perkgbm" ,aggfunc='median'
+       ,values=f"{PRODCOL_BASE}_kgperkgbm" ,aggfunc='median'
     )
     median = median.add_suffix('_median1')
     # Merge with data
@@ -312,7 +324,7 @@ for PRODCOL in production_cols:
     # Get median by group at mid aggregate level
     median = world_ahle_abt.pivot_table(
        index=['species' ,'year' ,'incomegroup']
-       ,values=f"{PRODCOL}_perkgbm" ,aggfunc='median'
+       ,values=f"{PRODCOL_BASE}_kgperkgbm" ,aggfunc='median'
     )
     median = median.add_suffix('_median2a')
     # Merge with data
@@ -324,7 +336,7 @@ for PRODCOL in production_cols:
     # Get median by group at mid aggregate level
     median = world_ahle_abt.pivot_table(
        index=['species' ,'year' ,'region']
-       ,values=f"{PRODCOL}_perkgbm" ,aggfunc='median'
+       ,values=f"{PRODCOL_BASE}_kgperkgbm" ,aggfunc='median'
     )
     median = median.add_suffix('_median2b')
     # Merge with data
@@ -336,7 +348,7 @@ for PRODCOL in production_cols:
     # Get median by group at most aggregate level
     median = world_ahle_abt.pivot_table(
        index=['species' ,'year']
-       ,values=f"{PRODCOL}_perkgbm" ,aggfunc='median'
+       ,values=f"{PRODCOL_BASE}_kgperkgbm" ,aggfunc='median'
     )
     median = median.add_suffix('_median3')
     # Merge with data
@@ -348,35 +360,36 @@ for PRODCOL in production_cols:
     # -----------------------------------------------------------------------------
     # Where production per kg biomass is missing or zero, fill with average
     # -----------------------------------------------------------------------------
-    _null_rows = (world_ahle_abt[f"{PRODCOL}_perkgbm"].isnull())
-    print(f"> Filling {_null_rows.sum() :,} rows where {PRODCOL}_perkgbm is missing.")
+    _null_rows = (world_ahle_abt[f"{PRODCOL_BASE}_kgperkgbm"].isnull())
+    print(f"> Filling {_null_rows.sum() :,} rows where {PRODCOL_BASE}_kgperkgbm is missing.")
 
-    world_ahle_abt[f"{PRODCOL}_perkgbm_raw"] = world_ahle_abt[f"{PRODCOL}_perkgbm"]      # Create copy of original column
+    world_ahle_abt[f"{PRODCOL_BASE}_kgperkgbm_raw"] = world_ahle_abt[f"{PRODCOL_BASE}_kgperkgbm"]      # Create copy of original column
     candidate_cols_inorder = [
-        f"{PRODCOL}_perkgbm_raw"
-        # ,f'{PRODCOL}_perkgbm_wtavg1'
-        # ,f'{PRODCOL}_perkgbm_wtavg2a'
-        # ,f'{PRODCOL}_perkgbm_wtavg2b'
-        # ,f'{PRODCOL}_perkgbm_wtavg3'
-        ,f'{PRODCOL}_perkgbm_median1'
-        ,f'{PRODCOL}_perkgbm_median2a'
-        ,f'{PRODCOL}_perkgbm_median2b'
-        ,f'{PRODCOL}_perkgbm_median3'
+        f"{PRODCOL_BASE}_kgperkgbm_raw"
+        # ,f'{PRODCOL_BASE}_kgperkgbm_wtavg1'
+        # ,f'{PRODCOL_BASE}_kgperkgbm_wtavg2a'
+        # ,f'{PRODCOL_BASE}_kgperkgbm_wtavg2b'
+        # ,f'{PRODCOL_BASE}_kgperkgbm_wtavg3'
+        ,f'{PRODCOL_BASE}_kgperkgbm_median1'
+        ,f'{PRODCOL_BASE}_kgperkgbm_median2a'
+        ,f'{PRODCOL_BASE}_kgperkgbm_median2b'
+        ,f'{PRODCOL_BASE}_kgperkgbm_median3'
         ]
-    world_ahle_abt[f"{PRODCOL}_perkgbm"] = take_first_nonmissing(world_ahle_abt ,candidate_cols_inorder)
+    world_ahle_abt[f"{PRODCOL_BASE}_kgperkgbm"] = take_first_nonmissing(world_ahle_abt ,candidate_cols_inorder)
 
     # -----------------------------------------------------------------------------
     # Recalculate production from production per kg biomass
     # -----------------------------------------------------------------------------
-    _null_rows = (world_ahle_abt[f"{PRODCOL}"].isnull())
-    print(f"> Filling {_null_rows.sum() :,} rows where {PRODCOL} is missing.")
+    _null_rows = (world_ahle_abt[f"{PRODCOL_BASE}_tonnes"].isnull())
+    print(f"> Filling {_null_rows.sum() :,} rows where {PRODCOL_BASE}_tonnes is missing.")
 
-    world_ahle_abt[f"{PRODCOL}_raw"] = world_ahle_abt[f"{PRODCOL}"]      # Create copy of original column
-    world_ahle_abt[f"{PRODCOL}"] = round(world_ahle_abt[f"{PRODCOL}_perkgbm"] * world_ahle_abt['biomass'] ,0)   # Round to integer
+    world_ahle_abt[f"{PRODCOL_BASE}_tonnes_raw"] = world_ahle_abt[f"{PRODCOL_BASE}_tonnes"]      # Create copy of original column
+    world_ahle_abt[f"{PRODCOL_BASE}_tonnes"] = \
+        round((world_ahle_abt[f"{PRODCOL_BASE}_kgperkgbm"] / 1000) * world_ahle_abt['biomass'] ,0)   # Round to integer
 
 datainfo(world_ahle_abt)
 
-_check_imputed_prod_meat_perkg = (world_ahle_abt['production_meat_tonnes_perkgbm'] != world_ahle_abt['production_meat_tonnes_perkgbm_raw'])
+_check_imputed_prod_meat_perkg = (world_ahle_abt['production_meat_kgperkgbm'] != world_ahle_abt['production_meat_kgperkgbm_raw'])
 check_imputed_prod_meat_perkg = world_ahle_abt[_check_imputed_prod_meat_perkg]
 
 _check_imputed_prod_meat = (world_ahle_abt['production_meat_tonnes'] != world_ahle_abt['production_meat_tonnes_raw'])
@@ -385,31 +398,46 @@ check_imputed_prod_meat = world_ahle_abt[_check_imputed_prod_meat]
 # =============================================================================
 #### Summarize imputation changes
 # =============================================================================
-# Note: if original column was missing, it will not be counted as different from
-# the imputed value.
-imputed_cols = [
-   'production_meat_tonnes'
-   ,'production_meat_tonnes_perkgbm'
-   ,'production_eggs_tonnes'
-   ,'production_eggs_tonnes_perkgbm'
-   ,'production_milk_tonnes'
-   ,'production_milk_tonnes_perkgbm'
-   ,'production_hides_tonnes'
-   ,'production_hides_tonnes_perkgbm'
-   ,'production_wool_tonnes'
-   ,'production_wool_tonnes_perkgbm'
-]
+# Specify columns to check and list of species each one applies to
+imputed_cols_withspec = {
+   'production_meat_tonnes':['All']
+   ,'production_meat_kgperkgbm':['All']
+   ,'production_eggs_tonnes':['Chickens']
+   ,'production_eggs_kgperkgbm':['Chickens']
+   ,'production_milk_tonnes':['Cattle' ,'Camel' ,'Goats' ,'Sheep' ,'Buffaloes']
+   ,'production_milk_kgperkgbm':['Cattle' ,'Camel' ,'Goats' ,'Sheep' ,'Buffaloes']
+   ,'production_hides_tonnes':['Cattle' ,'Buffaloes']
+   ,'production_hides_kgperkgbm':['Cattle' ,'Buffaloes']
+   ,'production_wool_tonnes':['Sheep']
+   ,'production_wool_kgperkgbm':['Sheep']
+}
 
-for COL in imputed_cols:
-    # Get raw and imputed versions and difference between them
-    check_imputation = world_ahle_abt[['country' ,'species' ,'year' ,COL ,f'{COL}_raw']].copy()
-    check_imputation['impdiff'] = check_imputation[COL] - check_imputation[f'{COL}_raw']
+for COL ,SPECIES_LIST in imputed_cols_withspec.items():
+    # Get raw and imputed version and difference between them
+    check_imputation = world_ahle_abt[['country' ,'species' ,'year' ,COL ,f"{COL}_raw"]].copy()
+    check_imputation['impdiff'] = check_imputation[COL] - check_imputation[f"{COL}_raw"]
     check_imputation['impdiff_abs'] = abs(check_imputation['impdiff'])
-    check_imputation['impdiff_pct'] = check_imputation['impdiff'] / check_imputation[f'{COL}_raw']
+    check_imputation['impdiff_pct'] = check_imputation['impdiff'] / check_imputation[f"{COL}_raw"]
 
-    # Number of rows different
-    _nrows_impdiff = (check_imputation['impdiff_abs'] > 0)
-    print(f"<check_imputation> {COL}: {_nrows_impdiff.sum(): ,} rows where imputed value is different from original.")
+    # Row counts
+    spec_list_upper = [i.upper() for i in SPECIES_LIST]
+    if 'ALL' in spec_list_upper:
+        _rows_correctspecies = (check_imputation['species'].notnull())
+    else:
+        _rows_correctspecies = (check_imputation['species'].str.upper().isin(spec_list_upper))
+
+    print(f"<check_imputation> {COL}:")
+    print(f"    {_rows_correctspecies.sum(): ,} rows with applicable species {SPECIES_LIST}.")
+
+    _rows_rawmissing = _rows_correctspecies & (check_imputation[f"{COL}_raw"].isnull())
+    # _rows_rawmissing = (check_imputation[f"{COL}_raw"].isnull())
+    print(f"    {_rows_rawmissing.sum(): ,} rows where original value is missing.")
+
+    _rows_impmissing = _rows_correctspecies & (check_imputation[COL].isnull())
+    print(f"    {_rows_impmissing.sum(): ,} rows where imputed value is missing.")
+
+    _rows_impdiff = _rows_correctspecies & (check_imputation['impdiff_abs'] > 0)
+    print(f"    {_rows_impdiff.sum(): ,} rows where imputed value is different from original.")
 
     # Boxplots of differences by Species
     # snplt = sns.catplot(
@@ -788,26 +816,41 @@ datainfo(world_ahle_abt)
 # =============================================================================
 #### Summarize imputation changes
 # =============================================================================
-# Note: if original column was missing, it will not be counted as different from
-# the imputed value.
-imputed_cols = [
-    'producer_price_eggs_usdpertonne_cnst2010'
-    ,'producer_price_meat_usdpertonne_cnst2010'
-    ,'producer_price_meat_live_usdpertonne_cnst2010'
-    ,'producer_price_milk_usdpertonne_cnst2010'
-    ,'producer_price_wool_usdpertonne_cnst2010'
-]
+# Specify columns to check and list of species each one applies to
+imputed_cols_withspec = {
+    'producer_price_eggs_usdpertonne_cnst2010':['Chickens']
+    ,'producer_price_meat_usdpertonne_cnst2010':['All']
+    ,'producer_price_meat_live_usdpertonne_cnst2010':['All']
+    ,'producer_price_milk_usdpertonne_cnst2010':['Cattle' ,'Camel' ,'Goats' ,'Sheep' ,'Buffaloes']
+    ,'producer_price_wool_usdpertonne_cnst2010':['Sheep']
+}
 
-for COL in imputed_cols:
-    # Get raw and imputed versions and difference between them
-    check_imputation = world_ahle_abt[['country' ,'species' ,'year' ,COL ,f'{COL}_raw']].copy()
-    check_imputation['impdiff'] = check_imputation[COL] - check_imputation[f'{COL}_raw']
+for COL ,SPECIES_LIST in imputed_cols_withspec.items():
+    # Get raw and imputed version and difference between them
+    check_imputation = world_ahle_abt[['country' ,'species' ,'year' ,COL ,f"{COL}_raw"]].copy()
+    check_imputation['impdiff'] = check_imputation[COL] - check_imputation[f"{COL}_raw"]
     check_imputation['impdiff_abs'] = abs(check_imputation['impdiff'])
-    check_imputation['impdiff_pct'] = check_imputation['impdiff'] / check_imputation[f'{COL}_raw']
+    check_imputation['impdiff_pct'] = check_imputation['impdiff'] / check_imputation[f"{COL}_raw"]
 
-    # Number of rows different
-    _nrows_impdiff = (check_imputation['impdiff_abs'] > 0)
-    print(f"<check_imputation> {COL}: {_nrows_impdiff.sum(): ,} rows where imputed value is different from original.")
+    # Row counts
+    spec_list_upper = [i.upper() for i in SPECIES_LIST]
+    if 'ALL' in spec_list_upper:
+        _rows_correctspecies = (check_imputation['species'].notnull())
+    else:
+        _rows_correctspecies = (check_imputation['species'].str.upper().isin(spec_list_upper))
+
+    print(f"<check_imputation> {COL}:")
+    print(f"    {_rows_correctspecies.sum(): ,} rows with applicable species {SPECIES_LIST}.")
+
+    _rows_rawmissing = _rows_correctspecies & (check_imputation[f"{COL}_raw"].isnull())
+    # _rows_rawmissing = (check_imputation[f"{COL}_raw"].isnull())
+    print(f"    {_rows_rawmissing.sum(): ,} rows where original value is missing.")
+
+    _rows_impmissing = _rows_correctspecies & (check_imputation[COL].isnull())
+    print(f"    {_rows_impmissing.sum(): ,} rows where imputed value is missing.")
+
+    _rows_impdiff = _rows_correctspecies & (check_imputation['impdiff_abs'] > 0)
+    print(f"    {_rows_impdiff.sum(): ,} rows where imputed value is different from original.")
 
     # Boxplots of differences by Species
     # snplt = sns.catplot(
@@ -822,9 +865,6 @@ for COL in imputed_cols:
 
 #%% Data checks
 
-# Population, Liveweight, Biomass
-# Each production metric and price
-
 # =============================================================================
 #### Data summaries
 # =============================================================================
@@ -835,15 +875,15 @@ vars_for_distributions = [
     ,'biomass'
 
     ,'production_eggs_tonnes'
-    ,'production_eggs_tonnes_perkgbm'
+    ,'production_eggs_kgperkgbm'
     ,'production_hides_tonnes'
-    ,'production_hides_tonnes_perkgbm'
+    ,'production_hides_kgperkgbm'
     ,'production_meat_tonnes'
-    ,'production_meat_tonnes_perkgbm'
+    ,'production_meat_kgperkgbm'
     ,'production_milk_tonnes'
-    ,'production_milk_tonnes_perkgbm'
+    ,'production_milk_kgperkgbm'
     ,'production_wool_tonnes'
-    ,'production_wool_tonnes_perkgbm'
+    ,'production_wool_kgperkgbm'
 
     # ,'producer_price_eggs_lcupertonne'
     # ,'producer_price_eggs_usdpertonne'
@@ -884,6 +924,11 @@ for VAR in vars_for_distributions:
 dist_bycountryspecies = pd.DataFrame.from_dict(dist_bycountryspecies_aslist ,orient='columns')
 del dist_bycountryspecies_aslist
 
+# Reorder columns
+cols_first = ['country' ,'species' ,'variable']
+cols_other = [i for i in list(dist_bycountryspecies) if i not in cols_first]
+dist_bycountryspecies = dist_bycountryspecies.reindex(columns=cols_first + cols_other)
+
 dist_bycountryspecies['iqr'] = dist_bycountryspecies['75%'] - dist_bycountryspecies['25%']
 dist_bycountryspecies['max_iqrdist'] = (dist_bycountryspecies['max'] - dist_bycountryspecies['50%']) / dist_bycountryspecies['iqr']
 dist_bycountryspecies['min_iqrdist'] = (dist_bycountryspecies['50%'] - dist_bycountryspecies['min']) / dist_bycountryspecies['iqr']
@@ -891,6 +936,21 @@ dist_bycountryspecies['range'] = dist_bycountryspecies['max'] - dist_bycountrysp
 dist_bycountryspecies['range_mult'] = dist_bycountryspecies['max'] / dist_bycountryspecies['min']
 dist_bycountryspecies['range_iqrdist'] = dist_bycountryspecies['range'] / dist_bycountryspecies['iqr']
 dist_bycountryspecies['range_scaled'] = dist_bycountryspecies['range'] / dist_bycountryspecies['50%']
+
+# Check rows missing biomass
+missing_biomass = world_ahle_abt.loc[world_ahle_abt['biomass'].isnull()]
+missing_biomass_yearsmry = missing_biomass.pivot_table(
+   index=['country' ,'species']
+   ,values='year'
+   ,aggfunc=['min' ,'max']
+)
+missing_biomass_yearsmry = colnames_from_index(missing_biomass_yearsmry)
+missing_biomass_yearsmry2 = missing_biomass.pivot_table(
+   index=['country']
+   ,values='year'
+   ,aggfunc=['min' ,'max']
+)
+missing_biomass_yearsmry2 = colnames_from_index(missing_biomass_yearsmry2)
 
 # =============================================================================
 #### Plots
@@ -912,6 +972,7 @@ dist_bycountryspecies['range_scaled'] = dist_bycountryspecies['range'] / dist_by
 #### Export
 # =============================================================================
 dist_bycountryspecies.to_csv(os.path.join(PROGRAM_OUTPUT_FOLDER ,'check_distributions_bycountryspecies.csv') ,index=False)
+missing_biomass.to_csv(os.path.join(PROGRAM_OUTPUT_FOLDER ,'world_ahle_abt_missing_biomass.csv') ,index=False)
 
 #%% Cleanup and output
 

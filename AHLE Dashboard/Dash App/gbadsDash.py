@@ -1355,7 +1355,7 @@ def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
 # Define the Biomass map
 def create_biomass_map_ga(input_df, iso_alpha3, biomass, country):
     biomass_map_fig = px.choropleth(input_df, locations=iso_alpha3,
-                                    color=biomass, # lifeExp is a column of gapminder
+                                    color=biomass,
                                     hover_name=country, # column to add to hover information
                                     animation_frame="year",
                                     color_continuous_scale=px.colors.sequential.Plasma)
@@ -4711,49 +4711,73 @@ def update_core_data_world_ahle_abt_ga(species,region_country,region,country):
     if region == "All":
         # input_df=input_df.loc[(input_df['country'] == country_options_ga)]
         if country == 'All':
-            input_df = input_df[input_df['country'].isin(country_options_ga)]
+            country = [[v for k,v in d.items()] for d in country_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+            # input_df = input_df[input_df['country'].isin(country_options_ga)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
     elif region == "Sub-Saharan Africa":
         # input_df=input_df.loc[(input_df['country'] == wb_africa_options_ga)]
         if country == 'All':
-            input_df = input_df[input_df['country'].isin(wb_africa_options_ga)]
+            country = [[v for k,v in d.items()] for d in wb_africa_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+            # input_df = input_df[input_df['country'].isin(wb_africa_options_ga)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
     elif region == "East Asia & Pacific":
         # input_df=input_df.loc[(input_df['country'] == wb_eap_options_ga)]
         if country == 'All':
-            input_df = input_df[input_df['country'].isin(wb_eap_options_ga)]
+            country = [[v for k,v in d.items()] for d in wb_eap_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+            # input_df = input_df[input_df['country'].isin(wb_eap_options_ga)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
     elif region == "Europe & Central Asia":
         # input_df=input_df.loc[(input_df['country'] == wb_eca_options_ga)]
         if country == 'All':
-            input_df = input_df[input_df['country'].isin(wb_eca_options_ga)]
+            country = [[v for k,v in d.items()] for d in wb_eca_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+            # input_df = input_df[input_df['country'].isin(wb_eca_options_ga)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
     elif region == "Latin America & the Caribbean":
         # input_df=input_df.loc[(input_df['country'] == wb_lac_options_ga)]
         if country == 'All':
-            input_df = input_df[input_df['country'].isin(wb_lac_options_ga)]
+            country = [[v for k,v in d.items()] for d in wb_lac_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+            # input_df = input_df[input_df['country'].isin(wb_lac_options_ga)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
     elif region == "Middle East & North Africa":
         # input_df=input_df.loc[(input_df['country'] == wb_mena_options_ga)]
         if country == 'All':
-            input_df = input_df[input_df['country'].isin(wb_mena_options_ga)]
+            country = [[v for k,v in d.items()] for d in wb_mena_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+            # input_df = input_df[input_df['country'].isin(wb_mena_options_ga)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
     elif region == "North America":
         # input_df=input_df.loc[(input_df['country'] == wb_na_options_ga)]
         if country == 'All':
-            input_df = input_df[input_df['country'].isin(wb_na_options_ga)]
+            country = [[v for k,v in d.items()] for d in wb_na_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+            # input_df = input_df[input_df['country'].isin(wb_na_options_ga)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
     else:
         # input_df=input_df.loc[(input_df['country'] == wb_southasia_options_ga)]
         if country == 'All':
-            input_df = input_df[input_df['country'].isin(wb_southasia_options_ga)]
+            country = [[v for k,v in d.items()] for d in wb_southasia_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+            # input_df = input_df[input_df['country'].isin(wb_southasia_options_ga)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
     

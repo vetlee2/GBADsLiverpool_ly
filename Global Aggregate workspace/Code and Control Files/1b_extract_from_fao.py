@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------------
 # Import
 # ----------------------------------------------------------------------------
-fao_production = pd.read_csv(os.path.join(RAWDATA_FOLDER ,'FAOSTAT_livestock_products_stocks_2000_2020.csv'))
+fao_production = pd.read_csv(os.path.join(RAWDATA_FOLDER ,'FAOSTAT_livestock_products_stocks_slaughter_2000_2020.csv'))
 cleancolnames(fao_production)
 datainfo(fao_production)
 
@@ -20,7 +20,7 @@ datainfo(fao_production)
 fao_production_element_items = fao_production[['element' ,'item' ,'unit']].value_counts()
 
 fao_production_p = fao_production.pivot(
-    index=['area' ,'year']          # Column(s) to make new index. If blank, uses existing index.
+    index=['area_code__iso3_' ,'area' ,'year']          # Column(s) to make new index. If blank, uses existing index.
     ,columns=['element' ,'item' ,'unit']       # Column(s) to make new columns
     ,values='value'        # Column to populate rows. Can pass a list, but will create multi-indexed columns.
 )

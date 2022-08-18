@@ -166,7 +166,7 @@ missing_prod_wool = world_ahle_abt.query("production_wool_tonnes.isnull()")
 missing_prod_wool_species = list(missing_prod_wool['species'].unique())
 
 # =============================================================================
-#### Calculate production outputs per kg biomass
+#### Calculate production per kg biomass
 # =============================================================================
 production_cols = [i for i in list(world_ahle_abt) if 'production_' in i]
 production_cols_base = [
@@ -196,6 +196,7 @@ for PROD_BASE in production_cols_base:
     # Global
     snplt = sns.catplot(
         data=world_ahle_abt
+        ,x='species'
         ,y=f"{PROD_BASE}_kgperkgbm"
         ,kind='box'
         ,orient='v'
@@ -209,6 +210,7 @@ for PROD_BASE in production_cols_base:
         ,y=f"{PROD_BASE}_kgperkgbm"
         ,kind='box'
         ,orient='v'
+        ,col='species' ,col_wrap=4
         )
     plt.title(f"Distribution by Region\n{PROD_BASE} kg per kg biomass")
 
@@ -219,8 +221,57 @@ for PROD_BASE in production_cols_base:
         ,y=f"{PROD_BASE}_kgperkgbm"
         ,kind='box'
         ,orient='v'
+        ,col='species' ,col_wrap=4
         )
     plt.title(f"Distribution by Income Group\n{PROD_BASE} kg per kg biomass")
+
+# =============================================================================
+#### Calculate production per producing animal
+# =============================================================================
+prod_animals_lookup = {
+    'production_eggs':'producing_animals_eggs_hd'
+    ,'production_hides':'producing_animals_hides_hd'
+    ,'production_meat':'producing_animals_meat_hd'
+    ,'production_milk':'producing_animals_milk_hd'
+    ,'production_wool':'producing_animals_wool_hd'
+}
+for PROD ,ANIMALS in prod_animals_lookup.items():
+    world_ahle_abt[f"{PROD}_kgperhd"] = (world_ahle_abt[f"{PROD}_tonnes"] * 1000) / world_ahle_abt[ANIMALS]
+
+datainfo(world_ahle_abt)
+
+# What is the distribution of production per head for each product?
+for PROD_BASE in list(prod_animals_lookup):
+    # Global
+    snplt = sns.catplot(
+        data=world_ahle_abt
+        ,x='species'
+        ,y=f"{PROD_BASE}_kgperhd"
+        ,kind='box'
+        ,orient='v'
+        )
+    plt.title(f"Distribution Globally\n{PROD_BASE} kg per head (producing animals)")
+
+    # By Region
+    snplt = sns.catplot(
+        data=world_ahle_abt
+        ,x='region'
+        ,y=f"{PROD_BASE}_kgperhd"
+        ,kind='box' ,orient='v'
+        ,col='species' ,col_wrap=4
+        )
+    plt.title(f"Distribution by Region\n{PROD_BASE} kg per head (producing animals)")
+
+    # By Income group
+    snplt = sns.catplot(
+        data=world_ahle_abt
+        ,x='incomegroup'
+        ,y=f"{PROD_BASE}_kgperhd"
+        ,kind='box'
+        ,orient='v'
+        ,col='species' ,col_wrap=4
+        )
+    plt.title(f"Distribution by Income Group\n{PROD_BASE} kg per head (producing animals)")
 
 # =============================================================================
 #### Impute
@@ -576,6 +627,7 @@ for PRICE_BASE in price_cols_base:
     # Global
     snplt = sns.catplot(
         data=world_ahle_abt
+        ,x='species'
         ,y=f"{PRICE_BASE}_usdpertonne_cnst2010"
         ,kind='box'
         ,orient='v'
@@ -589,6 +641,7 @@ for PRICE_BASE in price_cols_base:
         ,y=f"{PRICE_BASE}_usdpertonne_cnst2010"
         ,kind='box'
         ,orient='v'
+        ,col='species' ,col_wrap=4
         )
     plt.title(f"Distribution by Region\n{PRICE_BASE} per tonne in constant 2010 USD")
 
@@ -599,6 +652,7 @@ for PRICE_BASE in price_cols_base:
         ,y=f"{PRICE_BASE}_usdpertonne_cnst2010"
         ,kind='box'
         ,orient='v'
+        ,col='species' ,col_wrap=4
         )
     plt.title(f"Distribution by Income Group\n{PRICE_BASE} per tonne in constant 2010 USD")
 

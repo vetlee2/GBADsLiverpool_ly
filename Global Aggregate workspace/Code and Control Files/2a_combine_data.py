@@ -85,6 +85,7 @@ biomass_iso = biomass_iso.rename(columns={'iso3':'country_iso3'})
 
 datainfo(biomass_iso)
 
+biomass_iso_countries = list(biomass_iso['country'].unique())
 biomass_iso_missing = biomass_iso.query("country_iso3.isnull()")
 
 # =============================================================================
@@ -105,24 +106,31 @@ fao_country_merge_status = fao_combo[['country' ,'_merge_fao']].value_counts()
 
 countries_fao = list(fao_combo['country'].unique())
 
-# Reconcile country names with UN Geo Codes
-recode_countries = {
-    "China":"China"
-    ,"China, Hong Kong SAR":"Hong Kong"
-    # ,"China, Macao SAR":""
-    ,"China, Taiwan Province of":"Taiwan, Province of China"
-    # ,"China, mainland":""
-    ,"Sudan (former)":"Sudan"
-}
-fao_combo['country'] = fao_combo['country'].replace(recode_countries)
+# =============================================================================
+# # No longer needed because FAO data has iso3 codes
+# # Reconcile country names with UN Geo Codes
+# recode_countries = {
+#     "China":"China"
+#     ,"China, Hong Kong SAR":"Hong Kong"
+#     # ,"China, Macao SAR":""
+#     ,"China, Taiwan Province of":"Taiwan, Province of China"
+#     # ,"China, mainland":""
+#     ,"Sudan (former)":"Sudan"
+# }
+# fao_combo['country'] = fao_combo['country'].replace(recode_countries)
 
-# Add country iso code
-fao_combo_iso = pd.merge(
-    left=fao_combo
-    ,right=un_geo_codes_tomatch
-    ,on='country'
-    ,how='left'
-    )
+# # Add country iso code
+# fao_combo_iso = pd.merge(
+#     left=fao_combo
+#     ,right=un_geo_codes_tomatch
+#     ,on='country'
+#     ,how='left'
+#     )
+# =============================================================================
+
+fao_combo_iso = fao_combo.copy()
+fao_combo_iso = fao_combo_iso.rename(columns={'country_code_iso3_':'country_iso3'})
+
 datainfo(fao_combo_iso)
 
 # =============================================================================
@@ -209,7 +217,14 @@ missing_iso3_countries = list(missing_iso3['country'].unique())
 
 species_list = list(world_ahle_combo1['species'].unique())
 prices_lcu = [i for i in list(world_ahle_combo1) if 'lcupertonne' in i]
+
+fao_price_cols = [i for i in list(fao_producerprice_p) if 'producer_price' in i]
 fao_stocks_cols = [i for i in list(fao_production_p) if 'stocks' in i]
+fao_production_cols = [i for i in list(fao_production_p) if 'production' in i]
+fao_producinganimals_cols = [i for i in list(fao_production_p) if 'producing' in i]
+fao_producinganimals_cols += [i for i in list(fao_production_p) if 'laying' in i]
+fao_producinganimals_cols += [i for i in list(fao_production_p) if 'milk' in i]
+fao_producinganimals_cols += [i for i in list(fao_production_p) if 'prod_pop' in i]
 
 # Set production to zero for items that don't apply to a species
 # Set prices to a coded value (999.999) for items that don't apply to a species
@@ -232,6 +247,12 @@ def assign_columns_to_species(INPUT_ROW):
         prod_milk = INPUT_ROW['production_milk_whole_fresh_buffalo_tonnes']
         prod_wool = 0
 
+        prod_animals_eggs = 0
+        prod_animals_hides = INPUT_ROW['producing_animals_slaughtered_hides_buffalo_fresh_head']
+        prod_animals_meat = INPUT_ROW['producing_animals_slaughtered_meat_buffalo_head']
+        prod_animals_milk = INPUT_ROW['milk_animals_milk_whole_fresh_buffalo_head']
+        prod_animals_wool = 0
+
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_buffalo_slcpertonne']
         price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_buffalo_slcpertonne']
@@ -251,6 +272,12 @@ def assign_columns_to_species(INPUT_ROW):
         prod_meat = INPUT_ROW['production_meat_camel_tonnes']
         prod_milk = INPUT_ROW['production_milk_whole_fresh_camel_tonnes']
         prod_wool = 0
+
+        prod_animals_eggs = 0
+        prod_animals_hides = 0
+        prod_animals_meat = INPUT_ROW['producing_animals_slaughtered_meat_camel_head']
+        prod_animals_milk = INPUT_ROW['milk_animals_milk_whole_fresh_camel_head']
+        prod_animals_wool = 0
 
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_camel_slcpertonne']
@@ -272,6 +299,12 @@ def assign_columns_to_species(INPUT_ROW):
         prod_milk = INPUT_ROW['production_milk_whole_fresh_cow_tonnes']
         prod_wool = 0
 
+        prod_animals_eggs = 0
+        prod_animals_hides = INPUT_ROW['producing_animals_slaughtered_hides_cattle_fresh_head']
+        prod_animals_meat = INPUT_ROW['producing_animals_slaughtered_meat_cattle_head']
+        prod_animals_milk = INPUT_ROW['milk_animals_milk_whole_fresh_cow_head']
+        prod_animals_wool = 0
+
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_cattle_slcpertonne']
         price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_cattle_slcpertonne']
@@ -291,6 +324,12 @@ def assign_columns_to_species(INPUT_ROW):
         prod_meat = INPUT_ROW['production_meat_chicken_tonnes']
         prod_milk = 0
         prod_wool = 0
+
+        prod_animals_eggs = INPUT_ROW['laying_eggs_hen_in_shell_1000_head'] * 1000
+        prod_animals_hides = 0
+        prod_animals_meat = INPUT_ROW['producing_animals_slaughtered_meat_chicken_1000_head'] * 1000
+        prod_animals_milk = 0
+        prod_animals_wool = 0
 
         price_eggs_lcu = INPUT_ROW['producer_price_eggs_hen_in_shell_slcpertonne']
         price_meat_lcu = INPUT_ROW['producer_price_meat_chicken_slcpertonne']
@@ -312,6 +351,12 @@ def assign_columns_to_species(INPUT_ROW):
         prod_milk = 0
         prod_wool = 0
 
+        prod_animals_eggs = 0
+        prod_animals_hides = 0
+        prod_animals_meat = INPUT_ROW['producing_animals_slaughtered_meat_duck_1000_head'] * 1000
+        prod_animals_milk = 0
+        prod_animals_wool = 0
+
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_duck_slcpertonne']
         price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_duck_slcpertonne']
@@ -331,6 +376,12 @@ def assign_columns_to_species(INPUT_ROW):
         prod_meat = INPUT_ROW['production_meat_goat_tonnes']
         prod_milk = INPUT_ROW['production_milk_whole_fresh_goat_tonnes']
         prod_wool = 0
+
+        prod_animals_eggs = 0
+        prod_animals_hides = 0
+        prod_animals_meat = INPUT_ROW['producing_animals_slaughtered_meat_goat_head']
+        prod_animals_milk = INPUT_ROW['milk_animals_milk_whole_fresh_goat_head']
+        prod_animals_wool = 0
 
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_goat_slcpertonne']
@@ -352,6 +403,12 @@ def assign_columns_to_species(INPUT_ROW):
         prod_milk = 0
         prod_wool = 0
 
+        prod_animals_eggs = 0
+        prod_animals_hides = 0
+        prod_animals_meat = INPUT_ROW['producing_animals_slaughtered_meat_horse_head']
+        prod_animals_milk = 0
+        prod_animals_wool = 0
+
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_horse_slcpertonne']
         price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_horse_slcpertonne']
@@ -371,6 +428,12 @@ def assign_columns_to_species(INPUT_ROW):
         prod_meat = INPUT_ROW['production_meat_pig_tonnes']
         prod_milk = 0
         prod_wool = 0
+
+        prod_animals_eggs = 0
+        prod_animals_hides = 0
+        prod_animals_meat = INPUT_ROW['producing_animals_slaughtered_meat_pig_head']
+        prod_animals_milk = 0
+        prod_animals_wool = 0
 
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_pig_slcpertonne']
@@ -392,6 +455,12 @@ def assign_columns_to_species(INPUT_ROW):
         prod_milk = INPUT_ROW['production_milk_whole_fresh_sheep_tonnes']
         prod_wool = INPUT_ROW['production_wool_greasy_tonnes']
 
+        prod_animals_eggs = 0
+        prod_animals_hides = 0
+        prod_animals_meat = INPUT_ROW['producing_animals_slaughtered_meat_sheep_head']
+        prod_animals_milk = INPUT_ROW['milk_animals_milk_whole_fresh_sheep_head']
+        prod_animals_wool = np.nan
+
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_sheep_slcpertonne']
         price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_sheep_slcpertonne']
@@ -411,6 +480,12 @@ def assign_columns_to_species(INPUT_ROW):
         prod_meat = INPUT_ROW['production_meat_turkey_tonnes']
         prod_milk = 0
         prod_wool = 0
+
+        prod_animals_eggs = 0
+        prod_animals_hides = 0
+        prod_animals_meat = INPUT_ROW['producing_animals_slaughtered_meat_turkey_1000_head'] * 1000
+        prod_animals_milk = 0
+        prod_animals_wool = 0
 
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_turkey_slcpertonne']
@@ -432,6 +507,12 @@ def assign_columns_to_species(INPUT_ROW):
         prod_milk = np.nan
         prod_wool = np.nan
 
+        prod_animals_eggs = np.nan
+        prod_animals_hides = np.nan
+        prod_animals_meat = np.nan
+        prod_animals_milk = np.nan
+        prod_animals_wool = np.nan
+
         price_eggs_lcu = np.nan
         price_meat_lcu = np.nan
         price_meat_live_lcu = np.nan
@@ -445,53 +526,46 @@ def assign_columns_to_species(INPUT_ROW):
         price_wool_usd = np.nan
     return pd.Series([stocks_hd
                      ,prod_eggs ,prod_hides ,prod_meat ,prod_milk ,prod_wool
+                     ,prod_animals_eggs ,prod_animals_hides ,prod_animals_meat ,prod_animals_milk ,prod_animals_wool
                      ,price_eggs_lcu ,price_meat_lcu ,price_meat_live_lcu ,price_milk_lcu ,price_wool_lcu
                      ,price_eggs_usd ,price_meat_usd ,price_meat_live_usd ,price_milk_usd ,price_wool_usd
                      ])
 world_ahle_combo1[[
-    'stocksKEEP_hd'
+    'stocks_hd'
 
-    ,'productionKEEP_eggs_tonnes'
-    ,'productionKEEP_hides_tonnes'
-    ,'productionKEEP_meat_tonnes'
-    ,'productionKEEP_milk_tonnes'
-    ,'productionKEEP_wool_tonnes'
+    ,'production_eggs_tonnes'
+    ,'production_hides_tonnes'
+    ,'production_meat_tonnes'
+    ,'production_milk_tonnes'
+    ,'production_wool_tonnes'
 
-    ,'producer_priceKEEP_eggs_lcupertonne'
-    ,'producer_priceKEEP_meat_lcupertonne'
-    ,'producer_priceKEEP_meat_live_lcupertonne'
-    ,'producer_priceKEEP_milk_lcupertonne'
-    ,'producer_priceKEEP_wool_lcupertonne'
+    ,'producing_animals_eggs_hd'
+    ,'producing_animals_hides_hd'
+    ,'producing_animals_meat_hd'
+    ,'producing_animals_milk_hd'
+    ,'producing_animals_wool_hd'
 
-    ,'producer_priceKEEP_eggs_usdpertonne'
-    ,'producer_priceKEEP_meat_usdpertonne'
-    ,'producer_priceKEEP_meat_live_usdpertonne'
-    ,'producer_priceKEEP_milk_usdpertonne'
-    ,'producer_priceKEEP_wool_usdpertonne'
+    ,'producer_price_eggs_lcupertonne'
+    ,'producer_price_meat_lcupertonne'
+    ,'producer_price_meat_live_lcupertonne'
+    ,'producer_price_milk_lcupertonne'
+    ,'producer_price_wool_lcupertonne'
+
+    ,'producer_price_eggs_usdpertonne'
+    ,'producer_price_meat_usdpertonne'
+    ,'producer_price_meat_live_usdpertonne'
+    ,'producer_price_milk_usdpertonne'
+    ,'producer_price_wool_usdpertonne'
     ]] = world_ahle_combo1.apply(assign_columns_to_species ,axis=1)
 
 # Drop species-specific columns
-orig_stocks_cols = [i for i in list(world_ahle_combo1) if 'stocks_' in i]
-orig_production_cols = [i for i in list(world_ahle_combo1) if 'production_' in i]
-orig_price_cols = [i for i in list(world_ahle_combo1) if 'producer_price_' in i]
-world_ahle_combo1 = world_ahle_combo1.drop(columns=orig_stocks_cols + orig_production_cols + orig_price_cols)
-
-# Remove KEEP flag from new columns
-world_ahle_combo1.columns = world_ahle_combo1.columns.str.replace('KEEP' ,'')
+dropcols = fao_stocks_cols + fao_production_cols + fao_producinganimals_cols + fao_price_cols
+world_ahle_combo1 = world_ahle_combo1.drop(columns=dropcols ,errors='ignore')
 
 datainfo(world_ahle_combo1)
 
 # =============================================================================
 # # Not used
-# stocks_asses_head
-# stocks_beehives_no
-# stocks_camelids_other_head
-# stocks_geese_and_guinea_fowls_1000_head
-# stocks_mules_head
-# stocks_pigs_head
-# stocks_rabbits_and_hares_1000_head
-# stocks_rodents_other_1000_head
-
 
 # production_meat_game_tonnes
 # producer_price_meat_game_slcpertonne

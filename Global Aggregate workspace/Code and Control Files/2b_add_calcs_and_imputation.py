@@ -236,7 +236,7 @@ prod_animals_lookup = {
     ,'production_wool':'producing_animals_wool_hd'
 }
 for PROD ,ANIMALS in prod_animals_lookup.items():
-    world_ahle_abt[f"{PROD}_kgperhd"] = (world_ahle_abt[f"{PROD}_tonnes"] * 1000) / world_ahle_abt[ANIMALS]
+    world_ahle_abt[f"{PROD}_kgperproducinganimal"] = (world_ahle_abt[f"{PROD}_tonnes"] * 1000) / world_ahle_abt[ANIMALS]
 
 datainfo(world_ahle_abt)
 
@@ -916,6 +916,60 @@ for COL ,SPECIES_LIST in imputed_cols_withspec.items():
     #     ,orient='v'
     #     )
     # plt.title(COL)
+
+#%% Calcs
+
+# =============================================================================
+#### Value of production
+# =============================================================================
+world_ahle_abt.eval(
+    '''
+    liveweight_value_2010usd = (biomass / 1000) * producer_price_meat_live_usdpertonne_cnst2010
+    output_value_meat_2010usd = production_meat_tonnes * producer_price_meat_usdpertonne_cnst2010
+    output_value_milk_2010usd = production_milk_tonnes * producer_price_milk_usdpertonne_cnst2010
+    output_value_eggs_2010usd = production_eggs_tonnes * producer_price_eggs_usdpertonne_cnst2010
+    output_value_wool_2010usd = production_wool_tonnes * producer_price_wool_usdpertonne_cnst2010
+    '''
+    ,inplace=True
+)
+datainfo(world_ahle_abt)
+
+# =============================================================================
+#### Apply mortality and morbidity
+# =============================================================================
+mortality_byincome = {
+    "L":0.15
+    ,"LM":0.1
+    ,"UM":0.06
+    ,"H":0.04
+}
+morbidity_byincome = {
+    "L":0.15
+    ,"LM":0.15
+    ,"UM":0.15
+    ,"H":0.15
+}
+
+def lookup_from_dictionary(KEY ,DICT):
+    try:
+        return DICT[KEY]      # If key is found in dictionary, return value
+    except:
+        return None
+
+world_ahle_abt['mortality_rate'] = world_ahle_abt['incomegroup'].apply(lookup_from_dictionary ,DICT=mortality_byincome)
+world_ahle_abt['morbidity_rate'] = world_ahle_abt['incomegroup'].apply(lookup_from_dictionary ,DICT=morbidity_byincome)
+
+world_ahle_abt.eval(
+    '''
+    liveweight_value_2010usd_ideal = liveweight_value_2010usd * (1 / (1 - mortality_rate))
+    output_value_meat_2010usd_ideal = output_value_meat_2010usd * (1 / (1 - morbidity_rate))
+    output_value_milk_2010usd_ideal = output_value_milk_2010usd * (1 / (1 - morbidity_rate))
+    output_value_eggs_2010usd_ideal = output_value_eggs_2010usd * (1 / (1 - morbidity_rate))
+    output_value_wool_2010usd_ideal = output_value_wool_2010usd * (1 / (1 - morbidity_rate))
+    '''
+    ,inplace=True
+)
+datainfo(world_ahle_abt)
 
 #%% Data checks
 

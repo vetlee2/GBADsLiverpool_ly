@@ -5,7 +5,11 @@ in the GBADs data portal.
 '''
 #%% Import
 
-wb_infl_exchg = pd.read_csv(os.path.join(RAWDATA_FOLDER ,'worldbank_cpi_exchg_2000_2021' ,'598d23ae-3692-40f3-a27b-394e568cb82a_Data.csv'))
+wb_infl_exchg = pd.read_csv(os.path.join(RAWDATA_FOLDER
+                                         ,'worldbank_cpi_exchg_2000_2021'
+                                         ,'598d23ae-3692-40f3-a27b-394e568cb82a_Data.csv'
+                                         )
+                            )
 cleancolnames(wb_infl_exchg)
 
 # Rename
@@ -38,5 +42,5 @@ for COL in convert_cols_to_numeric:
 # ----------------------------------------------------------------------------
 datainfo(wb_infl_exchg)
 
-wb_infl_exchg.to_csv(os.path.join(RAWDATA_FOLDER ,'wb_infl_exchg.csv'))
-wb_infl_exchg.to_pickle(os.path.join(RAWDATA_FOLDER ,'wb_infl_exchg.pkl.gz'))
+wb_infl_exchg.to_csv(os.path.join(PRODATA_FOLDER ,'wb_infl_exchg.csv'))
+wb_infl_exchg.to_pickle(os.path.join(PRODATA_FOLDER ,'wb_infl_exchg.pkl.gz'))

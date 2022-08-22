@@ -137,6 +137,11 @@ for COL in imputed_cols:
 # =============================================================================
 missing_biomass = world_ahle_abt.loc[world_ahle_abt['biomass'].isnull()]
 
+#%% Import/Export
+
+# Calculate net imports
+world_ahle_abt['net_imports_hd'] = world_ahle_abt['import_animals_hd'] - world_ahle_abt['export_animals_hd']
+
 #%% Production
 '''
 Plan:
@@ -246,7 +251,7 @@ for PROD_BASE in list(prod_animals_lookup):
     snplt = sns.catplot(
         data=world_ahle_abt
         ,x='species'
-        ,y=f"{PROD_BASE}_kgperhd"
+        ,y=f"{PROD_BASE}_kgperproducinganimal"
         ,kind='box'
         ,orient='v'
         )
@@ -256,7 +261,7 @@ for PROD_BASE in list(prod_animals_lookup):
     snplt = sns.catplot(
         data=world_ahle_abt
         ,x='region'
-        ,y=f"{PROD_BASE}_kgperhd"
+        ,y=f"{PROD_BASE}_kgperproducinganimal"
         ,kind='box' ,orient='v'
         ,col='species' ,col_wrap=4
         )
@@ -266,7 +271,7 @@ for PROD_BASE in list(prod_animals_lookup):
     snplt = sns.catplot(
         data=world_ahle_abt
         ,x='incomegroup'
-        ,y=f"{PROD_BASE}_kgperhd"
+        ,y=f"{PROD_BASE}_kgperproducinganimal"
         ,kind='box'
         ,orient='v'
         ,col='species' ,col_wrap=4
@@ -276,31 +281,19 @@ for PROD_BASE in list(prod_animals_lookup):
 # =============================================================================
 #### Impute
 # =============================================================================
-# Check average for meat at different levels of aggregation
+# Check average and median at different levels of aggregation
 # wtavg1_meat_kgperkgbm = weighted_average(
 #     world_ahle_abt
-#     ,AVG_VAR="production_meat_tonnes_kgperkgbm"
+#     ,AVG_VAR="production_meat_kgperkgbm"
 #     ,WT_VAR='biomass'
 #     ,BY_VARS=['species' ,'year' ,'region' ,'incomegroup']
 # )
-# wtavg2a_meat_kgperkgbm = weighted_average(
-#     world_ahle_abt
-#     ,AVG_VAR="production_meat_tonnes_kgperkgbm"
-#     ,WT_VAR='biomass'
-#     ,BY_VARS=['species' ,'year' ,'incomegroup']
-# )
-# wtavg2b_meat_kgperkgbm = weighted_average(
-#     world_ahle_abt
-#     ,AVG_VAR="production_meat_tonnes_kgperkgbm"
-#     ,WT_VAR='biomass'
-#     ,BY_VARS=['species' ,'year' ,'region']
-# )
-# wtavg3_meat_kgperkgbm = weighted_average(
-#     world_ahle_abt
-#     ,AVG_VAR="production_meat_tonnes_kgperkgbm"
-#     ,WT_VAR='biomass'
-#     ,BY_VARS=['species' ,'year']
-# )
+
+median1_meat = world_ahle_abt.pivot_table(
+   index=['species' ,'year' ,'region' ,'incomegroup']
+   ,values=['production_meat_kgperkgbm' ,'production_meat_kgperproducinganimal']
+   ,aggfunc='median'
+)
 
 # Find average for each species, year, region, and income group, weighted by biomass
 # UPDATE: Using median price instead of average as it is robust to outliers.
@@ -363,9 +356,9 @@ for PRODCOL_BASE in production_cols_base:
     # Get median by group at least aggregate level
     median = world_ahle_abt.pivot_table(
        index=['species' ,'year' ,'region' ,'incomegroup']
-       ,values=f"{PRODCOL_BASE}_kgperkgbm" ,aggfunc='median'
-    )
-    median = median.add_suffix('_median1')
+       ,values=[f"{PRODCOL_BASE}_kgperkgbm" ,f"{PRODCOL_BASE}_kgperproducinganimal"]
+       ,aggfunc='median'
+    ).add_suffix('_median1')
     # Merge with data
     world_ahle_abt = pd.merge(left=world_ahle_abt ,right=median
         ,on=['species' ,'year' ,'region' ,'incomegroup']
@@ -375,9 +368,9 @@ for PRODCOL_BASE in production_cols_base:
     # Get median by group at mid aggregate level
     median = world_ahle_abt.pivot_table(
        index=['species' ,'year' ,'incomegroup']
-       ,values=f"{PRODCOL_BASE}_kgperkgbm" ,aggfunc='median'
-    )
-    median = median.add_suffix('_median2a')
+       ,values=[f"{PRODCOL_BASE}_kgperkgbm" ,f"{PRODCOL_BASE}_kgperproducinganimal"]
+       ,aggfunc='median'
+    ).add_suffix('_median2a')
     # Merge with data
     world_ahle_abt = pd.merge(left=world_ahle_abt ,right=median
         ,on=['species' ,'year' ,'incomegroup']
@@ -387,9 +380,9 @@ for PRODCOL_BASE in production_cols_base:
     # Get median by group at mid aggregate level
     median = world_ahle_abt.pivot_table(
        index=['species' ,'year' ,'region']
-       ,values=f"{PRODCOL_BASE}_kgperkgbm" ,aggfunc='median'
-    )
-    median = median.add_suffix('_median2b')
+       ,values=[f"{PRODCOL_BASE}_kgperkgbm" ,f"{PRODCOL_BASE}_kgperproducinganimal"]
+       ,aggfunc='median'
+    ).add_suffix('_median2b')
     # Merge with data
     world_ahle_abt = pd.merge(left=world_ahle_abt ,right=median
         ,on=['species' ,'year' ,'region']
@@ -399,9 +392,9 @@ for PRODCOL_BASE in production_cols_base:
     # Get median by group at most aggregate level
     median = world_ahle_abt.pivot_table(
        index=['species' ,'year']
-       ,values=f"{PRODCOL_BASE}_kgperkgbm" ,aggfunc='median'
-    )
-    median = median.add_suffix('_median3')
+       ,values=[f"{PRODCOL_BASE}_kgperkgbm" ,f"{PRODCOL_BASE}_kgperproducinganimal"]
+       ,aggfunc='median'
+    ).add_suffix('_median3')
     # Merge with data
     world_ahle_abt = pd.merge(left=world_ahle_abt ,right=median
         ,on=['species' ,'year']
@@ -409,7 +402,7 @@ for PRODCOL_BASE in production_cols_base:
     )
 
     # -----------------------------------------------------------------------------
-    # Where production per kg biomass is missing or zero, fill with average
+    # Where production per kg biomass is missing, fill with average
     # -----------------------------------------------------------------------------
     _null_rows = (world_ahle_abt[f"{PRODCOL_BASE}_kgperkgbm"].isnull())
     print(f"> Filling {_null_rows.sum() :,} rows where {PRODCOL_BASE}_kgperkgbm is missing.")
@@ -427,6 +420,22 @@ for PRODCOL_BASE in production_cols_base:
         ,f'{PRODCOL_BASE}_kgperkgbm_median3'
         ]
     world_ahle_abt[f"{PRODCOL_BASE}_kgperkgbm"] = take_first_nonmissing(world_ahle_abt ,candidate_cols_inorder)
+
+    # -----------------------------------------------------------------------------
+    # Where production per animal is missing, fill with average
+    # -----------------------------------------------------------------------------
+    _null_rows = (world_ahle_abt[f"{PRODCOL_BASE}_kgperproducinganimal"].isnull())
+    print(f"> Filling {_null_rows.sum() :,} rows where {PRODCOL_BASE}_kgperproducinganimal is missing.")
+
+    world_ahle_abt[f"{PRODCOL_BASE}_kgperproducinganimal_raw"] = world_ahle_abt[f"{PRODCOL_BASE}_kgperproducinganimal"]      # Create copy of original column
+    candidate_cols_inorder = [
+        f"{PRODCOL_BASE}_kgperproducinganimal_raw"
+        ,f'{PRODCOL_BASE}_kgperproducinganimal_median1'
+        ,f'{PRODCOL_BASE}_kgperproducinganimal_median2a'
+        ,f'{PRODCOL_BASE}_kgperproducinganimal_median2b'
+        ,f'{PRODCOL_BASE}_kgperproducinganimal_median3'
+        ]
+    world_ahle_abt[f"{PRODCOL_BASE}_kgperproducinganimal"] = take_first_nonmissing(world_ahle_abt ,candidate_cols_inorder)
 
     # -----------------------------------------------------------------------------
     # Recalculate production from production per kg biomass
@@ -601,9 +610,9 @@ datainfo(world_ahle_abt)
 
 # datainfo(world_ahle_abt)
 
-# -----------------------------------------------------------------------------
-# Explore
-# -----------------------------------------------------------------------------
+# =============================================================================
+#### Explore
+# =============================================================================
 # # Are there differences between USD prices as reported by FAO and as calculated by me?
 # # Yes. Particularly in countries that had wild currency fluctuations where World Bank exchange rate didn't adjust.
 # for PRICE_BASE in price_cols_base:
@@ -917,7 +926,7 @@ for COL ,SPECIES_LIST in imputed_cols_withspec.items():
     #     )
     # plt.title(COL)
 
-#%% Calcs
+#%% AHLE Calcs
 
 # =============================================================================
 #### Value of production
@@ -937,6 +946,7 @@ datainfo(world_ahle_abt)
 # =============================================================================
 #### Apply mortality and morbidity
 # =============================================================================
+# Currently using the same rates for all species
 mortality_byincome = {
     "L":0.15
     ,"LM":0.1
@@ -969,6 +979,40 @@ world_ahle_abt.eval(
     '''
     ,inplace=True
 )
+datainfo(world_ahle_abt)
+
+# =============================================================================
+#### Apply vet & med expenditures
+# =============================================================================
+# Currently the same for all products (meat, eggs, milk)
+# Spend per kg biomass
+farmspend_perkg_biomass_byincome = {
+    "L":0.01
+    ,"LM":0.02
+    ,"UM":0.03
+    ,"H":0.05
+}
+pubspend_perkg_biomass_byincome = {
+    "L":0.005
+    ,"LM":0.01
+    ,"UM":0.02
+    ,"H":0.03
+}
+world_ahle_abt['vetspend_farm_perkgbm'] = \
+    world_ahle_abt['incomegroup'].apply(lookup_from_dictionary ,DICT=farmspend_perkg_biomass_byincome)
+world_ahle_abt['vetspend_public_perkgbm'] = \
+    world_ahle_abt['incomegroup'].apply(lookup_from_dictionary ,DICT=pubspend_perkg_biomass_byincome)
+
+# Spend per kg production
+vetspend_perkg_prod_byincome = {
+    "L":0.0025
+    ,"LM":0.005
+    ,"UM":0.01
+    ,"H":0.01
+}
+world_ahle_abt['vetspend_farm_perkgprod'] = \
+    world_ahle_abt['incomegroup'].apply(lookup_from_dictionary ,DICT=vetspend_perkg_prod_byincome)
+
 datainfo(world_ahle_abt)
 
 #%% Data checks
@@ -1092,8 +1136,9 @@ wtavg_cols = [i for i in list(world_ahle_abt) if '_wtavg' in i]
 median_cols = [i for i in list(world_ahle_abt) if '_median' in i]
 intermed_price_cols = [i for i in list(world_ahle_abt) if 'pertonne_2010' in i]
 intermed_price_cols2 = [i for i in list(world_ahle_abt) if 'pertonne_growth' in i]
+raw_cols = [i for i in list(world_ahle_abt) if '_raw' in i]
 
-dropcols = wtavg_cols + median_cols + intermed_price_cols + intermed_price_cols2
+dropcols = wtavg_cols + median_cols + intermed_price_cols + intermed_price_cols2 + raw_cols
 world_ahle_abt = world_ahle_abt.drop(columns=dropcols ,errors='ignore')
 
 datainfo(world_ahle_abt)
@@ -1101,5 +1146,5 @@ datainfo(world_ahle_abt)
 # =============================================================================
 #### Export
 # =============================================================================
-world_ahle_abt.to_csv(os.path.join(PRODATA_FOLDER ,'world_ahle_abt.csv'))
-world_ahle_abt.to_pickle(os.path.join(PRODATA_FOLDER ,'world_ahle_abt.pkl.gz'))
+world_ahle_abt.to_csv(os.path.join(FINDATA_FOLDER ,'world_ahle_abt.csv'))
+world_ahle_abt.to_pickle(os.path.join(FINDATA_FOLDER ,'world_ahle_abt.pkl.gz'))

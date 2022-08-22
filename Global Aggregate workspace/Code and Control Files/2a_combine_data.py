@@ -5,8 +5,8 @@
 '''
 Biomass table from GBADSKE only has data to 2017. Extend with FAOstat population data to 2020.
 '''
-biomass = pd.read_pickle(os.path.join(RAWDATA_FOLDER ,'livestock_countries_biomass.pkl.gz'))
-fao_production_p = pd.read_pickle(os.path.join(RAWDATA_FOLDER ,'fao_production.pkl.gz'))
+biomass = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'livestock_countries_biomass.pkl.gz'))
+fao_production_p = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'fao_production.pkl.gz'))
 
 # -----------------------------------------------------------------------------
 # Create rows for additional years
@@ -40,7 +40,7 @@ biomass_extended = pd.merge(
 # =============================================================================
 #### Prep UN Geo codes
 # =============================================================================
-un_geo_codes = pd.read_pickle(os.path.join(RAWDATA_FOLDER ,'un_geo_codes.pkl.gz'))
+un_geo_codes = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'un_geo_codes.pkl.gz'))
 
 un_geo_codes_tomatch = un_geo_codes.copy()
 
@@ -91,9 +91,10 @@ biomass_iso_missing = biomass_iso.query("country_iso3.isnull()")
 # =============================================================================
 #### Prep FAO tables
 # =============================================================================
-fao_producerprice_p = pd.read_pickle(os.path.join(RAWDATA_FOLDER ,'fao_producerprice.pkl.gz'))
+fao_producerprice_p = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'fao_producerprice.pkl.gz'))
+fao_impexp_p = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'fao_impexp_p.pkl.gz'))
 
-# Combine FAO tables
+# Combine FAO production and price tables
 fao_combo = pd.merge(
     left=fao_production_p
     ,right=fao_producerprice_p
@@ -103,6 +104,16 @@ fao_combo = pd.merge(
     )
 fao_combo['_merge_fao'].value_counts()
 fao_country_merge_status = fao_combo[['country' ,'_merge_fao']].value_counts()
+
+# Combine FAO import/export table
+fao_combo = pd.merge(
+    left=fao_combo
+    ,right=fao_impexp_p
+    ,on=['country_code_iso3_' ,'country' ,'year']
+    ,how='outer'
+    ,indicator='_merge_fao2'
+    )
+fao_combo['_merge_fao2'].value_counts()
 
 countries_fao = list(fao_combo['country'].unique())
 
@@ -137,13 +148,13 @@ datainfo(fao_combo_iso)
 #### Prep World Bank tables
 # =============================================================================
 # Income groups
-wb_income = pd.read_pickle(os.path.join(RAWDATA_FOLDER ,'wb_income.pkl.gz'))
+wb_income = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'wb_income.pkl.gz'))
 
 # Regions
-wb_region = pd.read_pickle(os.path.join(RAWDATA_FOLDER ,'wb_region.pkl.gz'))
+wb_region = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'wb_region.pkl.gz'))
 
 # Inflation and Exchange rates
-wb_infl_exchg = pd.read_pickle(os.path.join(RAWDATA_FOLDER ,'wb_infl_exchg.pkl.gz'))
+wb_infl_exchg = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'wb_infl_exchg.pkl.gz'))
 
 # Combine World Bank tables
 wb_combo = pd.merge(
@@ -167,7 +178,7 @@ wb_combo['_merge_wb_2'].value_counts()
 wb_combo = wb_combo.rename(columns={"iso3":"country_iso3"})
 
 # =============================================================================
-#### Merge
+#### Merge all
 # =============================================================================
 # World Bank onto Biomass
 world_ahle_combo1 = pd.merge(
@@ -195,6 +206,7 @@ world_ahle_combo1 = world_ahle_combo1.drop(columns=[
     ,'country_y'
     ,'time_code'
     ,'_merge_fao'
+    ,'_merge_fao2'
     ,'_merge_1'
     ,'flag_y'
     ,'_merge_wb_1'
@@ -216,18 +228,22 @@ missing_iso3_countries = list(missing_iso3['country'].unique())
 #%% Assign columns to correct species
 
 species_list = list(world_ahle_combo1['species'].unique())
-prices_lcu = [i for i in list(world_ahle_combo1) if 'lcupertonne' in i]
 
 fao_price_cols = [i for i in list(fao_producerprice_p) if 'producer_price' in i]
 fao_stocks_cols = [i for i in list(fao_production_p) if 'stocks' in i]
 fao_production_cols = [i for i in list(fao_production_p) if 'production' in i]
+
 fao_producinganimals_cols = [i for i in list(fao_production_p) if 'producing' in i]
 fao_producinganimals_cols += [i for i in list(fao_production_p) if 'laying' in i]
 fao_producinganimals_cols += [i for i in list(fao_production_p) if 'milk' in i]
 fao_producinganimals_cols += [i for i in list(fao_production_p) if 'prod_pop' in i]
 
-# Set production to zero for items that don't apply to a species
-# Set prices to a coded value (999.999) for items that don't apply to a species
+fao_impexp_cols = [i for i in list(world_ahle_combo1) if 'import' in i]
+fao_impexp_cols += [i for i in list(world_ahle_combo1) if 'export' in i]
+
+# For items that don't apply to a species:
+# - Set production to zero
+# - Set prices to a coded value (999.999)
 '''
 Using Standard Local Currency from FAO:
     The Standard Local Currency of a country is set as the local currency prevailing in the current year.
@@ -252,6 +268,9 @@ def assign_columns_to_species(INPUT_ROW):
         prod_animals_meat = INPUT_ROW['producing_animals_slaughtered_meat_buffalo_head']
         prod_animals_milk = INPUT_ROW['milk_animals_milk_whole_fresh_buffalo_head']
         prod_animals_wool = 0
+
+        import_animals_hd = INPUT_ROW['import_quantity_buffaloes_head']
+        export_animals_hd = INPUT_ROW['export_quantity_buffaloes_head']
 
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_buffalo_slcpertonne']
@@ -279,6 +298,9 @@ def assign_columns_to_species(INPUT_ROW):
         prod_animals_milk = INPUT_ROW['milk_animals_milk_whole_fresh_camel_head']
         prod_animals_wool = 0
 
+        import_animals_hd = INPUT_ROW['import_quantity_camels_head']
+        export_animals_hd = INPUT_ROW['export_quantity_camels_head']
+
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_camel_slcpertonne']
         price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_camel_slcpertonne']
@@ -304,6 +326,9 @@ def assign_columns_to_species(INPUT_ROW):
         prod_animals_meat = INPUT_ROW['producing_animals_slaughtered_meat_cattle_head']
         prod_animals_milk = INPUT_ROW['milk_animals_milk_whole_fresh_cow_head']
         prod_animals_wool = 0
+
+        import_animals_hd = INPUT_ROW['import_quantity_cattle_head']
+        export_animals_hd = INPUT_ROW['export_quantity_cattle_head']
 
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_cattle_slcpertonne']
@@ -331,6 +356,9 @@ def assign_columns_to_species(INPUT_ROW):
         prod_animals_milk = 0
         prod_animals_wool = 0
 
+        import_animals_hd = INPUT_ROW['import_quantity_chickens_1000_head'] * 1000
+        export_animals_hd = INPUT_ROW['export_quantity_chickens_1000_head'] * 1000
+
         price_eggs_lcu = INPUT_ROW['producer_price_eggs_hen_in_shell_slcpertonne']
         price_meat_lcu = INPUT_ROW['producer_price_meat_chicken_slcpertonne']
         price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_chicken_slcpertonne']
@@ -356,6 +384,9 @@ def assign_columns_to_species(INPUT_ROW):
         prod_animals_meat = INPUT_ROW['producing_animals_slaughtered_meat_duck_1000_head'] * 1000
         prod_animals_milk = 0
         prod_animals_wool = 0
+
+        import_animals_hd = INPUT_ROW['import_quantity_ducks_1000_head'] * 1000
+        export_animals_hd = INPUT_ROW['export_quantity_ducks_1000_head'] * 1000
 
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_duck_slcpertonne']
@@ -383,6 +414,9 @@ def assign_columns_to_species(INPUT_ROW):
         prod_animals_milk = INPUT_ROW['milk_animals_milk_whole_fresh_goat_head']
         prod_animals_wool = 0
 
+        import_animals_hd = INPUT_ROW['import_quantity_goats_head']
+        export_animals_hd = INPUT_ROW['export_quantity_goats_head']
+
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_goat_slcpertonne']
         price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_goat_slcpertonne']
@@ -408,6 +442,9 @@ def assign_columns_to_species(INPUT_ROW):
         prod_animals_meat = INPUT_ROW['producing_animals_slaughtered_meat_horse_head']
         prod_animals_milk = 0
         prod_animals_wool = 0
+
+        import_animals_hd = INPUT_ROW['import_quantity_horses_head']
+        export_animals_hd = INPUT_ROW['export_quantity_horses_head']
 
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_horse_slcpertonne']
@@ -435,6 +472,9 @@ def assign_columns_to_species(INPUT_ROW):
         prod_animals_milk = 0
         prod_animals_wool = 0
 
+        import_animals_hd = INPUT_ROW['import_quantity_pigs_head']
+        export_animals_hd = INPUT_ROW['export_quantity_pigs_head']
+
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_pig_slcpertonne']
         price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_pig_slcpertonne']
@@ -459,7 +499,10 @@ def assign_columns_to_species(INPUT_ROW):
         prod_animals_hides = 0
         prod_animals_meat = INPUT_ROW['producing_animals_slaughtered_meat_sheep_head']
         prod_animals_milk = INPUT_ROW['milk_animals_milk_whole_fresh_sheep_head']
-        prod_animals_wool = np.nan
+        prod_animals_wool = 999      # Not available in FAOstat
+
+        import_animals_hd = INPUT_ROW['import_quantity_sheep_head']
+        export_animals_hd = INPUT_ROW['export_quantity_sheep_head']
 
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_sheep_slcpertonne']
@@ -487,6 +530,9 @@ def assign_columns_to_species(INPUT_ROW):
         prod_animals_milk = 0
         prod_animals_wool = 0
 
+        import_animals_hd = INPUT_ROW['import_quantity_turkeys_1000_head'] * 1000
+        export_animals_hd = INPUT_ROW['export_quantity_turkeys_1000_head'] * 1000
+
         price_eggs_lcu = 999.999
         price_meat_lcu = INPUT_ROW['producer_price_meat_turkey_slcpertonne']
         price_meat_live_lcu = INPUT_ROW['producer_price_meat_livewt_turkey_slcpertonne']
@@ -513,6 +559,9 @@ def assign_columns_to_species(INPUT_ROW):
         prod_animals_milk = np.nan
         prod_animals_wool = np.nan
 
+        import_animals_hd = np.nan
+        export_animals_hd = np.nan
+
         price_eggs_lcu = np.nan
         price_meat_lcu = np.nan
         price_meat_live_lcu = np.nan
@@ -527,6 +576,7 @@ def assign_columns_to_species(INPUT_ROW):
     return pd.Series([stocks_hd
                      ,prod_eggs ,prod_hides ,prod_meat ,prod_milk ,prod_wool
                      ,prod_animals_eggs ,prod_animals_hides ,prod_animals_meat ,prod_animals_milk ,prod_animals_wool
+                     ,import_animals_hd ,export_animals_hd
                      ,price_eggs_lcu ,price_meat_lcu ,price_meat_live_lcu ,price_milk_lcu ,price_wool_lcu
                      ,price_eggs_usd ,price_meat_usd ,price_meat_live_usd ,price_milk_usd ,price_wool_usd
                      ])
@@ -545,6 +595,9 @@ world_ahle_combo1[[
     ,'producing_animals_milk_hd'
     ,'producing_animals_wool_hd'
 
+    ,'import_animals_hd'
+    ,'export_animals_hd'
+
     ,'producer_price_eggs_lcupertonne'
     ,'producer_price_meat_lcupertonne'
     ,'producer_price_meat_live_lcupertonne'
@@ -559,34 +612,20 @@ world_ahle_combo1[[
     ]] = world_ahle_combo1.apply(assign_columns_to_species ,axis=1)
 
 # Drop species-specific columns
-dropcols = fao_stocks_cols + fao_production_cols + fao_producinganimals_cols + fao_price_cols
+dropcols = fao_stocks_cols + fao_production_cols + fao_producinganimals_cols + fao_price_cols + fao_impexp_cols
 world_ahle_combo1 = world_ahle_combo1.drop(columns=dropcols ,errors='ignore')
 
 datainfo(world_ahle_combo1)
 
 # =============================================================================
-# # Not used
-
-# production_meat_game_tonnes
-# producer_price_meat_game_slcpertonne
-
-# production_meat_rabbit_tonnes
-# producer_price_meat_rabbit_slcpertonne
-
-# production_meat_ass_tonnes
-# producer_price_meat_ass_slcpertonne
-
-# production_meat_goose_and_guinea_fowl_tonnes
-# producer_price_meat_goose_and_guinea_fowl_slcpertonne
-
-# production_meat_mule_tonnes
-# producer_price_meat_mule_slcpertonne
-
-# production_meat_other_camelids_tonnes
-# producer_price_meat_other_camelids_slcpertonne
-
-# production_meat_other_rodents_tonnes
+#### Checks
 # =============================================================================
+# Missing import/export?
+missing_imp = world_ahle_combo1.query("import_animals_hd.isnull()")
+missing_imp_countries = missing_imp['country'].value_counts()
+
+missing_exp = world_ahle_combo1.query("export_animals_hd.isnull()")
+missing_exp_countries = missing_exp['country'].value_counts()
 
 # =============================================================================
 #### Describe and output

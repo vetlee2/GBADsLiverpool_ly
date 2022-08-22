@@ -131,7 +131,7 @@ datainfo(biomass)
 
 # Export
 biomass.to_csv(os.path.join(RAWDATA_FOLDER ,'livestock_countries_biomass.csv') ,index=False)
-biomass.to_pickle(os.path.join(RAWDATA_FOLDER ,'livestock_countries_biomass.pkl.gz'))
+biomass.to_pickle(os.path.join(PRODATA_FOLDER ,'livestock_countries_biomass.pkl.gz'))
 
 # =============================================================================
 #### livestock_national_population_biomass_faostat
@@ -150,7 +150,7 @@ biomass.to_pickle(os.path.join(RAWDATA_FOLDER ,'livestock_countries_biomass.pkl.
 
 # Export
 # biomass_faostat.to_csv(os.path.join(RAWDATA_FOLDER ,'livestock_national_population_biomass_faostat.csv') ,index=False)
-# biomass_faostat.to_pickle(os.path.join(RAWDATA_FOLDER ,'biomass_faostat.pkl.gz'))
+# biomass_faostat.to_pickle(os.path.join(PRODATA_FOLDER ,'biomass_faostat.pkl.gz'))
 
 # =============================================================================
 #### World Bank
@@ -167,10 +167,10 @@ datainfo(wb_region)
 
 # Export
 wb_income.to_csv(os.path.join(RAWDATA_FOLDER ,'wb_income.csv') ,index=False)
-wb_income.to_pickle(os.path.join(RAWDATA_FOLDER ,'wb_income.pkl.gz'))
+wb_income.to_pickle(os.path.join(PRODATA_FOLDER ,'wb_income.pkl.gz'))
 
 wb_region.to_csv(os.path.join(RAWDATA_FOLDER ,'wb_region.csv') ,index=False)
-wb_region.to_pickle(os.path.join(RAWDATA_FOLDER ,'wb_region.pkl.gz'))
+wb_region.to_pickle(os.path.join(PRODATA_FOLDER ,'wb_region.pkl.gz'))
 
 # =============================================================================
 #### Geo codes
@@ -180,7 +180,7 @@ datainfo(un_geo_codes)
 
 # Export
 un_geo_codes.to_csv(os.path.join(RAWDATA_FOLDER ,'un_geo_codes.csv') ,index=False)
-un_geo_codes.to_pickle(os.path.join(RAWDATA_FOLDER ,'un_geo_codes.pkl.gz'))
+un_geo_codes.to_pickle(os.path.join(PRODATA_FOLDER ,'un_geo_codes.pkl.gz'))
 
 # =============================================================================
 #### Check others

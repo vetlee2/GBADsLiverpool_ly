@@ -984,7 +984,7 @@ datainfo(world_ahle_abt)
 # =============================================================================
 #### Apply vet & med expenditures
 # =============================================================================
-# Currently the same for all products (meat, eggs, milk)
+# Currently the same for all products
 # Spend per kg biomass
 farmspend_perkg_biomass_byincome = {
     "L":0.01
@@ -998,10 +998,16 @@ pubspend_perkg_biomass_byincome = {
     ,"UM":0.02
     ,"H":0.03
 }
-world_ahle_abt['vetspend_farm_perkgbm'] = \
+world_ahle_abt['vetspend_biomass_farm_usdperkgbm'] = \
     world_ahle_abt['incomegroup'].apply(lookup_from_dictionary ,DICT=farmspend_perkg_biomass_byincome)
-world_ahle_abt['vetspend_public_perkgbm'] = \
+world_ahle_abt['vetspend_biomass_public_usdperkgbm'] = \
     world_ahle_abt['incomegroup'].apply(lookup_from_dictionary ,DICT=pubspend_perkg_biomass_byincome)
+
+world_ahle_abt['vetspend_biomass_farm_usd'] = \
+    world_ahle_abt['vetspend_biomass_farm_usdperkgbm'] * world_ahle_abt['biomass']
+
+world_ahle_abt['vetspend_biomass_public_usd'] = \
+    world_ahle_abt['vetspend_biomass_public_usdperkgbm'] * world_ahle_abt['biomass']
 
 # Spend per kg production
 vetspend_perkg_prod_byincome = {
@@ -1010,17 +1016,20 @@ vetspend_perkg_prod_byincome = {
     ,"UM":0.01
     ,"H":0.01
 }
-world_ahle_abt['vetspend_farm_perkgprod'] = \
+world_ahle_abt['vetspend_production_usdperkgprod'] = \
     world_ahle_abt['incomegroup'].apply(lookup_from_dictionary ,DICT=vetspend_perkg_prod_byincome)
+
+for PRODCOL_BASE in production_cols_base:
+    world_ahle_abt[f'vetspend_{PRODCOL_BASE}_usd'] = \
+        world_ahle_abt['vetspend_production_usdperkgprod'] * world_ahle_abt[f"{PRODCOL_BASE}_tonnes"] * 1000
 
 datainfo(world_ahle_abt)
 
 #%% Data checks
 
 # =============================================================================
-#### Data summaries
+#### Distribution by country and species
 # =============================================================================
-# Distribution by country and species
 vars_for_distributions = [
     'population'
     ,'liveweight'

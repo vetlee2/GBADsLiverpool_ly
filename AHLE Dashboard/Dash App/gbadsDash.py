@@ -1482,6 +1482,9 @@ gbadsDash.layout = html.Div([
             
             #### -- GRAPHICS
             dbc.Row([  # Row with GRAPHICS
+            
+                # TAB FOR MAP
+                dcc.Tab(label="Map", children = [
 
                 dbc.Col([ # Aggregate Map
                     dbc.Spinner(children=[
@@ -1494,23 +1497,43 @@ gbadsDash.layout = html.Div([
                                       'format': 'png', # one of png, svg, jpeg, webp
                                       'filename': 'GBADs_Global_Agg_Map'
                                       },
-                                  # 'modeBarButtonsToRemove': ['zoom',
-                                  #                            'zoomIn',
-                                  #                            'zoomOut',
-                                  #                            'autoScale',
-                                  #                            #'resetScale',  # Removes home button
-                                  #                            'pan',
-                                  #                            'select2d',
-                                  #                            'lasso2d']
                                   }
                               )
                     # End of Spinner
                     ],size="md", color="#393375", fullscreen=False),
-                    # End of Waterfall
+                    # End of Map
                     ]),
 
+                # END OF MAP TAB
                 ]),
+                
+                # TAB FOR AHLE
+                dcc.Tab(label="AHLE", children = [
+
+                # dbc.Col([ # Aggregate Map
+                #     dbc.Spinner(children=[
+                #     dcc.Graph(id='ga-bio-map',
+                #                 style = {"height":"650px"},
+                #               config = {
+                #                   "displayModeBar" : True,
+                #                   "displaylogo": False,
+                #                   'toImageButtonOptions': {
+                #                       'format': 'png', # one of png, svg, jpeg, webp
+                #                       'filename': 'GBADs_Global_Agg_Map'
+                #                       },
+                #                   }
+                #               )
+                #     # End of Spinner
+                #     ],size="md", color="#393375", fullscreen=False),
+                #     # End of Map
+                #     ]),
+
+                # END OF AHLE TAB
+                ]),
+                
             html.Br(),
+            # END OF GRAPHICS ROW   
+            ]),
             
         
         ### END OF GLOBAL AGGREGATE TAB

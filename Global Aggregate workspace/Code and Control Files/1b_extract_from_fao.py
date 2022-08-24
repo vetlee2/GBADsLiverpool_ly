@@ -1,12 +1,9 @@
 #%% About
 '''
 '''
-#%% Import FAO tables
-
-# =============================================================================
-#### Crops and Livestock Products
+#%% Crops and Livestock Products
 # https://www.fao.org/faostat/en/#data/QCL
-# =============================================================================
+
 # ----------------------------------------------------------------------------
 # Import
 # ----------------------------------------------------------------------------
@@ -41,10 +38,9 @@ datainfo(fao_production_p)
 fao_production_p.to_csv(os.path.join(PRODATA_FOLDER ,'fao_production_p.csv'))
 fao_production_p.to_pickle(os.path.join(PRODATA_FOLDER ,'fao_production.pkl.gz'))
 
-# =============================================================================
-#### Live Animal Imports and Exports
+#%% Live Animal Imports and Exports
 # https://www.fao.org/faostat/en/#data/TCL
-# =============================================================================
+
 # ----------------------------------------------------------------------------
 # Import
 # ----------------------------------------------------------------------------
@@ -57,10 +53,11 @@ datainfo(fao_impexp)
 # ----------------------------------------------------------------------------
 fao_impexp_element_items = fao_impexp[['element' ,'item' ,'unit']].value_counts()
 
-fao_impexp_p = fao_impexp.pivot(
-    index=['area_code__iso3_' ,'area' ,'year']          # Column(s) to make new index. If blank, uses existing index.
-    ,columns=['element' ,'item' ,'unit']       # Column(s) to make new columns
-    ,values='value'        # Column to populate rows. Can pass a list, but will create multi-indexed columns.
+fao_impexp_p = fao_impexp.pivot_table(
+    index=['area_code__iso3_' ,'area' ,'year']
+    ,columns=['element' ,'item' ,'unit']
+    ,values='value'
+    ,fill_value=0   # Assuming blanks mean zero
 )
 fao_impexp_p = indextocolumns(fao_impexp_p)
 fao_impexp_p = colnames_from_index(fao_impexp_p)
@@ -78,10 +75,9 @@ datainfo(fao_impexp_p)
 fao_impexp_p.to_csv(os.path.join(PRODATA_FOLDER ,'fao_impexp_p.csv'))
 fao_impexp_p.to_pickle(os.path.join(PRODATA_FOLDER ,'fao_impexp_p.pkl.gz'))
 
-# =============================================================================
-#### Producer Prices
+#%% Producer Prices
 # https://www.fao.org/faostat/en/#data/PP
-# =============================================================================
+
 # ----------------------------------------------------------------------------
 # Import
 # ----------------------------------------------------------------------------

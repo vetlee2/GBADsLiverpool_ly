@@ -4731,17 +4731,97 @@ def update_country_options_ga(region_country, region):
 @gbadsDash.callback(
     Output(component_id='select-species-ga', component_property='options'),
     Input(component_id='select-country-ga', component_property='value'),
+    Input(component_id='select-region-ga', component_property='value'),
     )
-def update_species_options_ga(country):
-    if country == "All":
-        options = []
-        for i in ga_countries_biomass['species'].unique():
-            str(options.append({'label':i,'value':(i)}))
-    else:
-        input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+def update_species_options_ga(country, region):
+    if region == 'All':
+        if country == "All":
+            options = []
+            for i in ga_countries_biomass['species'].unique():
+                str(options.append({'label':i,'value':(i)}))
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+            options = []
+            for i in input_df['species'].unique():
+                str(options.append({'label':i,'value':(i)}))
+    elif region == "Sub-Saharan Africa":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_africa_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country    
         options = []
         for i in input_df['species'].unique():
             str(options.append({'label':i,'value':(i)}))
+    elif region == "East Asia & Pacific":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_eap_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country    
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "Europe & Central Asia":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_eca_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country    
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "Latin America & the Caribbean":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_lac_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country    
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "Middle East & North Africa":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_mena_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country    
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "North America":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_na_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country    
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    else:
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_southasia_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country    
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+            
     return options
 
 # ------------------------------------------------------------------------------

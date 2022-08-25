@@ -33,6 +33,7 @@ import dash_auth
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import pandas as pd
 import humanize
 
@@ -463,14 +464,19 @@ for i in ga_countries_biomass['species'].unique():
     str(ga_species_options.append({'label':i,'value':(i)}))
     
 
-# Create dictionary of countries and their iso3 values
-country_iso3_dict = dict(zip(ga_countries_biomass.country,ga_countries_biomass.country_iso3))
+# # Create dictionary of countries and their iso3 values
+# country_iso3_dict = dict(zip(ga_countries_biomass.country,ga_countries_biomass.country_iso3))
     
+# country_options_ga = [{'label': "All", 'value': "All", 'disabled': False}]
+# for i in np.sort(ga_countries_biomass['country'].unique()) :
+#    country_shortname = country_iso3_dict[i]
+#    compound_label = f"{i} ({country_shortname})"
+#    str(country_options_ga.append({'label':compound_label,'value':(i)}))
+
 country_options_ga = [{'label': "All", 'value': "All", 'disabled': False}]
-for i in np.sort(ga_countries_biomass['country'].unique()) :
-   country_shortname = country_iso3_dict[i]
-   compound_label = f"{i} ({country_shortname})"
-   str(country_options_ga.append({'label':compound_label,'value':(i)}))
+for i in ga_countries_biomass['country'].unique():
+    str(country_options_ga.append({'label':i,'value':(i)}))
+
 
 # -----------------------------------------------------------------------------
 # Region - Country Alignment 
@@ -1380,6 +1386,55 @@ def create_biomass_map_ga(input_df, iso_alpha3, biomass, country):
 
     return biomass_map_fig
 
+# Define the biomass, pop, livewt line chart
+def create_line_chart_ga(input_df, year, biomass, population, liveweight, country):
+    # bio_pop_live_line_fig = px.line(input_df, x=year,
+    #                                 y=bio_live_pop,
+    #                                 color=country,
+    #                                 # facet_col=bio_live_pop,
+    #                                 )
+        
+    bio_pop_live_line_fig = make_subplots(rows=3, 
+                                          cols=1,
+                                          shared_xaxes=True,
+                                          vertical_spacing=0.02
+                                          )
+
+    bio_pop_live_line_fig.append_trace(go.Scatter(
+        name='Biomass',
+        x=year,
+        y=biomass,
+        mode='markers+lines',
+        marker=dict(color="#2A80B9", size=2),
+        showlegend=True
+    ), row=1, col=1)
+
+    bio_pop_live_line_fig.append_trace(go.Scatter(
+        name='Population',
+        x=year,
+        y=population,
+        mode='markers+lines',
+        marker=dict(color="#9B58B5", size=2),
+        showlegend=True
+    ), row=2, col=1)
+    
+    bio_pop_live_line_fig.append_trace(go.Scatter(
+        name='Live Weight',
+        x=year,
+        y=liveweight,
+        mode='markers+lines',
+        marker=dict(color="#F1C40F", size=2),
+        showlegend=True
+    ), row=3, col=1)
+    
+    # Update yaxis properties
+    bio_pop_live_line_fig.update_yaxes(title_text="Biomass", row=1, col=1)
+    bio_pop_live_line_fig.update_yaxes(title_text="Population", row=2, col=1)
+    bio_pop_live_line_fig.update_yaxes(title_text="Live Weight", row=3, col=1)
+
+
+    return bio_pop_live_line_fig
+
 #%% 4. LAYOUT
 ##################################################################################################
 # Here we layout the webpage, including dcc (Dash Core Component) controls we want to use, such as dropdowns.
@@ -1477,25 +1532,53 @@ gbadsDash.layout = html.Div([
                          
                 ], justify='evenly'),
 
+                          
+            #### -- VISUALIZATION SWITCH
+            # Select Visual Control
+                     
+            dbc.Card([
+                dbc.CardBody([
+                    html.H5("Select Visualization",
+                            className="card-title",
+                            style={"font-weight": "bold"}),
+                    
+            dbc.Row([ # Row with Control for Visuals
+                     
+                    # Visualization
+                    dbc.Col([
+                        html.H6("Visualize"),
+                        dcc.RadioItems(
+                            id='viz-radio-ga',
+                            options=['Map', 'Line chart'],
+                            value='Map',
+                            inputStyle={"margin-right": "2px", # This pulls the words off of the button
+                                        "margin-left": "10px"},
+                            ),  
+                        ]),
+                    
+            ]), # END OF ROW
+            
+                # END OF CARD BODY
+                ]),
+                
+            ], color='#F2F2F2'), # END OF CARD  
+             
 
             html.Hr(style={'margin-right':'10px',}),
             
             #### -- GRAPHICS
             dbc.Row([  # Row with GRAPHICS
-            
-                # TAB FOR MAP
-                dcc.Tab(label="Map", children = [
 
-                dbc.Col([ # Aggregate Map
+                dbc.Col([ # Global Aggregation Visual
                     dbc.Spinner(children=[
-                    dcc.Graph(id='ga-bio-map',
+                    dcc.Graph(id='ga-map-or-line-select',
                                 style = {"height":"650px"},
                               config = {
                                   "displayModeBar" : True,
                                   "displaylogo": False,
                                   'toImageButtonOptions': {
                                       'format': 'png', # one of png, svg, jpeg, webp
-                                      'filename': 'GBADs_Global_Agg_Map'
+                                      'filename': 'GBADs_Global_Agg_Viz'
                                       },
                                   }
                               )
@@ -1503,37 +1586,25 @@ gbadsDash.layout = html.Div([
                     ],size="md", color="#393375", fullscreen=False),
                     # End of Map
                     ]),
-
-                # END OF MAP TAB
-                ]),
-                
-                # TAB FOR AHLE
-                dcc.Tab(label="AHLE", children = [
-
-                # dbc.Col([ # Aggregate Map
-                #     dbc.Spinner(children=[
-                #     dcc.Graph(id='ga-bio-map',
-                #                 style = {"height":"650px"},
-                #               config = {
-                #                   "displayModeBar" : True,
-                #                   "displaylogo": False,
-                #                   'toImageButtonOptions': {
-                #                       'format': 'png', # one of png, svg, jpeg, webp
-                #                       'filename': 'GBADs_Global_Agg_Map'
-                #                       },
-                #                   }
-                #               )
-                #     # End of Spinner
-                #     ],size="md", color="#393375", fullscreen=False),
-                #     # End of Map
-                #     ]),
-
-                # END OF AHLE TAB
-                ]),
                 
             html.Br(),
             # END OF GRAPHICS ROW   
             ]),
+            
+        #### -- DATATABLE
+        dbc.Row([
+
+           dbc.Col([
+                html.Div([  # Core data for AHLE
+                     html.Div( id='ga-world-abt-datatable'),
+                ], style={'margin-left':"20px"}),
+                
+            html.Br() # Spacer for bottom of page
+            
+            ]),# END OF COL
+        ]),
+        html.Br(),
+        ### END OF DATATABLE    
             
         
         ### END OF GLOBAL AGGREGATE TAB
@@ -4721,125 +4792,165 @@ def update_species_options_ga(country):
 def update_core_data_world_ahle_abt_ga(species,region_country,region,country):
     input_df = pd.read_pickle(os.path.join(GA_DATA_FOLDER ,'world_ahle_abt.pkl.gz'))
         
-    # Filter Species
-    input_df=input_df.loc[(input_df['species'] == species)]
-    
-    # Filter Country
-    if country == 'All':
-        input_df
-    else:
-        input_df=input_df.loc[(input_df['country'] == country)]
+    # # Filter Species
+    # input_df=input_df.loc[(input_df['species'] == species)]
     
     # Filter Region & country
     if region == "All":
-        # input_df=input_df.loc[(input_df['country'] == country_options_ga)]
         if country == 'All':
             country = [[v for k,v in d.items()] for d in country_options_ga]
             country = [a[1] for a in country]
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-            # input_df = input_df[input_df['country'].isin(country_options_ga)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
     elif region == "Sub-Saharan Africa":
-        # input_df=input_df.loc[(input_df['country'] == wb_africa_options_ga)]
         if country == 'All':
             country = [[v for k,v in d.items()] for d in wb_africa_options_ga]
             country = [a[1] for a in country]
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-            # input_df = input_df[input_df['country'].isin(wb_africa_options_ga)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
     elif region == "East Asia & Pacific":
-        # input_df=input_df.loc[(input_df['country'] == wb_eap_options_ga)]
         if country == 'All':
             country = [[v for k,v in d.items()] for d in wb_eap_options_ga]
             country = [a[1] for a in country]
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-            # input_df = input_df[input_df['country'].isin(wb_eap_options_ga)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
     elif region == "Europe & Central Asia":
-        # input_df=input_df.loc[(input_df['country'] == wb_eca_options_ga)]
         if country == 'All':
             country = [[v for k,v in d.items()] for d in wb_eca_options_ga]
             country = [a[1] for a in country]
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-            # input_df = input_df[input_df['country'].isin(wb_eca_options_ga)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
     elif region == "Latin America & the Caribbean":
-        # input_df=input_df.loc[(input_df['country'] == wb_lac_options_ga)]
         if country == 'All':
             country = [[v for k,v in d.items()] for d in wb_lac_options_ga]
             country = [a[1] for a in country]
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-            # input_df = input_df[input_df['country'].isin(wb_lac_options_ga)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
     elif region == "Middle East & North Africa":
-        # input_df=input_df.loc[(input_df['country'] == wb_mena_options_ga)]
         if country == 'All':
             country = [[v for k,v in d.items()] for d in wb_mena_options_ga]
             country = [a[1] for a in country]
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-            # input_df = input_df[input_df['country'].isin(wb_mena_options_ga)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
     elif region == "North America":
-        # input_df=input_df.loc[(input_df['country'] == wb_na_options_ga)]
         if country == 'All':
             country = [[v for k,v in d.items()] for d in wb_na_options_ga]
             country = [a[1] for a in country]
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-            # input_df = input_df[input_df['country'].isin(wb_na_options_ga)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
     else:
-        # input_df=input_df.loc[(input_df['country'] == wb_southasia_options_ga)]
         if country == 'All':
             country = [[v for k,v in d.items()] for d in wb_southasia_options_ga]
             country = [a[1] for a in country]
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-            # input_df = input_df[input_df['country'].isin(wb_southasia_options_ga)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
+            
+    # Filter Species
+    input_df=input_df.loc[(input_df['species'] == species)]
     
 
     return input_df.to_json(date_format='iso', orient='split')
 
+
+# Attribution datatable below graphic
+@gbadsDash.callback(
+    Output('ga-world-abt-datatable', 'children'),
+    Input('core-data-world-ahle-abt-ga','data'),
+    # Input('select-currency-ecs','value'),
+    )
+def update_ga_world_abt_data(input_json):
+    input_df = pd.read_json(input_json, orient='split')
+
+    # Format numbers
+    input_df.update(input_df[['biomass',
+                              'population',
+                              'liveweight',
+                              ]].applymap('{:,.0f}'.format))
+
+    columns_to_display_with_labels = {
+       'country':'Country'
+      ,'species':'Species'
+      # ,'year':'Year'
+      # ,'biomass':'Biomass'
+      # ,'population':'Population'
+      # ,'liveweight':'Live Weight'
+    }
+
+    # Subset columns
+    input_df = input_df[list(columns_to_display_with_labels)]
+
+    return [
+            html.H4("Global Aggregation Data"),
+            dash_table.DataTable(
+                columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+                data=input_df.to_dict('records'),
+                export_format="csv",
+                style_cell={
+                    'font-family':'sans-serif',
+                    },
+                style_table={'overflowX': 'scroll',
+                              'height': '320px', 
+                              'overflowY': 'auto'},
+                page_action='none',
+            )
+        ]
 
 # ------------------------------------------------------------------------------
 #### -- Figures
 # ------------------------------------------------------------------------------
 # Biomass Map
 @gbadsDash.callback(
-   Output('ga-bio-map','figure'),
+   Output('ga-map-or-line-select','figure'),
    Input('core-data-world-ahle-abt-ga','data'),
+   Input('viz-radio-ga','value'),
    Input('select-species-ga','value'),
-   # Input('select-prodsys-ecs','value'),
    # Input('select-age-ecs','value'),
    # Input('select-sex-ecs','value'),
    # Input('select-attr-ecs','value'),
    # Input('select-currency-ecs','value'),
    )
-def update_bio_map_ga(input_json, species):
+def update_bio_ahle_visual_ga(input_json, viz_selection, species):
    # Data
    input_df = pd.read_json(input_json, orient='split')
-   
-   # Set values from the data
-   iso_alpha3 = input_df['country_iso3']
-   biomass = input_df['biomass']
-   country = input_df['country']
-   
-   # Set up map structure
-   ga_biomass_map = create_biomass_map_ga(input_df, iso_alpha3, biomass, country)
 
-   # Add title
-   ga_biomass_map.update_layout(title_text=f'Global Biomass by {species}',
-                                 font_size=15,
-                                 margin=dict(t=100))
-   
-   return ga_biomass_map
+   if viz_selection == 'Map':
+       # Set values from the data
+       iso_alpha3 = input_df['country_iso3']
+       biomass = input_df['biomass']
+       country = input_df['country']
+       year = input_df['year']
+       population = input_df['population']
+       liveweight = input_df['liveweight']
+
+       # Set up map structure
+       ga_biomass_ahle_visual = create_biomass_map_ga(input_df, iso_alpha3, biomass, country)
+       
+       # Add title
+       ga_biomass_ahle_visual.update_layout(title_text=f'Global Biomass by {species}',
+                                     font_size=15,
+                                     margin=dict(t=100))
+   elif viz_selection == 'Line chart':
+       # Set values from the data
+       iso_alpha3 = input_df['country_iso3']
+       biomass = input_df['biomass']
+       country = input_df['country']
+       year = input_df['year']
+       population = input_df['population']
+       liveweight = input_df['liveweight']
+
+       # Set up line plot structure
+       ga_biomass_ahle_visual = create_line_chart_ga(input_df, year, biomass, population, liveweight, country)
+         
+
+   return ga_biomass_ahle_visual
 
 
 #%% 6. RUN APP

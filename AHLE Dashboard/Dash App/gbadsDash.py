@@ -151,11 +151,6 @@ ga_countries_biomass = pd.read_pickle(os.path.join(GA_DATA_FOLDER ,'world_ahle_a
 ga_countries_biomass['species'].replace('', np.nan, inplace=True)
 ga_countries_biomass.dropna(subset=['species'], inplace=True)
 
-# # ISO Alpha 3 letter country abbrevation data from GitHub (https://gist.github.com/tadast/8827699)
-# url = "https://gist.githubusercontent.com/tadast/8827699/raw/f5cac3d42d16b78348610fc4ec301e9234f82821/countries_codes_and_coordinates.csv" # Make sure the url is the raw version of the file on GitHub
-# download = requests.get(url).content
-# iso_alpha3_data = pd.read_csv(io.StringIO(download.decode('utf-8')))
-
 # =============================================================================
 #### User options and defaults
 # =============================================================================
@@ -1387,50 +1382,20 @@ def create_biomass_map_ga(input_df, iso_alpha3, biomass, country):
     return biomass_map_fig
 
 # Define the biomass, pop, livewt line chart
-def create_line_chart_ga(input_df, year, biomass, population, liveweight, country):
-    # bio_pop_live_line_fig = px.line(input_df, x=year,
-    #                                 y=bio_live_pop,
-    #                                 color=country,
-    #                                 # facet_col=bio_live_pop,
-    #                                 )
+# def create_line_chart_ga(input_df, year, biomass, population, liveweight, country):
+def create_line_chart_ga(input_df, year, value, country, facet):
+    bio_pop_live_line_fig = px.line(input_df, x=year,
+                                    y=value,
+                                    color=country,
+                                    facet_row=facet,
+                                    )
+    
+    bio_pop_live_line_fig.update_yaxes(matches=None, showticklabels=True)
         
-    bio_pop_live_line_fig = make_subplots(rows=3, 
-                                          cols=1,
-                                          shared_xaxes=True,
-                                          vertical_spacing=0.02
-                                          )
-
-    bio_pop_live_line_fig.append_trace(go.Scatter(
-        name='Biomass',
-        x=year,
-        y=biomass,
-        mode='markers+lines',
-        marker=dict(color="#2A80B9", size=2),
-        showlegend=True
-    ), row=1, col=1)
-
-    bio_pop_live_line_fig.append_trace(go.Scatter(
-        name='Population',
-        x=year,
-        y=population,
-        mode='markers+lines',
-        marker=dict(color="#9B58B5", size=2),
-        showlegend=True
-    ), row=2, col=1)
-    
-    bio_pop_live_line_fig.append_trace(go.Scatter(
-        name='Live Weight',
-        x=year,
-        y=liveweight,
-        mode='markers+lines',
-        marker=dict(color="#F1C40F", size=2),
-        showlegend=True
-    ), row=3, col=1)
-    
     # Update yaxis properties
-    bio_pop_live_line_fig.update_yaxes(title_text="Biomass", row=1, col=1)
+    bio_pop_live_line_fig.update_yaxes(title_text="Biomass", row=3, col=1)
     bio_pop_live_line_fig.update_yaxes(title_text="Population", row=2, col=1)
-    bio_pop_live_line_fig.update_yaxes(title_text="Live Weight", row=3, col=1)
+    bio_pop_live_line_fig.update_yaxes(title_text="Live Weight", row=1, col=1)
 
 
     return bio_pop_live_line_fig
@@ -1565,6 +1530,8 @@ gbadsDash.layout = html.Div([
              
 
             html.Hr(style={'margin-right':'10px',}),
+            
+            html.Br(),
             
             #### -- GRAPHICS
             dbc.Row([  # Row with GRAPHICS
@@ -4878,10 +4845,10 @@ def update_ga_world_abt_data(input_json):
     columns_to_display_with_labels = {
        'country':'Country'
       ,'species':'Species'
-      # ,'year':'Year'
-      # ,'biomass':'Biomass'
-      # ,'population':'Population'
-      # ,'liveweight':'Live Weight'
+       ,'year':'Year'
+       ,'biomass':'Biomass'
+       ,'population':'Population'
+       ,'liveweight':'Live Weight'
     }
 
     # Subset columns
@@ -4891,13 +4858,14 @@ def update_ga_world_abt_data(input_json):
             html.H4("Global Aggregation Data"),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+                fixed_rows={'headers': True, 'data': 0},
                 data=input_df.to_dict('records'),
                 export_format="csv",
                 style_cell={
                     'font-family':'sans-serif',
                     },
                 style_table={'overflowX': 'scroll',
-                              'height': '320px', 
+                              'height': '680px', 
                               'overflowY': 'auto'},
                 page_action='none',
             )
@@ -4937,18 +4905,24 @@ def update_bio_ahle_visual_ga(input_json, viz_selection, species):
        ga_biomass_ahle_visual.update_layout(title_text=f'Global Biomass by {species}',
                                      font_size=15,
                                      margin=dict(t=100))
-   elif viz_selection == 'Line chart':
+   elif viz_selection == 'Line chart':      
+       # Specify which columns to keep forline chart
+       input_df = input_df[['country', 'year', 'species', 'biomass', 'population', 'liveweight']]
+
+       # Melt data to create facets for line chart
+       input_df = input_df.melt(id_vars=['country', 'year', 'species'], 
+                                                         value_vars=['biomass', 'population', 'liveweight'],
+                                                         var_name='facet', 
+                                                         value_name='value')
+       
        # Set values from the data
-       iso_alpha3 = input_df['country_iso3']
-       biomass = input_df['biomass']
-       country = input_df['country']
        year = input_df['year']
-       population = input_df['population']
-       liveweight = input_df['liveweight']
+       value = input_df['value']
+       country = input_df['country']
+       facet = input_df['facet']
 
        # Set up line plot structure
-       ga_biomass_ahle_visual = create_line_chart_ga(input_df, year, biomass, population, liveweight, country)
-         
+       ga_biomass_ahle_visual = create_line_chart_ga(input_df, year, value, country, facet)
 
    return ga_biomass_ahle_visual
 

@@ -181,27 +181,27 @@ wb_combo = wb_combo.rename(columns={"iso3":"country_iso3"})
 #### Merge all
 # =============================================================================
 # World Bank onto Biomass
-world_ahle_combo1 = pd.merge(
+world_ahle_combined = pd.merge(
     left=biomass_iso
     ,right=wb_combo
     ,on=['country_iso3' ,'year']
     ,how='left'
     ,indicator='_merge_1'
     )
-world_ahle_combo1['_merge_1'].value_counts()
+world_ahle_combined['_merge_1'].value_counts()
 
 # FAO
-world_ahle_combo1 = pd.merge(
-    left=world_ahle_combo1
+world_ahle_combined = pd.merge(
+    left=world_ahle_combined
     ,right=fao_combo_iso
     ,on=['country_iso3' ,'year']
     ,how='left'
     ,indicator='_merge_2'
     )
-world_ahle_combo1['_merge_2'].value_counts()
+world_ahle_combined['_merge_2'].value_counts()
 
 # Drop and Rename
-world_ahle_combo1 = world_ahle_combo1.drop(columns=[
+world_ahle_combined = world_ahle_combined.drop(columns=[
     'country'
     ,'country_y'
     ,'time_code'
@@ -214,20 +214,20 @@ world_ahle_combo1 = world_ahle_combo1.drop(columns=[
     ,'_merge_2'
     ]
     ,errors='ignore')
-world_ahle_combo1 = world_ahle_combo1.rename(columns={'country_x':'country' ,'flag_x':'flag_biomass' ,'flag_y':'flag_wb'})
+world_ahle_combined = world_ahle_combined.rename(columns={'country_x':'country' ,'flag_x':'flag_biomass' ,'flag_y':'flag_wb'})
 
-datainfo(world_ahle_combo1)
+datainfo(world_ahle_combined)
 
 # =============================================================================
 #### Checks
 # =============================================================================
 # Missing iso3?
-missing_iso3 = world_ahle_combo1.query("country_iso3.isnull()")
+missing_iso3 = world_ahle_combined.query("country_iso3.isnull()")
 missing_iso3_countries = list(missing_iso3['country'].unique())
 
 #%% Assign columns to correct species
 
-species_list = list(world_ahle_combo1['species'].unique())
+species_list = list(world_ahle_combined['species'].unique())
 
 fao_price_cols = [i for i in list(fao_producerprice_p) if 'producer_price' in i]
 fao_stocks_cols = [i for i in list(fao_production_p) if 'stocks' in i]
@@ -238,8 +238,8 @@ fao_producinganimals_cols += [i for i in list(fao_production_p) if 'laying' in i
 fao_producinganimals_cols += [i for i in list(fao_production_p) if 'milk' in i]
 fao_producinganimals_cols += [i for i in list(fao_production_p) if 'prod_pop' in i]
 
-fao_impexp_cols = [i for i in list(world_ahle_combo1) if 'import' in i]
-fao_impexp_cols += [i for i in list(world_ahle_combo1) if 'export' in i]
+fao_impexp_cols = [i for i in list(world_ahle_combined) if 'import' in i]
+fao_impexp_cols += [i for i in list(world_ahle_combined) if 'export' in i]
 
 # For items that don't apply to a species:
 # - Set production to zero
@@ -580,7 +580,7 @@ def assign_columns_to_species(INPUT_ROW):
                      ,price_eggs_lcu ,price_meat_lcu ,price_meat_live_lcu ,price_milk_lcu ,price_wool_lcu
                      ,price_eggs_usd ,price_meat_usd ,price_meat_live_usd ,price_milk_usd ,price_wool_usd
                      ])
-world_ahle_combo1[[
+world_ahle_combined[[
     'stocks_hd'
 
     ,'production_eggs_tonnes'
@@ -609,26 +609,26 @@ world_ahle_combo1[[
     ,'producer_price_meat_live_usdpertonne'
     ,'producer_price_milk_usdpertonne'
     ,'producer_price_wool_usdpertonne'
-    ]] = world_ahle_combo1.apply(assign_columns_to_species ,axis=1)
+    ]] = world_ahle_combined.apply(assign_columns_to_species ,axis=1)
 
 # Drop species-specific columns
 dropcols = fao_stocks_cols + fao_production_cols + fao_producinganimals_cols + fao_price_cols + fao_impexp_cols
-world_ahle_combo1 = world_ahle_combo1.drop(columns=dropcols ,errors='ignore')
+world_ahle_combined = world_ahle_combined.drop(columns=dropcols ,errors='ignore')
 
-datainfo(world_ahle_combo1)
+datainfo(world_ahle_combined)
 
 # =============================================================================
 #### Checks
 # =============================================================================
 # Missing import/export?
-missing_imp = world_ahle_combo1.query("import_animals_hd.isnull()")
+missing_imp = world_ahle_combined.query("import_animals_hd.isnull()")
 missing_imp_countries = missing_imp['country'].value_counts()
 
-missing_exp = world_ahle_combo1.query("export_animals_hd.isnull()")
+missing_exp = world_ahle_combined.query("export_animals_hd.isnull()")
 missing_exp_countries = missing_exp['country'].value_counts()
 
 # =============================================================================
 #### Describe and output
 # =============================================================================
-world_ahle_combo1.to_csv(os.path.join(PRODATA_FOLDER ,'world_ahle_combo1.csv'))
-world_ahle_combo1.to_pickle(os.path.join(PRODATA_FOLDER ,'world_ahle_combo1.pkl.gz'))
+world_ahle_combined.to_csv(os.path.join(PRODATA_FOLDER ,'world_ahle_1_combined.csv') ,index=False)
+world_ahle_combined.to_pickle(os.path.join(PRODATA_FOLDER ,'world_ahle_1_combined.pkl.gz'))

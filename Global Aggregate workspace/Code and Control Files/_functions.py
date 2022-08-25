@@ -366,3 +366,11 @@ def take_first_nonmissing(
       OUTPUT_SERIES.loc[newcol_null] = INPUT_DF.loc[newcol_null ,CANDIDATE]    # ...fill with candidate
 
    return OUTPUT_SERIES
+
+# To add a column to a data frame by lookup on keys
+# Usage: df['new_col'] = df['col_with_lookup'].apply(lookup_from_dictionary ,DICT=my_dictionary)
+def lookup_from_dictionary(KEY ,DICT):
+    try:
+        return DICT[KEY]      # If key is found in dictionary, return value
+    except:
+        return None

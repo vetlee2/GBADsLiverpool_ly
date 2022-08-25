@@ -91,6 +91,8 @@ world_ahle_abt['vetspend_production_usdperkgprod'] = \
 # }
 # world_ahle_abt['carcass_yield'] = world_ahle_abt['species'].str.upper().apply(lookup_from_dictionary ,DICT=carcass_yield_byspecies)
 
+datainfo(world_ahle_abt)
+
 #%% AHLE Calcs matching Will's original spreadsheet
 '''
 See World AHLE.xlsx from William.

@@ -104,12 +104,17 @@ DASH_DATA_FOLDER = os.path.join(CWD ,'data')
 # Folder location for ethiopia case study
 GBADsLiverpool=Path(os.getcwd()).parent.parent
 Ethiopia_Workspace = "Ethiopia Workspace"
-ECS_PROGRAM_OUTPUT_FOLDER = os.path.join(GBADsLiverpool, Ethiopia_Workspace, "Program outputs")
 
 # Folder location for global aggregate
 Global_Agg_Workspace = "Global Aggregate workspace"
-GA_DATA_FOLDER = os.path.join(GBADsLiverpool, Global_Agg_Workspace, "Data")
-
+if prod:
+    # Output folders:
+    ECS_PROGRAM_OUTPUT_FOLDER = os.path.join(CWD, Ethiopia_Workspace, "Program outputs")
+    GA_DATA_FOLDER = os.path.join(CWD, Global_Agg_Workspace, "Data")
+else:
+    # Output folders:
+    ECS_PROGRAM_OUTPUT_FOLDER = os.path.join(GBADsLiverpool, Ethiopia_Workspace, "Program outputs")
+    GA_DATA_FOLDER = os.path.join(GBADsLiverpool, Global_Agg_Workspace, "Data")
 # -----------------------------------------------------------------------------
 # Poultry
 # -----------------------------------------------------------------------------
@@ -1481,7 +1486,8 @@ def create_biomass_map_ga(input_df, iso_alpha3, biomass, country):
             showframe=False,
             showcoastlines=False,
             projection_type='equirectangular',
-            )
+            ),
+        legend_title="Biomass",
         )
 
     biomass_map_fig.add_annotation(x=0.50, xref='paper',         # x position is absolute on axis
@@ -1513,6 +1519,17 @@ def create_line_chart_ga(input_df, year, value, country, facet):
     bio_pop_live_line_fig.update_yaxes(title_text="Population", row=2, col=1)
     bio_pop_live_line_fig.update_yaxes(title_text="Live Weight", row=1, col=1)
 
+    # Remove facet titles
+    bio_pop_live_line_fig.for_each_annotation(lambda a: a.update(text=a.text.replace("facet=biomass", "")))
+    bio_pop_live_line_fig.for_each_annotation(lambda a: a.update(text=a.text.replace("facet=population", "")))
+    bio_pop_live_line_fig.for_each_annotation(lambda a: a.update(text=a.text.replace("facet=liveweight", "")))
+
+    
+    bio_pop_live_line_fig.update_layout(
+    title="Biomass, Population, and Live Weight Over Time <br><sup> Double click country in legend to isolate</sup>",
+    xaxis_title="Year",
+    legend_title="Country",
+    )
 
     return bio_pop_live_line_fig
 
@@ -1624,7 +1641,8 @@ gbadsDash.layout = html.Div([
                     html.H6("Country"),
                     dcc.Dropdown(id='select-country-ga',
                                   options=country_options_ga,
-                                  value='All',
+                                  # value='All',
+                                  value='Albania', #!!! - for testing
                                   clearable = False,
                                   ),
                     ],style={
@@ -5020,17 +5038,97 @@ def update_country_options_ga(region_country, region):
 @gbadsDash.callback(
     Output(component_id='select-species-ga', component_property='options'),
     Input(component_id='select-country-ga', component_property='value'),
+    Input(component_id='select-region-ga', component_property='value'),
     )
-def update_species_options_ga(country):
-    if country == "All":
-        options = []
-        for i in ga_countries_biomass['species'].unique():
-            str(options.append({'label':i,'value':(i)}))
-    else:
-        input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+def update_species_options_ga(country, region):
+    if region == 'All':
+        if country == "All":
+            options = []
+            for i in ga_countries_biomass['species'].unique():
+                str(options.append({'label':i,'value':(i)}))
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+            options = []
+            for i in input_df['species'].unique():
+                str(options.append({'label':i,'value':(i)}))
+    elif region == "Sub-Saharan Africa":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_africa_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country    
         options = []
         for i in input_df['species'].unique():
             str(options.append({'label':i,'value':(i)}))
+    elif region == "East Asia & Pacific":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_eap_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country    
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "Europe & Central Asia":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_eca_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country    
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "Latin America & the Caribbean":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_lac_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country    
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "Middle East & North Africa":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_mena_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country    
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "North America":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_na_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country    
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    else:
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_southasia_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country    
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+            
     return options
 
 # ------------------------------------------------------------------------------
@@ -5061,8 +5159,8 @@ def update_core_data_world_ahle(base_mort_rate):# ,base_morb_rate ,base_vetmed_r
 @gbadsDash.callback(
     Output('core-data-world-ahle-abt-ga','data'),
     Input('select-species-ga','value'),
-    Input('Region-country-alignment-ga', component_property='value'),
-    Input('select-region-ga', component_property='value'),
+    Input('Region-country-alignment-ga','value'),
+    Input('select-region-ga', 'value'),
     Input('select-country-ga','value'),
     )
 def update_core_data_world_ahle_abt_ga(species,region_country,region,country):
@@ -5189,12 +5287,12 @@ def update_ga_world_abt_data(input_json):
    Input('core-data-world-ahle-abt-ga','data'),
    Input('viz-radio-ga','value'),
    Input('select-species-ga','value'),
-   # Input('select-age-ecs','value'),
-   # Input('select-sex-ecs','value'),
+   Input('select-country-ga', 'value'),
+   Input('select-region-ga', 'value'),
    # Input('select-attr-ecs','value'),
    # Input('select-currency-ecs','value'),
    )
-def update_bio_ahle_visual_ga(input_json, viz_selection, species):
+def update_bio_ahle_visual_ga(input_json, viz_selection, species, country_select, region):
    # Data
    input_df = pd.read_json(input_json, orient='split')
 
@@ -5204,16 +5302,31 @@ def update_bio_ahle_visual_ga(input_json, viz_selection, species):
        biomass = input_df['biomass']
        country = input_df['country']
        year = input_df['year']
-       population = input_df['population']
-       liveweight = input_df['liveweight']
 
        # Set up map structure
        ga_biomass_ahle_visual = create_biomass_map_ga(input_df, iso_alpha3, biomass, country)
 
        # Add title
-       ga_biomass_ahle_visual.update_layout(title_text=f'Global Biomass by {species}',
-                                     font_size=15,
-                                     margin=dict(t=100))
+       if region == 'All':
+           if country_select =='All':
+               ga_biomass_ahle_visual.update_layout(title_text=f'Global Biomass by {species}',
+                                             font_size=15,
+                                             margin=dict(t=100))
+           else:
+               ga_biomass_ahle_visual.update_layout(title_text=f'{country_select} Biomass by {species}',
+                                             font_size=15,
+                                             margin=dict(t=100))
+       else:
+             if country_select =='All':
+                 ga_biomass_ahle_visual.update_layout(title_text=f'{region} Biomass by {species}',
+                                               font_size=15,
+                                               margin=dict(t=100))
+             else:
+                 ga_biomass_ahle_visual.update_layout(title_text=f'{country_select} Biomass by {species}',
+                                               font_size=15,
+                                               margin=dict(t=100))  
+               
+       
    elif viz_selection == 'Line chart':
        # Specify which columns to keep forline chart
        input_df = input_df[['country', 'year', 'species', 'biomass', 'population', 'liveweight']]

@@ -5295,7 +5295,7 @@ def update_ahle_waterfall_ga(input_json ,selected_incgrp ,selected_country ,sele
         waterfallgroupgap = 0.5,    # Gap between bars
         )
 
-    ga_waterfall_fig.update_layout(title_text=f'Output values and costs | {selected_year} <br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in 2010 constant US dollars</sup><br>',
+    ga_waterfall_fig.update_layout(title_text=f'Output values and costs | {selected_year} <br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
                                    yaxis_title='US Dollars (2010 constant)',
                                    font_size=15)
 

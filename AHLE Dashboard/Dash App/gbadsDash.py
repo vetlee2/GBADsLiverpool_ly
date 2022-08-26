@@ -1493,7 +1493,7 @@ def create_biomass_map_ga(input_df, iso_alpha3, biomass, country):
                                      color="black"
                                      )
                                  )
-    
+
     # Rename the animation frame
     biomass_map_fig.update_layout(sliders=[{"currentvalue": {"prefix": "Year="}}])
 
@@ -1631,7 +1631,7 @@ gbadsDash.layout = html.Div([
                               "margin-top":"10px",
                               },
                     ),
-                        
+
                 # Income Group
                 dbc.Col([
                     html.H6("Income Group"),
@@ -5568,9 +5568,9 @@ def update_bio_ahle_visual_ga(input_json, viz_selection, species, country_select
              else:
                  ga_biomass_ahle_visual.update_layout(title_text=f'{country_select} Biomass for {species}',
                                                font_size=15,
-                                               margin=dict(t=100))  
+                                               margin=dict(t=100))
                  ga_biomass_ahle_visual.update_coloraxes(showscale=False)
-       
+
    elif viz_selection == 'Line chart':
        # Specify which columns to keep forline chart
        input_df = input_df[['country', 'year', 'species', 'biomass', 'population', 'liveweight']]

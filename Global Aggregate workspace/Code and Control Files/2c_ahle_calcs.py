@@ -17,10 +17,119 @@ world_ahle_abt = world_ahle_imp.drop(columns=dropcols ,errors='ignore')
 
 datainfo(world_ahle_abt)
 
+#%% Calculate values of production
+
+# =============================================================================
+#### Indiviudal products
+# =============================================================================
+# Excluding hides from value calcs because no price is available
+# If production is zero, output value should be zero, even if price is missing
+_production_zero = (world_ahle_abt['production_eggs_tonnes'] == 0)
+world_ahle_abt.loc[_production_zero ,'output_value_eggs_2010usd'] = 0
+world_ahle_abt.loc[~_production_zero ,'output_value_eggs_2010usd'] = \
+    world_ahle_abt['production_eggs_tonnes'] * world_ahle_abt['producer_price_eggs_usdpertonne_cnst2010']
+
+_production_zero = (world_ahle_abt['production_meat_tonnes'] == 0)
+world_ahle_abt.loc[_production_zero ,'output_value_meat_2010usd'] = 0
+world_ahle_abt.loc[~_production_zero ,'output_value_meat_2010usd'] = \
+    world_ahle_abt['production_meat_tonnes'] * world_ahle_abt['producer_price_meat_usdpertonne_cnst2010']
+
+_production_zero = (world_ahle_abt['production_milk_tonnes'] == 0)
+world_ahle_abt.loc[_production_zero ,'output_value_milk_2010usd'] = 0
+world_ahle_abt.loc[~_production_zero ,'output_value_milk_2010usd'] = \
+    world_ahle_abt['production_milk_tonnes'] * world_ahle_abt['producer_price_milk_usdpertonne_cnst2010']
+
+_production_zero = (world_ahle_abt['production_wool_tonnes'] == 0)
+world_ahle_abt.loc[_production_zero ,'output_value_wool_2010usd'] = 0
+world_ahle_abt.loc[~_production_zero ,'output_value_wool_2010usd'] = \
+    world_ahle_abt['production_wool_tonnes'] * world_ahle_abt['producer_price_wool_usdpertonne_cnst2010']
+
+# =============================================================================
+#### Biomass
+# =============================================================================
+world_ahle_abt.eval(
+    # Using snapshot biomass value
+    '''
+    biomass_value_2010usd = (biomass / 1000) * producer_price_meat_live_usdpertonne_cnst2010
+    output_plus_biomass_value_2010usd = biomass_value_2010usd + output_value_meat_2010usd \
+        + output_value_eggs_2010usd + output_value_milk_2010usd + output_value_wool_2010usd
+    '''
+    # Using total animals for the year
+    '''
+    output_live_hd = export_animals_hd + stocks_hd_nextyear
+    output_total_hd = output_live_hd + producing_animals_meat_hd
+
+    output_live_biomass_kg = output_live_hd * liveweight
+    output_total_biomass_kg = output_total_hd * liveweight
+
+    output_value_live_2010usd = (output_live_biomass_kg / 1000) * producer_price_meat_live_usdpertonne_cnst2010
+    output_value_total_2010usd = (output_total_biomass_kg / 1000) * producer_price_meat_live_usdpertonne_cnst2010
+    output_value_meatlive_2010usd = output_value_meat_2010usd + output_value_live_2010usd
+    '''
+    ,inplace=True
+)
+
+datainfo(world_ahle_abt)
+
+#%% Output table to feed Dash
+'''
+The remainder of this program performs calculations that we want to update in Dash
+based on user input. Dash will read the data without these calcs and then update them
+using functions defined in the dash app.
+'''
+world_ahle_abt.to_csv(os.path.join(FINDATA_FOLDER ,'world_ahle_abt.csv') ,index=False)
+world_ahle_abt.to_pickle(os.path.join(FINDATA_FOLDER ,'world_ahle_abt.pkl.gz'))
+
+# Drop unnecessary columns for Dash
+dropcols = [
+    'flag_biomass'
+
+    ,'cpi_2010idx'
+    ,'inflation_pct_gdpdef'
+    ,'inflation_pct_gdpdef_lnk'
+    ,'inflation_pct_cp'
+    ,'exchg_lcuperusd'
+
+    ,'stocks_hd'
+    ,'import_animals_hd'
+    ,'export_animals_hd'
+    ,'net_imports_hd'
+    ,'stocks_hd_nextyear'
+    ,'netchange_stocks_hd'
+
+    ,'producer_price_eggs_lcupertonne'
+    ,'producer_price_meat_lcupertonne'
+    ,'producer_price_meat_live_lcupertonne'
+    ,'producer_price_milk_lcupertonne'
+    ,'producer_price_wool_lcupertonne'
+
+    ,'producer_price_eggs_usdpertonne'
+    ,'producer_price_meat_usdpertonne'
+    ,'producer_price_meat_live_usdpertonne'
+    ,'producer_price_milk_usdpertonne'
+    ,'producer_price_wool_usdpertonne'
+
+    ,'producer_price_eggs_lcupertonne_cnst2010'
+    ,'producer_price_meat_lcupertonne_cnst2010'
+    ,'producer_price_meat_live_lcupertonne_cnst2010'
+    ,'producer_price_milk_lcupertonne_cnst2010'
+    ,'producer_price_wool_lcupertonne_cnst2010'
+]
+world_ahle_abt_fordash = world_ahle_abt.drop(columns=dropcols ,errors='ignore')
+datainfo(world_ahle_abt_fordash)
+
+world_ahle_abt_fordash.to_csv(os.path.join(FINDATA_FOLDER ,'world_ahle_abt_fordash.csv') ,index=False)
+world_ahle_abt_fordash.to_pickle(os.path.join(FINDATA_FOLDER ,'world_ahle_abt_fordash.pkl.gz'))
+
 #%% Add mortality and other rates
 '''
 Currently using the same rates for all species.
 '''
+
+# =============================================================================
+#### Create copy of data for further calcs
+# =============================================================================
+world_ahle_abt_withcalcs = world_ahle_abt.copy()
 
 # =============================================================================
 #### Mortality and morbidity
@@ -38,8 +147,8 @@ morbidity_byincome = {
     ,"H":0.15
 }
 
-world_ahle_abt['mortality_rate'] = world_ahle_abt['incomegroup'].apply(lookup_from_dictionary ,DICT=mortality_byincome)
-world_ahle_abt['morbidity_rate'] = world_ahle_abt['incomegroup'].apply(lookup_from_dictionary ,DICT=morbidity_byincome)
+world_ahle_abt_withcalcs['mortality_rate'] = world_ahle_abt_withcalcs['incomegroup'].apply(lookup_from_dictionary ,DICT=mortality_byincome)
+world_ahle_abt_withcalcs['morbidity_rate'] = world_ahle_abt_withcalcs['incomegroup'].apply(lookup_from_dictionary ,DICT=morbidity_byincome)
 
 # =============================================================================
 #### Expenditures
@@ -58,10 +167,10 @@ pubspend_perkg_biomass_byincome = {
     ,"UM":0.02
     ,"H":0.03
 }
-world_ahle_abt['vetspend_biomass_farm_usdperkgbm'] = \
-    world_ahle_abt['incomegroup'].apply(lookup_from_dictionary ,DICT=farmspend_perkg_biomass_byincome)
-world_ahle_abt['vetspend_biomass_public_usdperkgbm'] = \
-    world_ahle_abt['incomegroup'].apply(lookup_from_dictionary ,DICT=pubspend_perkg_biomass_byincome)
+world_ahle_abt_withcalcs['vetspend_biomass_farm_usdperkgbm'] = \
+    world_ahle_abt_withcalcs['incomegroup'].apply(lookup_from_dictionary ,DICT=farmspend_perkg_biomass_byincome)
+world_ahle_abt_withcalcs['vetspend_biomass_public_usdperkgbm'] = \
+    world_ahle_abt_withcalcs['incomegroup'].apply(lookup_from_dictionary ,DICT=pubspend_perkg_biomass_byincome)
 
 # Spend per kg production
 vetspend_perkg_prod_byincome = {
@@ -70,8 +179,8 @@ vetspend_perkg_prod_byincome = {
     ,"UM":0.01
     ,"H":0.01
 }
-world_ahle_abt['vetspend_production_usdperkgprod'] = \
-    world_ahle_abt['incomegroup'].apply(lookup_from_dictionary ,DICT=vetspend_perkg_prod_byincome)
+world_ahle_abt_withcalcs['vetspend_production_usdperkgprod'] = \
+    world_ahle_abt_withcalcs['incomegroup'].apply(lookup_from_dictionary ,DICT=vetspend_perkg_prod_byincome)
 
 # =============================================================================
 #### Carcass yield
@@ -89,136 +198,87 @@ world_ahle_abt['vetspend_production_usdperkgprod'] = \
 #     ,"SHEEP":0.75
 #     ,"TURKEYS":0.90
 # }
-# world_ahle_abt['carcass_yield'] = world_ahle_abt['species'].str.upper().apply(lookup_from_dictionary ,DICT=carcass_yield_byspecies)
+# world_ahle_abt_withcalcs['carcass_yield'] = world_ahle_abt_withcalcs['species'].str.upper().apply(lookup_from_dictionary ,DICT=carcass_yield_byspecies)
 
-datainfo(world_ahle_abt)
+datainfo(world_ahle_abt_withcalcs)
 
-#%% AHLE Calcs matching Will's original spreadsheet
+#%% AHLE calcs adjusting outputs
 '''
-See World AHLE.xlsx from William.
+These center on adjusting OUTPUTS under ideal conditions and match the original spreadsheet
+produced by William. See World AHLE.xlsx.
 '''
-# Create a version of data frame for these calcs
-world_ahle_abt_simple = world_ahle_abt.copy()
-
 # =============================================================================
 #### Calcs
 # =============================================================================
-# If production is zero, output value should be zero, even if price is missing
-_production_zero = (world_ahle_abt_simple['production_eggs_tonnes'] == 0)
-world_ahle_abt_simple.loc[_production_zero ,'egg_output_value_2010usd'] = 0
-world_ahle_abt_simple.loc[~_production_zero ,'egg_output_value_2010usd'] = \
-    world_ahle_abt_simple['production_eggs_tonnes'] * world_ahle_abt_simple['producer_price_eggs_usdpertonne_cnst2010']
-
-_production_zero = (world_ahle_abt_simple['production_meat_tonnes'] == 0)
-world_ahle_abt_simple.loc[_production_zero ,'meat_output_value_2010usd'] = 0
-world_ahle_abt_simple.loc[~_production_zero ,'meat_output_value_2010usd'] = \
-    world_ahle_abt_simple['production_meat_tonnes'] * world_ahle_abt_simple['producer_price_meat_usdpertonne_cnst2010']
-
-_production_zero = (world_ahle_abt_simple['production_milk_tonnes'] == 0)
-world_ahle_abt_simple.loc[_production_zero ,'milk_output_value_2010usd'] = 0
-world_ahle_abt_simple.loc[~_production_zero ,'milk_output_value_2010usd'] = \
-    world_ahle_abt_simple['production_milk_tonnes'] * world_ahle_abt_simple['producer_price_milk_usdpertonne_cnst2010']
-
-world_ahle_abt_simple.eval(
-    # ----------------------------------------------------------------------
-    # Fundamentals
-    # ----------------------------------------------------------------------
-    '''
-    liveweight_value_2010usd = biomass * producer_price_meat_live_usdpertonne_cnst2010
-
-    total_output_plus_liveweight_value_2010usd = liveweight_value_2010usd + meat_output_value_2010usd \
-        + egg_output_value_2010usd + milk_output_value_2010usd
-
-    total_biomass_tonnes = biomass / 1000
-    '''
+world_ahle_abt_withcalcs.eval(
     # ----------------------------------------------------------------------
     # Ideals
     # ----------------------------------------------------------------------
+    # Excluding Wool to match William's calcs
     '''
-    ideal_liveweight_value_2010usd = liveweight_value_2010usd * (1 / (1 - mortality_rate))
-    ideal_meat_output_value_2010usd = meat_output_value_2010usd * (1 / (1 - morbidity_rate))
-    ideal_egg_output_value_2010usd = egg_output_value_2010usd * (1 / (1 - morbidity_rate))
-    ideal_milk_output_value_2010usd = milk_output_value_2010usd * (1 / (1 - morbidity_rate))
+    ideal_biomass_value_2010usd = biomass_value_2010usd * (1 / (1 - mortality_rate))
+    ideal_output_value_eggs_2010usd = output_value_eggs_2010usd * (1 / (1 - morbidity_rate))
+    ideal_output_value_meat_2010usd = output_value_meat_2010usd * (1 / (1 - morbidity_rate))
+    ideal_output_value_milk_2010usd = output_value_milk_2010usd * (1 / (1 - morbidity_rate))
+    ideal_output_value_wool_2010usd = output_value_wool_2010usd * (1 / (1 - morbidity_rate))
 
-    ideal_total_output_plus_liveweight_value_2010usd = ideal_liveweight_value_2010usd + ideal_meat_output_value_2010usd \
-        + ideal_egg_output_value_2010usd + ideal_milk_output_value_2010usd
+    ideal_output_plus_biomass_value_2010usd = ideal_biomass_value_2010usd + ideal_output_value_meat_2010usd \
+        + ideal_output_value_eggs_2010usd + ideal_output_value_milk_2010usd + ideal_output_value_wool_2010usd
     '''
     # ----------------------------------------------------------------------
     # Vet & Med spending
     # ----------------------------------------------------------------------
     '''
-    vetspend_biomass_farm_usd = vetspend_biomass_farm_usdperkgbm * total_biomass_tonnes * 1000
-    vetspend_biomass_public_usd = vetspend_biomass_public_usdperkgbm * total_biomass_tonnes * 1000
+    vetspend_biomass_farm_usd = vetspend_biomass_farm_usdperkgbm * (biomass / 1000) * 1000
+    vetspend_biomass_public_usd = vetspend_biomass_public_usdperkgbm * (biomass / 1000) * 1000
 
     vetspend_production_meat_usd = vetspend_production_usdperkgprod * production_meat_tonnes * 1000
     vetspend_production_eggs_usd = vetspend_production_usdperkgprod * production_eggs_tonnes * 1000
     vetspend_production_milk_usd = vetspend_production_usdperkgprod * production_milk_tonnes * 1000
+    vetspend_production_wool_usd = vetspend_production_usdperkgprod * production_wool_tonnes * 1000
+
+    vetspend_farm_usd = vetspend_biomass_farm_usd + vetspend_production_meat_usd \
+        + vetspend_production_eggs_usd + vetspend_production_milk_usd + vetspend_production_wool_usd
+    vetspend_public_usd = vetspend_biomass_public_usd
     '''
     # ----------------------------------------------------------------------
     # AHLE
     # ----------------------------------------------------------------------
     '''
-    ahle_dueto_reducedoutput_2010usd = ideal_total_output_plus_liveweight_value_2010usd - total_output_plus_liveweight_value_2010usd
-    ahle_dueto_vetandmedcost_2010usd = vetspend_biomass_farm_usd + vetspend_biomass_public_usd \
-        + vetspend_production_eggs_usd + vetspend_production_meat_usd + vetspend_production_milk_usd
+    ahle_dueto_reducedoutput_2010usd = ideal_output_plus_biomass_value_2010usd - output_plus_biomass_value_2010usd
+    ahle_dueto_vetandmedcost_2010usd = vetspend_farm_usd + vetspend_public_usd
     ahle_total_2010usd = ahle_dueto_reducedoutput_2010usd + ahle_dueto_vetandmedcost_2010usd
 
-    ahle_dueto_reducedoutput_pctofvalue = (ahle_dueto_reducedoutput_2010usd / total_output_plus_liveweight_value_2010usd) * 100
-    ahle_dueto_vetandmedcost_pctofvalue = (ahle_dueto_vetandmedcost_2010usd / total_output_plus_liveweight_value_2010usd) * 100
-    ahle_total_pctofvalue = (ahle_total_2010usd / total_output_plus_liveweight_value_2010usd) * 100
+    ahle_dueto_reducedoutput_pctofoutput = (ahle_dueto_reducedoutput_2010usd / output_plus_biomass_value_2010usd) * 100
+    ahle_dueto_vetandmedcost_pctofoutput = (ahle_dueto_vetandmedcost_2010usd / output_plus_biomass_value_2010usd) * 100
+    ahle_total_pctofoutput = (ahle_total_2010usd / output_plus_biomass_value_2010usd) * 100
     '''
     ,inplace=True
 )
 
-datainfo(world_ahle_abt_simple)
+datainfo(world_ahle_abt_withcalcs)
 
 # =============================================================================
 #### Output
 # =============================================================================
-world_ahle_abt_simple.to_csv(os.path.join(FINDATA_FOLDER ,'world_ahle_abt_simple.csv') ,index=False)
-world_ahle_abt_simple.to_pickle(os.path.join(FINDATA_FOLDER ,'world_ahle_abt_simple.pkl.gz'))
+world_ahle_abt_withcalcs.to_csv(os.path.join(FINDATA_FOLDER ,'world_ahle_abt_withcalcs.csv') ,index=False)
+world_ahle_abt_withcalcs.to_pickle(os.path.join(FINDATA_FOLDER ,'world_ahle_abt_withcalcs.pkl.gz'))
 
-#%% AHLE Calcs improved
+#%% AHLE calcs adjusting inputs
 '''
-See Animal stock and flow.docx from William.
+These center on adjusting INPUTS under ideal conditions. See Animal stock and flow.docx from William.
 '''
-
 # =============================================================================
-#### Outputs
-# =============================================================================
-# Excluding hides from value calcs because no price is available
-world_ahle_abt.eval(
-    '''
-    output_live_hd = export_animals_hd + stocks_hd_nextyear
-    output_total_hd = output_live_hd + producing_animals_meat_hd
-
-    output_live_biomass_kg = output_live_hd * liveweight
-    output_total_biomass_kg = output_total_hd * liveweight
-
-    output_value_live_2010usd = (output_live_biomass_kg / 1000) * producer_price_meat_live_usdpertonne_cnst2010
-    output_value_total_2010usd = (output_total_biomass_kg / 1000) * producer_price_meat_live_usdpertonne_cnst2010
-
-    output_value_meat_2010usd = production_meat_tonnes * producer_price_meat_usdpertonne_cnst2010
-    output_value_eggs_2010usd = production_eggs_tonnes * producer_price_eggs_usdpertonne_cnst2010
-    output_value_milk_2010usd = production_milk_tonnes * producer_price_milk_usdpertonne_cnst2010
-    output_value_wool_2010usd = production_wool_tonnes * producer_price_wool_usdpertonne_cnst2010
-
-    output_value_meatlive_2010usd = output_value_meat_2010usd + output_value_live_2010usd
-    '''
-    ,inplace=True
-)
-
-# =============================================================================
-#### Inputs and ideal
+#### Calcs
 # =============================================================================
 # Calculate births outside eval() so I can round
-world_ahle_abt['births_hd'] = (world_ahle_abt['output_total_hd'] / (1 - world_ahle_abt['mortality_rate'])) \
-    - (world_ahle_abt['stocks_hd'] + world_ahle_abt['import_animals_hd'])
-world_ahle_abt['births_hd'] = round(world_ahle_abt['births_hd'] ,0)
+world_ahle_abt_withcalcs['births_hd'] = (world_ahle_abt_withcalcs['output_total_hd'] / (1 - world_ahle_abt_withcalcs['mortality_rate'])) \
+    - (world_ahle_abt_withcalcs['stocks_hd'] + world_ahle_abt_withcalcs['import_animals_hd'])
+world_ahle_abt_withcalcs['births_hd'] = round(world_ahle_abt_withcalcs['births_hd'] ,0)
 
-world_ahle_abt.eval(
+world_ahle_abt_withcalcs.eval(
     # ----------------------------------------------------------------------
-    # Inputs
+    # Input values
     # ----------------------------------------------------------------------
     '''
     input_live_hd = stocks_hd + import_animals_hd + births_hd
@@ -230,15 +290,15 @@ world_ahle_abt.eval(
     input_value_producing_milk_2010usd = producing_animals_milk_kgbm * producer_price_meat_live_usdpertonne_cnst2010
     input_value_producing_wool_2010usd = producing_animals_wool_kgbm * producer_price_meat_live_usdpertonne_cnst2010
     '''
-    # Calculate productivity as output value per kg biomass
-    ## Not used
+    # # Calculate productivity as output value per kg biomass
+    # # Not used
     # productivity_meatlive_usdperkgbm = output_value_meatlive_2010usd / input_biomass_kg
     # productivity_eggs_usdperkgbm = output_value_eggs_2010usd / input_biomass_kg
     # productivity_meat_usdperkgbm = output_value_meat_2010usd / input_biomass_kg
     # productivity_milk_usdperkgbm = output_value_milk_2010usd / input_biomass_kg
     # productivity_wool_usdperkgbm = output_value_wool_2010usd / input_biomass_kg
 
-    # Alternative productivity divides each product by biomass of its producing animals
+    # # Alternative productivity divides each product by biomass of its producing animals
     # productivity_eggs_usdperkgbm = output_value_eggs_2010usd / producing_animals_eggs_kgbm
     # productivity_meat_usdperkgbm = output_value_meat_2010usd / producing_animals_meat_kgbm
     # productivity_milk_usdperkgbm = output_value_milk_2010usd / producing_animals_milk_kgbm
@@ -302,8 +362,8 @@ world_ahle_abt.eval(
     # Vet & Med spending
     # ----------------------------------------------------------------------
     '''
-    vetspend_biomass_farm_usd = vetspend_biomass_farm_usdperkgbm * input_biomass_kg
-    vetspend_biomass_public_usd = vetspend_biomass_public_usdperkgbm * input_biomass_kg
+    vetspend_farm_usd = vetspend_biomass_farm_usdperkgbm * input_biomass_kg
+    vetspend_public_usd = vetspend_biomass_public_usdperkgbm * input_biomass_kg
     '''
     # Update: now that we're calculating biomass for the whole year, don't need to separately apply
     # vet & med rates to production.
@@ -311,24 +371,122 @@ world_ahle_abt.eval(
     # vetspend_production_meat_usd = vetspend_production_usdperkgprod * production_meat_tonnes * 1000
     # vetspend_production_milk_usd = vetspend_production_usdperkgprod * production_milk_tonnes * 1000
     # vetspend_production_wool_usd = vetspend_production_usdperkgprod * production_wool_tonnes * 1000
+
+    # ----------------------------------------------------------------------
+    # AHLE
+    # ----------------------------------------------------------------------
+    '''
+    '''
     ,inplace=True
 )
 
-world_ahle_abt_head = world_ahle_abt.head(100)
-datainfo(world_ahle_abt)
+world_ahle_abt_withcalcs_head = world_ahle_abt_withcalcs.head(100)
+datainfo(world_ahle_abt_withcalcs)
+
+# =============================================================================
+#### Output
+# =============================================================================
+world_ahle_abt_withcalcs.to_csv(os.path.join(FINDATA_FOLDER ,'world_ahle_abt_withcalcs.csv') ,index=False)
+world_ahle_abt_withcalcs.to_pickle(os.path.join(FINDATA_FOLDER ,'world_ahle_abt_withcalcs.pkl.gz'))
+
+#%% Experimenting for Dash
+
+current_values_labels = {
+    'biomass_value_2010usd':'Biomass'
+    ,'output_value_meat_2010usd':'Meat'
+    ,'output_value_eggs_2010usd':'Eggs'
+    ,'output_value_milk_2010usd':'Milk'
+    ,'output_value_wool_2010usd':'Wool'
+
+    ,'vetspend_farm_usd':'Vet & Med costs on producers'
+    ,'vetspend_public_usd':'Vet & Med costs on public'
+
+    ,'output_plus_biomass_value_2010usd':'Net value'
+}
+current_value_columns = list(current_values_labels)
+ideal_values_labels = {
+    'ideal_biomass_value_2010usd':'Biomass'
+    ,'ideal_output_value_meat_2010usd':'Meat'
+    ,'ideal_output_value_eggs_2010usd':'Eggs'
+    ,'ideal_output_value_milk_2010usd':'Milk'
+    ,'ideal_output_value_wool_2010usd':'Wool'
+    ,'ideal_output_plus_biomass_value_2010usd':'Net value'
+}
+ideal_value_columns = list(ideal_values_labels)
+
+# Sum to country-year level (summing over species)
+country_year_level = world_ahle_abt_withcalcs.pivot_table(
+    index=['country' ,'year' ,'incomegroup']
+    ,observed=True  # Limit to combinations of index variables that are in data
+    ,values=current_value_columns + ideal_value_columns
+    ,aggfunc='sum'
+    ,fill_value=0                     # Replace missing values with this
+    )
+country_year_level = country_year_level.reset_index()     # Pivoting will change columns to indexes. Change them back.
+
+# Restructure to create columns 'current_value' and 'ideal_value'
+# Keys: Country, Species, Year.  Columns: Income group, Item.
+# Current values
+values_current = country_year_level.melt(
+    id_vars=['country' ,'year' ,'incomegroup']
+    ,value_vars=current_value_columns
+    ,var_name='orig_col'             # Name for new "variable" column
+    ,value_name='value_usd_current'              # Name for new "value" column
+    )
+values_current['item'] = values_current['orig_col'].apply(lookup_from_dictionary ,DICT=current_values_labels)
+del values_current['orig_col']
+
+# Ideal values
+values_ideal = country_year_level.melt(
+    id_vars=['country' ,'year' ,'incomegroup']
+    ,value_vars=ideal_value_columns
+    ,var_name='orig_col'             # Name for new "variable" column
+    ,value_name='value_usd_ideal'              # Name for new "value" column
+    )
+values_ideal['item'] = values_ideal['orig_col'].apply(lookup_from_dictionary ,DICT=ideal_values_labels)
+del values_ideal['orig_col']
+
+# Merge current and ideal
+values_combined = pd.merge(
+    left=values_current
+    ,right=values_ideal
+    ,on=['country' ,'year' ,'incomegroup' ,'item']
+    ,how='outer'
+)
+datainfo(values_combined)
+
+# Fill in zeros for ideal vetmed costs
+_vetmed_rows = (values_combined['item'].str.contains('VET' ,case=False))
+values_combined.loc[_vetmed_rows ,'value_usd_ideal'] = 0
+
+# Make costs negative
+values_combined.loc[_vetmed_rows ,'value_usd_current'] = -1 * values_combined['value_usd_current']
+
+# Filter
+values_combined_filtered = values_combined.query("year == 2020")
+values_combined_filtered = values_combined_filtered.query("country == 'Australia'")
+
+values_combined_filtered_sum = values_combined_filtered.groupby('item')[['value_usd_current' ,'value_usd_ideal']].sum()
+values_combined_filtered_sum = values_combined_filtered_sum.reset_index()
+
+# Extract total
+_netvalue = (values_combined_filtered_sum['item'] == 'Net value')
+current_net_value = values_combined_filtered_sum.loc[_netvalue ,'value_usd_current'].values[0]
+ideal_net_value = values_combined_filtered_sum.loc[_netvalue ,'value_usd_ideal'].values[0]
+total_ahle = ideal_net_value - current_net_value
 
 #%% Data checks
 
 # =============================================================================
 #### Misc checks
 # =============================================================================
-world_ahle_abt_chk = world_ahle_abt.copy()
+world_ahle_abt_withcalcs_chk = world_ahle_abt_withcalcs.copy()
 
 # Check sum of producing animals for each product and compare to
 # total head calculated from imports, stocks, and births.
 # Excluding producing_animals_hides_hd because this is always equal to producing_animals_meat_hd
 # Sum of producing animals is less than total head calculated from imports, stocks, and births.
-world_ahle_abt_chk.eval(
+world_ahle_abt_withcalcs_chk.eval(
     '''
     producing_animals_sum = producing_animals_eggs_hd + producing_animals_meat_hd + \
         producing_animals_milk_hd + producing_animals_wool_hd
@@ -336,9 +494,9 @@ world_ahle_abt_chk.eval(
     '''
     ,inplace=True
 )
-world_ahle_abt_chk['producing_animals_sum_over_input_live_hd'].describe()
+world_ahle_abt_withcalcs_chk['producing_animals_sum_over_input_live_hd'].describe()
 
-world_ahle_abt_chk_spl = world_ahle_abt_chk.sample(n=100)
+world_ahle_abt_withcalcs_chk_spl = world_ahle_abt_withcalcs_chk.sample(n=100)
 
 # =============================================================================
 #### Distribution by country and species
@@ -357,7 +515,7 @@ vars_for_distributions = [
 dist_bycountryspecies_aslist = []   # Initialize
 for VAR in vars_for_distributions:
     # Get distribution of variable as dataframe
-    df_desc = world_ahle_abt.groupby(['country' ,'species'])[VAR].describe()
+    df_desc = world_ahle_abt_withcalcs.groupby(['country' ,'species'])[VAR].describe()
     df_desc = indextocolumns(df_desc)
     df_desc['variable'] = VAR
     df_desc_aslist = df_desc.to_dict(orient='records')
@@ -365,7 +523,7 @@ for VAR in vars_for_distributions:
 
     # Get distribution of raw variable (before imputation)
     try:    # If raw variable exists
-        df_desc = world_ahle_abt.groupby(['country' ,'species'])[f"{VAR}_raw"].describe()
+        df_desc = world_ahle_abt_withcalcs.groupby(['country' ,'species'])[f"{VAR}_raw"].describe()
         df_desc = indextocolumns(df_desc)
         df_desc['variable'] = f"{VAR}_raw"
         df_desc_aslist = df_desc.to_dict(orient='records')
@@ -406,7 +564,7 @@ plotvars = [
 ]
 # for VAR in plotvars:
 #     snplt = sns.catplot(
-#         data=world_ahle_abt
+#         data=world_ahle_abt_withcalcs
 #         ,x='species'
 #         ,y=VAR
 #         ,kind='box'
@@ -419,16 +577,3 @@ plotvars = [
 #### Export
 # =============================================================================
 dist_bycountryspecies.to_csv(os.path.join(PROGRAM_OUTPUT_FOLDER ,'check_distributions_ahlecalcs.csv') ,index=False)
-
-#%% Cleanup and output
-
-# =============================================================================
-#### Cleanup
-# =============================================================================
-datainfo(world_ahle_abt)
-
-# =============================================================================
-#### Export
-# =============================================================================
-world_ahle_abt.to_csv(os.path.join(FINDATA_FOLDER ,'world_ahle_abt.csv') ,index=False)
-world_ahle_abt.to_pickle(os.path.join(FINDATA_FOLDER ,'world_ahle_abt.pkl.gz'))

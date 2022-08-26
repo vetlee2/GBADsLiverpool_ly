@@ -199,37 +199,37 @@ for PRODCOL_BASE ,ANIMAL_BASE in prod_animals_lookup.items():
 datainfo(world_ahle_imp)
 
 # What is the distribution of production per head for each product?
-for PROD_BASE in list(prod_animals_lookup):
-    # Global
-    snplt = sns.catplot(
-        data=world_ahle_imp
-        ,x='species'
-        ,y=f"{PROD_BASE}_kgperkgbm"
-        ,kind='box'
-        ,orient='v'
-        )
-    plt.title(f"Distribution Globally\n{PROD_BASE} kg per head (producing animals)")
+# for PROD_BASE in list(prod_animals_lookup):
+#     # Global
+#     snplt = sns.catplot(
+#         data=world_ahle_imp
+#         ,x='species'
+#         ,y=f"{PROD_BASE}_kgperkgbm"
+#         ,kind='box'
+#         ,orient='v'
+#         )
+#     plt.title(f"Distribution Globally\n{PROD_BASE} kg per head (producing animals)")
 
-    # By Region
-    snplt = sns.catplot(
-        data=world_ahle_imp
-        ,x='region'
-        ,y=f"{PROD_BASE}_kgperkgbm"
-        ,kind='box' ,orient='v'
-        ,col='species' ,col_wrap=4
-        )
-    plt.title(f"Distribution by Region\n{PROD_BASE} kg per head (producing animals)")
+#     # By Region
+#     snplt = sns.catplot(
+#         data=world_ahle_imp
+#         ,x='region'
+#         ,y=f"{PROD_BASE}_kgperkgbm"
+#         ,kind='box' ,orient='v'
+#         ,col='species' ,col_wrap=4
+#         )
+#     plt.title(f"Distribution by Region\n{PROD_BASE} kg per head (producing animals)")
 
-    # By Income group
-    snplt = sns.catplot(
-        data=world_ahle_imp
-        ,x='incomegroup'
-        ,y=f"{PROD_BASE}_kgperkgbm"
-        ,kind='box'
-        ,orient='v'
-        ,col='species' ,col_wrap=4
-        )
-    plt.title(f"Distribution by Income Group\n{PROD_BASE} kg per head (producing animals)")
+#     # By Income group
+#     snplt = sns.catplot(
+#         data=world_ahle_imp
+#         ,x='incomegroup'
+#         ,y=f"{PROD_BASE}_kgperkgbm"
+#         ,kind='box'
+#         ,orient='v'
+#         ,col='species' ,col_wrap=4
+#         )
+#     plt.title(f"Distribution by Income Group\n{PROD_BASE} kg per head (producing animals)")
 
 # =============================================================================
 #### Impute
@@ -550,38 +550,38 @@ datainfo(world_ahle_imp)
 #         addcol_constant_currency(world_ahle_imp ,f"{PRICE_BASE}_usdpertonne_calc" ,'cpi_2010idx')
 
 # What is the distribution of price for each product in constant USD per tonne?
-for PRICE_BASE in price_cols_base:
-    # Global
-    snplt = sns.catplot(
-        data=world_ahle_imp
-        ,x='species'
-        ,y=f"{PRICE_BASE}_usdpertonne_cnst2010"
-        ,kind='box'
-        ,orient='v'
-        )
-    plt.title(f"Distribution Globally\n{PRICE_BASE} per tonne in constant 2010 USD")
+# for PRICE_BASE in price_cols_base:
+#     # Global
+#     snplt = sns.catplot(
+#         data=world_ahle_imp
+#         ,x='species'
+#         ,y=f"{PRICE_BASE}_usdpertonne_cnst2010"
+#         ,kind='box'
+#         ,orient='v'
+#         )
+#     plt.title(f"Distribution Globally\n{PRICE_BASE} per tonne in constant 2010 USD")
 
-    # By Region
-    snplt = sns.catplot(
-        data=world_ahle_imp
-        ,x='region'
-        ,y=f"{PRICE_BASE}_usdpertonne_cnst2010"
-        ,kind='box'
-        ,orient='v'
-        ,col='species' ,col_wrap=4
-        )
-    plt.title(f"Distribution by Region\n{PRICE_BASE} per tonne in constant 2010 USD")
+#     # By Region
+#     snplt = sns.catplot(
+#         data=world_ahle_imp
+#         ,x='region'
+#         ,y=f"{PRICE_BASE}_usdpertonne_cnst2010"
+#         ,kind='box'
+#         ,orient='v'
+#         ,col='species' ,col_wrap=4
+#         )
+#     plt.title(f"Distribution by Region\n{PRICE_BASE} per tonne in constant 2010 USD")
 
-    # By Income group
-    snplt = sns.catplot(
-        data=world_ahle_imp
-        ,x='incomegroup'
-        ,y=f"{PRICE_BASE}_usdpertonne_cnst2010"
-        ,kind='box'
-        ,orient='v'
-        ,col='species' ,col_wrap=4
-        )
-    plt.title(f"Distribution by Income Group\n{PRICE_BASE} per tonne in constant 2010 USD")
+#     # By Income group
+#     snplt = sns.catplot(
+#         data=world_ahle_imp
+#         ,x='incomegroup'
+#         ,y=f"{PRICE_BASE}_usdpertonne_cnst2010"
+#         ,kind='box'
+#         ,orient='v'
+#         ,col='species' ,col_wrap=4
+#         )
+#     plt.title(f"Distribution by Income Group\n{PRICE_BASE} per tonne in constant 2010 USD")
 
 # # Identify countries with outlier prices for each species and year
 # # Above 20k USD per tonne
@@ -925,19 +925,19 @@ missing_biomass_yearsmry2 = colnames_from_index(missing_biomass_yearsmry2)
 #### Plots
 # =============================================================================
 # Box plots by species (& country?)
-plotvars = [
-    'population'
-    ,'liveweight'
-    ,'biomass'
-]
-for VAR in plotvars:
-    snplt = sns.catplot(
-        data=world_ahle_imp
-        ,x='species'
-        ,y=VAR
-        ,kind='box'
-        ,orient='v'
-    )
+# plotvars = [
+#     'population'
+#     ,'liveweight'
+#     ,'biomass'
+# ]
+# for VAR in plotvars:
+#     snplt = sns.catplot(
+#         data=world_ahle_imp
+#         ,x='species'
+#         ,y=VAR
+#         ,kind='box'
+#         ,orient='v'
+#     )
 
 # Plot over time for each species and country
 
@@ -946,8 +946,18 @@ for VAR in plotvars:
 # =============================================================================
 dist_bycountryspecies.to_csv(os.path.join(PROGRAM_OUTPUT_FOLDER ,'check_distributions_intermediate.csv') ,index=False)
 
-#%% Output
+#%% Cleanup and Output
 
+# =============================================================================
+#### Cleanup
+# =============================================================================
+# Convert object columns to category to save space
+for COL in world_ahle_imp.select_dtypes(include='object'):
+   world_ahle_imp[COL] = world_ahle_imp[COL].astype('category')
+
+# =============================================================================
+#### Export
+# =============================================================================
 datainfo(world_ahle_imp)
 
 world_ahle_imp.to_csv(os.path.join(PRODATA_FOLDER ,'world_ahle_2_imputed.csv') ,index=False)

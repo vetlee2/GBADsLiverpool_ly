@@ -118,6 +118,7 @@ biomass.loc[_row_selection ,'biomass'] = \
 
 # Remove duplicates (country-species-year combinations that appear twice)
 csy_counts = biomass[['country' ,'species' ,'year']].value_counts()
+biomass_countries = list(biomass['country'].unique())
 biomass = biomass.drop_duplicates(
    subset=['country' ,'species' ,'year']          # List (opt): only consider these columns when identifying duplicates. If None, consider all columns.
    ,keep='first'                   # String: which occurrence to keep, 'first' or 'last'

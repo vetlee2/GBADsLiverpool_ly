@@ -503,8 +503,8 @@ item_list_ga = [
     ,'Milk'
     ,'Wool'
     ,'Biomass'
-    ,'Vet & Med costs on producers'
-    ,'Vet & Med costs on public'
+    ,'Producers vet & med costs'
+    ,'Public vet & med costs'
     ,'Net value'
 ]
 item_options_ga = [{'label':i,'value':(i)} for i in item_list_ga]
@@ -818,7 +818,7 @@ def prep_bod_forwaterfall(
    OUTPUT_DF = INPUT_DF.copy()
 
    # Melt BOD component columns into rows
-   #!!! Ordering here determines order in plot!!!
+   # Ordering here determines order in plot!!!
    cols_tomelt = [
       'bod_referenceproduction_tonnes'
       ,'bod_efficiency_tonnes'
@@ -854,7 +854,6 @@ def prep_bod_forwaterfall(
    )
    OUTPUT_DF['brdstd_prpn'] = OUTPUT_DF['tonnes'] / OUTPUT_DF['bod_referenceproduction_tonnes']
 
-   # TODO:Add value as percent of breed standard
    OUTPUT_DF = pd.merge(
       left=OUTPUT_DF
       ,right=INPUT_DF[['country' ,'year' ,'bod_realizedproduction_tonnes']]
@@ -967,7 +966,7 @@ def prep_bod_forstackedbar_poultry(INPUT_DF):
    working_df = INPUT_DF.copy()
 
    # Actual costs
-   #!!! Ordering here determines order in plot
+   # Ordering here determines order in plot
    cols_actual = [
       'adjusted_feedcost_usdperkglive'   # Adjusted based on feed price slider
       ,'acc_chickcost_usdperkglive'
@@ -1061,7 +1060,7 @@ def prep_bod_forstackedbar_swine(INPUT_DF):
    working_df = INPUT_DF.copy()
 
    # Actual costs
-   #!!! Ordering here determines order in plot
+   # Ordering here determines order in plot
    cols_actual = [
       'adjusted_feedcost_usdperkgcarc'    # Adjusted based on feed price slider
       ,'acc_nonfeedvariablecost_usdperkgcarc'
@@ -1226,8 +1225,8 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
         ,'output_value_milk_2010usd':'Milk'
         ,'output_value_wool_2010usd':'Wool'
 
-        ,'vetspend_farm_usd':'Vet & Med costs on producers'
-        ,'vetspend_public_usd':'Vet & Med costs on public'
+        ,'vetspend_farm_usd':'Producers vet & med costs'
+        ,'vetspend_public_usd':'Public vet & med costs'
 
         ,'output_plus_biomass_value_2010usd':'Net value'
     }
@@ -1292,9 +1291,6 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
     # Fill in zeros for ideal vetmed costs
     _vetmed_rows = (values_combined['item'].str.contains('VET' ,case=False))
     values_combined.loc[_vetmed_rows ,'value_usd_ideal'] = 0
-
-    # Make costs negative
-    values_combined.loc[_vetmed_rows ,'value_usd_current'] = -1 * values_combined['value_usd_current']
 
     OUTPUT_DF = values_combined
 
@@ -1524,7 +1520,7 @@ def create_line_chart_ga(input_df, year, value, country, facet):
     bio_pop_live_line_fig.for_each_annotation(lambda a: a.update(text=a.text.replace("facet=population", "")))
     bio_pop_live_line_fig.for_each_annotation(lambda a: a.update(text=a.text.replace("facet=liveweight", "")))
 
-    
+
     bio_pop_live_line_fig.update_layout(
     title="Biomass, Population, and Live Weight Over Time <br><sup> Double click country in legend to isolate</sup>",
     xaxis_title="Year",
@@ -1836,6 +1832,7 @@ gbadsDash.layout = html.Div([
                               }
                     ,width=3),
                 ]),
+            html.Br(),
 
             #### -- GRAPHICS ROW
             dbc.Row([
@@ -1893,6 +1890,32 @@ gbadsDash.layout = html.Div([
                     # End of plot over time
                     ],style={"width":5}),
                 ]),
+        html.Br(),
+
+        #### -- FOOTNOTES
+        dbc.Row([
+            dbc.Col([
+                # Waterfall chart
+                html.P("Ideal values assume increased production if there were no morbidity or mortality"),
+                html.P("Using morbidity and mortality rates according to income group"),
+                ]),
+            dbc.Col([
+                # Line chart
+                html.P(""),
+                ]),
+            ], style={'margin-left':"40px", 'font-style': 'italic'}
+            ),
+        html.Br(),
+
+        #### -- DATATABLE
+        dbc.Spinner(children=[
+            html.Div([  # Row with DATATABLE
+                      html.Div( id='ga-detailtab-displaytable'),
+                      ], style={'margin-left':"20px", "width":"95%"}
+                     ),
+            # End of Spinner
+            ],size="md", color="#393375", fullscreen=False),
+        html.Br(), # Spacer for bottom of page
 
         ### END OF GLOBAL AHLE DETAILS TAB
         ], ),
@@ -5071,7 +5094,7 @@ def update_species_options_ga(country, region):
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
         else:
             input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
-        # Set options for species based on the filters for region and country    
+        # Set options for species based on the filters for region and country
         options = []
         for i in input_df['species'].unique():
             str(options.append({'label':i,'value':(i)}))
@@ -5082,7 +5105,7 @@ def update_species_options_ga(country, region):
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
         else:
             input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
-        # Set options for species based on the filters for region and country    
+        # Set options for species based on the filters for region and country
         options = []
         for i in input_df['species'].unique():
             str(options.append({'label':i,'value':(i)}))
@@ -5093,7 +5116,7 @@ def update_species_options_ga(country, region):
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
         else:
             input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
-        # Set options for species based on the filters for region and country    
+        # Set options for species based on the filters for region and country
         options = []
         for i in input_df['species'].unique():
             str(options.append({'label':i,'value':(i)}))
@@ -5104,7 +5127,7 @@ def update_species_options_ga(country, region):
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
         else:
             input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
-        # Set options for species based on the filters for region and country    
+        # Set options for species based on the filters for region and country
         options = []
         for i in input_df['species'].unique():
             str(options.append({'label':i,'value':(i)}))
@@ -5115,7 +5138,7 @@ def update_species_options_ga(country, region):
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
         else:
             input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
-        # Set options for species based on the filters for region and country    
+        # Set options for species based on the filters for region and country
         options = []
         for i in input_df['species'].unique():
             str(options.append({'label':i,'value':(i)}))
@@ -5126,7 +5149,7 @@ def update_species_options_ga(country, region):
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
         else:
             input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
-        # Set options for species based on the filters for region and country    
+        # Set options for species based on the filters for region and country
         options = []
         for i in input_df['species'].unique():
             str(options.append({'label':i,'value':(i)}))
@@ -5137,11 +5160,11 @@ def update_species_options_ga(country, region):
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
         else:
             input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
-        # Set options for species based on the filters for region and country    
+        # Set options for species based on the filters for region and country
         options = []
         for i in input_df['species'].unique():
             str(options.append({'label':i,'value':(i)}))
-            
+
     return options
 
 # ------------------------------------------------------------------------------
@@ -5291,6 +5314,213 @@ def update_ga_world_abt_data(input_json):
             )
         ]
 
+@gbadsDash.callback(
+    Output('ga-detailtab-displaytable', 'children'),
+    Input('core-data-world-ahle','data'),
+    Input('select-incomegrp-ga','value'),
+    Input('select-country-detail-ga','value'),
+    )
+def update_display_table_ga(input_json ,selected_incgrp ,selected_country):
+    # Read data
+    input_df = pd.read_json(input_json, orient='split')
+
+    # Apply filters
+    input_df_filtered = input_df
+
+    if selected_country == 'All':
+        input_df_filtered = input_df_filtered
+        print_selected_country = 'all countries'
+
+        # Only need to filter income groups if no country selected
+        if selected_incgrp == 'All':
+            input_df_filtered = input_df_filtered
+            print_selected_incgrp = ', all income groups'
+        else:
+            input_df_filtered = input_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+            print_selected_incgrp = f', income group {selected_incgrp}'
+    else:
+        input_df_filtered = input_df_filtered.query(f"country == '{selected_country}'")
+        print_selected_country = f'{selected_country}'
+        print_selected_incgrp = ''
+
+
+    columns_to_display_with_labels = {
+        'region':'Region'
+        ,'incomegroup':'Income group'
+        ,'country':'Country'
+        ,'species':'Species'
+        ,'year':'Year'
+        ,'population':'Population (head)'
+        ,'liveweight':'Average liveweight (kg)'
+        ,'biomass':'Biomass (kg)'
+
+        ,'production_eggs_tonnes':'Egg production (tonnes)'
+        ,'production_meat_tonnes':'Meat production (tonnes)'
+        ,'production_milk_tonnes':'Milk production (tonnes)'
+        ,'production_wool_tonnes':'Wool production (tonnes)'
+
+        ,'producer_price_meat_live_usdpertonne_cnst2010':'Liveweight price (USD per tonne)'
+        ,'producer_price_eggs_usdpertonne_cnst2010':'Egg price (USD per tonne)'
+        ,'producer_price_meat_usdpertonne_cnst2010':'Meat price (USD per tonne)'
+        ,'producer_price_milk_usdpertonne_cnst2010':'Milk price (USD per tonne)'
+        ,'producer_price_wool_usdpertonne_cnst2010':'Wool price (USD per tonne)'
+
+        ,'biomass_value_2010usd':'Value of biomass (USD)'
+        ,'output_value_eggs_2010usd':'Value of Egg production (USD)'
+        ,'output_value_meat_2010usd':'Value of Meat production (USD)'
+        ,'output_value_milk_2010usd':'Value of Milk production (USD)'
+        ,'output_value_wool_2010usd':'Value of Wool production (USD)'
+
+        ,'mortality_rate':'Mortality rate'
+        ,'morbidity_rate':'Morbidity rate'
+
+        ,'ideal_biomass_value_2010usd':'Value of ideal biomass (USD)'
+        ,'ideal_output_value_eggs_2010usd':'Value of ideal egg production (USD)'
+        ,'ideal_output_value_meat_2010usd':'Value of ideal meat production (USD)'
+        ,'ideal_output_value_milk_2010usd':'Value of ideal milk production (USD)'
+        ,'ideal_output_value_wool_2010usd':'Value of ideal wool production (USD)'
+
+        ,'vetspend_biomass_farm_usdperkgbm':'Producers vet & med cost per kg biomass (USD)'
+        ,'vetspend_biomass_public_usdperkgbm':'Public vet & med cost per kg biomass (USD)'
+        ,'vetspend_production_usdperkgprod':'Producers vet & med cost per kg production (USD)'
+        ,'vetspend_farm_usd':'Total producers vet & med cost (USD)'
+        ,'vetspend_public_usd':'Total public vet & med cost (USD)'
+
+        ,'ahle_dueto_reducedoutput_2010usd':'Value of AHLE due to reduced output (USD)'
+        ,'ahle_dueto_vetandmedcost_2010usd':'Value of AHLE due to vet & med cost (USD)'
+        ,'ahle_total_2010usd':'Total value of AHLE (USD)'
+    }
+    # ------------------------------------------------------------------------------
+    # Format data to display in the table
+    # ------------------------------------------------------------------------------
+    # Order does not matter in these lists
+    # Zero decimal places without comma
+    input_df_filtered.update(input_df_filtered[[
+        'year'
+    ]].applymap('{:.0f}'.format))
+
+    # Zero decimal places
+    input_df_filtered.update(input_df_filtered[[
+        'population'
+        ,'biomass'
+        ,'production_eggs_tonnes'
+        ,'production_meat_tonnes'
+        ,'production_milk_tonnes'
+        ,'production_wool_tonnes'
+    ]].applymap('{:,.0f}'.format))
+
+    # One decimal place
+    input_df_filtered.update(input_df_filtered[[
+        'liveweight'
+    ]].applymap('{:,.1f}'.format))
+
+    # Two decimal places
+    input_df_filtered.update(input_df_filtered[[
+        'producer_price_meat_live_usdpertonne_cnst2010'
+        ,'producer_price_eggs_usdpertonne_cnst2010'
+        ,'producer_price_meat_usdpertonne_cnst2010'
+        ,'producer_price_milk_usdpertonne_cnst2010'
+        ,'producer_price_wool_usdpertonne_cnst2010'
+
+        ,'biomass_value_2010usd'
+        ,'output_value_eggs_2010usd'
+        ,'output_value_meat_2010usd'
+        ,'output_value_milk_2010usd'
+        ,'output_value_wool_2010usd'
+
+        ,'mortality_rate'
+        ,'morbidity_rate'
+
+        ,'ideal_biomass_value_2010usd'
+        ,'ideal_output_value_eggs_2010usd'
+        ,'ideal_output_value_meat_2010usd'
+        ,'ideal_output_value_milk_2010usd'
+        ,'ideal_output_value_wool_2010usd'
+
+        ,'vetspend_biomass_farm_usdperkgbm'
+        ,'vetspend_biomass_public_usdperkgbm'
+        ,'vetspend_production_usdperkgprod'
+        ,'vetspend_farm_usd'
+        ,'vetspend_public_usd'
+
+        ,'ahle_dueto_reducedoutput_2010usd'
+        ,'ahle_dueto_vetandmedcost_2010usd'
+        ,'ahle_total_2010usd'
+
+    ]].applymap('{:,.2f}'.format))
+
+    # ------------------------------------------------------------------------------
+    # Hover-over text
+    # ------------------------------------------------------------------------------
+    column_tooltips = {
+        'region':'World Bank region'
+        ,'incomegroup':'World Bank income group'
+        ,'population':'Source: FAO'
+        ,'liveweight':'Source: FAO'
+
+        ,'production_eggs_tonnes':'Source: FAO'
+        ,'production_meat_tonnes':'Source: FAO'
+        ,'production_milk_tonnes':'Source: FAO'
+        ,'production_wool_tonnes':'Source: FAO'
+
+        ,'producer_price_meat_live_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        ,'producer_price_eggs_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        ,'producer_price_meat_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        ,'producer_price_milk_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        ,'producer_price_wool_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+
+        ,'biomass_value_2010usd':'Constant 2010 US dollars'
+        ,'output_value_eggs_2010usd':'Constant 2010 US dollars'
+        ,'output_value_meat_2010usd':'Constant 2010 US dollars'
+        ,'output_value_milk_2010usd':'Constant 2010 US dollars'
+        ,'output_value_wool_2010usd':'Constant 2010 US dollars'
+
+        # ,'mortality_rate':''
+        # ,'morbidity_rate':''
+
+        ,'ideal_biomass_value_2010usd':'Constant 2010 US dollars'
+        ,'ideal_output_value_eggs_2010usd':'Constant 2010 US dollars'
+        ,'ideal_output_value_meat_2010usd':'Constant 2010 US dollars'
+        ,'ideal_output_value_milk_2010usd':'Constant 2010 US dollars'
+        ,'ideal_output_value_wool_2010usd':'Constant 2010 US dollars'
+
+        # ,'vetspend_biomass_farm_usdperkgbm':''
+        # ,'vetspend_biomass_public_usdperkgbm':''
+        # ,'vetspend_production_usdperkgprod':''
+        # ,'vetspend_farm_usd':''
+        # ,'vetspend_public_usd':''
+
+        ,'ahle_dueto_reducedoutput_2010usd':'Constant 2010 US dollars'
+        ,'ahle_dueto_vetandmedcost_2010usd':'Constant 2010 US dollars'
+        ,'ahle_total_2010usd':'Constant 2010 US dollars'
+    }
+    return [
+        html.H4(f"Detailed data for {print_selected_country}{print_selected_incgrp}"),
+        dash_table.DataTable(
+            columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+            data=input_df_filtered.to_dict('records'),
+            export_format="csv",
+            sort_action = 'native',
+            style_cell={'font-family':'sans-serif'},
+            style_table={'overflowX': 'scroll',
+                         'height': '680px',
+                         'overflowY': 'auto'
+                         },
+
+            # Hover-over for column headers
+            tooltip_header=column_tooltips,
+            tooltip_delay=1500,
+            tooltip_duration=50000,
+
+            # Underline columns with tooltips
+            style_header_conditional=[{
+                'if': {'column_id': col},
+                'textDecoration': 'underline',
+                'textDecorationStyle': 'dotted',
+                } for col in list(column_tooltips)],
+        )
+    ]
+
 # ------------------------------------------------------------------------------
 #### -- Figures
 # ------------------------------------------------------------------------------
@@ -5340,7 +5570,6 @@ def update_bio_ahle_visual_ga(input_json, viz_selection, species, country_select
                                                font_size=15,
                                                margin=dict(t=100))  
                  ga_biomass_ahle_visual.update_coloraxes(showscale=False)
-               
        
    elif viz_selection == 'Line chart':
        # Specify which columns to keep forline chart
@@ -5378,20 +5607,32 @@ def update_ahle_waterfall_ga(input_json ,selected_incgrp ,selected_country ,sele
     # Prep the data
     prep_df = prep_ahle_forwaterfall_ga(input_df)
 
+    # Make costs negative
+    _vetmed_rows = (prep_df['item'].str.contains('VET' ,case=False))
+    prep_df.loc[_vetmed_rows ,'value_usd_current'] = -1 * prep_df['value_usd_current']
+
     # Apply user filters
+    # There will always be a year filter
     prep_df_filtered = prep_df.query(f"year == {selected_year}")
 
+    # Country and Income group might not be filtered
     if selected_country == 'All':
         prep_df_filtered = prep_df_filtered
+        print_selected_country = 'All countries, '
+
+        # Only need to filter income groups if no country selected
+        if selected_incgrp == 'All':
+            prep_df_filtered = prep_df_filtered
+            print_selected_incgrp = 'all income groups, '
+        else:
+            prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+            print_selected_incgrp = f'income group {selected_incgrp}, '
     else:
         prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
+        print_selected_country = f'{selected_country}, '
+        print_selected_incgrp = ''
 
-    if selected_incgrp == 'All':
-        prep_df_filtered = prep_df_filtered
-    else:
-        prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
-
-    # Get sum for each item
+    # Get sum for each item (summing over countries if multiple)
     prep_df_sums = prep_df_filtered.groupby('item')[['value_usd_current' ,'value_usd_ideal']].sum()
     prep_df_sums = prep_df_sums.reset_index()
 
@@ -5423,7 +5664,7 @@ def update_ahle_waterfall_ga(input_json ,selected_incgrp ,selected_country ,sele
         waterfallgroupgap = 0.5,    # Gap between bars
         )
 
-    ga_waterfall_fig.update_layout(title_text=f'Output values and costs | {selected_year} <br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
+    ga_waterfall_fig.update_layout(title_text=f'Output values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
                                    yaxis_title='US Dollars (2010 constant)',
                                    font_size=15)
 
@@ -5446,35 +5687,53 @@ def update_ahle_lineplot_ga(input_json ,selected_incgrp ,selected_country ,selec
     prep_df = prep_ahle_forwaterfall_ga(input_df)
 
     # Apply user filters
+    # There will always be an item filter
     prep_df_filtered = prep_df.query(f"item == '{selected_item}'")
+    if selected_item == 'Net value':
+        print_selected_item = f'{selected_item} over time'
+    else:
+        print_selected_item = f'Value of {selected_item} over time'
 
+    # Country and Income group might not be filtered
     if selected_country == 'All':
         prep_df_filtered = prep_df_filtered
+        print_selected_country = 'All countries'
+
+        # Only need to filter income groups if no country selected
+        if selected_incgrp == 'All':
+            prep_df_filtered = prep_df_filtered
+            print_selected_incgrp = ', all income groups'
+        else:
+            prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+            print_selected_incgrp = f', income group {selected_incgrp}'
     else:
         prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
-
-    if selected_incgrp == 'All':
-        prep_df_filtered = prep_df_filtered
-    else:
-        prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+        print_selected_country = f'{selected_country}'
+        print_selected_incgrp = ''
 
     # Get sum for each year
     prep_df_sums = prep_df_filtered.groupby('year')[['value_usd_current' ,'value_usd_ideal']].sum()
     prep_df_sums = prep_df_sums.reset_index()
 
     # Plot current value
-    ga_lineplot_fig = px.line(
-        prep_df_sums
-        ,x='year'
-        ,y='value_usd_current'
-        ,color_discrete_sequence=['blue']	# List of colors to use. First will be used if no variable specified for color=.
-        ,markers=False        # True: show markers
-        # ,hover_data=['var']   # Other variables to report on hover-over.
+    plot_current_value = go.Scatter(
+        x=prep_df_sums['year']
+        ,y=prep_df_sums['value_usd_current']
+        ,name='Current'
+        ,line=dict(color='#0028CA')
+        )
+    # Overlay ideal value
+    plot_ideal_value = go.Scatter(
+        x=prep_df_sums['year']
+        ,y=prep_df_sums['value_usd_ideal']
+        ,name='Ideal'
+        ,line=dict(color='#00CA0F')
         )
 
-    # Overlay ideal value
-
-    ga_lineplot_fig.update_layout(title_text=f'Value of {selected_item} over time <br><sup>Subtitle</sup><br>',
+    ga_lineplot_fig = make_subplots()
+    ga_lineplot_fig.add_trace(plot_ideal_value)
+    ga_lineplot_fig.add_trace(plot_current_value)
+    ga_lineplot_fig.update_layout(title_text=f'{print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
                                   yaxis_title='US Dollars (2010 constant)',
                                   font_size=15)
     return ga_lineplot_fig

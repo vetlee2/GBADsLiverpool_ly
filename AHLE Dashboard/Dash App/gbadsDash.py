@@ -488,7 +488,7 @@ for i in ga_countries_biomass['incomegroup'].unique():
 # ]
 
 # Mortality rate
-mortality_rate_options_ga = [{'label': f'{i*100: .0f}%', 'value': i} for i in list(np.array(range(1, 11)) / 100)]
+mortality_rate_options_ga = [{'label': f'{i*100: .0f}%', 'value': i, 'disabled': True} for i in list(np.array(range(1, 11)) / 100)]
 
 # Year
 year_options_ga = []

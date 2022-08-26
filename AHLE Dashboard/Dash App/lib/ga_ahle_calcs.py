@@ -22,20 +22,20 @@ def lookup_from_dictionary(KEY ,DICT):
 # =============================================================================
 def add_mortality_rate(INPUT_DF):
     mortality_byincome = {
-        "L":0.15
-        ,"LM":0.1
-        ,"UM":0.06
-        ,"H":0.04
+        "Low":0.15
+        ,"Lower Middle":0.1
+        ,"Upper Middle":0.06
+        ,"High":0.04
     }
     INPUT_DF['mortality_rate'] = INPUT_DF['incomegroup'].apply(lookup_from_dictionary ,DICT=mortality_byincome)
     return INPUT_DF
 
 def add_morbidity_rate(INPUT_DF):
     morbidity_byincome = {
-        "L":0.15
-        ,"LM":0.15
-        ,"UM":0.15
-        ,"H":0.15
+        "Low":0.15
+        ,"Lower Middle":0.15
+        ,"Upper Middle":0.15
+        ,"High":0.15
     }
     INPUT_DF['morbidity_rate'] = INPUT_DF['incomegroup'].apply(lookup_from_dictionary ,DICT=morbidity_byincome)
     return INPUT_DF
@@ -43,24 +43,24 @@ def add_morbidity_rate(INPUT_DF):
 def add_vetmed_rates(INPUT_DF):
     # Spend per kg biomass, farm level
     farmspend_perkg_biomass_byincome = {
-        "L":0.01
-        ,"LM":0.02
-        ,"UM":0.03
-        ,"H":0.05
+        "Low":0.01
+        ,"Lower Middle":0.02
+        ,"Upper Middle":0.03
+        ,"High":0.05
     }
     # Spend per kg biomass, public level
     pubspend_perkg_biomass_byincome = {
-        "L":0.005
-        ,"LM":0.01
-        ,"UM":0.02
-        ,"H":0.03
+        "Low":0.005
+        ,"Lower Middle":0.01
+        ,"Upper Middle":0.02
+        ,"High":0.03
     }
     # Spend per kg production
     vetspend_perkg_prod_byincome = {
-        "L":0.0025
-        ,"LM":0.005
-        ,"UM":0.01
-        ,"H":0.01
+        "Low":0.0025
+        ,"Lower Middle":0.005
+        ,"Upper Middle":0.01
+        ,"High":0.01
     }
     INPUT_DF['vetspend_biomass_farm_usdperkgbm'] = \
         INPUT_DF['incomegroup'].apply(lookup_from_dictionary ,DICT=farmspend_perkg_biomass_byincome)

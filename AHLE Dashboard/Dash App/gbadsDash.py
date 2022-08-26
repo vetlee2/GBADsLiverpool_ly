@@ -464,31 +464,28 @@ ga_species_options = []
 for i in ga_countries_biomass['species'].unique():
     str(ga_species_options.append({'label':i,'value':(i)}))
 
-# # Create dictionary of countries and their iso3 values
-# country_iso3_dict = dict(zip(ga_countries_biomass.country,ga_countries_biomass.country_iso3))
-
-# country_options_ga = [{'label': "All", 'value': "All", 'disabled': False}]
-# for i in np.sort(ga_countries_biomass['country'].unique()) :
-#    country_shortname = country_iso3_dict[i]
-#    compound_label = f"{i} ({country_shortname})"
-#    str(country_options_ga.append({'label':compound_label,'value':(i)}))
-
 country_options_ga = [{'label': "All", 'value': "All", 'disabled': False}]
 for i in ga_countries_biomass['country'].unique():
     str(country_options_ga.append({'label':i,'value':(i)}))
 
 # Income group
-# incomegrp_options_ga = [{'label': "All", 'value': "All"}]
-# for i in ga_countries_biomass['incomegroup'].unique():
-#     str(incomegrp_options_ga.append({'label':i,'value':(i)}))
+# Rename Overall to more descriptive
+ga_countries_biomass['incomegroup'] = ga_countries_biomass['incomegroup'].replace({'L': 'Low', 'LM':'Lower Middle', 'UM':'Upper Middle', 'H':'High', 'UNK':'Unassigned', 'NaN':'Unassigned'})
 
-incomegrp_options_ga = [
-    {'label':'All' ,'value':'All'}
-    ,{'label':'Low' ,'value':'L'}
-    ,{'label':'Lower Middle' ,'value':'LM'}
-    ,{'label':'Upper Middle' ,'value':'UM'}
-    ,{'label':'High' ,'value':'H'}
-]
+# replacing na values in college with No college
+ga_countries_biomass['incomegroup'].fillna("Unassigned", inplace = True)
+
+incomegrp_options_ga = [{'label': "All", 'value': "All"}]
+for i in ga_countries_biomass['incomegroup'].unique():
+    str(incomegrp_options_ga.append({'label':i,'value':(i)}))
+
+# incomegrp_options_ga = [
+#     {'label':'All' ,'value':'All'}
+#     ,{'label':'Low' ,'value':'L'}
+#     ,{'label':'Lower Middle' ,'value':'LM'}
+#     ,{'label':'Upper Middle' ,'value':'UM'}
+#     ,{'label':'High' ,'value':'H'}
+# ]
 
 # Mortality rate
 mortality_rate_options_ga = [{'label': f'{i*100: .0f}%', 'value': i} for i in list(np.array(range(1, 11)) / 100)]
@@ -1500,6 +1497,9 @@ def create_biomass_map_ga(input_df, iso_alpha3, biomass, country):
                                      color="black"
                                      )
                                  )
+    
+    # Rename the animation frame
+    biomass_map_fig.update_layout(sliders=[{"currentvalue": {"prefix": "Year="}}])
 
     return biomass_map_fig
 
@@ -1631,6 +1631,19 @@ gbadsDash.layout = html.Div([
                                   value='All',
                                   clearable = False,
                                   ),
+                    ],style={
+                              "margin-top":"10px",
+                              },
+                    ),
+                        
+                # Income Group
+                dbc.Col([
+                    html.H6("Income Group"),
+                    dcc.Dropdown(id='select-incomegrp-overview-ga',
+                                 options=incomegrp_options_ga,
+                                 value='All',
+                                 clearable = False,
+                                 ),
                     ],style={
                               "margin-top":"10px",
                               },
@@ -5309,22 +5322,24 @@ def update_bio_ahle_visual_ga(input_json, viz_selection, species, country_select
        # Add title
        if region == 'All':
            if country_select =='All':
-               ga_biomass_ahle_visual.update_layout(title_text=f'Global Biomass by {species}',
+               ga_biomass_ahle_visual.update_layout(title_text=f'Global Biomass for {species}',
                                              font_size=15,
                                              margin=dict(t=100))
            else:
-               ga_biomass_ahle_visual.update_layout(title_text=f'{country_select} Biomass by {species}',
+               ga_biomass_ahle_visual.update_layout(title_text=f'{country_select} Biomass for {species}',
                                              font_size=15,
                                              margin=dict(t=100))
+               ga_biomass_ahle_visual.update_coloraxes(showscale=False)
        else:
              if country_select =='All':
-                 ga_biomass_ahle_visual.update_layout(title_text=f'{region} Biomass by {species}',
+                 ga_biomass_ahle_visual.update_layout(title_text=f'{region} Biomass for {species}',
                                                font_size=15,
                                                margin=dict(t=100))
              else:
-                 ga_biomass_ahle_visual.update_layout(title_text=f'{country_select} Biomass by {species}',
+                 ga_biomass_ahle_visual.update_layout(title_text=f'{country_select} Biomass for {species}',
                                                font_size=15,
                                                margin=dict(t=100))  
+                 ga_biomass_ahle_visual.update_coloraxes(showscale=False)
                
        
    elif viz_selection == 'Line chart':

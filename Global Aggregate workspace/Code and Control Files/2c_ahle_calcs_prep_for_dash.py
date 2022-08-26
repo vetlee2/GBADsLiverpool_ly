@@ -71,16 +71,21 @@ world_ahle_abt.eval(
 
 datainfo(world_ahle_abt)
 
+# =============================================================================
+#### Export
+# =============================================================================
+world_ahle_abt.to_csv(os.path.join(FINDATA_FOLDER ,'world_ahle_abt.csv') ,index=False)
+world_ahle_abt.to_pickle(os.path.join(FINDATA_FOLDER ,'world_ahle_abt.pkl.gz'))
+
 #%% Output table to feed Dash
 '''
 The remainder of this program performs calculations that we want to update in Dash
 based on user input. Dash will read the data without these calcs and then update them
 using functions defined in the dash app.
 '''
-world_ahle_abt.to_csv(os.path.join(FINDATA_FOLDER ,'world_ahle_abt.csv') ,index=False)
-world_ahle_abt.to_pickle(os.path.join(FINDATA_FOLDER ,'world_ahle_abt.pkl.gz'))
-
-# Drop unnecessary columns for Dash
+# =============================================================================
+#### Drop unnecessary columns
+# =============================================================================
 dropcols = [
     'flag_biomass'
 
@@ -115,9 +120,18 @@ dropcols = [
     ,'producer_price_milk_lcupertonne_cnst2010'
     ,'producer_price_wool_lcupertonne_cnst2010'
 ]
-world_ahle_abt_fordash = world_ahle_abt.drop(columns=dropcols ,errors='ignore')
+
+# =============================================================================
+#### Drop problematic rows
+# =============================================================================
+droprows = (world_ahle_abt['country'].str.upper() == 'FRENCH GUIANA')
+
+world_ahle_abt_fordash = world_ahle_abt.loc[~ droprows].drop(columns=dropcols ,errors='ignore')
 datainfo(world_ahle_abt_fordash)
 
+# =============================================================================
+#### Export
+# =============================================================================
 world_ahle_abt_fordash.to_csv(os.path.join(FINDATA_FOLDER ,'world_ahle_abt_fordash.csv') ,index=False)
 world_ahle_abt_fordash.to_pickle(os.path.join(FINDATA_FOLDER ,'world_ahle_abt_fordash.pkl.gz'))
 

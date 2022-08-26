@@ -749,9 +749,9 @@ for PRICE_BASE in price_cols_base:
         # ,f'{PRICE}_wtavg2a'
         # ,f'{PRICE}_wtavg2b'
         # ,f'{PRICE}_wtavg3'
-        ,f'{PRICE_BASE}_usdpertonne_cnst2010_median1'
-        ,f'{PRICE_BASE}_usdpertonne_cnst2010_median2a'
+        ,f'{PRICE_BASE}_usdpertonne_cnst2010_median2a'   # Some extreme resuls with median 1, so putting 2a first
         ,f'{PRICE_BASE}_usdpertonne_cnst2010_median2b'
+        ,f'{PRICE_BASE}_usdpertonne_cnst2010_median1'
         ,f'{PRICE_BASE}_usdpertonne_cnst2010_median3'
         ]
     world_ahle_imp[f"{PRICE_BASE}_usdpertonne_cnst2010"] = take_first_nonmissing(world_ahle_imp ,candidate_cols_inorder)

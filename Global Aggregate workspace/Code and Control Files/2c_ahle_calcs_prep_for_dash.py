@@ -329,6 +329,11 @@ world_ahle_abt_withcalcs.eval(
     # Under B, input head = output head. If no change in liveweight, then input biomass = output biomass.
     # If no change in liveweight price, then input dollar value = output dollar value.
 
+    # Note: production (kg) = animals (head) * liveweight (kg per head) * productivity (kg per kg biomass)
+    # Mortality rate impacts animals (head)
+    # Morbidity impacts EITHER liveweight or productivity. We don't have to distinguish, because the result will
+    # be the same (all multiplicative).
+
     # ideal_output_live_hd = output_live_hd * (1 / (1 - mortality_rate))
     # ideal_output_value_live_2010usd = (ideal_output_live_hd * liveweight / 1000) \
     #     * producer_price_meat_live_usdpertonne_cnst2010

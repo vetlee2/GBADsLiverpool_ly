@@ -1789,32 +1789,79 @@ gbadsDash.layout = html.Div([
 
             #### -- CHART SPECIFIC CONTROLS
             dbc.Row([
-                # Year
+                # AHLE Specific Controls
                 dbc.Col([
-                    html.H6("Year"),
-                    dcc.Dropdown(id='select-year-ga',
-                                 options=year_options_ga,
-                                 value=2020,
-                                 clearable = False,
-                                 ),
-                    ],style={
-                              "margin-top":"10px",
-                              },
-                    ),
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H5("Animal Health Loss Envelope Graph Controls",
+                                className="card-title",
+                                style={"font-weight": "bold"}),
+                        dbc.Row([
+                        # display
+                        dbc.Col([
+                            html.H6("Display"),
+                            dcc.RadioItems(id='select-display-ga',
+                                          options=ecs_display_options,
+                                          value='Split',
+                                          labelStyle={'display': 'block'},
+                                          inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
+                                          ),
+                            ],
+                            # style={
+                            #          "margin-top":"10px",
+                            #          },
+                        ),
 
-                # Item
+                        # Year
+                        dbc.Col([
+                            html.H6("Year"),
+                            dcc.Dropdown(id='select-year-ga',
+                                         options=year_options_ga,
+                                         value=2020,
+                                         clearable = False,
+                                         ),
+                            ],style={
+                                      "margin-top":"10px",
+                                      },
+                            ),
+                        ]), # END OF ROW
+
+                # END OF CARD BODY
+                ],),
+
+                # END OF CARD
+                ], color='#F2F2F2'),
+                ]),
+            
+                # Item Over Time Specific Controls
                 dbc.Col([
-                    html.H6("Item"),
-                    dcc.Dropdown(id='select-item-ga',
-                                  options=item_options_ga,
-                                  value=item_list_ga[-1],   # Default is last item in list
-                                  clearable = False,
-                                  ),
-                    ],style={
-                              "margin-top":"10px",
-                              },
-                    ),
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H5("Item Over Time Graph Controls",
+                                className="card-title",
+                                style={"font-weight": "bold"}),
+                        dbc.Row([
+                          # Item
+                          dbc.Col([
+                              html.H6("Item"),
+                              dcc.Dropdown(id='select-item-ga',
+                                            options=item_options_ga,
+                                            value=item_list_ga[-1],   # Default is last item in list
+                                            clearable = False,
+                                            ),
+                              ],style={
+                                        "margin-top":"10px",
+                                        },
+                              ),
+                        ]), # END OF ROW
 
+                # END OF CARD BODY
+                ],),
+
+                # END OF CARD
+                ], color='#F2F2F2'),
+                ]),
+                
                 ], justify='evenly'),
 
             #### -- MORTALITY AND OTHER CONTROLS
@@ -5599,8 +5646,10 @@ def update_bio_ahle_visual_ga(input_json, viz_selection, species, country_select
     Input('select-incomegrp-ga','value'),
     Input('select-country-detail-ga','value'),
     Input('select-year-ga','value'),
+    Input('select-display-ga','value'),
+    
     )
-def update_ahle_waterfall_ga(input_json ,selected_incgrp ,selected_country ,selected_year):
+def update_ahle_waterfall_ga(input_json ,selected_incgrp ,selected_country ,selected_year, display):
     # Read core data
     input_df = pd.read_json(input_json, orient='split')
 

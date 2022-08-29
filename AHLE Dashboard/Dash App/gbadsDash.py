@@ -578,215 +578,64 @@ fao_swp_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Fra
                                                                             "United States of America"]]
 
 # World Bank regions
-wb_region_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
-                                                                              "East Asia & Pacific",
-                                                                              "Europe & Central Asia",
-                                                                              "Latin America & the Caribbean",
-                                                                              "Middle East & North Africa",
-                                                                              "North America",
-                                                                              "South Asia",
-                                                                              "Sub-Saharan Africa",
-                                                                              ]]
+# Rename Overall to more descriptive
+ga_countries_biomass['region'] = ga_countries_biomass['region'].replace({'EAP': 'East Asia & Pacific', 
+                                                                         'ECA':'Europe & Central Asia',
+                                                                         'LAC':'Latin America & the Caribbean', 
+                                                                         'MENA':'Middle East & North Africa',
+                                                                         'NA':'North America',
+                                                                         'SA':'South Asia',
+                                                                         'SSA':'Sub-Saharan Africa'})
+
+wb_region_options_ga = [{'label': "All", 'value': "All"}]
+for i in ga_countries_biomass['region'].unique():
+    str(wb_region_options_ga.append({'label':i,'value':(i)}))
+
+
 # World Bank region-country mapping
 # Pulled from World Bank site (https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups)
 
-wb_africa_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
-                                                                              "Angola",
-                                                                              "Benin",
-                                                                              "Botswana",
-                                                                              "Burkina Faso",
-                                                                              "Burundi",
-                                                                              "Cameroon",
-                                                                              "Central African Republic",
-                                                                              "Chad",
-                                                                              "Comoros",
-                                                                              "Congo",
-                                                                              "Côte d'Ivoire",
-                                                                              "Democratic Republic of the Congo",
-                                                                              "Eritrea",
-                                                                              "Eswatini",
-                                                                              "Ethiopia",
-                                                                              "Gabon",
-                                                                              "Gambia",
-                                                                              "Ghana",
-                                                                              "Guinea",
-                                                                              "Guinea-Bissau",
-                                                                              "Kenya",
-                                                                              "Lesotho",
-                                                                              "Liberia",
-                                                                              "Madagascar",
-                                                                              "Malawi",
-                                                                              "Mali",
-                                                                              "Mauritania",
-                                                                              "Mauritius",
-                                                                              "Mozambique",
-                                                                              "Namibia",
-                                                                              "Niger",
-                                                                              "Nigeria",
-                                                                              "Rwanda",
-                                                                              "Sao Tome and Principe",
-                                                                              "Senegal",
-                                                                              "Seychelles",
-                                                                              "Sierra Leone",
-                                                                              "Somalia",
-                                                                              "South Africa",
-                                                                              "Sudan",
-                                                                              "Togo",
-                                                                              "Uganda",
-                                                                              "United Republic of Tanzania",
-                                                                              "Zambia",
-                                                                              "Zimbabwe",
-                                                                              ]]
+# East Asia & Pacific options
+options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'East Asia & Pacific')]
+wb_eap_options_ga = [{'label': "All", 'value': "All"}]
+for i in options['country'].unique():
+    str(wb_eap_options_ga.append({'label':i,'value':(i)}))
+    
+# Europe & Central Asia options
+options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'Europe & Central Asia')]
+wb_eca_options_ga = [{'label': "All", 'value': "All"}]
+for i in options['country'].unique():
+    str(wb_eca_options_ga.append({'label':i,'value':(i)}))
+    
+# Latin America & the Caribbean options
+options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'Latin America & the Caribbean')]
+wb_lac_options_ga = [{'label': "All", 'value': "All"}]
+for i in options['country'].unique():
+    str(wb_lac_options_ga.append({'label':i,'value':(i)}))
 
-wb_eap_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
-                                                                           "Australia",
-                                                                           "Brunei Darussalam",
-                                                                           "Cambodia",
-                                                                           "China",
-                                                                           "Democratic People's Republic of Korea",
-                                                                           "Fiji",
-                                                                           "French Polynesia",
-                                                                           "Hong Kong",
-                                                                           "Indonesia",
-                                                                           "Japan",
-                                                                           "Kiribati",
-                                                                           "Lao People's Democratic Republic",
-                                                                           "Malaysia",
-                                                                           "Mongolia",
-                                                                           "Myanmar",
-                                                                           "Nauru",
-                                                                           "New Caledonia",
-                                                                           "New Zealand",
-                                                                           "Philippines",
-                                                                           "Republic of Korea",
-                                                                           "Samoa",
-                                                                           "Singapore",
-                                                                           "Solomon Islands",
-                                                                           "Thailand",
-                                                                           "Papua New Guinea",
-                                                                           "Tonga",
-                                                                           "Tuvalu",
-                                                                           "Vanuatu",
-                                                                           "Viet Nam"]]
+# Middle East & North Africa options
+options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'Middle East & North Africa')]
+wb_mena_options_ga = [{'label': "All", 'value': "All"}]
+for i in options['country'].unique():
+    str(wb_mena_options_ga.append({'label':i,'value':(i)}))
+    
+# North America options
+options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'North America')]
+wb_na_options_ga = [{'label': "All", 'value': "All"}]
+for i in options['country'].unique():
+    str(wb_na_options_ga.append({'label':i,'value':(i)}))
+    
+# South Asia options
+options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'South Asia')]
+wb_southasia_options_ga = [{'label': "All", 'value': "All"}]
+for i in options['country'].unique():
+    str(wb_southasia_options_ga.append({'label':i,'value':(i)}))
 
-wb_eca_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
-                                                                           "Albania",
-                                                                           "Armenia",
-                                                                           "Austria",
-                                                                           "Azerbaijan",
-                                                                           "Belarus",
-                                                                           "Bosnia and Herzegovina",
-                                                                           "Bulgaria",
-                                                                           "Croatia",
-                                                                           "Cyprus",
-                                                                           "Czechia",
-                                                                           "Denmark",
-                                                                           "Estonia",
-                                                                           "Finland",
-                                                                           "France",
-                                                                           "Georgia",
-                                                                           "Germany",
-                                                                           "Greece",
-                                                                           "Hungary",
-                                                                           "Iceland",
-                                                                           "Ireland",
-                                                                           "Italy",
-                                                                           "Kazakhstan",
-                                                                           "Kyrgyzstan",
-                                                                           "Latvia",
-                                                                           "Lithuania",
-                                                                           "Netherlands",
-                                                                           "North Macedonia",
-                                                                           "Norway",
-                                                                           "Poland",
-                                                                           "Portugal",
-                                                                           "Republic of Moldova",
-                                                                           "Romania",
-                                                                           "Russian Federation",
-                                                                           "Slovakia",
-                                                                           "Slovenia",
-                                                                           "Spain",
-                                                                           "Sweden",
-                                                                           "Switzerland",
-                                                                           "Tajikistan",
-                                                                           "Turkey",
-                                                                           "Turkmenistan",
-                                                                           "Ukraine",
-                                                                           "United Kingdom of Great Britain and Northern Ireland",
-                                                                           "Uzbekistan"]]
-
-wb_lac_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
-                                                                           "Antigua and Barbuda",
-                                                                           "Argentina",
-                                                                           "Bahamas",
-                                                                           "Barbados",
-                                                                           "Belize",
-                                                                           "Brazil",
-                                                                           "Chile",
-                                                                           "Colombia",
-                                                                           "Costa Rica",
-                                                                           "Cuba",
-                                                                           "Dominica",
-                                                                           "Dominican Republic",
-                                                                           "Ecuador",
-                                                                           "El Salvador",
-                                                                           "Grenada",
-                                                                           "Guatemala",
-                                                                           "Guyana",
-                                                                           "Haiti",
-                                                                           "Honduras",
-                                                                           "Jamaica",
-                                                                           "Mexico",
-                                                                           "Nicaragua",
-                                                                           "Panama",
-                                                                           "Paraguay",
-                                                                           "Peru",
-                                                                           "Puerto Rico",
-                                                                           "Saint Kitts and Nevis",
-                                                                           "Saint Lucia",
-                                                                           "Saint Vincent and the Grenadines",
-                                                                           "Suriname",
-                                                                           "Trinidad and Tobago",
-                                                                           "Uruguay",
-                                                                           "Venezuela (Bolivarian Republic of)",]]
-
-wb_mena_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
-                                                                            "Algeria",
-                                                                            "Bahrain",
-                                                                            "Djibouti",
-                                                                            "Egypt",
-                                                                            "Iran (Islamic Republic of)",
-                                                                            "Iraq",
-                                                                            "Israel",
-                                                                            "Jordan",
-                                                                            "Kuwait",
-                                                                            "Lebanon",
-                                                                            "Libya",
-                                                                            "Malta",
-                                                                            "Morocco",
-                                                                            "Oman",
-                                                                            "Qatar",
-                                                                            "Saudi Arabia",
-                                                                            "Syrian Arab Republic",
-                                                                            "Tunisia",
-                                                                            "United Arab Emirates",
-                                                                            "Yemen",
-                                                                            ]]
-
-wb_na_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
-                                                                          "Canada",
-                                                                          "United States of America"]]
-
-wb_southasia_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
-                                                                                 "Afghanistan",
-                                                                                 "Bangladesh",
-                                                                                 "Bhutan",
-                                                                                 "India",
-                                                                                 "Nepal",
-                                                                                 "Pakistan",
-                                                                                 "Sri Lanka",
-                                                                                 ]]
-
+# Sub-Saharan Africa options
+options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'Sub-Saharan Africa')]
+wb_africa_options_ga = [{'label': "All", 'value': "All"}]
+for i in options['country'].unique():
+    str(wb_africa_options_ga.append({'label':i,'value':(i)}))
 
 # =============================================================================
 #### Burden of disease calcs
@@ -1757,37 +1606,7 @@ gbadsDash.layout = html.Div([
         #### GLOBAL AHLE DETAILS TAB
         dcc.Tab(label="Global AHLE Details [WORK IN PROGRESS]", children = [
 
-            #### -- COUNTRY AND SPECIES CONTROLS
-            dbc.Row([
-                # Income Group
-                dbc.Col([
-                    html.H6("Income Group"),
-                    dcc.Dropdown(id='select-incomegrp-ga',
-                                 options=incomegrp_options_ga,
-                                 value='All',
-                                 clearable = False,
-                                 ),
-                    ],style={
-                              "margin-top":"10px",
-                              },
-                    ),
-
-                # Country
-                dbc.Col([
-                    html.H6("Country"),
-                    dcc.Dropdown(id='select-country-detail-ga',
-                                  options=country_options_ga,
-                                  value='All',
-                                  clearable = False,
-                                  ),
-                    ],style={
-                              "margin-top":"10px",
-                              },
-                    ),
-
-                ], justify='evenly'),
-
-            #### -- CHART SPECIFIC CONTROLS
+            #### -- CHART SPECIFIC AND BOTH CONTROLS
             dbc.Row([
                 # AHLE Specific Controls
                 dbc.Col([
@@ -1832,6 +1651,77 @@ gbadsDash.layout = html.Div([
                 # END OF CARD
                 ], color='#F2F2F2'),
                 ]),
+                                
+                # Controls for Both Graphs
+                dbc.Col([
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H5("Controls for Both Graphs",
+                                className="card-title",
+                                style={"font-weight": "bold"}
+                                ),
+                        dbc.Row([
+
+                           # Region-country alignment
+                           dbc.Col([
+                               html.H6('Region-country alignment'),
+                               dcc.RadioItems(id='Region-country-alignment-detail-ga',
+                                               options=region_structure_options_ga,
+                                               inputStyle={"margin-right": "10px", # This pulls the words off of the button
+                                                           "margin-left":"20px"},
+                                               value="World Bank",
+                                               style={"margin-left":'-20px'})
+                               ],
+                               style={
+                                       "margin-top":"10px",
+                                       "margin-right":"70px",
+                                       }
+
+                               ),
+                           # Region
+                           dbc.Col([
+                               html.H6("Region"),
+                               dcc.Dropdown(id='select-region-detail-ga',
+                                             options=wb_region_options_ga,
+                                             value='All',
+                                             clearable = False,
+                                             ),
+                               ],style={
+                                         "margin-top":"10px",
+                                         },
+                               ),
+                           # Income Group
+                           dbc.Col([
+                               html.H6("Income Group"),
+                               dcc.Dropdown(id='select-incomegrp-ga',
+                                            options=incomegrp_options_ga,
+                                            value='All',
+                                            clearable = False,
+                                            ),
+                               ],style={
+                                         "margin-top":"10px",
+                                         },
+                               ),
+
+                           # Country
+                           dbc.Row([
+                               html.H6("Country"),
+                               dcc.Dropdown(id='select-country-detail-ga',
+                                             options=country_options_ga,
+                                             value='All',
+                                             clearable = False,
+                                             ),
+                               ],style={
+                                         "margin-top":"10px",
+                                         },
+                               ),
+                            ]), # END OF ROW
+                    # END OF CARD BODY
+                    ],),
+
+                  # END OF CARD
+                  ], color='#F2F2F2'),
+                  ]),
             
                 # Item Over Time Specific Controls
                 dbc.Col([
@@ -1865,7 +1755,13 @@ gbadsDash.layout = html.Div([
                 ], justify='evenly'),
 
             #### -- MORTALITY AND OTHER CONTROLS
-            dbc.Row([
+            dbc.Card([
+                dbc.CardBody([
+                    html.H5("Exploring Contributions to AHLE",
+                            className="card-title",
+                            style={"font-weight": "bold"}),
+            dbc.Row([  # Line up all the controls in the same row.
+
                 # Base mortality rate
                 dbc.Col([
                     html.H6("Base mortality rate"),
@@ -1878,7 +1774,16 @@ gbadsDash.layout = html.Div([
                               "margin-top":"10px",
                               }
                     ,width=3),
+                ## END OF ROW ##
                 ]),
+
+            # END OF CARD BODY
+            ],),
+
+            # END OF CARD
+            ], color='#F2F2F2'),
+
+    
             html.Br(),
 
             #### -- GRAPHICS ROW
@@ -2837,7 +2742,7 @@ gbadsDash.layout = html.Div([
                           'margin':'auto',}
                 ),
 
-                ## END OF ETHIOPIAN TAB CONTROLS ROW ##
+                ## END OF ROW ##
                 ]),
 
             # END OF CARD BODY
@@ -5245,8 +5150,9 @@ def update_core_data_world_ahle(base_mort_rate):# ,base_morb_rate ,base_vetmed_r
     Input('Region-country-alignment-ga','value'),
     Input('select-region-ga', 'value'),
     Input('select-country-ga','value'),
+    Input('select-incomegrp-overview-ga','value'),
     )
-def update_core_data_world_ahle_abt_ga(species,region_country,region,country):
+def update_core_data_world_ahle_abt_ga(species,region_country,region,country,income):
     input_df = ga_countries_biomass.copy()
 
     # # Filter Species
@@ -5309,10 +5215,15 @@ def update_core_data_world_ahle_abt_ga(species,region_country,region,country):
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
-
+    
+    # Filter Income Group
+    if income == 'All':
+        input_df = input_df
+    else:
+        input_df = input_df.loc[(input_df['incomegroup'] == income)]
+        
     # Filter Species
-    input_df=input_df.loc[(input_df['species'] == species)]
-
+    input_df = input_df.loc[(input_df['species'] == species)]
 
     return input_df.to_json(date_format='iso', orient='split')
 
@@ -5323,7 +5234,7 @@ def update_core_data_world_ahle_abt_ga(species,region_country,region,country):
     Input('core-data-world-ahle-abt-ga','data'),
     # Input('select-currency-ecs','value'),
     )
-def update_ga_world_abt_data(input_json):
+def update_overview_table_ga(input_json):
     input_df = pd.read_json(input_json, orient='split')
 
     # Format numbers
@@ -5336,6 +5247,7 @@ def update_ga_world_abt_data(input_json):
        'country':'Country'
        ,'species':'Species'
        ,'year':'Year'
+       ,'incomegroup': 'Income Group'
        ,'biomass':'Biomass'
        ,'population':'Population'
        ,'liveweight':'Live Weight'

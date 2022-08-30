@@ -479,14 +479,6 @@ incomegrp_options_ga = [{'label': "All", 'value': "All"}]
 for i in ga_countries_biomass['incomegroup'].unique():
     str(incomegrp_options_ga.append({'label':i,'value':(i)}))
 
-# incomegrp_options_ga = [
-#     {'label':'All' ,'value':'All'}
-#     ,{'label':'Low' ,'value':'L'}
-#     ,{'label':'Lower Middle' ,'value':'LM'}
-#     ,{'label':'Upper Middle' ,'value':'UM'}
-#     ,{'label':'High' ,'value':'H'}
-# ]
-
 # Mortality rate
 mortality_rate_options_ga = [{'label': f'{i*100: .0f}%', 'value': i, 'disabled': True} for i in list(np.array(range(1, 11)) / 100)]
 
@@ -4970,8 +4962,9 @@ def update_region_options_ga(region_country):
     Output(component_id='select-country-ga', component_property='options'),
     Input(component_id='Region-country-alignment-ga', component_property='value'),
     Input(component_id='select-region-ga', component_property='value'),
+    Input('select-incomegrp-overview-ga','value'),
     )
-def update_country_options_ga(region_country, region):
+def update_country_options_ga(region_country, region, income):
     if region_country == "OIE":
         if region == "All":
             options = country_options_ga
@@ -5002,21 +4995,18 @@ def update_country_options_ga(region_country, region):
             options = fao_swp_options_ga
     elif region_country == "World Bank":
         if region == "All":
-            options = country_options_ga
-        elif region == "Sub-Saharan Africa":
-            options = wb_africa_options_ga
-        elif region == "East Asia & Pacific":
-            options = wb_eap_options_ga
-        elif region == "Europe & Central Asia":
-            options = wb_eca_options_ga
-        elif region == "Latin America & the Caribbean":
-            options = wb_lac_options_ga
-        elif region == "Middle East & North Africa":
-            options = wb_mena_options_ga
-        elif region == "North America":
-            options = wb_na_options_ga
+            if income == "All":
+                options = country_options_ga
+            else:
+                options_df = ga_countries_biomass.loc[(ga_countries_biomass['incomegroup'] == income)]
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
         else:
-            options = wb_southasia_options_ga
+            options_df = ga_countries_biomass.loc[(ga_countries_biomass['region'] == region)]
+            options = [{'label': "All", 'value': "All"}]
+            for i in options_df['country'].unique():
+                str(options.append({'label':i,'value':(i)}))
     else:
         options = country_options_ga
 
@@ -5154,10 +5144,7 @@ def update_core_data_world_ahle(base_mort_rate):# ,base_morb_rate ,base_vetmed_r
     )
 def update_core_data_world_ahle_abt_ga(species,region_country,region,country,income):
     input_df = ga_countries_biomass.copy()
-
-    # # Filter Species
-    # input_df=input_df.loc[(input_df['species'] == species)]
-
+    
     # Filter Region & country
     if region == "All":
         if country == 'All':

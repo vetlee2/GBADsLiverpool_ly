@@ -501,6 +501,15 @@ item_list_ga = [
 ]
 item_options_ga = [{'label':i,'value':(i)} for i in item_list_ga]
 
+# Map display options
+map_display_options_ga = [
+    'AHLE'
+    ,'Biomass'
+    ,'Live Weight'
+    ,'Population'
+    ]
+
+
 # -----------------------------------------------------------------------------
 # Region - Country Alignment
 # -----------------------------------------------------------------------------
@@ -1321,7 +1330,9 @@ def create_biomass_map_ga(input_df, iso_alpha3, biomass, country):
             showcoastlines=False,
             projection_type='equirectangular',
             ),
-        legend_title="Biomass",
+        coloraxis_colorbar=dict(
+            title="Biomass",
+            ),
         )
 
     biomass_map_fig.add_annotation(x=0.50, xref='paper',         # x position is absolute on axis
@@ -1447,7 +1458,7 @@ gbadsDash.layout = html.Div([
                 # Region-country alignment
                 dbc.Col([
                     html.H6('Region-country alignment'),
-                    dcc.RadioItems(id='Region-country-alignment-ga',
+                    dcc.RadioItems(id='Region-country-alignment-overview-ga',
                                     options=region_structure_options_ga,
                                     inputStyle={"margin-right": "10px", # This pulls the words off of the button
                                                 "margin-left":"20px"},
@@ -1463,7 +1474,7 @@ gbadsDash.layout = html.Div([
                 # Region
                 dbc.Col([
                     html.H6("Region"),
-                    dcc.Dropdown(id='select-region-ga',
+                    dcc.Dropdown(id='select-region-overview-ga',
                                   options=wb_region_options_ga,
                                   value='All',
                                   clearable = False,
@@ -1489,7 +1500,7 @@ gbadsDash.layout = html.Div([
                 # Country
                 dbc.Col([
                     html.H6("Country"),
-                    dcc.Dropdown(id='select-country-ga',
+                    dcc.Dropdown(id='select-country-overview-ga',
                                   options=country_options_ga,
                                   # value='All',
                                   value='Albania', #!!! - for testing
@@ -1534,6 +1545,18 @@ gbadsDash.layout = html.Div([
                             id='viz-radio-ga',
                             options=['Map', 'Line chart'],
                             value='Map',
+                            inputStyle={"margin-right": "2px", # This pulls the words off of the button
+                                        "margin-left": "10px"},
+                            ),
+                        ]),
+                    
+                    # Map Display options
+                    dbc.Col([
+                        html.H6("Map Display"),
+                        dcc.RadioItems(
+                            id='map-display-radio-ga',
+                            options=map_display_options_ga,
+                            value='Biomass',
                             inputStyle={"margin-right": "2px", # This pulls the words off of the button
                                         "margin-left": "10px"},
                             ),
@@ -1618,9 +1641,6 @@ gbadsDash.layout = html.Div([
                                           inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                           ),
                             ],
-                            # style={
-                            #          "margin-top":"10px",
-                            #          },
                         ),
 
                         # Year
@@ -4945,10 +4965,10 @@ def update_attr_treemap_ecs(input_json, prodsys, age, sex, cause, currency):
 # ------------------------------------------------------------------------------
 # Update regions based on region contry aligment selection:
 @gbadsDash.callback(
-    Output(component_id='select-region-ga', component_property='options'),
-    Input(component_id='Region-country-alignment-ga', component_property='value'),
+    Output(component_id='select-region-overview-ga', component_property='options'),
+    Input(component_id='Region-country-alignment-overview-ga', component_property='value'),
     )
-def update_region_options_ga(region_country):
+def update_region_overview_options_ga(region_country):
     if region_country == "OIE":
         options = oie_region_options_ga
     elif region_country =="FAO":
@@ -4957,14 +4977,28 @@ def update_region_options_ga(region_country):
         options = wb_region_options_ga
     return options
 
-# Update country options based on region selection
 @gbadsDash.callback(
-    Output(component_id='select-country-ga', component_property='options'),
-    Input(component_id='Region-country-alignment-ga', component_property='value'),
-    Input(component_id='select-region-ga', component_property='value'),
+    Output(component_id='select-region-detail-ga', component_property='options'),
+    Input(component_id='Region-country-alignment-detail-ga', component_property='value'),
+    )
+def update_region_detail_options_ga(region_country):
+    if region_country == "OIE":
+        options = oie_region_options_ga
+    elif region_country =="FAO":
+        options = fao_region_options_ga
+    elif region_country == "World Bank":
+        options = wb_region_options_ga
+    return options
+
+
+# Update country options based on region and income group selection
+@gbadsDash.callback(
+    Output(component_id='select-country-overview-ga', component_property='options'),
+    Input(component_id='Region-country-alignment-overview-ga', component_property='value'),
+    Input(component_id='select-region-overview-ga', component_property='value'),
     Input('select-incomegrp-overview-ga','value'),
     )
-def update_country_options_ga(region_country, region, income):
+def update_country_overview_options_ga(region_country, region, income):
     if region_country == "OIE":
         if region == "All":
             options = country_options_ga
@@ -5004,9 +5038,15 @@ def update_country_options_ga(region_country, region, income):
                     str(options.append({'label':i,'value':(i)}))
         else:
             options_df = ga_countries_biomass.loc[(ga_countries_biomass['region'] == region)]
-            options = [{'label': "All", 'value': "All"}]
-            for i in options_df['country'].unique():
-                str(options.append({'label':i,'value':(i)}))
+            if income == "All":
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
+            else:
+                options_df = options_df.loc[(options_df['incomegroup'] == income)]
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
     else:
         options = country_options_ga
 
@@ -5015,8 +5055,8 @@ def update_country_options_ga(region_country, region, income):
 # Update species options based on region and country selections
 @gbadsDash.callback(
     Output(component_id='select-species-ga', component_property='options'),
-    Input(component_id='select-country-ga', component_property='value'),
-    Input(component_id='select-region-ga', component_property='value'),
+    Input(component_id='select-country-overview-ga', component_property='value'),
+    Input(component_id='select-region-overview-ga', component_property='value'),
     )
 def update_species_options_ga(country, region):
     if region == 'All':
@@ -5137,9 +5177,9 @@ def update_core_data_world_ahle(base_mort_rate):# ,base_morb_rate ,base_vetmed_r
 @gbadsDash.callback(
     Output('core-data-world-ahle-abt-ga','data'),
     Input('select-species-ga','value'),
-    Input('Region-country-alignment-ga','value'),
-    Input('select-region-ga', 'value'),
-    Input('select-country-ga','value'),
+    Input('Region-country-alignment-overview-ga','value'),
+    Input('select-region-overview-ga', 'value'),
+    Input('select-country-overview-ga','value'),
     Input('select-incomegrp-overview-ga','value'),
     )
 def update_core_data_world_ahle_abt_ga(species,region_country,region,country,income):
@@ -5476,12 +5516,12 @@ def update_display_table_ga(input_json ,selected_incgrp ,selected_country):
    Input('core-data-world-ahle-abt-ga','data'),
    Input('viz-radio-ga','value'),
    Input('select-species-ga','value'),
-   Input('select-country-ga', 'value'),
-   Input('select-region-ga', 'value'),
-   # Input('select-attr-ecs','value'),
+   Input('select-country-overview-ga', 'value'),
+   Input('select-region-overview-ga', 'value'),
+   Input('map-display-radio-ga','value'),
    # Input('select-currency-ecs','value'),
    )
-def update_bio_ahle_visual_ga(input_json, viz_selection, species, country_select, region):
+def update_bio_ahle_visual_ga(input_json, viz_selection, species, country_select, region, display):
    # Data
    input_df = pd.read_json(input_json, orient='split')
 
@@ -5498,21 +5538,21 @@ def update_bio_ahle_visual_ga(input_json, viz_selection, species, country_select
        # Add title
        if region == 'All':
            if country_select =='All':
-               ga_biomass_ahle_visual.update_layout(title_text=f'Global Biomass for {species}',
+               ga_biomass_ahle_visual.update_layout(title_text=f'Global {display} for {species}',
                                              font_size=15,
                                              margin=dict(t=100))
            else:
-               ga_biomass_ahle_visual.update_layout(title_text=f'{country_select} Biomass for {species}',
+               ga_biomass_ahle_visual.update_layout(title_text=f'{country_select} {display} for {species}',
                                              font_size=15,
                                              margin=dict(t=100))
                ga_biomass_ahle_visual.update_coloraxes(showscale=False)
        else:
              if country_select =='All':
-                 ga_biomass_ahle_visual.update_layout(title_text=f'{region} Biomass for {species}',
+                 ga_biomass_ahle_visual.update_layout(title_text=f'{region} {display} for {species}',
                                                font_size=15,
                                                margin=dict(t=100))
              else:
-                 ga_biomass_ahle_visual.update_layout(title_text=f'{country_select} Biomass for {species}',
+                 ga_biomass_ahle_visual.update_layout(title_text=f'{country_select} {display} for {species}',
                                                font_size=15,
                                                margin=dict(t=100))
                  ga_biomass_ahle_visual.update_coloraxes(showscale=False)

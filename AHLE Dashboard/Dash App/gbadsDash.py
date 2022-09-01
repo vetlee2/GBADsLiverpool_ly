@@ -1318,9 +1318,9 @@ def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
 
 
 # Define the Biomass map
-def create_biomass_map_ga(input_df, iso_alpha3, biomass, country):
+def create_biomass_map_ga(input_df, iso_alpha3, value, country, display):
     biomass_map_fig = px.choropleth(input_df, locations=iso_alpha3,
-                                    color=biomass,
+                                    color=value,
                                     hover_name=country, # column to add to hover information
                                     animation_frame="year",
                                     color_continuous_scale=px.colors.sequential.Plasma)
@@ -1331,7 +1331,7 @@ def create_biomass_map_ga(input_df, iso_alpha3, biomass, country):
             projection_type='equirectangular',
             ),
         coloraxis_colorbar=dict(
-            title="Biomass",
+            title=f"{display}",
             ),
         )
 
@@ -1627,7 +1627,7 @@ gbadsDash.layout = html.Div([
                 dbc.Col([
                 dbc.Card([
                     dbc.CardBody([
-                        html.H5("Animal Health Loss Envelope Graph Controls",
+                        html.H5("Animal Health Loss Envelope (AHLE) Graph Controls",
                                 className="card-title",
                                 style={"font-weight": "bold"}),
                         dbc.Row([
@@ -5528,12 +5528,27 @@ def update_bio_ahle_visual_ga(input_json, viz_selection, species, country_select
    if viz_selection == 'Map':
        # Set values from the data
        iso_alpha3 = input_df['country_iso3']
-       biomass = input_df['biomass']
        country = input_df['country']
        year = input_df['year']
-
+       
+       # Establish AHLE
+       # Apply AHLE calcs
+       input_df = ga.ahle_calcs_adj_outputs(input_df)
+       # !!! - need to add AHLE here, can we use the current and ideal columns to calculate with the data as is? or do we need to transpose and un transpose
+       
+       
+       # Set value based on map display option
+       if display == 'Biomass':
+           value = input_df['biomass']
+       elif display == 'Live Weight':
+           value = input_df['liveweight']
+       elif display == 'Population':
+           value = input_df['population']
+       else:
+           value = input_df['biomass']
+           
        # Set up map structure
-       ga_biomass_ahle_visual = create_biomass_map_ga(input_df, iso_alpha3, biomass, country)
+       ga_biomass_ahle_visual = create_biomass_map_ga(input_df, iso_alpha3, value, country, display)
 
        # Add title
        if region == 'All':
@@ -5625,36 +5640,53 @@ def update_ahle_waterfall_ga(input_json ,selected_incgrp ,selected_country ,sele
     prep_df_sums = prep_df_sums.reset_index()
 
     # Get total AHLE for printing
-    _netvalue = (prep_df_sums['item'] == 'Net value')
-    current_net_value = prep_df_sums.loc[_netvalue ,'value_usd_current'].values[0]
-    ideal_net_value = prep_df_sums.loc[_netvalue ,'value_usd_ideal'].values[0]
-    total_ahle = ideal_net_value - current_net_value
+    # _netvalue = (prep_df_sums['item'] == 'Net value')
+    # current_net_value = prep_df_sums.loc[_netvalue ,'value_usd_current'].values[0]
+    # ideal_net_value = prep_df_sums.loc[_netvalue ,'value_usd_ideal'].values[0]
+    # total_ahle = ideal_net_value - current_net_value
+    # Create AHLE differences bars (ideal - current)
+    prep_df_sums['value_usd_ahle_diff'] = prep_df_sums['value_usd_ideal'] - prep_df_sums['value_usd_current']
+    total_ahle = prep_df_sums[prep_df_sums['item']=='Net value']['value_usd_ahle_diff'].values[0]
 
-    # Create graph with current values
-    name = 'Current'
-    measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
-    x = prep_df_sums['item']
-    y = prep_df_sums['value_usd_current']
-    ga_waterfall_fig = create_ahle_waterfall_ga(prep_df_sums, name, measure, x, y)
-
-    # Add ideal values side-by-side
-    ga_waterfall_fig.add_trace(go.Waterfall(
-        name = 'Ideal',
-        measure = measure,
-        x = x,
-        y = prep_df_sums['value_usd_ideal'],
-        decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
-        increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
-        totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
-        connector = {"line":{"dash":"dot"}},
-        ))
-    ga_waterfall_fig.update_layout(
-        waterfallgroupgap = 0.5,    # Gap between bars
-        )
-
-    ga_waterfall_fig.update_layout(title_text=f'Output values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
-                                   yaxis_title='US Dollars (2010 constant)',
-                                   font_size=15)
+    if display =='Split':
+        # Create graph with current values
+        name = 'Current'
+        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+        x = prep_df_sums['item']
+        y = prep_df_sums['value_usd_current']
+        ga_waterfall_fig = create_ahle_waterfall_ga(prep_df_sums, name, measure, x, y)
+    
+        # Add ideal values side-by-side
+        ga_waterfall_fig.add_trace(go.Waterfall(
+            name = 'Ideal',
+            measure = measure,
+            x = x,
+            y = prep_df_sums['value_usd_ideal'],
+            decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
+            increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
+            totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
+            connector = {"line":{"dash":"dot"}},
+            ))
+        ga_waterfall_fig.update_layout(
+            waterfallgroupgap = 0.5,    # Gap between bars
+            )
+    
+        ga_waterfall_fig.update_layout(title_text=f'AHLE (Split) output values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
+                                       yaxis_title='US Dollars (2010 constant)',
+                                       font_size=15)
+    else:
+        # # Create AHLE differences bars (ideal - current)
+        # prep_df_sums['value_usd_ahle_diff'] = prep_df_sums['value_usd_ideal'] - prep_df_sums['value_usd_current']
+        # Create graph with current values
+        name = 'AHLE'
+        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+        x = prep_df_sums['item']
+        y = prep_df_sums['value_usd_ahle_diff']
+        ga_waterfall_fig = create_ahle_waterfall_ga(prep_df_sums, name, measure, x, y)
+        
+        ga_waterfall_fig.update_layout(title_text=f'AHLE output values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
+                                       yaxis_title='US Dollars (2010 constant)',
+                                       font_size=15)
 
     return ga_waterfall_fig
 

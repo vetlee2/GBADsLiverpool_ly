@@ -1093,7 +1093,7 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
 
     # Sum to country-year level (summing over species)
     country_year_level = INPUT_DF.pivot_table(
-        index=['country' ,'year' ,'incomegroup']
+        index=['region','country' ,'year' ,'incomegroup']
         ,observed=True  # Limit to combinations of index variables that are in data
         ,values=current_value_columns + ideal_value_columns
         ,aggfunc='sum'
@@ -1105,7 +1105,7 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
     # Keys: Country, Species, Year.  Columns: Income group, Item.
     # Current values
     values_current = country_year_level.melt(
-        id_vars=['country' ,'year' ,'incomegroup']
+        id_vars=['region','country' ,'year' ,'incomegroup']
         ,value_vars=current_value_columns
         ,var_name='orig_col'             # Name for new "variable" column
         ,value_name='value_usd_current'              # Name for new "value" column
@@ -1115,7 +1115,7 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
 
     # Ideal values
     values_ideal = country_year_level.melt(
-        id_vars=['country' ,'year' ,'incomegroup']
+        id_vars=['region','country' ,'year' ,'incomegroup']
         ,value_vars=ideal_value_columns
         ,var_name='orig_col'             # Name for new "variable" column
         ,value_name='value_usd_ideal'              # Name for new "value" column
@@ -1127,7 +1127,7 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
     values_combined = pd.merge(
         left=values_current
         ,right=values_ideal
-        ,on=['country' ,'year' ,'incomegroup' ,'item']
+        ,on=['region','country' ,'year' ,'incomegroup' ,'item']
         ,how='outer'
     )
 
@@ -1377,6 +1377,7 @@ def create_line_chart_ga(input_df, year, value, country, facet):
     title="Biomass, Population, and Live Weight Over Time <br><sup> Double click country in legend to isolate</sup>",
     xaxis_title="Year",
     legend_title="Country",
+    plot_bgcolor="#ededed",
     )
 
     return bio_pop_live_line_fig
@@ -1705,7 +1706,7 @@ gbadsDash.layout = html.Div([
                            # Income Group
                            dbc.Col([
                                html.H6("Income Group"),
-                               dcc.Dropdown(id='select-incomegrp-ga',
+                               dcc.Dropdown(id='select-incomegrp-detail-ga',
                                             options=incomegrp_options_ga,
                                             value='All',
                                             clearable = False,
@@ -5052,6 +5053,67 @@ def update_country_overview_options_ga(region_country, region, income):
 
     return options
 
+# Update country options based on region and income group selection
+@gbadsDash.callback(
+    Output('select-country-detail-ga', 'options'),
+    Input('Region-country-alignment-detail-ga', 'value'),
+    Input('select-region-detail-ga', 'value'),
+    Input('select-incomegrp-detail-ga','value'),
+    )
+def update_country_detail_options_ga(region_country, region, income):
+    if region_country == "OIE":
+        if region == "All":
+            options = country_options_ga
+        elif region == "Africa":
+            options = oie_africa_options_ga
+        elif region == "Americas":
+            options = oie_americas_options_ga
+        elif region == "Asia & the Pacific":
+            options = oie_asia_options_ga
+        elif region == "Europe":
+            options = oie_europe_options_ga
+        else:
+            options = oie_me_options_ga
+    elif region_country =="FAO":
+        if region == "All":
+            options = country_options_ga
+        elif region == "Africa":
+            options = fao_africa_options_ga
+        elif region == "Asia":
+            options = fao_asia_options_ga
+        elif region == "Europe and Central Asia":
+            options = fao_eca_options_ga
+        elif region == "Latin America and the Caribbean":
+            options = fao_lac_options_ga
+        elif region == "Near East and North Africa":
+            options = fao_ena_options_ga
+        else:
+            options = fao_swp_options_ga
+    elif region_country == "World Bank":
+        if region == "All":
+            if income == "All":
+                options = country_options_ga
+            else:
+                options_df = ga_countries_biomass.loc[(ga_countries_biomass['incomegroup'] == income)]
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
+        else:
+            options_df = ga_countries_biomass.loc[(ga_countries_biomass['region'] == region)]
+            if income == "All":
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
+            else:
+                options_df = options_df.loc[(options_df['incomegroup'] == income)]
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
+    else:
+        options = country_options_ga
+
+    return options
+
 # Update species options based on region and country selections
 @gbadsDash.callback(
     Output(component_id='select-species-ga', component_property='options'),
@@ -5251,6 +5313,14 @@ def update_core_data_world_ahle_abt_ga(species,region_country,region,country,inc
         
     # Filter Species
     input_df = input_df.loc[(input_df['species'] == species)]
+    
+    # Add mortality, morbidity, and vetmed rate columns
+    input_df = ga.add_mortality_rate(input_df)
+    input_df = ga.add_morbidity_rate(input_df)
+    input_df = ga.add_vetmed_rates(input_df)
+
+    # Apply AHLE calcs
+    input_df = ga.ahle_calcs_adj_outputs(input_df)
 
     return input_df.to_json(date_format='iso', orient='split')
 
@@ -5268,6 +5338,7 @@ def update_overview_table_ga(input_json):
     input_df.update(input_df[['biomass',
                               'population',
                               'liveweight',
+                              'ahle_total_2010usd',
                               ]].applymap('{:,.0f}'.format))
 
     columns_to_display_with_labels = {
@@ -5275,6 +5346,7 @@ def update_overview_table_ga(input_json):
        ,'species':'Species'
        ,'year':'Year'
        ,'incomegroup': 'Income Group'
+       ,'ahle_total_2010usd': 'Total AHLE'
        ,'biomass':'Biomass'
        ,'population':'Population'
        ,'liveweight':'Live Weight'
@@ -5303,32 +5375,51 @@ def update_overview_table_ga(input_json):
 @gbadsDash.callback(
     Output('ga-detailtab-displaytable', 'children'),
     Input('core-data-world-ahle','data'),
-    Input('select-incomegrp-ga','value'),
+    Input('select-region-detail-ga','value'),
+    Input('select-incomegrp-detail-ga','value'),
     Input('select-country-detail-ga','value'),
     )
-def update_display_table_ga(input_json ,selected_incgrp ,selected_country):
+def update_display_table_ga(input_json ,selected_region ,selected_incgrp ,selected_country):
     # Read data
     input_df = pd.read_json(input_json, orient='split')
 
     # Apply filters
     input_df_filtered = input_df
 
-    if selected_country == 'All':
-        input_df_filtered = input_df_filtered
-        print_selected_country = 'all countries'
-
-        # Only need to filter income groups if no country selected
-        if selected_incgrp == 'All':
+    # Region, Country and Income group might not be filtered
+    if selected_region == 'All':
+        if selected_country == 'All':
             input_df_filtered = input_df_filtered
-            print_selected_incgrp = ', all income groups'
+            # print_selected_country = 'All countries, '
+            print_selected_country = 'Global, '
+    
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                input_df_filtered = input_df_filtered
+                print_selected_incgrp = 'all income groups, '
+            else:
+                input_df_filtered = input_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}, '
         else:
-            input_df_filtered = input_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
-            print_selected_incgrp = f', income group {selected_incgrp}'
+            input_df_filtered = input_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country}'
+            print_selected_incgrp = ''
     else:
-        input_df_filtered = input_df_filtered.query(f"country == '{selected_country}'")
-        print_selected_country = f'{selected_country}'
-        print_selected_incgrp = ''
-
+        if selected_country == 'All':
+            input_df_filtered = input_df_filtered.query(f"region == '{selected_region}'")
+            print_selected_country = f'All {selected_region} countries,'
+    
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                input_df_filtered = input_df_filtered
+                print_selected_incgrp = 'all income groups, '
+            else:
+                input_df_filtered = input_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}, '
+        else:
+            input_df_filtered = input_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country}'
+            print_selected_incgrp = ''
 
     columns_to_display_with_labels = {
         'region':'Region'
@@ -5531,11 +5622,9 @@ def update_bio_ahle_visual_ga(input_json, viz_selection, species, country_select
        country = input_df['country']
        year = input_df['year']
        
-       # Establish AHLE
-       # Apply AHLE calcs
-       input_df = ga.ahle_calcs_adj_outputs(input_df)
-       # !!! - need to add AHLE here, can we use the current and ideal columns to calculate with the data as is? or do we need to transpose and un transpose
-       
+       # # Establish AHLE
+       input_df['ahle_total_2010usd'] = input_df['ahle_total_2010usd'].fillna(0)
+
        
        # Set value based on map display option
        if display == 'Biomass':
@@ -5545,7 +5634,7 @@ def update_bio_ahle_visual_ga(input_json, viz_selection, species, country_select
        elif display == 'Population':
            value = input_df['population']
        else:
-           value = input_df['biomass']
+            value = input_df['ahle_total_2010usd']
            
        # Set up map structure
        ga_biomass_ahle_visual = create_biomass_map_ga(input_df, iso_alpha3, value, country, display)
@@ -5597,13 +5686,13 @@ def update_bio_ahle_visual_ga(input_json, viz_selection, species, country_select
 @gbadsDash.callback(
     Output('ga-ahle-waterfall','figure'),
     Input('core-data-world-ahle','data'),
-    Input('select-incomegrp-ga','value'),
+    Input('select-region-detail-ga','value'),
+    Input('select-incomegrp-detail-ga','value'),
     Input('select-country-detail-ga','value'),
     Input('select-year-ga','value'),
     Input('select-display-ga','value'),
-    
     )
-def update_ahle_waterfall_ga(input_json ,selected_incgrp ,selected_country ,selected_year, display):
+def update_ahle_waterfall_ga(input_json ,selected_region ,selected_incgrp ,selected_country ,selected_year, display):
     # Read core data
     input_df = pd.read_json(input_json, orient='split')
 
@@ -5618,22 +5707,40 @@ def update_ahle_waterfall_ga(input_json ,selected_incgrp ,selected_country ,sele
     # There will always be a year filter
     prep_df_filtered = prep_df.query(f"year == {selected_year}")
 
-    # Country and Income group might not be filtered
-    if selected_country == 'All':
-        prep_df_filtered = prep_df_filtered
-        print_selected_country = 'All countries, '
-
-        # Only need to filter income groups if no country selected
-        if selected_incgrp == 'All':
+    # Region, Country and Income group might not be filtered
+    if selected_region == 'All':
+        if selected_country == 'All':
             prep_df_filtered = prep_df_filtered
-            print_selected_incgrp = 'all income groups, '
+            # print_selected_country = 'All countries, '
+            print_selected_country = 'Global, '
+    
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                prep_df_filtered = prep_df_filtered
+                print_selected_incgrp = 'all income groups, '
+            else:
+                prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}, '
         else:
-            prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
-            print_selected_incgrp = f'income group {selected_incgrp}, '
+            prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country} '
+            print_selected_incgrp = ''
     else:
-        prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
-        print_selected_country = f'{selected_country}, '
-        print_selected_incgrp = ''
+        if selected_country == 'All':
+            prep_df_filtered = prep_df_filtered.query(f"region == '{selected_region}'")
+            print_selected_country = f'All {selected_region} countries,'
+    
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                prep_df_filtered = prep_df_filtered
+                print_selected_incgrp = 'all income groups, '
+            else:
+                prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}, '
+        else:
+            prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country} '
+            print_selected_incgrp = ''
 
     # Get sum for each item (summing over countries if multiple)
     prep_df_sums = prep_df_filtered.groupby('item')[['value_usd_current' ,'value_usd_ideal']].sum()
@@ -5644,9 +5751,17 @@ def update_ahle_waterfall_ga(input_json ,selected_incgrp ,selected_country ,sele
     # current_net_value = prep_df_sums.loc[_netvalue ,'value_usd_current'].values[0]
     # ideal_net_value = prep_df_sums.loc[_netvalue ,'value_usd_ideal'].values[0]
     # total_ahle = ideal_net_value - current_net_value
+    
     # Create AHLE differences bars (ideal - current)
     prep_df_sums['value_usd_ahle_diff'] = prep_df_sums['value_usd_ideal'] - prep_df_sums['value_usd_current']
+    
+    # Add vet spend back in
+    prod_vetspend = prep_df_sums[prep_df_sums['item']=='Producers vet & med costs']['value_usd_ahle_diff'].values[0]
+    pub_vetspend = prep_df_sums[prep_df_sums['item']=='Public vet & med costs']['value_usd_ahle_diff'].values[0]
+    
+    # prep_df_sums['value_usd_ahle_diff'] = prep_df_sums['value_usd_ahle_diff'] + prep_df_sums[prep_df_sums['item']=='Biomass']
     total_ahle = prep_df_sums[prep_df_sums['item']=='Net value']['value_usd_ahle_diff'].values[0]
+    total_ahle = total_ahle + prod_vetspend + pub_vetspend
 
     if display =='Split':
         # Create graph with current values
@@ -5675,8 +5790,6 @@ def update_ahle_waterfall_ga(input_json ,selected_incgrp ,selected_country ,sele
                                        yaxis_title='US Dollars (2010 constant)',
                                        font_size=15)
     else:
-        # # Create AHLE differences bars (ideal - current)
-        # prep_df_sums['value_usd_ahle_diff'] = prep_df_sums['value_usd_ideal'] - prep_df_sums['value_usd_current']
         # Create graph with current values
         name = 'AHLE'
         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
@@ -5694,11 +5807,12 @@ def update_ahle_waterfall_ga(input_json ,selected_incgrp ,selected_country ,sele
 @gbadsDash.callback(
     Output('ga-ahle-over-time','figure'),
     Input('core-data-world-ahle','data'),
-    Input('select-incomegrp-ga','value'),
+    Input('select-region-detail-ga','value'),
+    Input('select-incomegrp-detail-ga','value'),
     Input('select-country-detail-ga','value'),
     Input('select-item-ga','value'),
     )
-def update_ahle_lineplot_ga(input_json ,selected_incgrp ,selected_country ,selected_item):
+def update_ahle_lineplot_ga(input_json ,selected_region ,selected_incgrp ,selected_country ,selected_item):
     # Read core data
     input_df = pd.read_json(input_json, orient='split')
 
@@ -5713,23 +5827,40 @@ def update_ahle_lineplot_ga(input_json ,selected_incgrp ,selected_country ,selec
         print_selected_item = f'{selected_item} over time'
     else:
         print_selected_item = f'Value of {selected_item} over time'
-
-    # Country and Income group might not be filtered
-    if selected_country == 'All':
-        prep_df_filtered = prep_df_filtered
-        print_selected_country = 'All countries'
-
-        # Only need to filter income groups if no country selected
-        if selected_incgrp == 'All':
+    
+    # Region, Country and Income group might not be filtered
+    if selected_region == 'All':
+        if selected_country == 'All':
             prep_df_filtered = prep_df_filtered
-            print_selected_incgrp = ', all income groups'
+            print_selected_country = 'Global, '
+    
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                prep_df_filtered = prep_df_filtered
+                print_selected_incgrp = 'all income groups'
+            else:
+                prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}'
         else:
-            prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
-            print_selected_incgrp = f', income group {selected_incgrp}'
+            prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country}'
+            print_selected_incgrp = ''
     else:
-        prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
-        print_selected_country = f'{selected_country}'
-        print_selected_incgrp = ''
+        if selected_country == 'All':
+            prep_df_filtered = prep_df_filtered.query(f"region == '{selected_region}'")
+            print_selected_country = f'All {selected_region} countries, '
+    
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                prep_df_filtered = prep_df_filtered
+                print_selected_incgrp = 'all income groups'
+            else:
+                prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}'
+        else:
+            prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country}'
+            print_selected_incgrp = ''
 
     # Get sum for each year
     prep_df_sums = prep_df_filtered.groupby('year')[['value_usd_current' ,'value_usd_ideal']].sum()
@@ -5755,7 +5886,8 @@ def update_ahle_lineplot_ga(input_json ,selected_incgrp ,selected_country ,selec
     ga_lineplot_fig.add_trace(plot_current_value)
     ga_lineplot_fig.update_layout(title_text=f'{print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
                                   yaxis_title='US Dollars (2010 constant)',
-                                  font_size=15)
+                                  font_size=15,
+                                  plot_bgcolor="#ededed",)
     return ga_lineplot_fig
 
 #%% 6. RUN APP

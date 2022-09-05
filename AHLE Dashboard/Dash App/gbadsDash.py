@@ -77,8 +77,53 @@ if prod:
 # - Global variables and functions that aren't directly involved in the UI interactivity (Callbacks)
 # - Typical example would be functions that read, store, and prep data to be used in the app
 ###############################################################################################
+# Define tab styles
+# tab_style = {'fontWeight': 'bold'}
 
-tab_style = {'fontWeight': 'bold'}
+# Tab colors based on grouping
+global_tab_style = {
+    'backgroundColor': '#aacce3',
+    'border-color': 'grey',
+    'fontWeight': 'bold'
+}
+global_tab_selected_style = {
+    'backgroundColor': '#aacce3',
+    'border-color': 'grey',
+    'fontWeight': 'bold'
+}
+
+major_producers_tab_style = {
+    'backgroundColor': '#abebc5',
+    'border-color': 'grey',
+    'fontWeight': 'bold'
+}
+major_producers_tab_selected_style = {
+    'backgroundColor': '#abebc5',
+    'border-color': 'grey',
+    'fontWeight': 'bold'
+}
+
+ecs_tab_style = {
+    'backgroundColor': '#d7bce1',
+    'border-color': 'grey',    
+    'fontWeight': 'bold'
+}
+ecs_tab_selected_style = {
+    'backgroundColor': '#d7bce1',  
+    'border-color': 'grey',
+    'fontWeight': 'bold'
+}
+
+user_guide_tab_style ={
+    'border-color': 'grey',
+    'fontWeight': 'bold'
+}
+
+user_guide_tab_selected_style ={
+    'border-color': 'grey',
+    'fontWeight': 'bold'
+}
+
 
 # =============================================================================
 # # For reference, the first version of the plots was based on Excel files
@@ -430,7 +475,7 @@ for i in np.sort(ecs_ahle_summary['species'].unique()):
 #                                                                             ]]
 
 # Display
-ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Split",
+ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Current & Ideal",
                                                                              "Difference (AHLE)",
                                                                             ]]
 
@@ -1457,7 +1502,7 @@ gbadsDash.layout = html.Div([
     dcc.Tabs([
 
         #### GLOBAL OVERVIEW TAB
-        dcc.Tab(label="Global Overview [WORK IN PROGRESS]", children = [
+        dcc.Tab(label="Global Overview [WIP]", children = [
 
             #### -- COUNTRY AND SPECIES CONTROLS
             dbc.Row([
@@ -1603,7 +1648,7 @@ gbadsDash.layout = html.Div([
 
             html.Br(),
             # END OF GRAPHICS ROW
-            ]),
+            ],),
 
         #### -- DATATABLE
         dbc.Row([
@@ -1626,10 +1671,10 @@ gbadsDash.layout = html.Div([
 
 
         ### END OF GLOBAL AGGREGATE TAB
-        ], ),
+        ], style=global_tab_style, selected_style=global_tab_selected_style),
 
         #### GLOBAL AHLE DETAILS TAB
-        dcc.Tab(label="Global AHLE Details [WORK IN PROGRESS]", children = [
+        dcc.Tab(label="Global AHLE Details [WIP]", children = [
             
             #### -- COUNTRY AND CHART CONTROLS
             dbc.Row([
@@ -1638,7 +1683,7 @@ gbadsDash.layout = html.Div([
                     html.H6("Display"),
                     dcc.RadioItems(id='select-display-ga',
                                   options=ecs_display_options,
-                                  value='Split',
+                                  value='Difference (AHLE)',
                                   labelStyle={'display': 'block'},
                                   inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                   ),
@@ -1698,7 +1743,7 @@ gbadsDash.layout = html.Div([
                               "margin-top":"10px",
                               },
                     ),
-                ]), # END OF ROW
+                ], style={"margin-right": "10px"}), # END OF ROW
             
 
             #### -- CHART SPECIFIC AND BOTH CONTROLS
@@ -1729,8 +1774,8 @@ gbadsDash.layout = html.Div([
                 ],),
 
                 # END OF CARD
-                ], color='#F2F2F2'),
-                ]),
+                ], color='#F2F2F2',),
+                ],  width=3),
                 
                    #### -- MORTALITY AND OTHER CONTROLS
                    dbc.Col([
@@ -1800,7 +1845,7 @@ gbadsDash.layout = html.Div([
 
                    # END OF CARD
                    ], color='#F2F2F2'),
-                   ]),
+                   ], width=6),
 
                 # Item Over Time Specific Controls
                 dbc.Col([
@@ -1830,9 +1875,11 @@ gbadsDash.layout = html.Div([
 
                 # END OF CARD
                 ], color='#F2F2F2'),
-                ]),
+                ], width=3),
 
-                ], justify='evenly'),
+                ], #justify='evenly'
+                  style={"margin-right": "10px"}
+                                  ),
 
             html.Br(),
 
@@ -1905,7 +1952,9 @@ gbadsDash.layout = html.Div([
                 # Line chart
                 html.P(""),
                 ]),
-            ], style={'margin-left':"40px", 'font-style': 'italic'}
+            ], style={'margin-left':"40px", 
+                      'font-style': 'italic',
+                      "margin-right": "20px"}
             ),
         html.Br(),
 
@@ -1913,17 +1962,20 @@ gbadsDash.layout = html.Div([
         dbc.Spinner(children=[
             html.Div([  # Row with DATATABLE
                       html.Div( id='ga-detailtab-displaytable'),
-                      ], style={'margin-left':"20px", "width":"95%"}
+                      ], style={'margin-left':"20px", 
+                                "margin-right": "10px",
+                                # "width":"95%"
+                                }
                      ),
             # End of Spinner
             ],size="md", color="#393375", fullscreen=False),
         html.Br(), # Spacer for bottom of page
 
         ### END OF GLOBAL AHLE DETAILS TAB
-        ], ),
+        ], style=global_tab_style, selected_style=global_tab_selected_style),
 
         #### POULTRY TAB
-        dcc.Tab(label="Poultry", children = [
+        dcc.Tab(label="Major Producers | Poultry", children = [
 
             #### -- COUNTRY AND YEAR CONTROLS
             dbc.Row([
@@ -2228,11 +2280,10 @@ gbadsDash.layout = html.Div([
         html.Br() # Spacer for bottom of page
 
         ### END OF POULTRY TAB
-        ], ),
-
+        ], style=major_producers_tab_style, selected_style=major_producers_tab_selected_style),
 
         #### SWINE TAB
-        dcc.Tab(label="Swine", children = [
+        dcc.Tab(label="Major Producers | Swine", children = [
 
             #### -- COUNTRY AND YEAR CONTROLS
             dbc.Row([
@@ -2551,14 +2602,14 @@ gbadsDash.layout = html.Div([
         html.Br() # Spacer for bottom of page
 
         ### END OF SWINE TAB
-        ]),
+        ], style=major_producers_tab_style, selected_style=major_producers_tab_selected_style),
 
         #### BEEF TAB
         # JR: Hiding the beef tab for now
         # dcc.Tab(label="Beef"),
 
         #### ETHIOPIA TAB
-        dcc.Tab(label="Ethiopia Case Study \n[WORK IN PROGRESS]", children =[
+        dcc.Tab(label="Ethiopia Case Study \n[WIP]", children =[
 
             #### -- DROPDOWNS CONTROLS
             dbc.Row([
@@ -2576,7 +2627,7 @@ gbadsDash.layout = html.Div([
                             html.H6("Display"),
                             dcc.RadioItems(id='select-display-ecs',
                                           options=ecs_display_options,
-                                          value='Split',
+                                          value='Current & Ideal',
                                           labelStyle={'display': 'block'},
                                           inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                           ),
@@ -2929,7 +2980,7 @@ gbadsDash.layout = html.Div([
 
 
         ### END OF ETHIOPIA TAB
-            ]),
+            ], style=ecs_tab_style, selected_style=ecs_tab_selected_style),
 
 
         #### USER GUIDE TAB
@@ -2940,24 +2991,7 @@ gbadsDash.layout = html.Div([
                                 "height":"2500px",   # Set large enough for your largest page and guide will use browser scroll bar. Otherwise, longer pages will get their own scroll bars.
                                 },)
         ### END OF USER GUIDE TAB
-            ]),
-
-        #### REFERENCES TAB
-        # References are now part of user guide
-        # dcc.Tab(label="References", children =[
-        #    html.Iframe(id ="inline-reference-html",
-        #        title="Inline Frame Example",
-        #        style={"width":"80%",
-        #                "height":"800px",
-        #               'margin-top':'50px',
-        #               'margin-left':"150px",
-        #               'font-size':"medium"},
-        #          # src="assets/Web_bib_test.html"
-        #          src="assets/GBADs references.htm"
-        #        )
-
-        ### END OF REFERENCES TAB
-           # ])
+            ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
 
         ### END OF TABS ###
         ],style={'margin-right':'10px'} )
@@ -5826,7 +5860,7 @@ def update_ahle_waterfall_ga(input_json ,selected_region ,selected_incgrp ,selec
     total_ahle = prep_df_sums[prep_df_sums['item']=='Net value']['value_usd_ahle_diff'].values[0]
     total_ahle = total_ahle + prod_vetspend + pub_vetspend
 
-    if display =='Split':
+    if display =='Current & Ideal':
         # Create graph with current values
         name = 'Current'
         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
@@ -5849,7 +5883,7 @@ def update_ahle_waterfall_ga(input_json ,selected_region ,selected_incgrp ,selec
             waterfallgroupgap = 0.5,    # Gap between bars
             )
 
-        ga_waterfall_fig.update_layout(title_text=f'AHLE (Split) output values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
+        ga_waterfall_fig.update_layout(title_text=f'{display} output values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
                                        yaxis_title='US Dollars (2010 constant)',
                                        font_size=15)
     else:
@@ -5934,7 +5968,7 @@ def update_ahle_lineplot_ga(input_json ,selected_region ,selected_incgrp ,select
     prep_df_sums = prep_df_sums.reset_index()
     
     
-    if display == "Split":
+    if display == "Current & Ideal":
         # Plot current value
         plot_current_value = go.Scatter(
             x=prep_df_sums['year']

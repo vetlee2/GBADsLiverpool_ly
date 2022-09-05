@@ -5404,7 +5404,7 @@ def update_overview_table_ga(input_json):
             html.H4("Global Aggregation Data"),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
-                # fixed_rows={'headers': True, 'data': 0},
+                fixed_rows={'headers': True, 'data': 0},
                 data=input_df.to_dict('records'),
                 export_format="csv",
                 style_cell={
@@ -5632,6 +5632,7 @@ def update_display_table_ga(input_json ,selected_region ,selected_incgrp ,select
         html.H4(f"Detailed data for {print_selected_country}{print_selected_incgrp}"),
         dash_table.DataTable(
             columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+            fixed_rows={'headers': True, 'data': 0},
             data=input_df_filtered.to_dict('records'),
             export_format="csv",
             sort_action = 'native',

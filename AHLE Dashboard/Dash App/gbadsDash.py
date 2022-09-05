@@ -1775,7 +1775,7 @@ gbadsDash.layout = html.Div([
             #### -- MORTALITY AND OTHER CONTROLS
             dbc.Card([
                 dbc.CardBody([
-                    html.H5("Exploring Contributions to AHLE",
+                    html.H5("Exploring Contributions to AHLE (Not Active)",
                             className="card-title",
                             style={"font-weight": "bold"}),
             dbc.Row([  # Line up all the controls in the same row.

@@ -503,12 +503,16 @@ item_options_ga = [{'label':i,'value':(i)} for i in item_list_ga]
 
 # Map display options
 map_display_options_ga = [
-    'AHLE'
+    'Animal Helath Loss Envelope (AHLE)'
     ,'Biomass'
     ,'Live Weight'
     ,'Population'
     ]
 
+# Defautls for sliders
+mortality_rate_ga_default = 4
+morbidity_rate_ga_default = 2
+live_weight_price_ga_default = 1.75
 
 # -----------------------------------------------------------------------------
 # Region - Country Alignment
@@ -1348,6 +1352,7 @@ def create_biomass_map_ga(input_df, iso_alpha3, value, country, display):
 
     # Rename the animation frame
     biomass_map_fig.update_layout(sliders=[{"currentvalue": {"prefix": "Year="}}])
+    
 
     return biomass_map_fig
 
@@ -1778,15 +1783,54 @@ gbadsDash.layout = html.Div([
                 # Base mortality rate
                 dbc.Col([
                     html.H6("Base mortality rate"),
-                    dcc.Dropdown(id='base-mortality-rate-ga',
-                                 options=mortality_rate_options_ga,
-                                 value=0.04,
-                                 clearable = False,
-                                 ),
+                    html.Br(),
+                    daq.Slider(
+                        id='base-mortality-rate-ga',
+                        min=1,
+                        max=10,
+                        handleLabel={"showCurrentValue": True,"label": "%"},
+                        step=1,
+                        value=mortality_rate_ga_default,
+                        ),
                     ],style={
                               "margin-top":"10px",
                               }
                     ,width=3),
+                        
+                # Base morbidity rate
+                dbc.Col([
+                    html.H6("Base morbidity rate"),
+                    html.Br(),
+                    daq.Slider(
+                        id='base-morbidity-rate-ga',
+                        min=1,
+                        max=10,
+                        handleLabel={"showCurrentValue": True,"label": "%"},
+                        step=1,
+                        value=morbidity_rate_ga_default,
+                        ),
+                    ],style={
+                              "margin-top":"10px",
+                              }
+                    ,width=3),
+                        
+                # Live weight price
+                dbc.Col([
+                    html.H6("Live weight price (USD per kg)"),
+                    html.Br(),
+                    daq.Slider(
+                        id='base-live-weight-price-ga',
+                        min=0.70,
+                        max=3.25,
+                        handleLabel={"showCurrentValue": True,"label": "$"},
+                        step=.01,
+                        value=live_weight_price_ga_default,
+                        ),
+                    ],style={
+                              "margin-top":"10px",
+                              }
+                    ,width=3),
+                        
                 ## END OF ROW ##
                 ]),
 
@@ -5634,7 +5678,8 @@ def update_bio_ahle_visual_ga(input_json, viz_selection, species, country_select
        elif display == 'Population':
            value = input_df['population']
        else:
-            value = input_df['ahle_total_2010usd']
+           display = 'AHLE'
+           value = input_df['ahle_total_2010usd']
            
        # Set up map structure
        ga_biomass_ahle_visual = create_biomass_map_ga(input_df, iso_alpha3, value, country, display)

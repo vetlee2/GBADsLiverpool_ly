@@ -1752,7 +1752,7 @@ gbadsDash.layout = html.Div([
                            ],style={
                                      "margin-top":"10px",
                                      }
-                           ,width=3),
+                           ,),
                               
                        # Base morbidity rate
                        dbc.Col([
@@ -1769,7 +1769,7 @@ gbadsDash.layout = html.Div([
                            ],style={
                                      "margin-top":"10px",
                                      }
-                           ,width=3),
+                           ,),
                               
                        # Live weight price
                        dbc.Col([
@@ -1786,10 +1786,10 @@ gbadsDash.layout = html.Div([
                            ],style={
                                      "margin-top":"10px",
                                      }
-                           ,width=3),
+                           ,),
                               
                        ## END OF ROW ##
-                       ]),
+                       ], justify='evenly'),
 
                    # END OF CARD BODY
                    ],),

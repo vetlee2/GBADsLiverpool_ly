@@ -1749,6 +1749,18 @@ gbadsDash.layout = html.Div([
                                 className="card-title",
                                 style={"font-weight": "bold"}),
                         dbc.Row([
+                        # display
+                        dbc.Col([
+                            html.H6("Display"),
+                            dcc.RadioItems(id='select-display-item-ga',
+                                          options=ecs_display_options,
+                                          value='Split',
+                                          labelStyle={'display': 'block'},
+                                          inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
+                                          ),
+                            ],
+                        ),
+                            
                           # Item
                           dbc.Col([
                               html.H6("Item"),

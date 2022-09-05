@@ -503,7 +503,7 @@ item_options_ga = [{'label':i,'value':(i)} for i in item_list_ga]
 
 # Map display options
 map_display_options_ga = [
-    'Animal Helath Loss Envelope (AHLE)'
+    'Animal Health Loss Envelope (AHLE)'
     ,'Biomass'
     ,'Live Weight'
     ,'Population'
@@ -1626,6 +1626,76 @@ gbadsDash.layout = html.Div([
 
         #### GLOBAL AHLE DETAILS TAB
         dcc.Tab(label="Global AHLE Details [WORK IN PROGRESS]", children = [
+            
+            #### -- COUNTRY AND CHART CONTROLS
+            dbc.Row([
+                # Display
+                dbc.Col([
+                    html.H6("Display"),
+                    dcc.RadioItems(id='select-display-ga',
+                                  options=ecs_display_options,
+                                  value='Split',
+                                  labelStyle={'display': 'block'},
+                                  inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
+                                  ),
+                    ],
+                ),
+
+                # Region-country alignment
+                dbc.Col([
+                    html.H6('Region-country alignment'),
+                    dcc.RadioItems(id='Region-country-alignment-detail-ga',
+                                    options=region_structure_options_ga,
+                                    inputStyle={"margin-right": "10px", # This pulls the words off of the button
+                                                "margin-left":"20px"},
+                                    value="World Bank",
+                                    style={"margin-left":'-20px'})
+                    ],
+                    style={
+                            "margin-top":"10px",
+                            "margin-right":"70px",
+                            }
+
+                    ),
+                # Region
+                dbc.Col([
+                    html.H6("Region"),
+                    dcc.Dropdown(id='select-region-detail-ga',
+                                  options=wb_region_options_ga,
+                                  value='All',
+                                  clearable = False,
+                                  ),
+                    ],style={
+                              "margin-top":"10px",
+                              },
+                    ),
+                # Income Group
+                dbc.Col([
+                    html.H6("Income Group"),
+                    dcc.Dropdown(id='select-incomegrp-detail-ga',
+                                options=incomegrp_options_ga,
+                                value='All',
+                                clearable = False,
+                                ),
+                    ],style={
+                              "margin-top":"10px",
+                              },
+                    ),
+
+                # Country
+                dbc.Col([
+                    html.H6("Country"),
+                    dcc.Dropdown(id='select-country-detail-ga',
+                                  options=country_options_ga,
+                                  value='All',
+                                  clearable = False,
+                                  ),
+                    ],style={
+                              "margin-top":"10px",
+                              },
+                    ),
+                ]), # END OF ROW
+            
 
             #### -- CHART SPECIFIC AND BOTH CONTROLS
             dbc.Row([
@@ -1637,26 +1707,14 @@ gbadsDash.layout = html.Div([
                                 className="card-title",
                                 style={"font-weight": "bold"}),
                         dbc.Row([
-                        # display
-                        dbc.Col([
-                            html.H6("Display"),
-                            dcc.RadioItems(id='select-display-ga',
-                                          options=ecs_display_options,
-                                          value='Split',
-                                          labelStyle={'display': 'block'},
-                                          inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
-                                          ),
-                            ],
-                        ),
-
                         # Year
                         dbc.Col([
                             html.H6("Year"),
                             dcc.Dropdown(id='select-year-ga',
-                                         options=year_options_ga,
-                                         value=2020,
-                                         clearable = False,
-                                         ),
+                                          options=year_options_ga,
+                                          value=2020,
+                                          clearable = False,
+                                          ),
                             ],style={
                                       "margin-top":"10px",
                                       },
@@ -1669,78 +1727,77 @@ gbadsDash.layout = html.Div([
                 # END OF CARD
                 ], color='#F2F2F2'),
                 ]),
-                                
-                # Controls for Both Graphs
-                dbc.Col([
-                dbc.Card([
-                    dbc.CardBody([
-                        html.H5("Controls for Both Graphs",
-                                className="card-title",
-                                style={"font-weight": "bold"}
-                                ),
-                        dbc.Row([
+                
+                   #### -- MORTALITY AND OTHER CONTROLS
+                   dbc.Col([
+                   dbc.Card([
+                       dbc.CardBody([
+                           html.H5("Exploring Contributions to AHLE (Not Active)",
+                                   className="card-title",
+                                   style={"font-weight": "bold"}),
+                   dbc.Row([  # Line up all the controls in the same row.
 
-                           # Region-country alignment
-                           dbc.Col([
-                               html.H6('Region-country alignment'),
-                               dcc.RadioItems(id='Region-country-alignment-detail-ga',
-                                               options=region_structure_options_ga,
-                                               inputStyle={"margin-right": "10px", # This pulls the words off of the button
-                                                           "margin-left":"20px"},
-                                               value="World Bank",
-                                               style={"margin-left":'-20px'})
-                               ],
-                               style={
-                                       "margin-top":"10px",
-                                       "margin-right":"70px",
-                                       }
+                       # Base mortality rate
+                       dbc.Col([
+                           html.H6("Base mortality rate"),
+                           html.Br(),
+                           daq.Slider(
+                               id='base-mortality-rate-ga',
+                               min=1,
+                               max=10,
+                               handleLabel={"showCurrentValue": True,"label": "%"},
+                               step=1,
+                               value=mortality_rate_ga_default,
+                               ),
+                           ],style={
+                                     "margin-top":"10px",
+                                     }
+                           ,width=3),
+                              
+                       # Base morbidity rate
+                       dbc.Col([
+                           html.H6("Base morbidity rate"),
+                           html.Br(),
+                           daq.Slider(
+                               id='base-morbidity-rate-ga',
+                               min=1,
+                               max=10,
+                               handleLabel={"showCurrentValue": True,"label": "%"},
+                               step=1,
+                               value=morbidity_rate_ga_default,
+                               ),
+                           ],style={
+                                     "margin-top":"10px",
+                                     }
+                           ,width=3),
+                              
+                       # Live weight price
+                       dbc.Col([
+                           html.H6("Live weight price (USD per kg)"),
+                           html.Br(),
+                           daq.Slider(
+                               id='base-live-weight-price-ga',
+                               min=0.70,
+                               max=3.25,
+                               handleLabel={"showCurrentValue": True,"label": "$"},
+                               step=.01,
+                               value=live_weight_price_ga_default,
+                               ),
+                           ],style={
+                                     "margin-top":"10px",
+                                     }
+                           ,width=3),
+                              
+                       ## END OF ROW ##
+                       ]),
 
-                               ),
-                           # Region
-                           dbc.Col([
-                               html.H6("Region"),
-                               dcc.Dropdown(id='select-region-detail-ga',
-                                             options=wb_region_options_ga,
-                                             value='All',
-                                             clearable = False,
-                                             ),
-                               ],style={
-                                         "margin-top":"10px",
-                                         },
-                               ),
-                           # Income Group
-                           dbc.Col([
-                               html.H6("Income Group"),
-                               dcc.Dropdown(id='select-incomegrp-detail-ga',
-                                            options=incomegrp_options_ga,
-                                            value='All',
-                                            clearable = False,
-                                            ),
-                               ],style={
-                                         "margin-top":"10px",
-                                         },
-                               ),
+                   # END OF CARD BODY
+                   ],),
 
-                           # Country
-                           dbc.Row([
-                               html.H6("Country"),
-                               dcc.Dropdown(id='select-country-detail-ga',
-                                             options=country_options_ga,
-                                             value='All',
-                                             clearable = False,
-                                             ),
-                               ],style={
-                                         "margin-top":"10px",
-                                         },
-                               ),
-                            ]), # END OF ROW
-                    # END OF CARD BODY
-                    ],),
+                   # END OF CARD
+                   ], color='#F2F2F2'),
+                   ]),
 
-                  # END OF CARD
-                  ], color='#F2F2F2'),
-                  ]),
-            
                 # Item Over Time Specific Controls
                 dbc.Col([
                 dbc.Card([
@@ -1749,18 +1806,6 @@ gbadsDash.layout = html.Div([
                                 className="card-title",
                                 style={"font-weight": "bold"}),
                         dbc.Row([
-                        # display
-                        dbc.Col([
-                            html.H6("Display"),
-                            dcc.RadioItems(id='select-display-item-ga',
-                                          options=ecs_display_options,
-                                          value='Split',
-                                          labelStyle={'display': 'block'},
-                                          inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
-                                          ),
-                            ],
-                        ),
-                            
                           # Item
                           dbc.Col([
                               html.H6("Item"),
@@ -1784,75 +1829,6 @@ gbadsDash.layout = html.Div([
                 
                 ], justify='evenly'),
 
-            #### -- MORTALITY AND OTHER CONTROLS
-            dbc.Card([
-                dbc.CardBody([
-                    html.H5("Exploring Contributions to AHLE (Not Active)",
-                            className="card-title",
-                            style={"font-weight": "bold"}),
-            dbc.Row([  # Line up all the controls in the same row.
-
-                # Base mortality rate
-                dbc.Col([
-                    html.H6("Base mortality rate"),
-                    html.Br(),
-                    daq.Slider(
-                        id='base-mortality-rate-ga',
-                        min=1,
-                        max=10,
-                        handleLabel={"showCurrentValue": True,"label": "%"},
-                        step=1,
-                        value=mortality_rate_ga_default,
-                        ),
-                    ],style={
-                              "margin-top":"10px",
-                              }
-                    ,width=3),
-                        
-                # Base morbidity rate
-                dbc.Col([
-                    html.H6("Base morbidity rate"),
-                    html.Br(),
-                    daq.Slider(
-                        id='base-morbidity-rate-ga',
-                        min=1,
-                        max=10,
-                        handleLabel={"showCurrentValue": True,"label": "%"},
-                        step=1,
-                        value=morbidity_rate_ga_default,
-                        ),
-                    ],style={
-                              "margin-top":"10px",
-                              }
-                    ,width=3),
-                        
-                # Live weight price
-                dbc.Col([
-                    html.H6("Live weight price (USD per kg)"),
-                    html.Br(),
-                    daq.Slider(
-                        id='base-live-weight-price-ga',
-                        min=0.70,
-                        max=3.25,
-                        handleLabel={"showCurrentValue": True,"label": "$"},
-                        step=.01,
-                        value=live_weight_price_ga_default,
-                        ),
-                    ],style={
-                              "margin-top":"10px",
-                              }
-                    ,width=3),
-                        
-                ## END OF ROW ##
-                ]),
-
-            # END OF CARD BODY
-            ],),
-
-            # END OF CARD
-            ], color='#F2F2F2'),
-
-    
             html.Br(),
 
             #### -- GRAPHICS ROW
@@ -5868,8 +5844,9 @@ def update_ahle_waterfall_ga(input_json ,selected_region ,selected_incgrp ,selec
     Input('select-incomegrp-detail-ga','value'),
     Input('select-country-detail-ga','value'),
     Input('select-item-ga','value'),
+    Input('select-display-ga','value'),
     )
-def update_ahle_lineplot_ga(input_json ,selected_region ,selected_incgrp ,selected_country ,selected_item):
+def update_ahle_lineplot_ga(input_json ,selected_region ,selected_incgrp ,selected_country ,selected_item ,display):
     # Read core data
     input_df = pd.read_json(input_json, orient='split')
 
@@ -5918,33 +5895,75 @@ def update_ahle_lineplot_ga(input_json ,selected_region ,selected_incgrp ,select
             prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
             print_selected_country = f'{selected_country}'
             print_selected_incgrp = ''
+    
+    # Create AHLE (dfiierence) value
+    prep_df_filtered['value_usd_ahle_diff'] = prep_df_filtered['value_usd_ideal'] - prep_df_filtered['value_usd_current']
 
     # Get sum for each year
-    prep_df_sums = prep_df_filtered.groupby('year')[['value_usd_current' ,'value_usd_ideal']].sum()
+    prep_df_sums = prep_df_filtered.groupby('year')[['value_usd_current' ,'value_usd_ideal', 'value_usd_ahle_diff']].sum()
     prep_df_sums = prep_df_sums.reset_index()
-
-    # Plot current value
-    plot_current_value = go.Scatter(
-        x=prep_df_sums['year']
-        ,y=prep_df_sums['value_usd_current']
-        ,name='Current'
-        ,line=dict(color='#0028CA')
-        )
-    # Overlay ideal value
-    plot_ideal_value = go.Scatter(
-        x=prep_df_sums['year']
-        ,y=prep_df_sums['value_usd_ideal']
-        ,name='Ideal'
-        ,line=dict(color='#00CA0F')
-        )
-
-    ga_lineplot_fig = make_subplots()
-    ga_lineplot_fig.add_trace(plot_ideal_value)
-    ga_lineplot_fig.add_trace(plot_current_value)
-    ga_lineplot_fig.update_layout(title_text=f'{print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
-                                  yaxis_title='US Dollars (2010 constant)',
-                                  font_size=15,
-                                  plot_bgcolor="#ededed",)
+    
+    
+    if display == "Split":
+        # Plot current value
+        plot_current_value = go.Scatter(
+            x=prep_df_sums['year']
+            ,y=prep_df_sums['value_usd_current']
+            ,name='Current'
+            ,line=dict(color='#0028CA')
+            )
+        # Overlay ideal value
+        plot_ideal_value = go.Scatter(
+            x=prep_df_sums['year']
+            ,y=prep_df_sums['value_usd_ideal']
+            ,name='Ideal'
+            ,line=dict(color='#00CA0F')
+            )
+    
+        ga_lineplot_fig = make_subplots()
+        ga_lineplot_fig.add_trace(plot_ideal_value)
+        ga_lineplot_fig.add_trace(plot_current_value)
+        ga_lineplot_fig.update_layout(title_text=f'{display} {print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
+                                      yaxis_title='US Dollars (2010 constant)',
+                                      font_size=15,
+                                      plot_bgcolor="#ededed",)
+    
+    else:
+        # Change line color based on if AHLE or cost is selected
+        costs = "costs"
+        if selected_item == 'Net value':
+            # Plot AHLE value
+            plot_ahle_value = go.Scatter(
+                x=prep_df_sums['year']
+                ,y=prep_df_sums['value_usd_ahle_diff']
+                ,name=f'{display}'
+                ,line=dict(color='#F7931D')
+                )
+        elif costs in selected_item:
+            # Plot AHLE value
+            plot_ahle_value = go.Scatter(
+                x=prep_df_sums['year']
+                ,y=prep_df_sums['value_usd_ahle_diff']
+                ,name=f'{display}'
+                ,line=dict(color='#E84C3D')
+                )
+        else:
+            # Plot AHLE value
+            plot_ahle_value = go.Scatter(
+                x=prep_df_sums['year']
+                ,y=prep_df_sums['value_usd_ahle_diff']
+                ,name=f'{display}'
+                ,line=dict(color='#3598DB')
+                )
+        
+        ga_lineplot_fig = make_subplots()
+        ga_lineplot_fig.add_trace(plot_ahle_value)
+        ga_lineplot_fig.update_layout(title_text=f'{display} {print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
+                                      yaxis_title='US Dollars (2010 constant)',
+                                      font_size=15,
+                                      plot_bgcolor="#ededed",)
+        
+    
     return ga_lineplot_fig
 
 #%% 6. RUN APP

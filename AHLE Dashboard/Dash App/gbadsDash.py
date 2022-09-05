@@ -1607,7 +1607,8 @@ gbadsDash.layout = html.Div([
 
         #### -- DATATABLE
         dbc.Row([
-
+            
+            dbc.Spinner(children=[
             dbc.Col([
                 html.Div([  # Core data for AHLE
                       html.Div( id='ga-world-abt-datatable'),
@@ -1616,6 +1617,9 @@ gbadsDash.layout = html.Div([
             html.Br() # Spacer for bottom of page
 
             ]),# END OF COL
+            # End of Spinner
+            ],size="md", color="#393375", fullscreen=False),
+            
         ]),
         html.Br(),
         ### END OF DATATABLE

@@ -1754,7 +1754,7 @@ gbadsDash.layout = html.Div([
                 dbc.Col([
                 dbc.Card([
                     dbc.CardBody([
-                        html.H5("Animal Health Loss Envelope (AHLE) Graph Controls",
+                        html.H5("Output Values and Costs Graph Controls",
                                 className="card-title",
                                 style={"font-weight": "bold"}),
                         dbc.Row([

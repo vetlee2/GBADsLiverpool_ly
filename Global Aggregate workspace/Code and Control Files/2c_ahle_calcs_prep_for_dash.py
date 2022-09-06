@@ -139,7 +139,8 @@ dropcols = [
 # =============================================================================
 droprows = (world_ahle_abt['country'].str.upper() == 'FRENCH GUIANA') \
     | (world_ahle_abt['country'].str.upper() == 'GUADELOUPUE') \
-        | (world_ahle_abt['country'].str.upper() == 'MARTINIQUE')
+        | (world_ahle_abt['country'].str.upper() == 'MARTINIQUE') \
+            | (world_ahle_abt['country'].str.upper() == 'BRUNEI DARUSSALAM')
 
 world_ahle_abt_fordash = world_ahle_abt.loc[~ droprows].drop(columns=dropcols ,errors='ignore')
 datainfo(world_ahle_abt_fordash)

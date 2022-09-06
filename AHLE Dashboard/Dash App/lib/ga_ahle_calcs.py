@@ -138,6 +138,7 @@ def ahle_calcs_adj_outputs(INPUT_DF):
         ahle_dueto_reducedoutput_2010usd = ideal_output_plus_biomass_value_2010usd - output_plus_biomass_value_2010usd
         ahle_dueto_vetandmedcost_2010usd = vetspend_farm_usd + vetspend_public_usd
         ahle_total_2010usd = ahle_dueto_reducedoutput_2010usd + ahle_dueto_vetandmedcost_2010usd
+        ahle_2010usd_perkgbm = ahle_total_2010usd / biomass
 
         ahle_dueto_reducedoutput_pctofoutput = (ahle_dueto_reducedoutput_2010usd / output_plus_biomass_value_2010usd) * 100
         ahle_dueto_vetandmedcost_pctofoutput = (ahle_dueto_vetandmedcost_2010usd / output_plus_biomass_value_2010usd) * 100

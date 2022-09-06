@@ -209,29 +209,29 @@ ga_countries_biomass.dropna(subset=['species'], inplace=True)
 # All species
 # -----------------------------------------------------------------------------
 # Region options
-region_structure_options = [{'label': i, 'value': i, 'disabled': False} for i in ["OIE",
+region_structure_options = [{'label': i, 'value': i, 'disabled': False} for i in ["WOAH",
                                                                        "FAO",
                                                                        "World Bank",]]
 
-# OIE regions
-oie_region_options = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
+# WOAH regions
+WOAH_region_options = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
                                                                         "Africa",
                                                                        "Americas",
                                                                        "Asia & the Pacific",
                                                                        "Europe"
                                                                        ]]
-oie_region_options += [{'label': "Middle East", 'value': "Middle East", 'disabled': True}]  # Include, but disable, Middle East
+WOAH_region_options += [{'label': "Middle East", 'value': "Middle East", 'disabled': True}]  # Include, but disable, Middle East
 
-# OIE region-country mapping
-oie_africa_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Ethiopia"]]
+# WOAH region-country mapping
+WOAH_africa_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Ethiopia"]]
 
-oie_americas_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Brazil",
+WOAH_americas_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Brazil",
                                                                           "United States of America"]]
 
-oie_asia_options = [{'label': i, 'value': i, 'disabled': False} for i in ["India",
+WOAH_asia_options = [{'label': i, 'value': i, 'disabled': False} for i in ["India",
                                                                           "United States of America"]]
 
-oie_europe_options = [{'label': i, 'value': i, 'disabled': False} for i in ["France",
+WOAH_europe_options = [{'label': i, 'value': i, 'disabled': False} for i in ["France",
                                                                         "Germany",
                                                                        "Italy",
                                                                        "Netherlands",
@@ -568,34 +568,34 @@ live_weight_price_ga_default = 1.75
 # Region options
 region_structure_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["World Bank",]]
 
-region_structure_options_ga += [{'label': i, 'value': i, 'disabled': True} for i in ["OIE",
+region_structure_options_ga += [{'label': i, 'value': i, 'disabled': True} for i in ["WOAH",
                                                                                      "FAO",]]
 
-# OIE regions
-oie_region_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
+# WOAH regions
+WOAH_region_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
                                                                                "Africa",
                                                                                "Americas",
                                                                                "Asia & the Pacific",
                                                                                "Europe"
                                                                                "Middle East"
                                                                                ]]
-# OIE region-country mapping
-oie_africa_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Ethiopia"]]
+# WOAH region-country mapping
+WOAH_africa_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Ethiopia"]]
 
-oie_americas_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Brazil",
+WOAH_americas_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Brazil",
                                                                                  "United States of America"]]
 
-oie_asia_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["India",
+WOAH_asia_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["India",
                                                                              "United States of America"]]
 
-oie_europe_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["France",
+WOAH_europe_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["France",
                                                                                "Germany",
                                                                                "Italy",
                                                                                "Netherlands",
                                                                                "Poland",
                                                                                "United Kingdom"]]
 
-oie_me_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["TEST"]]
+WOAH_me_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["TEST"]]
 
 
 # FAO regions
@@ -1690,6 +1690,10 @@ gbadsDash.layout = html.Div([
                                   inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                   ),
                     ],
+                    style={
+                            "margin-top":"10px",
+                            "margin-right":"70px",
+                            }
                 ),
 
                 # Region-country alignment
@@ -1986,7 +1990,7 @@ gbadsDash.layout = html.Div([
                                     options=region_structure_options,
                                     inputStyle={"margin-right": "10px", # This pulls the words off of the button
                                                 "margin-left":"20px"},
-                                    value="OIE",
+                                    value="WOAH",
                                     style={"margin-left":'-20px'})
                     ],
                     style={
@@ -1999,7 +2003,7 @@ gbadsDash.layout = html.Div([
                 dbc.Col([
                     html.H6("Region"),
                     dcc.Dropdown(id='select-region-poultry',
-                                  options=oie_region_options,
+                                  options=WOAH_region_options,
                                   value='All',
                                   clearable = False,
                                   ),
@@ -2294,7 +2298,7 @@ gbadsDash.layout = html.Div([
                                     options=region_structure_options,
                                     inputStyle={"margin-right": "10px",
                                                 "margin-left":"20px"},
-                                    value="OIE",
+                                    value="WOAH",
                                     style={"margin-left":'-20px'})
                     ],style={
                         "margin-top":"10px",
@@ -2306,7 +2310,7 @@ gbadsDash.layout = html.Div([
                 dbc.Col([
                     html.H6("Region"),
                     dcc.Dropdown(id='select-region-swine',
-                                  options=oie_region_options,
+                                  options=WOAH_region_options,
                                   value='All',
                                   clearable = False,
                                   ),
@@ -3017,8 +3021,8 @@ gbadsDash.layout = html.Div([
     Input(component_id='Region-country-alignment-poultry', component_property='value'),
     )
 def update_region_options_poultry(region_country):
-    if region_country == "OIE":
-        options = oie_region_options
+    if region_country == "WOAH":
+        options = WOAH_region_options
     elif region_country =="FAO":
         options = fao_region_options
     elif region_country == "World Bank":
@@ -3032,17 +3036,17 @@ def update_region_options_poultry(region_country):
     Input(component_id='select-region-poultry', component_property='value'),
     )
 def update_country_options_poultry(region_country, region):
-    if region_country == "OIE":
+    if region_country == "WOAH":
         if region == "All":
             options = country_options_poultry
         elif region == "Africa":
-            options = oie_africa_options
+            options = WOAH_africa_options
         elif region == "Americas":
-            options = oie_americas_options
+            options = WOAH_americas_options
         elif region == "Asia & the Pacific":
-            options = oie_asia_options
+            options = WOAH_asia_options
         else:
-            options = oie_europe_options
+            options = WOAH_europe_options
     elif region_country =="FAO":
         if region == "All":
             options = country_options_poultry
@@ -3726,8 +3730,8 @@ def update_stacked_bar_poultry(input_json, country, year):
     Input(component_id='Region-country-alignment-swine', component_property='value'),
     )
 def update_region_options_swine(region_country):
-    if region_country == "OIE":
-        options = oie_region_options
+    if region_country == "WOAH":
+        options = WOAH_region_options
     elif region_country =="FAO":
         options = fao_region_options
     elif region_country == "World Bank":
@@ -3741,17 +3745,17 @@ def update_region_options_swine(region_country):
     Input(component_id='select-region-swine', component_property='value'),
     )
 def update_country_options_swine(region_country, region):
-    if region_country == "OIE":
+    if region_country == "WOAH":
         if region == "All":
             options = country_options_swine
         elif region == "Africa":
-            options = oie_africa_options
+            options = WOAH_africa_options
         elif region == "Americas":
-            options = oie_americas_options
+            options = WOAH_americas_options
         elif region == "Asia & the Pacific":
-            options = oie_asia_options
+            options = WOAH_asia_options
         else:
-            options = oie_europe_options
+            options = WOAH_europe_options
     elif region_country =="FAO":
         if region == "All":
             options = country_options_swine
@@ -5040,8 +5044,8 @@ def update_attr_treemap_ecs(input_json, prodsys, age, sex, cause, currency):
     Input(component_id='Region-country-alignment-overview-ga', component_property='value'),
     )
 def update_region_overview_options_ga(region_country):
-    if region_country == "OIE":
-        options = oie_region_options_ga
+    if region_country == "WOAH":
+        options = WOAH_region_options_ga
     elif region_country =="FAO":
         options = fao_region_options_ga
     elif region_country == "World Bank":
@@ -5053,8 +5057,8 @@ def update_region_overview_options_ga(region_country):
     Input(component_id='Region-country-alignment-detail-ga', component_property='value'),
     )
 def update_region_detail_options_ga(region_country):
-    if region_country == "OIE":
-        options = oie_region_options_ga
+    if region_country == "WOAH":
+        options = WOAH_region_options_ga
     elif region_country =="FAO":
         options = fao_region_options_ga
     elif region_country == "World Bank":
@@ -5070,19 +5074,19 @@ def update_region_detail_options_ga(region_country):
     Input('select-incomegrp-overview-ga','value'),
     )
 def update_country_overview_options_ga(region_country, region, income):
-    if region_country == "OIE":
+    if region_country == "WOAH":
         if region == "All":
             options = country_options_ga
         elif region == "Africa":
-            options = oie_africa_options_ga
+            options = WOAH_africa_options_ga
         elif region == "Americas":
-            options = oie_americas_options_ga
+            options = WOAH_americas_options_ga
         elif region == "Asia & the Pacific":
-            options = oie_asia_options_ga
+            options = WOAH_asia_options_ga
         elif region == "Europe":
-            options = oie_europe_options_ga
+            options = WOAH_europe_options_ga
         else:
-            options = oie_me_options_ga
+            options = WOAH_me_options_ga
     elif region_country =="FAO":
         if region == "All":
             options = country_options_ga
@@ -5131,19 +5135,19 @@ def update_country_overview_options_ga(region_country, region, income):
     Input('select-incomegrp-detail-ga','value'),
     )
 def update_country_detail_options_ga(region_country, region, income):
-    if region_country == "OIE":
+    if region_country == "WOAH":
         if region == "All":
             options = country_options_ga
         elif region == "Africa":
-            options = oie_africa_options_ga
+            options = WOAH_africa_options_ga
         elif region == "Americas":
-            options = oie_americas_options_ga
+            options = WOAH_americas_options_ga
         elif region == "Asia & the Pacific":
-            options = oie_asia_options_ga
+            options = WOAH_asia_options_ga
         elif region == "Europe":
-            options = oie_europe_options_ga
+            options = WOAH_europe_options_ga
         else:
-            options = oie_me_options_ga
+            options = WOAH_me_options_ga
     elif region_country =="FAO":
         if region == "All":
             options = country_options_ga
@@ -5661,6 +5665,14 @@ def update_display_table_ga(input_json ,selected_region ,selected_incgrp ,select
         ,'ahle_dueto_vetandmedcost_2010usd':'Constant 2010 US dollars'
         ,'ahle_total_2010usd':'Constant 2010 US dollars'
     }
+    
+    # !!!- Adjust header size based on the column name length
+    # # custom width for each column as a workaround for this issue: 
+    # long_column_names = [{"if": {"column_id": column}, "min-width": "300px"} for column in df.columns if len(column) >= 30]
+    # med_column_names = [{"if": {"column_id": column}, "min-width": "225px"} for column in df.columns if (len(column) > 15 and len(column)) < 30]
+    # small_column_names = [{"if": {"column_id": column}, "min-width": "100px"} for column in df.columns if len(column) <= 15]
+    
+    # adjusted_columns = long_column_names + med_column_names + small_column_names
     return [
         html.H4(f"Detailed data for {print_selected_country}{print_selected_incgrp}"),
         dash_table.DataTable(

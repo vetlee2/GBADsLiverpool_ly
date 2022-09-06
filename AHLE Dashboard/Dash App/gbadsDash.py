@@ -105,11 +105,11 @@ major_producers_tab_selected_style = {
 
 ecs_tab_style = {
     'backgroundColor': '#d7bce1',
-    'border-color': 'grey',    
+    'border-color': 'grey',
     'fontWeight': 'bold'
 }
 ecs_tab_selected_style = {
-    'backgroundColor': '#d7bce1',  
+    'backgroundColor': '#d7bce1',
     'border-color': 'grey',
     'fontWeight': 'bold'
 }
@@ -548,10 +548,11 @@ item_options_ga = [{'label':i,'value':(i)} for i in item_list_ga]
 
 # Map display options
 map_display_options_ga = [
-    'Animal Health Loss Envelope (AHLE)'
-    ,'Biomass'
+    'Population'
     ,'Live Weight'
-    ,'Population'
+    ,'Biomass'
+    ,'Animal Health Loss Envelope (AHLE)'
+    ,'AHLE per kg biomass'
     ]
 
 # Defautls for sliders
@@ -1127,7 +1128,7 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
         ,'vetspend_farm_usd':'Producers vet & med costs'
         ,'vetspend_public_usd':'Public vet & med costs'
 
-        ,'output_plus_biomass_value_2010usd':'Net value'
+        ,'net_value_2010usd':'Net value'
     }
     current_value_columns = list(current_values_labels)
     ideal_values_labels = {
@@ -1604,12 +1605,13 @@ gbadsDash.layout = html.Div([
                     # Map Display options
                     dbc.Col([
                         html.H6("Map Display"),
-                        dcc.RadioItems(
+                        # dcc.RadioItems(
+                        dcc.Dropdown(
                             id='map-display-radio-ga',
                             options=map_display_options_ga,
-                            value='Biomass',
-                            inputStyle={"margin-right": "2px", # This pulls the words off of the button
-                                        "margin-left": "10px"},
+                            value='Population',
+                            # inputStyle={"margin-right": "2px", # This pulls the words off of the button
+                            #             "margin-left": "10px"},
                             ),
                         ]),
 
@@ -1652,7 +1654,7 @@ gbadsDash.layout = html.Div([
 
         #### -- DATATABLE
         dbc.Row([
-            
+
             dbc.Spinner(children=[
             dbc.Col([
                 html.Div([  # Core data for AHLE
@@ -1664,7 +1666,7 @@ gbadsDash.layout = html.Div([
             ]),# END OF COL
             # End of Spinner
             ],size="md", color="#393375", fullscreen=False),
-            
+
         ]),
         html.Br(),
         ### END OF DATATABLE
@@ -1675,7 +1677,7 @@ gbadsDash.layout = html.Div([
 
         #### GLOBAL AHLE DETAILS TAB
         dcc.Tab(label="Global AHLE Details [WIP]", children = [
-            
+
             #### -- COUNTRY AND CHART CONTROLS
             dbc.Row([
                 # Display
@@ -1744,7 +1746,7 @@ gbadsDash.layout = html.Div([
                               },
                     ),
                 ], style={"margin-right": "10px"}), # END OF ROW
-            
+
 
             #### -- CHART SPECIFIC AND BOTH CONTROLS
             dbc.Row([
@@ -1776,7 +1778,7 @@ gbadsDash.layout = html.Div([
                 # END OF CARD
                 ], color='#F2F2F2',),
                 ],  width=3),
-                
+
                    #### -- MORTALITY AND OTHER CONTROLS
                    dbc.Col([
                    dbc.Card([
@@ -1802,7 +1804,7 @@ gbadsDash.layout = html.Div([
                                      "margin-top":"10px",
                                      }
                            ,),
-                              
+
                        # Base morbidity rate
                        dbc.Col([
                            html.H6("Base morbidity rate"),
@@ -1819,7 +1821,7 @@ gbadsDash.layout = html.Div([
                                      "margin-top":"10px",
                                      }
                            ,),
-                              
+
                        # Live weight price
                        dbc.Col([
                            html.H6("Live weight price (USD per kg)"),
@@ -1836,7 +1838,7 @@ gbadsDash.layout = html.Div([
                                      "margin-top":"10px",
                                      }
                            ,),
-                              
+
                        ## END OF ROW ##
                        ], justify='evenly'),
 
@@ -1952,7 +1954,7 @@ gbadsDash.layout = html.Div([
                 # Line chart
                 html.P(""),
                 ]),
-            ], style={'margin-left':"40px", 
+            ], style={'margin-left':"40px",
                       'font-style': 'italic',
                       "margin-right": "20px"}
             ),
@@ -1962,7 +1964,7 @@ gbadsDash.layout = html.Div([
         dbc.Spinner(children=[
             html.Div([  # Row with DATATABLE
                       html.Div( id='ga-detailtab-displaytable'),
-                      ], style={'margin-left':"20px", 
+                      ], style={'margin-left':"20px",
                                 "margin-right": "10px",
                                 # "width":"95%"
                                 }
@@ -2609,7 +2611,7 @@ gbadsDash.layout = html.Div([
         # dcc.Tab(label="Beef"),
 
         #### ETHIOPIA TAB
-        dcc.Tab(label="Ethiopia Case Study \n[WIP]", children =[
+        dcc.Tab(label="Ethiopia Case Study [WIP]", children =[
 
             #### -- DROPDOWNS CONTROLS
             dbc.Row([
@@ -4146,7 +4148,6 @@ def update_background_data_swine(input_json, country ,producerprice ,rationprice
 
     return [
             html.H4(f"Data for {country}"),
-            # html.P('All currently processed data.  Unformatted and unfiltered.'),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 data=background_data.to_dict('records'),
@@ -5728,10 +5729,13 @@ def update_bio_ahle_visual_ga(input_json, viz_selection, species, country_select
        elif display == 'Population':
            display_title = 'Population (head)'
            value = input_df['population']
-       else:
-           display = 'AHLE'
+       elif display == 'Animal Health Loss Envelope (AHLE)':
            display_title = 'AHLE (2010 USD)'
            value = input_df['ahle_total_2010usd']
+       else:
+           display = 'AHLE per kg biomass'
+           display_title = 'AHLE (USD per kg biomass)'
+           value = input_df['ahle_2010usd_perkgbm']
 
        # Set up map structure
        ga_biomass_ahle_visual = create_biomass_map_ga(input_df, iso_alpha3, value, country, display_title)
@@ -5853,12 +5857,12 @@ def update_ahle_waterfall_ga(input_json ,selected_region ,selected_incgrp ,selec
     prep_df_sums['value_usd_ahle_diff'] = prep_df_sums['value_usd_ideal'] - prep_df_sums['value_usd_current']
 
     # Add vet spend back in
-    prod_vetspend = prep_df_sums[prep_df_sums['item']=='Producers vet & med costs']['value_usd_ahle_diff'].values[0]
-    pub_vetspend = prep_df_sums[prep_df_sums['item']=='Public vet & med costs']['value_usd_ahle_diff'].values[0]
+    # prod_vetspend = prep_df_sums[prep_df_sums['item']=='Producers vet & med costs']['value_usd_ahle_diff'].values[0]
+    # pub_vetspend = prep_df_sums[prep_df_sums['item']=='Public vet & med costs']['value_usd_ahle_diff'].values[0]
 
     # prep_df_sums['value_usd_ahle_diff'] = prep_df_sums['value_usd_ahle_diff'] + prep_df_sums[prep_df_sums['item']=='Biomass']
     total_ahle = prep_df_sums[prep_df_sums['item']=='Net value']['value_usd_ahle_diff'].values[0]
-    total_ahle = total_ahle + prod_vetspend + pub_vetspend
+    # total_ahle = total_ahle + prod_vetspend + pub_vetspend
 
     if display =='Current & Ideal':
         # Create graph with current values
@@ -5883,18 +5887,18 @@ def update_ahle_waterfall_ga(input_json ,selected_region ,selected_incgrp ,selec
             waterfallgroupgap = 0.5,    # Gap between bars
             )
 
-        ga_waterfall_fig.update_layout(title_text=f'{display} output values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
+        ga_waterfall_fig.update_layout(title_text=f'Current & ideal output values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
                                        yaxis_title='US Dollars (2010 constant)',
                                        font_size=15)
     else:
-        # Create graph with current values
+        # Create graph with differences
         name = 'AHLE'
         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
         x = prep_df_sums['item']
         y = prep_df_sums['value_usd_ahle_diff']
         ga_waterfall_fig = create_ahle_waterfall_ga(prep_df_sums, name, measure, x, y)
 
-        ga_waterfall_fig.update_layout(title_text=f'AHLE output values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
+        ga_waterfall_fig.update_layout(title_text=f'Ideal minus current output values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
                                        yaxis_title='US Dollars (2010 constant)',
                                        font_size=15)
 
@@ -5924,7 +5928,7 @@ def update_ahle_lineplot_ga(input_json ,selected_region ,selected_incgrp ,select
     if selected_item == 'Net value':
         print_selected_item = f'{selected_item} over time'
     else:
-        print_selected_item = f'Value of {selected_item} over time'
+        print_selected_item = f'value of {selected_item} over time'
 
     # Region, Country and Income group might not be filtered
     if selected_region == 'All':
@@ -5959,15 +5963,15 @@ def update_ahle_lineplot_ga(input_json ,selected_region ,selected_incgrp ,select
             prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
             print_selected_country = f'{selected_country}'
             print_selected_incgrp = ''
-    
+
     # Create AHLE (dfiierence) value
     prep_df_filtered['value_usd_ahle_diff'] = prep_df_filtered['value_usd_ideal'] - prep_df_filtered['value_usd_current']
 
     # Get sum for each year
     prep_df_sums = prep_df_filtered.groupby('year')[['value_usd_current' ,'value_usd_ideal', 'value_usd_ahle_diff']].sum()
     prep_df_sums = prep_df_sums.reset_index()
-    
-    
+
+
     if display == "Current & Ideal":
         # Plot current value
         plot_current_value = go.Scatter(
@@ -5983,15 +5987,15 @@ def update_ahle_lineplot_ga(input_json ,selected_region ,selected_incgrp ,select
             ,name='Ideal'
             ,line=dict(color='#00CA0F')
             )
-    
+
         ga_lineplot_fig = make_subplots()
         ga_lineplot_fig.add_trace(plot_ideal_value)
         ga_lineplot_fig.add_trace(plot_current_value)
-        ga_lineplot_fig.update_layout(title_text=f'{display} {print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
+        ga_lineplot_fig.update_layout(title_text=f'Current & ideal {print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
                                       yaxis_title='US Dollars (2010 constant)',
                                       font_size=15,
                                       plot_bgcolor="#ededed",)
-    
+
     else:
         # Change line color based on if AHLE or cost is selected
         costs = "costs"
@@ -6019,15 +6023,15 @@ def update_ahle_lineplot_ga(input_json ,selected_region ,selected_incgrp ,select
                 ,name=f'{display}'
                 ,line=dict(color='#3598DB')
                 )
-        
+
         ga_lineplot_fig = make_subplots()
         ga_lineplot_fig.add_trace(plot_ahle_value)
-        ga_lineplot_fig.update_layout(title_text=f'{display} {print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
+        ga_lineplot_fig.update_layout(title_text=f'Ideal minus current {print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
                                       yaxis_title='US Dollars (2010 constant)',
                                       font_size=15,
                                       plot_bgcolor="#ededed",)
-        
-    
+
+
     return ga_lineplot_fig
 
 #%% 6. RUN APP

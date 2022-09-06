@@ -44,13 +44,26 @@ world_ahle_abt.loc[_production_zero ,'output_value_wool_2010usd'] = 0
 world_ahle_abt.loc[~_production_zero ,'output_value_wool_2010usd'] = \
     world_ahle_abt['production_wool_tonnes'] * world_ahle_abt['producer_price_wool_usdpertonne_cnst2010']
 
+world_ahle_abt['biomass_value_2010usd'] = (world_ahle_abt['biomass'] / 1000) \
+    * world_ahle_abt['producer_price_meat_live_usdpertonne_cnst2010']
+
+# If any output values are missing, fill with zero
+fill_cols = [
+    'output_value_eggs_2010usd'
+    ,'output_value_meat_2010usd'
+    ,'output_value_milk_2010usd'
+    ,'output_value_wool_2010usd'
+    ,'biomass_value_2010usd'
+    ]
+for COL in fill_cols:
+    world_ahle_abt[COL] = world_ahle_abt[COL].replace(np.nan ,0)
+
 # =============================================================================
 #### Biomass
 # =============================================================================
 world_ahle_abt.eval(
     # Using snapshot biomass value
     '''
-    biomass_value_2010usd = (biomass / 1000) * producer_price_meat_live_usdpertonne_cnst2010
     output_plus_biomass_value_2010usd = biomass_value_2010usd + output_value_meat_2010usd \
         + output_value_eggs_2010usd + output_value_milk_2010usd + output_value_wool_2010usd
     '''
@@ -230,16 +243,12 @@ world_ahle_abt_withcalcs.eval(
     # ----------------------------------------------------------------------
     # Ideals
     # ----------------------------------------------------------------------
-    # Excluding Wool to match William's calcs
     '''
     ideal_biomass_value_2010usd = biomass_value_2010usd * (1 / (1 - mortality_rate))
     ideal_output_value_eggs_2010usd = output_value_eggs_2010usd * (1 / (1 - morbidity_rate))
     ideal_output_value_meat_2010usd = output_value_meat_2010usd * (1 / (1 - morbidity_rate))
     ideal_output_value_milk_2010usd = output_value_milk_2010usd * (1 / (1 - morbidity_rate))
     ideal_output_value_wool_2010usd = output_value_wool_2010usd * (1 / (1 - morbidity_rate))
-
-    ideal_output_plus_biomass_value_2010usd = ideal_biomass_value_2010usd + ideal_output_value_meat_2010usd \
-        + ideal_output_value_eggs_2010usd + ideal_output_value_milk_2010usd + ideal_output_value_wool_2010usd
     '''
     # ----------------------------------------------------------------------
     # Vet & Med spending
@@ -252,10 +261,36 @@ world_ahle_abt_withcalcs.eval(
     vetspend_production_eggs_usd = vetspend_production_usdperkgprod * production_eggs_tonnes * 1000
     vetspend_production_milk_usd = vetspend_production_usdperkgprod * production_milk_tonnes * 1000
     vetspend_production_wool_usd = vetspend_production_usdperkgprod * production_wool_tonnes * 1000
+    '''
+    ,inplace=True
+)
+# If any expenditure values are missing, fill with zero
+fill_cols = [
+    'ideal_biomass_value_2010usd'
+    ,'ideal_output_value_eggs_2010usd'
+    ,'ideal_output_value_meat_2010usd'
+    ,'ideal_output_value_milk_2010usd'
+    ,'ideal_output_value_wool_2010usd'
 
+    ,'vetspend_biomass_farm_usd'
+    ,'vetspend_biomass_public_usd'
+    ,'vetspend_production_meat_usd'
+    ,'vetspend_production_eggs_usd'
+    ,'vetspend_production_milk_usd'
+    ,'vetspend_production_wool_usd'
+    ]
+for COL in fill_cols:
+    world_ahle_abt_withcalcs[COL] = world_ahle_abt_withcalcs[COL].replace(np.nan ,0)
+
+world_ahle_abt_withcalcs.eval(
+    '''
     vetspend_farm_usd = vetspend_biomass_farm_usd + vetspend_production_meat_usd \
         + vetspend_production_eggs_usd + vetspend_production_milk_usd + vetspend_production_wool_usd
     vetspend_public_usd = vetspend_biomass_public_usd
+    net_value_2010usd = output_plus_biomass_value_2010usd - vetspend_farm_usd - vetspend_public_usd
+
+    ideal_output_plus_biomass_value_2010usd = ideal_biomass_value_2010usd + ideal_output_value_meat_2010usd \
+        + ideal_output_value_eggs_2010usd + ideal_output_value_milk_2010usd + ideal_output_value_wool_2010usd
     '''
     # ----------------------------------------------------------------------
     # AHLE
@@ -422,7 +457,7 @@ current_values_labels = {
     ,'vetspend_farm_usd':'Vet & Med costs on producers'
     ,'vetspend_public_usd':'Vet & Med costs on public'
 
-    ,'output_plus_biomass_value_2010usd':'Net value'
+    ,'net_value_2010usd':'Net value'
 }
 current_value_columns = list(current_values_labels)
 ideal_values_labels = {

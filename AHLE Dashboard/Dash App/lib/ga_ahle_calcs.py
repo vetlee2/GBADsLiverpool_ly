@@ -2,6 +2,10 @@
 '''
 This defines the functions to calculate AHLE for the global aggregate tab.
 '''
+#%% Imports
+
+import numpy as np
+
 #%% Define functions
 
 # =============================================================================
@@ -79,16 +83,12 @@ def ahle_calcs_adj_outputs(INPUT_DF):
         # ----------------------------------------------------------------------
         # Ideals
         # ----------------------------------------------------------------------
-        # Excluding Wool to match William's calcs
         '''
         ideal_biomass_value_2010usd = biomass_value_2010usd * (1 / (1 - mortality_rate))
-        ideal_output_value_meat_2010usd = output_value_meat_2010usd * (1 / (1 - morbidity_rate))
         ideal_output_value_eggs_2010usd = output_value_eggs_2010usd * (1 / (1 - morbidity_rate))
+        ideal_output_value_meat_2010usd = output_value_meat_2010usd * (1 / (1 - morbidity_rate))
         ideal_output_value_milk_2010usd = output_value_milk_2010usd * (1 / (1 - morbidity_rate))
         ideal_output_value_wool_2010usd = output_value_wool_2010usd * (1 / (1 - morbidity_rate))
-
-        ideal_output_plus_biomass_value_2010usd = ideal_biomass_value_2010usd + ideal_output_value_meat_2010usd \
-            + ideal_output_value_eggs_2010usd + ideal_output_value_milk_2010usd
         '''
         # ----------------------------------------------------------------------
         # Vet & Med spending
@@ -101,10 +101,35 @@ def ahle_calcs_adj_outputs(INPUT_DF):
         vetspend_production_eggs_usd = vetspend_production_usdperkgprod * production_eggs_tonnes * 1000
         vetspend_production_milk_usd = vetspend_production_usdperkgprod * production_milk_tonnes * 1000
         vetspend_production_wool_usd = vetspend_production_usdperkgprod * production_wool_tonnes * 1000
+        '''
+    )
+    # If any expenditure values are missing, fill with zero
+    fill_cols = [
+        'ideal_biomass_value_2010usd'
+        ,'ideal_output_value_eggs_2010usd'
+        ,'ideal_output_value_meat_2010usd'
+        ,'ideal_output_value_milk_2010usd'
+        ,'ideal_output_value_wool_2010usd'
 
+        ,'vetspend_biomass_farm_usd'
+        ,'vetspend_biomass_public_usd'
+        ,'vetspend_production_meat_usd'
+        ,'vetspend_production_eggs_usd'
+        ,'vetspend_production_milk_usd'
+        ,'vetspend_production_wool_usd'
+        ]
+    for COL in fill_cols:
+        OUTPUT_DF[COL] = OUTPUT_DF[COL].replace(np.nan ,0)
+
+    OUTPUT_DF = OUTPUT_DF.eval(
+        '''
         vetspend_farm_usd = vetspend_biomass_farm_usd + vetspend_production_meat_usd \
             + vetspend_production_eggs_usd + vetspend_production_milk_usd + vetspend_production_wool_usd
         vetspend_public_usd = vetspend_biomass_public_usd
+        net_value_2010usd = output_plus_biomass_value_2010usd - vetspend_farm_usd - vetspend_public_usd
+
+        ideal_output_plus_biomass_value_2010usd = ideal_biomass_value_2010usd + ideal_output_value_meat_2010usd \
+            + ideal_output_value_eggs_2010usd + ideal_output_value_milk_2010usd + ideal_output_value_wool_2010usd
         '''
         # ----------------------------------------------------------------------
         # AHLE

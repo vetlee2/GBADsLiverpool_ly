@@ -1576,7 +1576,7 @@ gbadsDash.layout = html.Div([
                               },
                       ),
 
-                ], justify='evenly'),
+                ], justify='evenly', style={"margin-right": "10px"}),
 
 
             #### -- VISUALIZATION SWITCH
@@ -1620,7 +1620,7 @@ gbadsDash.layout = html.Div([
                 # END OF CARD BODY
                 ]),
 
-            ], color='#F2F2F2'), # END OF CARD
+            ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF CARD
 
 
             html.Hr(style={'margin-right':'10px',}),
@@ -1879,9 +1879,7 @@ gbadsDash.layout = html.Div([
                 ], color='#F2F2F2'),
                 ], width=3),
 
-                ], #justify='evenly'
-                  style={"margin-right": "10px"}
-                                  ),
+                ], style={"margin-right": "10px"}),
 
             html.Br(),
 

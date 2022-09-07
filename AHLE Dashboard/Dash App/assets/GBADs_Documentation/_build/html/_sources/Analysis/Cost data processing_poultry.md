@@ -1,7 +1,6 @@
 # Cost data processing
-<p>
+
 Actual costs for poultry are based on data from a single year. Values for other years are filled in by inflating/deflating those costs using consumer price index for each country from the World Bank. The data source and reference year for each country are shown in the table below.
-</p>
 
 Country | Reference Year | Source | URL
 ---|---|---|---

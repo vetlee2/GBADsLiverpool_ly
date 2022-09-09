@@ -5,7 +5,7 @@
 # Set manually
 # -----------------------------------------------------------------
 # Number of simulation iterations
-cmd_nruns <- 1000
+cmd_nruns <- 10
 
 # Folder location to save outputs
 cmd_output_directory <- '.'   # '.' to write to same folder this code is in
@@ -115,7 +115,7 @@ compartmental_model <- function(
 	,lwAM 		# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
 
 	# carcase yeild
-	,ccy 			# As a % of liveweight for all groups
+	,ccy 			# As a % of Liveweight for all groups
 
 	## Financial value of live animals
 	# Ethiopian Birr
@@ -145,7 +145,7 @@ compartmental_model <- function(
 	# 0.0125 USD / kg = 0.65 eth birr per kg 2021 price
 	,Man_value
 	  
-	## dry matter requirements as proportion of liveweight
+	## dry matter requirements as proportion of Liveweight
 	,DM_req_prpn_NF		# Dry matter required by neonates
 	,DM_req_prpn_NM		# Dry matter required by neonates
 	,DM_req_prpn_JF		# Dry matter required by juvenile
@@ -191,8 +191,8 @@ compartmental_model <- function(
 	## Off take which go for fertility in females
 #	hides_rate_of = 1 - fert_offtake
 # dont need to adjust for this anymore
-	# DM_req_prpn_NF <- 0.026
-	## dry matter requirements (measured in kg and calculated as a % of liveweight)
+	#DM_req_prpn_AM <- 0.026
+	## dry matter requirements (measured in kg and calculated as a % of Liveweight)
 	kg_DM_req_NF = DM_req_prpn_NF * lwNF  	# Dry matter required by neonates
 	kg_DM_req_NM = DM_req_prpn_NM * lwNM  	# Dry matter required by neonates
 	kg_DM_req_JF = DM_req_prpn_JF * lwJF  	# Dry matter required by juvenile
@@ -208,6 +208,9 @@ compartmental_model <- function(
 	DM_purch_AF <- (kg_DM_req_AF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
 	DM_purch_AM <- (kg_DM_req_AM * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
 
+#	prpn_lskeepers_purch_feed <- 0.25
+#	prpn_feed_paid_for <- rpert(10000, 0, 1, 0.5)
+	  
 	KG_Feed_purchased_NF <- DM_purch_NF / DM_in_feed
 	KG_Feed_purchased_NM <- DM_purch_NM / DM_in_feed
 	KG_Feed_purchased_JF <- DM_purch_JF / DM_in_feed
@@ -227,6 +230,7 @@ compartmental_model <- function(
 	# Create vectors to store the model outputs at each time step
 	# --------------------------------------------------------------
 	# population
+	#Num_months <- 12
 	numNF <- rep(0, Num_months)
 	numJF <- rep(0, Num_months)
 	numAF <- rep(0, Num_months)
@@ -271,7 +275,7 @@ compartmental_model <- function(
 	Num_Offtake_AF <- rep(0, Num_months)
 	Num_Offtake_AM <- rep(0, Num_months)
 	
-	# Offtake liveweight
+	# Offtake Liveweight
 	Offtake_Liveweight_kg <- rep(0, Num_months)
 	## and for individual age cats
 	Offtake_Liveweight_kg_JF <- rep(0, Num_months)
@@ -460,15 +464,15 @@ compartmental_model <- function(
 	Num_Offtake_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
 	Num_Offtake_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
 	
-	## Offtake liveweight
+	## Offtake Liveweight
 	# Offtake
-	Offtake_liveweight_kg_M <- matrix(, nrow = nruns, ncol = Num_months)
+	Offtake_Liveweight_kg_M <- matrix(, nrow = nruns, ncol = Num_months)
 	
 	## and for individual age cats
-	Offtake_liveweight_kg_JF_M <- matrix(, nrow = nruns, ncol = Num_months)
-	Offtake_liveweight_kg_JM_M <- matrix(, nrow = nruns, ncol = Num_months)
-	Offtake_liveweight_kg_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
-	Offtake_liveweight_kg_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
+	Offtake_Liveweight_kg_JF_M <- matrix(, nrow = nruns, ncol = Num_months)
+	Offtake_Liveweight_kg_JM_M <- matrix(, nrow = nruns, ncol = Num_months)
+	Offtake_Liveweight_kg_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
+	Offtake_Liveweight_kg_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
 
 	# Pop growth
 	Pop_growth_M <- matrix(, nrow = nruns, ncol = Num_months)
@@ -625,6 +629,7 @@ compartmental_model <- function(
 	Total_expenditure_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
 	Total_expenditure_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
 	
+	#nruns <- 10
 	################################################################
 	## FIND START ##
 	for (i in c(1:nruns))
@@ -700,11 +705,11 @@ compartmental_model <- function(
 		Offtake_AF <- 0
 		Offtake_AM <- 0
 
-		# Offtake liveweight
-		Offtake_liveweight_JF <- 0
-		Offtake_liveweight_JM <- 0
-		Offtake_liveweight_AF <- 0
-		Offtake_liveweight_AM <- 0
+		# Offtake Liveweight
+		Offtake_Liveweight_JF <- 0
+		Offtake_Liveweight_JM <- 0
+		Offtake_Liveweight_AF <- 0
+		Offtake_Liveweight_AM <- 0
 		
 		##
 		Manure_kg <- 0
@@ -728,6 +733,10 @@ compartmental_model <- function(
 		Meat_kg <- 0
 		Wool <- 0
 
+		prop_F_milked <- 0.2
+		lac_duration <- 60
+		avg_daily_yield_ltr <- 0.1
+		milk_value_ltr <- 10
 		#
 		Cumulitive_DM <- 0
 
@@ -878,9 +887,9 @@ compartmental_model <- function(
 			Pop_growth_AF[month] =  numAF[month] - N_AF_t0
 			Pop_growth_AM[month] =  numAM[month] - N_AM_t0
 			
-			# whole population liveweight (number in each age sex group * liveweight conversion factor, for each month - NOT cumilative)
+			# whole population Liveweight (number in each age sex group * Liveweight conversion factor, for each month - NOT cumilative)
 			# note there is currently no difference in weights of adult animals
-			## and liveweight should not be cumulative
+			## and Liveweight should not be cumulative
 			Quant_Liveweight_kg_NF[month] = sum(sample(lwNF, NF, replace = T))
 			Quant_Liveweight_kg_NM[month] = sum(sample(lwNM, NM, replace = T))
 			Quant_Liveweight_kg_JF[month] = sum(sample(lwJF, JF, replace = T))
@@ -911,16 +920,16 @@ compartmental_model <- function(
 			
 			Offtake = Num_Offtake[month]
 			
-			## Offtake liveweight
-			Offtake_Liveweight_kg_JF[month] = Offtake_liveweight_JF + sum(sample(lwJF, Num_Offtake_JF[month], replace = T))
-			Offtake_Liveweight_kg_JM[month] = Offtake_liveweight_JM + sum(sample(lwJM, Num_Offtake_JM[month], replace = T))
-			Offtake_Liveweight_kg_AF[month] = Offtake_liveweight_AF + sum(sample(lwAF, Num_Offtake_AF[month], replace = T))
-			Offtake_Liveweight_kg_AM[month] = Offtake_liveweight_AM + sum(sample(lwAM, Num_Offtake_AM[month], replace = T))
+			## Offtake Liveweight
+			Offtake_Liveweight_kg_JF[month] = Offtake_Liveweight_JF + sum(sample(lwJF, Num_Offtake_JF[month], replace = T))
+			Offtake_Liveweight_kg_JM[month] = Offtake_Liveweight_JM + sum(sample(lwJM, Num_Offtake_JM[month], replace = T))
+			Offtake_Liveweight_kg_AF[month] = Offtake_Liveweight_AF + sum(sample(lwAF, Num_Offtake_AF[month], replace = T))
+			Offtake_Liveweight_kg_AM[month] = Offtake_Liveweight_AM + sum(sample(lwAM, Num_Offtake_AM[month], replace = T))
 			
-			Offtake_liveweight_JF <- Offtake_Liveweight_kg_JF[month]
-			Offtake_liveweight_JM <- Offtake_Liveweight_kg_JM[month]
-			Offtake_liveweight_AF <- Offtake_Liveweight_kg_AF[month]
-			Offtake_liveweight_AM <- Offtake_Liveweight_kg_AM[month]
+			Offtake_Liveweight_JF <- Offtake_Liveweight_kg_JF[month]
+			Offtake_Liveweight_JM <- Offtake_Liveweight_kg_JM[month]
+			Offtake_Liveweight_AF <- Offtake_Liveweight_kg_AF[month]
+			Offtake_Liveweight_AM <- Offtake_Liveweight_kg_AM[month]
 			
 			Offtake_Liveweight_kg[month] <- Offtake_Liveweight_kg_JF[month] + Offtake_Liveweight_kg_JM[month] +
 			                                Offtake_Liveweight_kg_AF[month] + Offtake_Liveweight_kg_AM[month]
@@ -1023,16 +1032,16 @@ compartmental_model <- function(
 			## with the new equation structure below if offtake changes or varies or we add uncertainty then the financial value of offtake will change
 
 			## Juv and adults only
-			Value_Offtake_JF[month] = Value_offt_JF + (sum(sample(GammaF, JF, replace = T) * sample(fvJF, JF, replace = T)))
+			Value_Offtake_JF[month] = Value_offt_JF + (sum(sample(fvJF, Num_Offtake_JF[month], replace = T)))
 			Value_offt_JF = Value_Offtake_JF[month] 
 
-			Value_Offtake_JM[month] = Value_offt_JM + (sum(sample(GammaM, JM, replace = T) * sample(fvJM, JM, replace = T))) 
+			Value_Offtake_JM[month] = Value_offt_JM + (sum(sample(fvJM, Num_Offtake_JM[month], replace = T))) 
 			Value_offt_JM = Value_Offtake_JM[month] 
 
-			Value_Offtake_AF[month] = Value_offt_AF + (sum(sample(GammaF, AF, replace = T) * sample(fvAF, AF, replace = T))) 
+			Value_Offtake_AF[month] = Value_offt_AF + (sum(sample(fvAF, Num_Offtake_AF[month], replace = T))) 
 			Value_offt_AF = Value_Offtake_AF[month] 
 			
-			Value_Offtake_AM[month] = Value_offt_AM + (sum(sample(GammaM, AM, replace = T) * sample(fvAM, AM, replace = T))) + (sum(sample(CullM, AM, replace = T) * sample(fvAM, AM, replace = T)))  
+			Value_Offtake_AM[month] = Value_offt_AM + (sum(sample(fvAM, Num_Offtake_AM[month], replace = T))) + (sum(sample(CullM, AM, replace = T) * sample(fvAM, AM, replace = T)))  
 			Value_offt_AM = Value_Offtake_AM[month] 
 			
 			## sum total population
@@ -1269,13 +1278,13 @@ compartmental_model <- function(
 		
 		# Liveweight of offtake
 		# Offtake
-		Offtake_liveweight_kg_M[i, ] <- Offtake_liveweight_kg
+		Offtake_Liveweight_kg_M[i, ] <- Offtake_Liveweight_kg
 		
 		## and for individual age cats
-		Offtake_liveweight_kg_JF_M[i, ] <- Offtake_liveweight_kg_JF
-		Offtake_liveweight_kg_JM_M[i, ] <- Offtake_liveweight_kg_JM
-		Offtake_liveweight_kg_AF_M[i, ] <- Offtake_liveweight_kg_AF
-		Offtake_liveweight_kg_AM_M[i, ] <- Offtake_liveweight_kg_AM
+		Offtake_Liveweight_kg_JF_M[i, ] <- Offtake_Liveweight_kg_JF
+		Offtake_Liveweight_kg_JM_M[i, ] <- Offtake_Liveweight_kg_JM
+		Offtake_Liveweight_kg_AF_M[i, ] <- Offtake_Liveweight_kg_AF
+		Offtake_Liveweight_kg_AM_M[i, ] <- Offtake_Liveweight_kg_AM
 
 		# Pop growth
 		Pop_growth_M[i, ] <- Pop_growth
@@ -1531,7 +1540,8 @@ compartmental_model <- function(
 	# =================================================================
 	# Summarize items and build data frame
 	# =================================================================
-	summary_df <- build_summary_df(
+	## renamed dataframe
+	summary_df_updated <- build_summary_df(
 		# Labeled list of matrices to summarize. Matrix names should be WITHOUT SUFFIXES (without _M, _NF_M, etc.). Labels will be used in output data.
 		items_to_summarize = c(
 			'Num Offtake' = 'Num_Offtake'
@@ -1566,7 +1576,7 @@ compartmental_model <- function(
 		)
 	)
 	print('Compartmental model finished.')
-	return(list(Gross_margin_M[,12] ,summary_df))
+	return(list(Gross_margin_M[,12] ,summary_df_updated))
 }
 
 build_summary_df <- function(
@@ -1584,7 +1594,7 @@ build_summary_df <- function(
 		,'Adult Female' = '_AF_M'
 		,'Adult Male' = '_AM_M'
 	)
-	summary_df <- data.frame()  # Initialize data frame
+	summary_df_updated <- data.frame()  # Initialize data frame
 	for (i in seq(1, length(items_to_summarize))) 	# Loop through items to summarize
 	{
 		base_matrix <- items_to_summarize[i]
@@ -1615,11 +1625,11 @@ build_summary_df <- function(
 				item_max <- max(vector_to_summarize)
 				
 				onerow_df <- data.frame(Item=base_label ,Group=group ,Mean=item_mean ,StDev=item_sd ,Min=item_min ,Q1=item_q1 ,Median=item_median ,Q3=item_q3 ,Max=item_max)
-				summary_df <- rbind(summary_df ,onerow_df)
+				summary_df_updated <- rbind(summary_df_updated ,onerow_df)
 			}
 		}
 	}
-	return(summary_df)
+	return(summary_df_updated)
 }
 
 # =================================================================
@@ -1629,7 +1639,7 @@ library(readxl)
 library(gtools)
 
 # Read control table
-ahle_scenarios <- read_excel('F:\\First Analytics\\Clients\\University of Liverpool\\GBADs Github\\GBADsLiverpool\\Ethiopia Workspace\\AHLE scenario parameters_examples_WT_GC_complete.xlsx')
+ahle_scenarios <- read_excel("/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters.xlsx")
 
 # Drop rows where parameter name is empty or commented
 ahle_scenarios <- ahle_scenarios[!is.na(ahle_scenarios$'AHLE Parameter') ,]

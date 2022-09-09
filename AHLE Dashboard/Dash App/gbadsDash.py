@@ -15,6 +15,8 @@
 import os, sys, datetime as dt
 from pathlib import Path
 import inspect
+import requests
+import io
 
 print(f"[{dt.datetime.now().strftime('%Y%m%d_%H%M%S.%f')[:19]}] Starting {__name__}")
 print(f"[{dt.datetime.now().strftime('%Y%m%d_%H%M%S.%f')[:19]}] cwd = {os.getcwd()}")
@@ -31,13 +33,14 @@ import dash_auth
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import pandas as pd
 import humanize
 
 # private (fa) libraries
 import lib.fa_dash_utils as fa
 import lib.bod_calcs as bod
-
+import lib.ga_ahle_calcs as ga
 
 #### PARAMETERS
 
@@ -74,8 +77,53 @@ if prod:
 # - Global variables and functions that aren't directly involved in the UI interactivity (Callbacks)
 # - Typical example would be functions that read, store, and prep data to be used in the app
 ###############################################################################################
+# Define tab styles
+# tab_style = {'fontWeight': 'bold'}
 
-tab_style = {'fontWeight': 'bold'}
+# Tab colors based on grouping
+global_tab_style = {
+    'backgroundColor': '#aacce3',
+    'border-color': 'grey',
+    'fontWeight': 'bold'
+}
+global_tab_selected_style = {
+    'backgroundColor': '#aacce3',
+    'border-color': 'grey',
+    'fontWeight': 'bold'
+}
+
+major_producers_tab_style = {
+    'backgroundColor': '#abebc5',
+    'border-color': 'grey',
+    'fontWeight': 'bold'
+}
+major_producers_tab_selected_style = {
+    'backgroundColor': '#abebc5',
+    'border-color': 'grey',
+    'fontWeight': 'bold'
+}
+
+ecs_tab_style = {
+    'backgroundColor': '#d7bce1',
+    'border-color': 'grey',
+    'fontWeight': 'bold'
+}
+ecs_tab_selected_style = {
+    'backgroundColor': '#d7bce1',
+    'border-color': 'grey',
+    'fontWeight': 'bold'
+}
+
+user_guide_tab_style ={
+    'border-color': 'grey',
+    'fontWeight': 'bold'
+}
+
+user_guide_tab_selected_style ={
+    'border-color': 'grey',
+    'fontWeight': 'bold'
+}
+
 
 # =============================================================================
 # # For reference, the first version of the plots was based on Excel files
@@ -101,8 +149,17 @@ DASH_DATA_FOLDER = os.path.join(CWD ,'data')
 # Folder location for ethiopia case study
 GBADsLiverpool=Path(os.getcwd()).parent.parent
 Ethiopia_Workspace = "Ethiopia Workspace"
-ECS_PROGRAM_OUTPUT_FOLDER = os.path.join(GBADsLiverpool, Ethiopia_Workspace, "Program outputs")
 
+# Folder location for global aggregate
+Global_Agg_Workspace = "Global Aggregate workspace"
+if prod:
+    # Output folders:
+    ECS_PROGRAM_OUTPUT_FOLDER = os.path.join(CWD, Ethiopia_Workspace, "Program outputs")
+    GA_DATA_FOLDER = os.path.join(CWD, Global_Agg_Workspace, "Data")
+else:
+    # Output folders:
+    ECS_PROGRAM_OUTPUT_FOLDER = os.path.join(GBADsLiverpool, Ethiopia_Workspace, "Program outputs")
+    GA_DATA_FOLDER = os.path.join(GBADsLiverpool, Global_Agg_Workspace, "Data")
 # -----------------------------------------------------------------------------
 # Poultry
 # -----------------------------------------------------------------------------
@@ -135,6 +192,16 @@ ecs_ahle_summary = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all
 # Attribution Summary
 ecs_ahle_all_withattr = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
 
+# -----------------------------------------------------------------------------
+# Global Aggregate
+# -----------------------------------------------------------------------------
+# Biomass FAOSTAT
+ga_countries_biomass = pd.read_pickle(os.path.join(GA_DATA_FOLDER ,'world_ahle_abt_fordash.pkl.gz'))
+
+# Drop missing values from species
+ga_countries_biomass['species'].replace('', np.nan, inplace=True)
+ga_countries_biomass.dropna(subset=['species'], inplace=True)
+
 # =============================================================================
 #### User options and defaults
 # =============================================================================
@@ -142,30 +209,29 @@ ecs_ahle_all_withattr = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahl
 # All species
 # -----------------------------------------------------------------------------
 # Region options
-region_structure_options = [{'label': i, 'value': i, 'disabled': False} for i in ["OIE",
+region_structure_options = [{'label': i, 'value': i, 'disabled': False} for i in ["WOAH",
                                                                        "FAO",
                                                                        "World Bank",]]
 
-# OIE regions
-oie_region_options = [{'label': i, 'value': i, 'disabled': False} for i in ["ALL",
+# WOAH regions
+WOAH_region_options = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
                                                                         "Africa",
                                                                        "Americas",
                                                                        "Asia & the Pacific",
                                                                        "Europe"
                                                                        ]]
-oie_region_options += [{'label': "Middle East", 'value': "Middle East", 'disabled': True}]  # Include, but disable, Middle East
+WOAH_region_options += [{'label': "Middle East", 'value': "Middle East", 'disabled': True}]  # Include, but disable, Middle East
 
-# OIE region-country mapping
-oie_africa_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Ethiopia"]]
+# WOAH region-country mapping
+WOAH_africa_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Ethiopia"]]
 
-oie_americas_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Brazil",
-                                                                              "France",
+WOAH_americas_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Brazil",
                                                                           "United States of America"]]
 
-oie_asia_options = [{'label': i, 'value': i, 'disabled': False} for i in ["India",
+WOAH_asia_options = [{'label': i, 'value': i, 'disabled': False} for i in ["India",
                                                                           "United States of America"]]
 
-oie_europe_options = [{'label': i, 'value': i, 'disabled': False} for i in ["France",
+WOAH_europe_options = [{'label': i, 'value': i, 'disabled': False} for i in ["France",
                                                                         "Germany",
                                                                        "Italy",
                                                                        "Netherlands",
@@ -173,7 +239,7 @@ oie_europe_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Fra
                                                                        "United Kingdom"]]
 
 # FAO regions
-fao_region_options = [{'label': i, 'value': i, 'disabled': False} for i in ["ALL",
+fao_region_options = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
                                                                         "Africa",
                                                                        "Asia",
                                                                        "Europe and Central Asia",
@@ -201,8 +267,8 @@ fao_swp_options = [{'label': i, 'value': i, 'disabled': False} for i in ["France
                                                                           "United States of America"]]
 
 # World Bank regions
-wb_region_options = [{'label': i, 'value': i, 'disabled': False} for i in ["ALL",
-                                                                        "Africa",
+wb_region_options = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
+                                                                        "Sub-Saharan Africa",
                                                                        "Europe & Central Asia",
                                                                        "Latin America & the Caribbean",
                                                                        "North America",
@@ -321,7 +387,7 @@ for i in np.sort(gbads_pigs_merged_fordash['country'].unique()) :
    str(country_options_swine.append({'label':compound_label,'value':(i)}))
 
 year_options_swine = []
-for i in np.sort(gbads_pigs_merged_fordash['year'].unique()) :
+for i in np.sort(gbads_pigs_merged_fordash['year'].unique()):
    str(year_options_swine.append({'label':i,'value':(i)}))
 
 # Global defaults for sliders
@@ -378,9 +444,16 @@ for i in np.sort(ecs_ahle_all_withattr['age_group'].unique()):
 # Rename Overall to more descriptive
 ecs_ahle_all_withattr['sex'] = ecs_ahle_all_withattr['sex'].replace({'Overall': 'Overall Sex'})
 
-ecs_sex_options = []
+ecs_sex_options_all = []
 for i in np.sort(ecs_ahle_all_withattr['sex'].unique()):
-   str(ecs_sex_options.append({'label':i,'value':(i)}))
+   str(ecs_sex_options_all.append({'label':i,'value':(i)}))
+
+# Filter for juvenile and neonates
+ecs_sex_options_filter = [{'label': "Overall Sex", 'value': "Overall Sex", 'disabled': False}]
+
+# Currency
+ecs_currency_options = [{'label': "Birr", 'value': "Birr", 'disabled': False},
+                        {'label': "USD", 'value': "USD", 'disabled': False}]
 
 # Attribution
 ecs_attr_options = [{'label': "All Causes", 'value': "All Causes", 'disabled': False}]
@@ -389,22 +462,231 @@ for i in np.sort(ecs_ahle_all_withattr['cause'].unique()):
    str(ecs_attr_options.append({'label':i,'value':(i)}))
 
 # Species
+ecs_ahle_summary['species'] = ecs_ahle_summary['species'].replace({'All small ruminants': 'All Small Ruminants'})
+
 ecs_species_options = []
 for i in np.sort(ecs_ahle_summary['species'].unique()):
     str(ecs_species_options.append({'label':i,'value':(i)}))
 
 
-# Metric
-ecs_metric_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Number of animals",
-                                                                            "Value of outputs",
+# # Metric
+# ecs_metric_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Number of animals",
+#                                                                             "Value of outputs",
+#                                                                             ]]
+
+# Display
+ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Current & Ideal",
+                                                                             "Difference (AHLE)",
                                                                             ]]
 
+# Compare
+ecs_compare_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Ideal",
+                                                                             "Mortality 0",
+                                                                             ]]
+
+# Factor
+ecs_factor_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Mortality",
+                                                                           "Live Weight",
+                                                                           "Parturition Rate",
+                                                                           "Lactation"
+                                                                           ]]
+
+# Reduction
+ecs_redu_options = [{'label': i, 'value': i, 'disabled': True} for i in ['Current',
+                                                                         '25%',
+                                                                         '50%',
+                                                                         '75%',
+                                                                         ]]
+
 # Defaults for sliders
-growth_ecs_default = 0.16
-reproduction_ecs_default = 0.5
-mortality_ecs_default = 12
-costs_ecs_default = 60
-offtake_ecs_default = 1
+factor_ecs_default = 'Current'
+
+# =============================================================================
+#### Global Aggregate options
+# =============================================================================
+# Species
+ga_species_options = []
+for i in ga_countries_biomass['species'].unique():
+    str(ga_species_options.append({'label':i,'value':(i)}))
+
+country_options_ga = [{'label': "All", 'value': "All", 'disabled': False}]
+for i in ga_countries_biomass['country'].unique():
+    str(country_options_ga.append({'label':i,'value':(i)}))
+
+# Income group
+# Rename Overall to more descriptive
+ga_countries_biomass['incomegroup'] = ga_countries_biomass['incomegroup'].replace({'L': 'Low', 'LM':'Lower Middle', 'UM':'Upper Middle', 'H':'High', 'UNK':'Unassigned', 'NaN':'Unassigned'})
+
+# replacing na values in college with No college
+ga_countries_biomass['incomegroup'].fillna("Unassigned", inplace = True)
+
+incomegrp_options_ga = [{'label': "All", 'value': "All"}]
+for i in ga_countries_biomass['incomegroup'].unique():
+    str(incomegrp_options_ga.append({'label':i,'value':(i)}))
+
+# Mortality rate
+mortality_rate_options_ga = [{'label': f'{i*100: .0f}%', 'value': i, 'disabled': True} for i in list(np.array(range(1, 11)) / 100)]
+
+# Year
+year_options_ga = []
+for i in np.sort(ga_countries_biomass['year'].unique()):
+   str(year_options_ga.append({'label':i,'value':(i)}))
+
+# AHLE elements
+# Values here must match item names defined in prep_ahle_forwaterfall_ga()
+item_list_ga = [
+    'Meat'
+    ,'Eggs'
+    ,'Milk'
+    ,'Wool'
+    ,'Biomass'
+    ,'Producers vet & med costs'
+    ,'Public vet & med costs'
+    ,'Net value'
+]
+item_options_ga = [{'label':i,'value':(i)} for i in item_list_ga]
+
+# Map display options
+map_display_options_ga = [
+    'Population'
+    ,'Live Weight'
+    ,'Biomass'
+    ,'Animal Health Loss Envelope (AHLE)'
+    ,'AHLE per kg biomass'
+    ]
+
+# Defautls for sliders
+mortality_rate_ga_default = 4
+morbidity_rate_ga_default = 2
+live_weight_price_ga_default = 1.75
+
+# -----------------------------------------------------------------------------
+# Region - Country Alignment
+# -----------------------------------------------------------------------------
+# !!!: CURRENTLY DIFFERENT FROM POULTRY/SWINE TABS DUE TO DATA AVAILABILITY -eventually want these to be the same
+
+# Region options
+region_structure_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["World Bank",]]
+
+region_structure_options_ga += [{'label': i, 'value': i, 'disabled': True} for i in ["WOAH",
+                                                                                     "FAO",]]
+
+# WOAH regions
+WOAH_region_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
+                                                                               "Africa",
+                                                                               "Americas",
+                                                                               "Asia & the Pacific",
+                                                                               "Europe"
+                                                                               "Middle East"
+                                                                               ]]
+# WOAH region-country mapping
+WOAH_africa_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Ethiopia"]]
+
+WOAH_americas_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Brazil",
+                                                                                 "United States of America"]]
+
+WOAH_asia_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["India",
+                                                                             "United States of America"]]
+
+WOAH_europe_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["France",
+                                                                               "Germany",
+                                                                               "Italy",
+                                                                               "Netherlands",
+                                                                               "Poland",
+                                                                               "United Kingdom"]]
+
+WOAH_me_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["TEST"]]
+
+
+# FAO regions
+fao_region_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["All",
+                                                                               "Africa",
+                                                                               "Asia",
+                                                                               "Europe and Central Asia",
+                                                                               "Latin America and the Caribbean",
+                                                                               "Near East and North Africa"
+                                                                               "South West Pacific"
+                                                                               ]]
+
+# FAO region-country mapping
+fao_africa_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Ethiopia"]]
+
+fao_asia_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["India"]]
+
+fao_eca_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["France",
+                                                                            "Germany",
+                                                                            "Italy",
+                                                                            "Netherlands",
+                                                                            "Poland",
+                                                                            "United Kingdom"]]
+
+fao_lac_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Brazil"]]
+
+fao_ena_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["TEST"]]
+
+
+fao_swp_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["France",
+                                                                            "United States of America"]]
+
+# World Bank regions
+# Rename Overall to more descriptive
+ga_countries_biomass['region'] = ga_countries_biomass['region'].replace({'EAP': 'East Asia & Pacific',
+                                                                         'ECA':'Europe & Central Asia',
+                                                                         'LAC':'Latin America & the Caribbean',
+                                                                         'MENA':'Middle East & North Africa',
+                                                                         'NA':'North America',
+                                                                         'SA':'South Asia',
+                                                                         'SSA':'Sub-Saharan Africa'})
+
+wb_region_options_ga = [{'label': "All", 'value': "All"}]
+for i in ga_countries_biomass['region'].unique():
+    str(wb_region_options_ga.append({'label':i,'value':(i)}))
+
+
+# World Bank region-country mapping
+# Pulled from World Bank site (https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups)
+
+# East Asia & Pacific options
+options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'East Asia & Pacific')]
+wb_eap_options_ga = [{'label': "All", 'value': "All"}]
+for i in options['country'].unique():
+    str(wb_eap_options_ga.append({'label':i,'value':(i)}))
+
+# Europe & Central Asia options
+options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'Europe & Central Asia')]
+wb_eca_options_ga = [{'label': "All", 'value': "All"}]
+for i in options['country'].unique():
+    str(wb_eca_options_ga.append({'label':i,'value':(i)}))
+
+# Latin America & the Caribbean options
+options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'Latin America & the Caribbean')]
+wb_lac_options_ga = [{'label': "All", 'value': "All"}]
+for i in options['country'].unique():
+    str(wb_lac_options_ga.append({'label':i,'value':(i)}))
+
+# Middle East & North Africa options
+options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'Middle East & North Africa')]
+wb_mena_options_ga = [{'label': "All", 'value': "All"}]
+for i in options['country'].unique():
+    str(wb_mena_options_ga.append({'label':i,'value':(i)}))
+
+# North America options
+options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'North America')]
+wb_na_options_ga = [{'label': "All", 'value': "All"}]
+for i in options['country'].unique():
+    str(wb_na_options_ga.append({'label':i,'value':(i)}))
+
+# South Asia options
+options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'South Asia')]
+wb_southasia_options_ga = [{'label': "All", 'value': "All"}]
+for i in options['country'].unique():
+    str(wb_southasia_options_ga.append({'label':i,'value':(i)}))
+
+# Sub-Saharan Africa options
+options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'Sub-Saharan Africa')]
+wb_africa_options_ga = [{'label': "All", 'value': "All"}]
+for i in options['country'].unique():
+    str(wb_africa_options_ga.append({'label':i,'value':(i)}))
 
 # =============================================================================
 #### Burden of disease calcs
@@ -436,7 +718,7 @@ def prep_bod_forwaterfall(
    OUTPUT_DF = INPUT_DF.copy()
 
    # Melt BOD component columns into rows
-   #!!! Ordering here determines order in plot!!!
+   # Ordering here determines order in plot!!!
    cols_tomelt = [
       'bod_referenceproduction_tonnes'
       ,'bod_efficiency_tonnes'
@@ -472,7 +754,6 @@ def prep_bod_forwaterfall(
    )
    OUTPUT_DF['brdstd_prpn'] = OUTPUT_DF['tonnes'] / OUTPUT_DF['bod_referenceproduction_tonnes']
 
-   # TODO:Add value as percent of breed standard
    OUTPUT_DF = pd.merge(
       left=OUTPUT_DF
       ,right=INPUT_DF[['country' ,'year' ,'bod_realizedproduction_tonnes']]
@@ -585,7 +866,7 @@ def prep_bod_forstackedbar_poultry(INPUT_DF):
    working_df = INPUT_DF.copy()
 
    # Actual costs
-   #!!! Ordering here determines order in plot
+   # Ordering here determines order in plot
    cols_actual = [
       'adjusted_feedcost_usdperkglive'   # Adjusted based on feed price slider
       ,'acc_chickcost_usdperkglive'
@@ -679,7 +960,7 @@ def prep_bod_forstackedbar_swine(INPUT_DF):
    working_df = INPUT_DF.copy()
 
    # Actual costs
-   #!!! Ordering here determines order in plot
+   # Ordering here determines order in plot
    cols_actual = [
       'adjusted_feedcost_usdperkgcarc'    # Adjusted based on feed price slider
       ,'acc_nonfeedvariablecost_usdperkgcarc'
@@ -762,32 +1043,35 @@ def prep_bod_forstackedbar_swine(INPUT_DF):
 
 def prep_ahle_fortreemap_ecs(INPUT_DF):
    working_df = INPUT_DF.copy()
-   
+
    # Trim the data to keep things needed for the treemap
    ecs_ahle_attr_treemap = working_df[['production_system',
                                        'age_group',
                                        'sex',
                                        'ahle_component',
                                        'cause',
-                                       'mean']]
+                                       'mean',
+                                       'pct_of_total']]
 
+   # Can only have positive values
+   ecs_ahle_attr_treemap['mean'] = abs( ecs_ahle_attr_treemap['mean'])
 
    # Replace 'overall' values with more descriptive values
    # ecs_ahle_summary_tree_pivot['age_group'] = ecs_ahle_summary_tree_pivot['age_group'].replace({'Overall': 'Overall Age'})
    ecs_ahle_attr_treemap['sex'] = ecs_ahle_attr_treemap['sex'].replace({'Overall': 'Overall Sex'})
-     
-   # Replace mortality with mortality loss 
+
+   # Replace mortality with mortality loss
    ecs_ahle_attr_treemap['ahle_component'] = ecs_ahle_attr_treemap['ahle_component'].replace({'Mortality': 'Mortality Loss'})
-   
+
    OUTPUT_DF = ecs_ahle_attr_treemap
-                                    
+
    return OUTPUT_DF
 
 
-def prep_ahle_forsunburst_ecs(INPUT_DF):
+def prep_ahle_forwaterfall_ecs(INPUT_DF):
    working_df = INPUT_DF.copy()
-   
-   # Trim the data to keep things needed for the treemap
+
+   # Trim the data to keep things needed for the waterfall
    ecs_ahle_summary_sheep_sunburst = working_df[['species',
                                                  'production_system',
                                                  'age_group',
@@ -815,59 +1099,102 @@ def prep_ahle_forsunburst_ecs(INPUT_DF):
             'Health Cost',
             'Capital Cost')
    ecs_ahle_summary_sheep_sunburst['mean_current'] = np.where(ecs_ahle_summary_sheep_sunburst.item.isin(costs), ecs_ahle_summary_sheep_sunburst['mean_current']* -1, ecs_ahle_summary_sheep_sunburst['mean_current'])
+   ecs_ahle_summary_sheep_sunburst['mean_ideal'] = np.where(ecs_ahle_summary_sheep_sunburst.item.isin(costs), ecs_ahle_summary_sheep_sunburst['mean_ideal']* -1, ecs_ahle_summary_sheep_sunburst['mean_ideal'])
+   ecs_ahle_summary_sheep_sunburst['mean_mortality_zero'] = np.where(ecs_ahle_summary_sheep_sunburst.item.isin(costs), ecs_ahle_summary_sheep_sunburst['mean_mortality_zero']* -1, ecs_ahle_summary_sheep_sunburst['mean_mortality_zero'])
 
    # Sort Item column to keep values and costs together
    ecs_ahle_summary_sheep_sunburst['item'] = ecs_ahle_summary_sheep_sunburst['item'].astype('category')
    ecs_ahle_summary_sheep_sunburst.item.cat.set_categories(waterfall_plot_values, inplace=True)
    ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.sort_values(["item"])
-   
-   
-   # # Apply filters as if dropdowns were applied
-   # ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['species'] == 'Sheep']
-   # ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['production_system'] == 'Crop livestock mixed']
-   # ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['age_group'] == 'Adult']
-   # ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['sex'] == 'Male']
 
-   
-   # # Trim the data to keep things needed for the sunburst chart
-   # working_df = working_df[['item','envelope']]
-
-   # # Keep the lowest level of granularity
-   # options = ['Value of Offtake',
-   #            'Value of Herd Increase',
-   #            'Value of Manure',
-   #            'Value of Hides', 
-   #            'Feed Cost', 
-   #            'Labour Cost',
-   #            'Health Cost', 
-   #            'Capital Cost']  
-   # # Selecting rows based on item
-   # working_df = working_df[working_df['item'].isin(options)]
-
-   # # Next Level is Totals for Expenditure and Value Increase
-   # value_rows = ['Value of Offtake',
-   #               'Value of Herd Increase',
-   #               'Value of Manure',
-   #               'Value of Hides']
-
-   # total_expenditure_rows = ['Feed Cost',
-   #                           'Labour Cost',
-   #                           'Health Cost',
-   #                           'Capital Cost']
+   # Create AHLE columns
+   ecs_ahle_summary_sheep_sunburst['mean_AHLE'] = ecs_ahle_summary_sheep_sunburst['mean_ideal'] - ecs_ahle_summary_sheep_sunburst['mean_current']
+   ecs_ahle_summary_sheep_sunburst['mean_AHLE_mortality'] = ecs_ahle_summary_sheep_sunburst['mean_mortality_zero'] - ecs_ahle_summary_sheep_sunburst['mean_current']
 
 
-   # for row in working_df['item']:
-   #     if row in value_rows:
-   #         i = working_df.index[working_df['item'] == row].tolist()
-   #         working_df.loc[i,['Total']] = 'Total Value Increase'
-   #     elif row in total_expenditure_rows:
-   #         i = working_df.index[working_df['item'] == row].tolist()
-   #         working_df.loc[i,['Total']] = 'Total Expenditure'
-           
-   OUTPUT_DF = working_df
+   OUTPUT_DF = ecs_ahle_summary_sheep_sunburst
 
    return OUTPUT_DF
 
+def prep_ahle_forwaterfall_ga(INPUT_DF):
+    # Ordering of current values dictionary determines order in plot
+    current_values_labels = {
+        'biomass_value_2010usd':'Biomass'
+        ,'output_value_meat_2010usd':'Meat'
+        ,'output_value_eggs_2010usd':'Eggs'
+        ,'output_value_milk_2010usd':'Milk'
+        ,'output_value_wool_2010usd':'Wool'
+
+        ,'vetspend_farm_usd':'Producers vet & med costs'
+        ,'vetspend_public_usd':'Public vet & med costs'
+
+        ,'net_value_2010usd':'Net value'
+    }
+    current_value_columns = list(current_values_labels)
+    ideal_values_labels = {
+        'ideal_biomass_value_2010usd':'Biomass'
+        ,'ideal_output_value_meat_2010usd':'Meat'
+        ,'ideal_output_value_eggs_2010usd':'Eggs'
+        ,'ideal_output_value_milk_2010usd':'Milk'
+        ,'ideal_output_value_wool_2010usd':'Wool'
+        ,'ideal_output_plus_biomass_value_2010usd':'Net value'
+    }
+    ideal_value_columns = list(ideal_values_labels)
+
+    # Sum to country-year level (summing over species)
+    country_year_level = INPUT_DF.pivot_table(
+        index=['region','country' ,'year' ,'incomegroup']
+        ,observed=True  # Limit to combinations of index variables that are in data
+        ,values=current_value_columns + ideal_value_columns
+        ,aggfunc='sum'
+        ,fill_value=0
+        )
+    country_year_level = country_year_level.reset_index()     # Pivoting will change columns to indexes. Change them back.
+
+    # Restructure to create columns 'current_value' and 'ideal_value'
+    # Keys: Country, Species, Year.  Columns: Income group, Item.
+    # Current values
+    values_current = country_year_level.melt(
+        id_vars=['region','country' ,'year' ,'incomegroup']
+        ,value_vars=current_value_columns
+        ,var_name='orig_col'             # Name for new "variable" column
+        ,value_name='value_usd_current'              # Name for new "value" column
+        )
+    values_current['item'] = values_current['orig_col'].apply(ga.lookup_from_dictionary ,DICT=current_values_labels)
+    del values_current['orig_col']
+
+    # Ideal values
+    values_ideal = country_year_level.melt(
+        id_vars=['region','country' ,'year' ,'incomegroup']
+        ,value_vars=ideal_value_columns
+        ,var_name='orig_col'             # Name for new "variable" column
+        ,value_name='value_usd_ideal'              # Name for new "value" column
+        )
+    values_ideal['item'] = values_ideal['orig_col'].apply(ga.lookup_from_dictionary ,DICT=ideal_values_labels)
+    del values_ideal['orig_col']
+
+    # Merge current and ideal
+    values_combined = pd.merge(
+        left=values_current
+        ,right=values_ideal
+        ,on=['region','country' ,'year' ,'incomegroup' ,'item']
+        ,how='outer'
+    )
+
+    # Sort Item column to keep values and costs together
+    # Sort order is same as current values dictionary defined above
+    items_plotorder = list(current_values_labels.values())
+    values_combined['item'] = values_combined['item'].astype('category')
+    values_combined.item.cat.set_categories(items_plotorder, inplace=True)
+    values_combined = values_combined.sort_values(['item'])
+
+    # Fill in zeros for ideal vetmed costs
+    _vetmed_rows = (values_combined['item'].str.contains('VET' ,case=False))
+    values_combined.loc[_vetmed_rows ,'value_usd_ideal'] = 0
+
+    OUTPUT_DF = values_combined
+
+    return OUTPUT_DF
 
 # =============================================================================
 #### Define the figures
@@ -976,54 +1303,155 @@ def create_stacked_bar_swine(input_df, x, y, color):
 
 # Define the attribution treemap
 def create_attr_treemap_ecs(input_df):
-    treemap_fig = px.treemap(input_df, 
-                      path=['production_system',
-                            'age_group',
-                            'sex',
-                            'ahle_component',
-                            'cause'], 
-                      values='mean')
-    
-    treemap_fig.update_traces(root_color="white",
-                               hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} birr<extra></extra>')
+    # # Make mean more legible
+    # input_df["humanize_mean"]= input_df['mean'].apply(lambda x: humanize.intword(x))
 
+    # input_df["pct_of_total"]= input_df['pct_of_total'].astype('float')
+
+
+    treemap_fig = px.treemap(input_df,
+                      # path=[
+                      #    'production_system',
+                      #    'age_group',
+                      #    'sex',
+                      #    'ahle_component',
+                      #    'cause'
+                      #    ],
+                      path=[
+                         'cause',
+                         'production_system',
+                         'age_group',
+                         'sex',
+                         'ahle_component',
+                         ],
+                      values='mean',
+                      hover_data=['pct_of_total'],
+                      custom_data=['pct_of_total'],
+                      color='cause', # cause only applys to the cause level
+                      color_discrete_map={'(?)':'lightgrey','Infectious':'#68000D', 'Non-infectious':'#08316C', 'External':'#00441B'}) # Cause colors matches the Human health dashboard
 
     return treemap_fig
 
-# Define the AHLE sunburst
-def create_ahle_sunburst_ecs(input_df):
-    # sunburst_fig = px.sunburst(input_df, 
-    #                             path=['Total', 'item'], 
-    #                             values='envelope')
-    
-    # # Make mean more legible 
-    # input_df["humanize_envelope"]= input_df['envelope'].apply(lambda x: humanize.intword(x))
-    
-    # icicle_fig = px.icicle(input_df, 
-    #                           path=['Total', 'item'], 
-    #                           values='envelope',
-    #                           custom_data=['humanize_envelope'])
-    
-    # icicle_fig.update_traces(root_color="white",
-    #                          hovertemplate='Category=%{label}<br>Value=$%{value:,.0f} birr<extra></extra>')
-
+# Define the AHLE waterfall
+def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
     waterfall_fig = go.Figure(go.Waterfall(
-       orientation = "v",
-       measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"],  # This needs to change with number of columns in waterfalll
-       x=input_df['item'],
-       y=input_df['mean_current'],
-       # text=text,
-       # hoverinfo = 'none',
-       # textposition = ["outside","outside","auto","auto","outside"],
-       decreasing = {'marker':{"color":'#E84C3D'}},
-       increasing = {'marker':{"color":'#3598DB'}},
-       totals = {'marker':{"color":'#F7931D'}},
-       connector = {"line":{"color":"darkgrey"}}#"rgb(63, 63, 63)"}},
-       ))
+        name = name,
+        orientation = "v",
+        measure = measure,  # This needs to change with number of columns in waterfalll
+        x=x,
+        y=y,
+        # text=text,
+        # hoverinfo = 'none',
+        # textposition = ["outside","outside","auto","auto","outside"],
+        decreasing = {'marker':{"color":'#E84C3D'}},
+        increasing = {'marker':{"color":'#3598DB'}},
+        totals = {'marker':{"color":'#F7931D'}},
+        connector = {"line":{"color":"darkgrey"}}#"rgb(63, 63, 63)"}},
+        ))
 
     waterfall_fig.update_layout(clickmode='event+select', ### EVENT SELECT ??????
                                 plot_bgcolor="#ededed",)
-    
+
+    waterfall_fig.add_annotation(x=4, xref='x',         # x position is absolute on axis
+                                 y=0, yref='paper',     # y position is relative [0,1] to work regardless of scale
+                                 text="Source: GBADs",
+                                 showarrow=False,
+                                 yshift=10,
+                                 font=dict(
+                                     family="Helvetica",
+                                     size=18,
+                                     color="black"
+                                     )
+                                 )
+
+    return waterfall_fig
+
+
+# Define the Biomass map
+def create_biomass_map_ga(input_df, iso_alpha3, value, country, display):
+    biomass_map_fig = px.choropleth(input_df, locations=iso_alpha3,
+                                    color=value,
+                                    hover_name=country, # column to add to hover information
+                                    animation_frame="year",
+                                    color_continuous_scale=px.colors.sequential.Plasma)
+    biomass_map_fig.update_layout(
+        geo=dict(
+            showframe=False,
+            showcoastlines=False,
+            projection_type='equirectangular',
+            ),
+        coloraxis_colorbar=dict(
+            title=f"{display}",
+            ),
+        )
+
+    biomass_map_fig.add_annotation(x=0.50, xref='paper',         # x position is absolute on axis
+                                 y=0.05, yref='paper',     # y position is relative [0,1] to work regardless of scale
+                                 text="Source: GBADs",
+                                 showarrow=False,
+                                 font=dict(
+                                     family="Helvetica",
+                                     size=18,
+                                     color="black"
+                                     )
+                                 )
+
+    # Rename the animation frame
+    biomass_map_fig.update_layout(sliders=[{"currentvalue": {"prefix": "Year="}}])
+
+
+    return biomass_map_fig
+
+# Define the biomass, pop, livewt line chart
+# def create_line_chart_ga(input_df, year, biomass, population, liveweight, country):
+def create_line_chart_ga(input_df, year, value, country, facet):
+    bio_pop_live_line_fig = px.line(input_df, x=year,
+                                    y=value,
+                                    color=country,
+                                    facet_row=facet,
+                                    )
+
+    bio_pop_live_line_fig.update_yaxes(matches=None, showticklabels=True)
+
+    # Update yaxis properties
+    bio_pop_live_line_fig.update_yaxes(title_text="Biomass (kg)", row=3, col=1)
+    bio_pop_live_line_fig.update_yaxes(title_text="Population (head)", row=2, col=1)
+    bio_pop_live_line_fig.update_yaxes(title_text="Live Weight (kg)", row=1, col=1)
+
+    # Remove facet titles
+    bio_pop_live_line_fig.for_each_annotation(lambda a: a.update(text=a.text.replace("facet=biomass", "")))
+    bio_pop_live_line_fig.for_each_annotation(lambda a: a.update(text=a.text.replace("facet=population", "")))
+    bio_pop_live_line_fig.for_each_annotation(lambda a: a.update(text=a.text.replace("facet=liveweight", "")))
+
+
+    bio_pop_live_line_fig.update_layout(
+    title="Biomass, Population, and Live Weight Over Time <br><sup> Double click country in legend to isolate</sup>",
+    xaxis_title="Year",
+    legend_title="Country",
+    plot_bgcolor="#ededed",
+    )
+
+    return bio_pop_live_line_fig
+
+def create_ahle_waterfall_ga(input_df, name, measure, x, y):
+    waterfall_fig = go.Figure(go.Waterfall(
+        name = name,
+        orientation = "v",
+        measure = measure,  # This needs to change with number of columns in waterfalll
+        x=x,
+        y=y,
+        # text=text,
+        # hoverinfo = 'none',
+        # textposition = ["outside","outside","auto","auto","outside"],
+        decreasing = {'marker':{"color":'#E84C3D'}},
+        increasing = {'marker':{"color":'#3598DB'}},
+        totals = {'marker':{"color":'#F7931D'}},
+        connector = {"line":{"color":"darkgrey"}}#"rgb(63, 63, 63)"}},
+        ))
+
+    waterfall_fig.update_layout(clickmode='event+select', ### EVENT SELECT ??????
+                                plot_bgcolor="#ededed",)
+
     waterfall_fig.add_annotation(x=4, xref='x',         # x position is absolute on axis
                                  y=0, yref='paper',     # y position is relative [0,1] to work regardless of scale
                                  text="Source: GBADs",
@@ -1068,12 +1496,490 @@ gbadsDash.layout = html.Div([
     dcc.Store(id='core-data-swine'),
     dcc.Store(id='core-data-attr-ecs'),
     dcc.Store(id='core-data-ahle-ecs'),
+    dcc.Store(id='core-data-world-ahle'),
+    dcc.Store(id='core-data-world-ahle-abt-ga'),
 
     #### TABS
     dcc.Tabs([
 
+        #### GLOBAL OVERVIEW TAB
+        dcc.Tab(label="Global Overview [WIP]", children = [
+
+            #### -- COUNTRY AND SPECIES CONTROLS
+            dbc.Row([
+                # Region-country alignment
+                dbc.Col([
+                    html.H6('Region-country alignment'),
+                    dcc.RadioItems(id='Region-country-alignment-overview-ga',
+                                    options=region_structure_options_ga,
+                                    inputStyle={"margin-right": "10px", # This pulls the words off of the button
+                                                "margin-left":"20px"},
+                                    value="World Bank",
+                                    style={"margin-left":'-20px'})
+                    ],
+                    style={
+                            "margin-top":"10px",
+                            "margin-right":"70px",
+                            }
+
+                    ),
+                # Region
+                dbc.Col([
+                    html.H6("Region"),
+                    dcc.Dropdown(id='select-region-overview-ga',
+                                  options=wb_region_options_ga,
+                                  value='All',
+                                  clearable = False,
+                                  ),
+                    ],style={
+                              "margin-top":"10px",
+                              },
+                    ),
+
+                # Income Group
+                dbc.Col([
+                    html.H6("Income Group"),
+                    dcc.Dropdown(id='select-incomegrp-overview-ga',
+                                 options=incomegrp_options_ga,
+                                 value='All',
+                                 clearable = False,
+                                 ),
+                    ],style={
+                              "margin-top":"10px",
+                              },
+                    ),
+
+                # Country
+                dbc.Col([
+                    html.H6("Country"),
+                    dcc.Dropdown(id='select-country-overview-ga',
+                                  options=country_options_ga,
+                                  # value='All',
+                                  value='Albania', #!!! - for testing
+                                  clearable = False,
+                                  ),
+                    ],style={
+                              "margin-top":"10px",
+                              },
+                    ),
+
+                  # Species
+                  dbc.Col([
+                      html.H6("Species"),
+                      dcc.Dropdown(id='select-species-ga',
+                                  options=ga_species_options,
+                                  value='Cattle',
+                                  clearable = False,
+                                  )
+                      ],style={
+                              "margin-top":"10px",
+                              },
+                      ),
+
+                ], justify='evenly', style={"margin-right": "10px"}),
+
+
+            #### -- VISUALIZATION SWITCH
+            # Select Visual Control
+
+            dbc.Card([
+                dbc.CardBody([
+                    html.H5("Select Visualization",
+                            className="card-title",
+                            style={"font-weight": "bold"}),
+
+            dbc.Row([ # Row with Control for Visuals
+
+                    # Visualization
+                    dbc.Col([
+                        html.H6("Visualize"),
+                        dcc.RadioItems(
+                            id='viz-radio-ga',
+                            options=['Map', 'Line chart'],
+                            value='Map',
+                            inputStyle={"margin-right": "2px", # This pulls the words off of the button
+                                        "margin-left": "10px"},
+                            ),
+                        ]),
+
+                    # Map Display options
+                    dbc.Col([
+                        html.H6("Map Display"),
+                        # dcc.RadioItems(
+                        dcc.Dropdown(
+                            id='map-display-radio-ga',
+                            options=map_display_options_ga,
+                            value='Population',
+                            # inputStyle={"margin-right": "2px", # This pulls the words off of the button
+                            #             "margin-left": "10px"},
+                            ),
+                        ]),
+
+            ]), # END OF ROW
+
+                # END OF CARD BODY
+                ]),
+
+            ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF CARD
+
+
+            html.Hr(style={'margin-right':'10px',}),
+
+            html.Br(),
+
+            #### -- GRAPHICS
+            dbc.Row([  # Row with GRAPHICS
+
+                dbc.Col([ # Global Aggregation Visual
+                    dbc.Spinner(children=[
+                    dcc.Graph(id='ga-map-or-line-select',
+                                style = {"height":"650px"},
+                              config = {
+                                  "displayModeBar" : True,
+                                  "displaylogo": False,
+                                  'toImageButtonOptions': {
+                                      'format': 'png', # one of png, svg, jpeg, webp
+                                      'filename': 'GBADs_Global_Agg_Viz'
+                                      },
+                                  }
+                              )
+                    # End of Spinner
+                    ],size="md", color="#393375", fullscreen=False),
+                    # End of Map
+                    ]),
+
+            html.Br(),
+            # END OF GRAPHICS ROW
+            ],),
+
+        #### -- DATATABLE
+        dbc.Row([
+
+            dbc.Spinner(children=[
+            dbc.Col([
+                html.Div([  # Core data for AHLE
+                      html.Div( id='ga-world-abt-datatable'),
+                ], style={'margin-left':"20px"}),
+
+            html.Br() # Spacer for bottom of page
+
+            ]),# END OF COL
+            # End of Spinner
+            ],size="md", color="#393375", fullscreen=False),
+
+        ]),
+        html.Br(),
+        ### END OF DATATABLE
+
+
+        ### END OF GLOBAL AGGREGATE TAB
+        ], style=global_tab_style, selected_style=global_tab_selected_style),
+
+        #### GLOBAL AHLE DETAILS TAB
+        dcc.Tab(label="Global AHLE Details [WIP]", children = [
+
+            #### -- COUNTRY AND CHART CONTROLS
+            dbc.Row([
+                # Display
+                dbc.Col([
+                    html.H6("Display"),
+                    dcc.RadioItems(id='select-display-ga',
+                                  options=ecs_display_options,
+                                  value='Difference (AHLE)',
+                                  labelStyle={'display': 'block'},
+                                  inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
+                                  ),
+                    ],
+                    style={
+                            "margin-top":"10px",
+                            "margin-right":"70px",
+                            }
+                ),
+
+                # Region-country alignment
+                dbc.Col([
+                    html.H6('Region-country alignment'),
+                    dcc.RadioItems(id='Region-country-alignment-detail-ga',
+                                    options=region_structure_options_ga,
+                                    inputStyle={"margin-right": "10px", # This pulls the words off of the button
+                                                "margin-left":"20px"},
+                                    value="World Bank",
+                                    style={"margin-left":'-20px'})
+                    ],
+                    style={
+                            "margin-top":"10px",
+                            "margin-right":"70px",
+                            }
+
+                    ),
+                # Region
+                dbc.Col([
+                    html.H6("Region"),
+                    dcc.Dropdown(id='select-region-detail-ga',
+                                  options=wb_region_options_ga,
+                                  value='All',
+                                  clearable = False,
+                                  ),
+                    ],style={
+                              "margin-top":"10px",
+                              },
+                    ),
+                # Income Group
+                dbc.Col([
+                    html.H6("Income Group"),
+                    dcc.Dropdown(id='select-incomegrp-detail-ga',
+                                options=incomegrp_options_ga,
+                                value='All',
+                                clearable = False,
+                                ),
+                    ],style={
+                              "margin-top":"10px",
+                              },
+                    ),
+
+                # Country
+                dbc.Col([
+                    html.H6("Country"),
+                    dcc.Dropdown(id='select-country-detail-ga',
+                                  options=country_options_ga,
+                                  value='All',
+                                  clearable = False,
+                                  ),
+                    ],style={
+                              "margin-top":"10px",
+                              },
+                    ),
+                ], style={"margin-right": "10px"}), # END OF ROW
+
+
+            #### -- CHART SPECIFIC AND BOTH CONTROLS
+            dbc.Row([
+                # AHLE Specific Controls
+                dbc.Col([
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H5("Output Values and Costs Graph Controls",
+                                className="card-title",
+                                style={"font-weight": "bold"}),
+                        dbc.Row([
+                        # Year
+                        dbc.Col([
+                            html.H6("Year"),
+                            dcc.Dropdown(id='select-year-ga',
+                                          options=year_options_ga,
+                                          value=2020,
+                                          clearable = False,
+                                          ),
+                            ],style={
+                                      "margin-top":"10px",
+                                      },
+                            ),
+                        ]), # END OF ROW
+
+                # END OF CARD BODY
+                ],),
+
+                # END OF CARD
+                ], color='#F2F2F2',),
+                ],  width=3),
+
+                   #### -- MORTALITY AND OTHER CONTROLS
+                   dbc.Col([
+                   dbc.Card([
+                       dbc.CardBody([
+                           html.H5("Exploring Contributions to AHLE (Not Active)",
+                                   className="card-title",
+                                   style={"font-weight": "bold"}),
+                   dbc.Row([  # Line up all the controls in the same row.
+
+                       # Base mortality rate
+                       dbc.Col([
+                           html.H6("Base mortality rate"),
+                           html.Br(),
+                           daq.Slider(
+                               id='base-mortality-rate-ga',
+                               min=1,
+                               max=10,
+                               handleLabel={"showCurrentValue": True,"label": "%"},
+                               step=1,
+                               value=mortality_rate_ga_default,
+                               ),
+                           ],style={
+                                     "margin-top":"10px",
+                                     }
+                           ,),
+
+                       # Base morbidity rate
+                       dbc.Col([
+                           html.H6("Base morbidity rate"),
+                           html.Br(),
+                           daq.Slider(
+                               id='base-morbidity-rate-ga',
+                               min=1,
+                               max=10,
+                               handleLabel={"showCurrentValue": True,"label": "%"},
+                               step=1,
+                               value=morbidity_rate_ga_default,
+                               ),
+                           ],style={
+                                     "margin-top":"10px",
+                                     }
+                           ,),
+
+                       # Live weight price
+                       dbc.Col([
+                           html.H6("Live weight price (USD per kg)"),
+                           html.Br(),
+                           daq.Slider(
+                               id='base-live-weight-price-ga',
+                               min=0.70,
+                               max=3.25,
+                               handleLabel={"showCurrentValue": True,"label": "$"},
+                               step=.01,
+                               value=live_weight_price_ga_default,
+                               ),
+                           ],style={
+                                     "margin-top":"10px",
+                                     }
+                           ,),
+
+                       ## END OF ROW ##
+                       ], justify='evenly'),
+
+                   # END OF CARD BODY
+                   ],),
+
+                   # END OF CARD
+                   ], color='#F2F2F2'),
+                   ], width=6),
+
+                # Item Over Time Specific Controls
+                dbc.Col([
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H5("Item Over Time Graph Controls",
+                                className="card-title",
+                                style={"font-weight": "bold"}),
+                        dbc.Row([
+
+                          # Item
+                          dbc.Col([
+                              html.H6("Item"),
+                              dcc.Dropdown(id='select-item-ga',
+                                            options=item_options_ga,
+                                            value=item_list_ga[-1],   # Default is last item in list
+                                            clearable = False,
+                                            ),
+                              ],style={
+                                        "margin-top":"10px",
+                                        },
+                              ),
+                        ]), # END OF ROW
+
+                # END OF CARD BODY
+                ],),
+
+                # END OF CARD
+                ], color='#F2F2F2'),
+                ], width=3),
+
+                ], style={"margin-right": "10px"}),
+
+            html.Br(),
+
+            #### -- GRAPHICS ROW
+            dbc.Row([
+                # Side by side waterfall
+                dbc.Col([
+                    dbc.Spinner(children=[
+                        dcc.Graph(id='ga-ahle-waterfall',
+                                  style = {"height":"650px"},
+                                  config = {
+                                      "displayModeBar" : True,
+                                      "displaylogo": False,
+                                      'toImageButtonOptions': {
+                                          'format': 'png', # one of png, svg, jpeg, webp
+                                          'filename': 'GBADs_GlobalAggregate_AHLE_Waterfall'
+                                          },
+                                      'modeBarButtonsToRemove': ['zoom',
+                                                                  'zoomIn',
+                                                                  'zoomOut',
+                                                                  'autoScale',
+                                                                  #'resetScale',  # Removes home button
+                                                                  'pan',
+                                                                  'select2d',
+                                                                  'lasso2d']
+                                      }
+                                  )
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                    # End of Side by side waterfall
+                    ],style={"width":5}),
+
+                # Plot over time
+                dbc.Col([
+                    dbc.Spinner(children=[
+                        dcc.Graph(id='ga-ahle-over-time',
+                                  style = {"height":"650px"},
+                                  config = {
+                                      "displayModeBar" : True,
+                                      "displaylogo": False,
+                                      'toImageButtonOptions': {
+                                          'format': 'png', # one of png, svg, jpeg, webp
+                                          'filename': 'GBADs_GlobalAggregate_AHLE_Overtime'
+                                          },
+                                      'modeBarButtonsToRemove': ['zoom',
+                                                                  'zoomIn',
+                                                                  'zoomOut',
+                                                                  'autoScale',
+                                                                  #'resetScale',  # Removes home button
+                                                                  'pan',
+                                                                  'select2d',
+                                                                  'lasso2d']
+                                      }
+                                  )
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                    # End of plot over time
+                    ],style={"width":5}),
+                ]),
+        html.Br(),
+
+        #### -- FOOTNOTES
+        dbc.Row([
+            dbc.Col([
+                # Waterfall chart
+                html.P("Ideal values assume increased production if there were no morbidity or mortality"),
+                html.P("Using morbidity and mortality rates according to income group"),
+                ]),
+            dbc.Col([
+                # Line chart
+                html.P(""),
+                ]),
+            ], style={'margin-left':"40px",
+                      'font-style': 'italic',
+                      "margin-right": "20px"}
+            ),
+        html.Br(),
+
+        #### -- DATATABLE
+        dbc.Spinner(children=[
+            html.Div([  # Row with DATATABLE
+                      html.Div( id='ga-detailtab-displaytable'),
+                      ], style={'margin-left':"20px",
+                                "margin-right": "10px",
+                                # "width":"95%"
+                                }
+                     ),
+            # End of Spinner
+            ],size="md", color="#393375", fullscreen=False),
+        html.Br(), # Spacer for bottom of page
+
+        ### END OF GLOBAL AHLE DETAILS TAB
+        ], style=global_tab_style, selected_style=global_tab_selected_style),
+
         #### POULTRY TAB
-        dcc.Tab(label="Poultry", children = [
+        dcc.Tab(label="Major Producers | Poultry", children = [
 
             #### -- COUNTRY AND YEAR CONTROLS
             dbc.Row([
@@ -1081,73 +1987,73 @@ gbadsDash.layout = html.Div([
                 dbc.Col([
                     html.H6('Region-country alignment'),
                     dcc.RadioItems(id='Region-country-alignment-poultry',
-                                   options=region_structure_options,
-                                   inputStyle={"margin-right": "10px", # This pulls the words off of the button
-                                               "margin-left":"20px"},
-                                   value="OIE",
-                                   style={"margin-left":'-20px'})
+                                    options=region_structure_options,
+                                    inputStyle={"margin-right": "10px", # This pulls the words off of the button
+                                                "margin-left":"20px"},
+                                    value="WOAH",
+                                    style={"margin-left":'-20px'})
                     ],
                     style={
-                           "margin-top":"10px",
-                           "margin-right":"70px",
-                           }
+                            "margin-top":"10px",
+                            "margin-right":"70px",
+                            }
 
                     ),
                 # Region
                 dbc.Col([
                     html.H6("Region"),
                     dcc.Dropdown(id='select-region-poultry',
-                                 options=oie_region_options,
-                                 value='ALL',
-                                 clearable = False,
-                                 ),
+                                  options=WOAH_region_options,
+                                  value='All',
+                                  clearable = False,
+                                  ),
                     ],style={
-                             "order":1,
-                             "margin-top":"10px",
-                             },
+                              "order":1,
+                              "margin-top":"10px",
+                              },
                     ),
 
                 # Country
                 dbc.Col([
                     html.H6("Country"),
                     dcc.Dropdown(id='select-country-poultry',
-                                 options=country_options_poultry,
-                                 value='United Kingdom',
-                                 clearable = False,
-                                 ),
+                                  options=country_options_poultry,
+                                  value='United Kingdom',
+                                  clearable = False,
+                                  ),
                     ],style={
-                             "order":2,
-                             "margin-top":"10px",
-                             },
+                              "order":2,
+                              "margin-top":"10px",
+                              },
                     ),
 
-                 # Year
-                 dbc.Col([
-                     html.H6("Year"),
-                     dcc.Dropdown(id='select-year-poultry',
+                  # Year
+                  dbc.Col([
+                      html.H6("Year"),
+                      dcc.Dropdown(id='select-year-poultry',
                                   options=year_options_poultry,
                                   value=2020,
                                   clearable = False,
                                   )
-                     ],style={
+                      ],style={
                               'order': 3,
                               "margin-top":"10px",
                               },
-                     ),
+                      ),
 
               # Metric
                 dbc.Col([
                     html.H6("Metric"),
                     dcc.Dropdown(id='select-metric-poultry',
-                                 options=metric_options,
-                                 value="tonnes",
-                                 clearable = False,
-                                 )
+                                  options=metric_options,
+                                  value="tonnes",
+                                  clearable = False,
+                                  )
                     ],style={
-                             "order": 4,
-                             "margin-top":"10px",
-                             "margin-right": '10px',
-                             },
+                              "order": 4,
+                              "margin-top":"10px",
+                              "margin-right": '10px',
+                              },
                     ),
 
                 ], justify='evenly'),
@@ -1173,7 +2079,7 @@ gbadsDash.layout = html.Div([
 
                     # Text underneath slider
                     html.P(id='reference-dof-poultry'),
-                     ],style={'width': "auto",
+                      ],style={'width': "auto",
                               "order":5,
                               # 'margin-left':'-40px',
                               }
@@ -1193,10 +2099,10 @@ gbadsDash.layout = html.Div([
                         ),
 
                     # Text underneath slider
-                     html.P(id='reference-achievable-pct-poultry'),
-                     ],style={'width': "auto",
+                      html.P(id='reference-achievable-pct-poultry'),
+                      ],style={'width': "auto",
                               "order":6,}
-                     ),
+                      ),
 
                 # Price to Producers Upon Sale
                 dbc.Col([
@@ -1214,7 +2120,7 @@ gbadsDash.layout = html.Div([
                     # Text underneath slider
                     html.P(id='reference-producerprice-poultry'),
                     ],style={'width': "auto",
-                             "order":7,}
+                              "order":7,}
                     ),
 
                 # Ration prices
@@ -1233,7 +2139,7 @@ gbadsDash.layout = html.Div([
                     # Text underneath slider
                     html.P(id='reference-feedprice-poultry'),
                     ],style={'width': "auto",
-                             "order":8,}
+                              "order":8,}
                     ),
 
                 # FCR
@@ -1251,17 +2157,17 @@ gbadsDash.layout = html.Div([
                     # Text underneath slider
                     html.P(id='reference-fcr-poultry'),
                     ],style={'width': "auto",
-                             "order":8,
-                             'margin-right':'20px'}
+                              "order":8,
+                              'margin-right':'20px'}
                     ),
 
                 # Reset to defaults button
                 dbc.Col([
                     html.Button('Reset to default', id='reset-val-poultry', n_clicks=0),
                 ],style={'width': "auto",
-                         "order":9,
-                         'textAlign':'center',
-                         'margin':'auto',}
+                          "order":9,
+                          'textAlign':'center',
+                          'margin':'auto',}
                 ),
 
                 ## END OF POULTRY TAB CONTROLS ROW ##
@@ -1278,7 +2184,7 @@ gbadsDash.layout = html.Div([
             dbc.Col([ # Poultry Waterfall
                 dbc.Spinner(children=[
                 dcc.Graph(id='poultry-waterfall',
-                           style = {"height":"650px"},
+                            style = {"height":"650px"},
                           config = {
                               "displayModeBar" : True,
                               "displaylogo": False,
@@ -1287,13 +2193,13 @@ gbadsDash.layout = html.Div([
                                   'filename': 'GBADs_Poultry_Waterfall'
                                   },
                               'modeBarButtonsToRemove': ['zoom',
-                                                         'zoomIn',
-                                                         'zoomOut',
-                                                         'autoScale',
-                                                         #'resetScale',  # Removes home button
-                                                         'pan',
-                                                         'select2d',
-                                                         'lasso2d']
+                                                          'zoomIn',
+                                                          'zoomOut',
+                                                          'autoScale',
+                                                          #'resetScale',  # Removes home button
+                                                          'pan',
+                                                          'select2d',
+                                                          'lasso2d']
                               }
                           )
                 # End of Spinner
@@ -1334,13 +2240,13 @@ gbadsDash.layout = html.Div([
                                   'filename': 'GBADs_Poultry_Stacked_Bar'
                                   },
                               'modeBarButtonsToRemove': ['zoom',
-                                                         'zoomIn',
-                                                         'zoomOut',
-                                                         'autoScale',
-                                                         #'resetScale',  # Removes home button
-                                                         'pan',
-                                                         'select2d',
-                                                         'lasso2d']
+                                                          'zoomIn',
+                                                          'zoomOut',
+                                                          'autoScale',
+                                                          #'resetScale',  # Removes home button
+                                                          'pan',
+                                                          'select2d',
+                                                          'lasso2d']
                               })
                     # End of Spinner
                     ],size="md", color="#393375", fullscreen=False),
@@ -1352,37 +2258,36 @@ gbadsDash.layout = html.Div([
 
         #### -- FOOTNOTES
         dbc.Row([
-           dbc.Col([
+            dbc.Col([
               # Breed Standard Potential source
               html.P(id='waterfall-footnote-poultry'),
-           ]),
-           dbc.Col([
+            ]),
+            dbc.Col([
               # Cost Assumptions
               html.P("Ideal costs are those required to achieve realised production if there were no mortality or morbidity."),
-           ]),
+            ]),
         ], style={'margin-left':"40px", 'font-style': 'italic'}
         ),
         html.Br(),
 
         #### -- DATATABLE
         html.Div([  # Row with DATATABLE
-                 html.Div( id='poultry-background-data'),
+                  html.Div( id='poultry-background-data'),
             ], style={'margin-left':"20px",
-                       "width":"95%"}),
+                        "width":"95%"}),
         html.Br(), # Spacer for bottom of page
 
         html.Div([  # Breed standard data
-                 html.Div( id='poultry-breed-data'),
+                  html.Div( id='poultry-breed-data'),
             ], style={'margin-left':"20px",
                       "width":"12%",}),
         html.Br() # Spacer for bottom of page
 
         ### END OF POULTRY TAB
-        ], ),
-
+        ], style=major_producers_tab_style, selected_style=major_producers_tab_selected_style),
 
         #### SWINE TAB
-        dcc.Tab(label="Swine", children = [
+        dcc.Tab(label="Major Producers | Swine", children = [
 
             #### -- COUNTRY AND YEAR CONTROLS
             dbc.Row([
@@ -1390,72 +2295,72 @@ gbadsDash.layout = html.Div([
                 dbc.Col([
                     html.H6('Region-country alignment'),
                     dcc.RadioItems(id='Region-country-alignment-swine',
-                                   options=region_structure_options,
-                                   inputStyle={"margin-right": "10px",
-                                               "margin-left":"20px"},
-                                   value="OIE",
-                                   style={"margin-left":'-20px'})
+                                    options=region_structure_options,
+                                    inputStyle={"margin-right": "10px",
+                                                "margin-left":"20px"},
+                                    value="WOAH",
+                                    style={"margin-left":'-20px'})
                     ],style={
                         "margin-top":"10px",
                         "margin-right":"70px",
-                           }
+                            }
 
                     ),
                 # Region
                 dbc.Col([
                     html.H6("Region"),
                     dcc.Dropdown(id='select-region-swine',
-                                 options=oie_region_options,
-                                 value='ALL',
-                                 clearable = False,
-                                 ),
+                                  options=WOAH_region_options,
+                                  value='All',
+                                  clearable = False,
+                                  ),
                     ],style={
-                             "order":1,
-                             "margin-top":"10px"
-                             }
+                              "order":1,
+                              "margin-top":"10px"
+                              }
                     ),
 
                 # Country
                 dbc.Col([
                     html.H6("Country"),
                     dcc.Dropdown(id='select-country-swine',
-                                 options=country_options_swine,
-                                 value='United Kingdom',
-                                 clearable = False,
-                                 ),
+                                  options=country_options_swine,
+                                  value='United Kingdom',
+                                  clearable = False,
+                                  ),
                     ],style={
-                             "order":2,
-                             "margin-top":"10px"
-                             },
+                              "order":2,
+                              "margin-top":"10px"
+                              },
                     ),
 
-                 # Year
-                 dbc.Col([
-                     html.H6("Year"),
-                     dcc.Dropdown(id='select-year-swine',
+                  # Year
+                  dbc.Col([
+                      html.H6("Year"),
+                      dcc.Dropdown(id='select-year-swine',
                                   options=year_options_swine,
                                   value=2020,
                                   clearable = False,
                                   )
-                     ],style={
+                      ],style={
                               'order': 3,
                               "margin-top":"10px"
                               },
-                     ),
+                      ),
 
                 # Metric
                 dbc.Col([
                     html.H6("Metric"),
                     dcc.Dropdown(id='select-metric-swine',
-                                 options=metric_options,
-                                 value="tonnes",
-                                 clearable = False,
-                                 )
+                                  options=metric_options,
+                                  value="tonnes",
+                                  clearable = False,
+                                  )
                     ],style={
-                             "order": 4,
-                             "margin-top":"10px",
-                             "margin-right": '10px',
-                             },
+                              "order": 4,
+                              "margin-top":"10px",
+                              "margin-right": '10px',
+                              },
                     ),
 
                 ], justify='evenly'),
@@ -1485,29 +2390,29 @@ gbadsDash.layout = html.Div([
 
                 # Feed Intake
                 # Alternative to Days on Feed for determining breed standard potential
-                 # dbc.Col([
-                 #     html.H6("Feed intake (kg per head)"),
-                 #     html.Br(),
-                 #     daq.Slider(
-                 #         id='feed-slider-swine',
-                 #         min=80,
-                 #         max=355,
-                 #         handleLabel={"showCurrentValue": True,"label": "kg"},
-                 #         step=5,
-                 #         value=feed_swine_default,
-                 #         ),
-                 #     html.P(id='reference-feedintake-swine'),
-                 #      ],style={'width': "auto",
-                 #               "order":5,
-                 #               }
-                 #     ),
+                  # dbc.Col([
+                  #     html.H6("Feed intake (kg per head)"),
+                  #     html.Br(),
+                  #     daq.Slider(
+                  #         id='feed-slider-swine',
+                  #         min=80,
+                  #         max=355,
+                  #         handleLabel={"showCurrentValue": True,"label": "kg"},
+                  #         step=5,
+                  #         value=feed_swine_default,
+                  #         ),
+                  #     html.P(id='reference-feedintake-swine'),
+                  #      ],style={'width': "auto",
+                  #               "order":5,
+                  #               }
+                  #     ),
 
                 # Achievable weight in kg
                 # Alternative to Achievable Percent for determining effect of feed and practices
                 dbc.Col([
-                   html.H6("Achievable live weight without disease (kg)"),
-                   html.Br(),
-                   daq.Slider(
+                    html.H6("Achievable live weight without disease (kg)"),
+                    html.Br(),
+                    daq.Slider(
                       id='achievable-weight-slider-swine',
                       min=70,
                       max=180,
@@ -1515,11 +2420,11 @@ gbadsDash.layout = html.Div([
                       step=5,
                       value=achievable_weight_swine_default,
                       ),
-                   # Text underneath slider
-                   html.P(id='reference-liveweight-swine'),
-                   ],style={'width': "auto",
+                    # Text underneath slider
+                    html.P(id='reference-liveweight-swine'),
+                    ],style={'width': "auto",
                             "order":6}
-                   ),
+                    ),
 
                 # Price to Producers Upon Sale
                 dbc.Col([
@@ -1536,7 +2441,7 @@ gbadsDash.layout = html.Div([
                     # Text underneath slider
                     html.P(id='reference-producerprice-swine'),
                     ],style={'width': "auto",
-                             "order":7}
+                              "order":7}
                     ),
 
                 # Ration prices
@@ -1554,8 +2459,8 @@ gbadsDash.layout = html.Div([
                     # Text underneath slider
                     html.P(id='reference-feedprice-swine'),
                     ],style={'width': "auto",
-                             "order":8,
-                             'margin-right':'20px'}
+                              "order":8,
+                              'margin-right':'20px'}
                     ),
 
                 # FCR
@@ -1573,17 +2478,17 @@ gbadsDash.layout = html.Div([
                     # Text underneath slider
                     html.P(id='reference-fcr-swine'),
                     ],style={'width': "auto",
-                             "order":8,
-                             'margin-right':'20px'}
+                              "order":8,
+                              'margin-right':'20px'}
                     ),
 
                 # Reset to defaults button
                 dbc.Col([
                     html.Button('Reset to default', id='reset-val-swine', n_clicks=0),
                 ],style={'width': "auto",
-                         "order":9,
-                         'textAlign':'center',
-                         'margin':'auto',}
+                          "order":9,
+                          'textAlign':'center',
+                          'margin':'auto',}
                 ),
 
                 ## END OF SWINE TAB CONTROLS ROW ##
@@ -1608,13 +2513,13 @@ gbadsDash.layout = html.Div([
                                   'filename': 'GBADs_Swine_Waterfall'
                                   },
                               'modeBarButtonsToRemove': ['zoom',
-                                                         'zoomIn',
-                                                         'zoomOut',
-                                                         'autoScale',
-                                                         #'resetScale',  # Removes home button
-                                                         'pan',
-                                                         'select2d',
-                                                         'lasso2d']
+                                                          'zoomIn',
+                                                          'zoomOut',
+                                                          'autoScale',
+                                                          #'resetScale',  # Removes home button
+                                                          'pan',
+                                                          'select2d',
+                                                          'lasso2d']
                               }
                           )
                 # End of Spinner
@@ -1655,13 +2560,13 @@ gbadsDash.layout = html.Div([
                                   'filename': 'GBADs_Swine_Stacked_Bar'
                                   },
                               'modeBarButtonsToRemove': ['zoom',
-                                                         'zoomIn',
-                                                         'zoomOut',
-                                                         'autoScale',
-                                                         #'resetScale',  # Removes home button
-                                                         'pan',
-                                                         'select2d',
-                                                         'lasso2d']
+                                                          'zoomIn',
+                                                          'zoomOut',
+                                                          'autoScale',
+                                                          #'resetScale',  # Removes home button
+                                                          'pan',
+                                                          'select2d',
+                                                          'lasso2d']
 
                               })
                     # End of Spinner
@@ -1675,236 +2580,313 @@ gbadsDash.layout = html.Div([
 
         #### -- FOOTNOTES
         dbc.Row([
-           dbc.Col([
+            dbc.Col([
               # Breed Standard Potential source
               html.P("*Using PIC breed standard, assuming 75% average carcass yield."),
-           ]),
-           dbc.Col([
+            ]),
+            dbc.Col([
               # Cost Assumptions
               html.P("Ideal costs are those required to achieve realised production if there were no mortality or morbidity."),
-           ]),
+            ]),
         ], style={'margin-left':"40px", 'font-style': 'italic'}
         ),
         html.Br(),
 
         #### -- DATATABLE
         html.Div([  # Core data for country
-                 html.Div( id='swine-background-data'),
+                  html.Div( id='swine-background-data'),
             ], style={'margin-left':"20px",
                       "width":"95%",}),
         html.Br(), # Spacer for bottom of page
 
         html.Div([  # Breed standard data
-                 html.Div( id='swine-breed-data'),
+                  html.Div( id='swine-breed-data'),
             ], style={'margin-left':"20px",
                       "width":"18%",}),
         html.Br() # Spacer for bottom of page
 
         ### END OF SWINE TAB
-        ]),
+        ], style=major_producers_tab_style, selected_style=major_producers_tab_selected_style),
 
         #### BEEF TAB
         # JR: Hiding the beef tab for now
         # dcc.Tab(label="Beef"),
 
         #### ETHIOPIA TAB
-        dcc.Tab(label="Ethiopia Case Study [WORK IN PROGRESS]", children =[
+        dcc.Tab(label="Ethiopia Case Study [WIP]", children =[
 
             #### -- DROPDOWNS CONTROLS
             dbc.Row([
-                                
-                # Production System
-                dbc.Col([
-                    html.H6("Production System"),
-                    dcc.Dropdown(id='select-prodsys-ecs',
-                                 options=ecs_prodsys_options,
-                                 value='All Production Systems',
-                                 clearable = False,
-                                 ),
-                    ],style={
-                             "order":3,
-                             "margin-top":"10px",
-                             }
-                    ),
 
-                # Age
-                 dbc.Col([
-                     html.H6("Age"),
-                     dcc.Dropdown(id='select-age-ecs',
-                                  options=ecs_age_options,
-                                  value='Overall Age',
-                                  clearable = False,
-                                  )
-                     ],style={
-                              'order': 4,
-                              "margin-top":"10px"
-                              },
-                     ),
+                # AHLE Specific Controls
+                dbc.Col([
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H5("Animal Health Loss Envelope Graph Controls",
+                                className="card-title",
+                                style={"font-weight": "bold"}),
+                        dbc.Row([
+                        # display
+                        dbc.Col([
+                            html.H6("Display"),
+                            dcc.RadioItems(id='select-display-ecs',
+                                          options=ecs_display_options,
+                                          value='Current & Ideal',
+                                          labelStyle={'display': 'block'},
+                                          inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
+                                          ),
+                            ],
+                            # style={
+                            #          "margin-top":"10px",
+                            #          },
+                        ),
 
-                # Sex
-                dbc.Col([
-                    html.H6("Sex"),
-                    dcc.Dropdown(id='select-sex-ecs',
-                                 options=ecs_sex_options,
-                                 value="Overall Sex",
-                                 clearable = False,
-                                 )
-                    ],style={
-                             "order": 5,
-                             "margin-top":"10px",
-                             },
-                    ), 
-                        
-                # Attribution
-                dbc.Col([
-                    html.H6("Attribution"),
-                    dcc.Dropdown(id='select-attr-ecs',
-                                 options=ecs_attr_options,
-                                 value='All Causes',
-                                 clearable = False,
-                                 ),
-                    ],style={
-                        "order":6,
-                        "margin-top":"10px"
-                        },
-                 ),
-                        
-                # Species
-                dbc.Col([
-                    html.H6("Species"),
-                    dcc.Dropdown(id='select-species-ecs',
-                                 options=ecs_species_options,
-                                 value='All small ruminants',
-                                 clearable = False,
-                                 ),
-                    ],style={
-                             "order":7,
-                             "margin-top":"10px"
-                             },
-                    ),
+                        # Compare
+                        dbc.Col([
+                            html.H6("Compare (Current)"),
+                            dcc.RadioItems(id='select-compare-ecs',
+                                          options=ecs_compare_options,
+                                          value='Ideal',
+                                          labelStyle={'display': 'block'},
+                                          inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
+                                          ),
+                            ],
+                            # style={
+                            #          "margin-top":"10px",
+                            #          },
+                        ),
 
-                # Metric
-                dbc.Col([
-                    html.H6("Metric"),
-                    dcc.Dropdown(id='select-metric-ecs',
-                                 options=ecs_metric_options,
-                                 value='Value of outputs',
-                                 clearable = False,
-                                 ),
-                    ],style={
-                             "order":8,
-                             "margin-top":"10px",
-                             "margin-right": '10px'
-                             },
-                    ),
+                          # Species
+                          dbc.Col([
+                              html.H6("Species"),
+                              dcc.Dropdown(id='select-species-ecs',
+                                          options=ecs_species_options,
+                                          value='All Small Ruminants',
+                                          clearable = False,
+                                          ),
+                              ],
+                              # style={
+                              #          "margin-top":"10px"
+                              #          },
+                              ),
+                        ]), # END OF ROW
 
+                # END OF CARD BODY
+                ],),
+
+                # END OF CARD
+                ], color='#F2F2F2'),
+                ]),
+
+                # Controls for Both Graphs
+                dbc.Col([
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H5("Controls for Both Graphs",
+                                className="card-title",
+                                style={"font-weight": "bold"}
+                                ),
+                        dbc.Row([
+
+                            # Production System
+                            dbc.Col([
+                                html.H6("Production System"),
+                                dcc.Dropdown(id='select-prodsys-ecs',
+                                            options=ecs_prodsys_options,
+                                            value='All Production Systems',
+                                            clearable = False,
+                                            ),
+                                ],style={
+                                        # "margin-top":"10px",
+                                        "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                                        }
+                                ),
+
+                            # Age
+                            dbc.Col([
+                                html.H6("Age"),
+                                dcc.Dropdown(id='select-age-ecs',
+                                              options=ecs_age_options,
+                                              value='Overall Age',
+                                              clearable = False,
+                                              )
+                                ],style={
+                                          # "margin-top":"10px",
+                                          "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                                          },
+                                ),
+
+                            # Sex
+                            dbc.Col([
+                                html.H6("Sex"),
+                                dcc.Dropdown(id='select-sex-ecs',
+                                            options=ecs_sex_options_all,
+                                            value="Overall Sex",
+                                            clearable = False,
+                                            )
+                                ],style={
+                                        # "margin-top":"10px",
+                                        "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                                        },
+                                ),
+
+
+                            ]), # END OF ROW
+                        dbc.Row([
+                            # Currency selector
+                            html.H6("Currency"),
+                            dcc.Dropdown(id='select-currency-ecs',
+                                        options=ecs_currency_options,
+                                        value='Birr',
+                                        clearable = False,
+                                        ),
+                            ]), # END OF ROW
+                    # END OF CARD BODY
+                    ],),
+
+                  # END OF CARD
+                  ], color='#F2F2F2'),
+                  ]),
+
+            # Attribution Specific Controls
+            dbc.Col([
+            dbc.Card([
+                dbc.CardBody([
+                    html.H5("Attribution Graph Controls",
+                            className="card-title",
+                            style={"font-weight": "bold"}),
+                    dbc.Row([
+                    # Attribution
+                    dbc.Col([
+                        html.H6("Attribution"),
+                        dcc.Dropdown(id='select-attr-ecs',
+                                      options=ecs_attr_options,
+                                      value='All Causes',
+                                      clearable = False,
+                                      ),
+                        ],style={
+                            # "margin-top":"10px",
+                            "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                            },
+                      ),
+                ]), # END OF ROW
+
+                # END OF CARD BODY
+                ],),
+
+                # END OF CARD
+                ], color='#F2F2F2'),
+                ]),
+
+
+                # # Metric
+                # dbc.Col([
+                #     html.H6("Metric"),
+                #     dcc.Dropdown(id='select-metric-ecs',
+                #                  options=ecs_metric_options,
+                #                  value='Value of outputs',
+                #                  clearable = False,
+                #                  ),
+                #     ],style={
+                #              "order":8,
+                #              "margin-top":"10px",
+                #              "margin-right": '10px'
+                #              },
+                #     ),
+
+
+                # END OF DROPDOWN CONTROLS
                 ], justify='evenly'),
 
 
-            html.Hr(style={'margin-right':'10px'}),
+            # html.Hr(style={'margin-right':'10px'}),
 
             #### -- CALCULATION CONTROLS
+            dbc.Card([
+                dbc.CardBody([
+                    html.H5("Exploring Relative Contribution to Gross Margin and AHLE",
+                            className="card-title",
+                            style={"font-weight": "bold"}),
             dbc.Row([  # Line up all the controls in the same row.
 
-                # Growth Rate
+                # Factor dropdown
                 dbc.Col([
-                    html.H6("Growth rate"),
-                    html.Br(),
-                    daq.Slider(
-                        id='growth-slider-ecs',
-                        min=0.16,
-                        max=0.30,
-                        handleLabel={"showCurrentValue": True,"label": "%"},
-                        step=.01,
-                        value=growth_ecs_default,
-                        ),
-                     ],style={'width': "auto",
-                              "order":1,
-                              # 'margin-left':'-40px',
-                              }
+                    html.H6("Factor"),
+                    dcc.Dropdown(id='select-factor-ecs',
+                                  options=ecs_factor_options,
+                                  value='All Causes',
+                                  clearable = True,
+                                  ),
+                      ],
+                    # style={
+                    #      "margin-top":"10px",
+                    #      },
                     ),
 
-                # Reproduction rate
+                # Reduction
                 dbc.Col([
-                    html.H6("Reproduction rate"),
-                    html.Br(),
-                    daq.Slider(
-                        id='reproduction-slider-ecs',
-                        min=.5,
-                        max=1.4,
-                        handleLabel={"showCurrentValue": True,"label": "%"},
-                        step=.05,
-                        value=reproduction_ecs_default,
-                        ),
-                    ],style={'width': "auto",
-                             "order":2,}
-                    ),
-
-                # Mortality rate
-                dbc.Col([
-                    html.H6("Mortality rate"),
-                    html.Br(),
-                    daq.Slider(
-                        id='mortality-slider-ecs',
-                        min=0,
-                        max=25,
-                        handleLabel={"showCurrentValue": True,"label": "%"},
-                        step=1,
-                        value=mortality_ecs_default
-                        ),
-                    ],style={'width': "auto",
-                             "order":3,}
-                    ),
-
-                # Costs in USD per head (feed, labour, healthcare)
-                dbc.Col([
-                    html.H6("Costs (USD per head)"),
-                    html.Br(),
-                    daq.Slider(
-                        id='costs-slider-ecs',
-                        min=20,
-                        max=150,
-                        handleLabel={"showCurrentValue": True,"label": "$"},
-                        step=10,
-                        value=costs_ecs_default
-                        ),
-                    ],style={'width': "auto",
-                             "order":4,}
-                    ),
-
-                # Offtake rate
-                dbc.Col([
-                    html.H6("Offtake rate"),
-                    html.Br(),
-                    daq.Slider(
-                        id='offtake-slider-ecs',
-                        min=0,
-                        max=20,
-                        handleLabel={"showCurrentValue": True,"label": "%"},
-                        step=1,
-                        value=costs_ecs_default
-                        ),
-                    ],style={'width': "auto",
-                             "order":5,}
-                    ),
+                    html.H6("Reduction"),
+                    dcc.RadioItems(id='select-redu-ecs',
+                                  options=ecs_redu_options,
+                                  value= "Current",
+                                  inputStyle={"margin-right": "2px", # This pulls the words off of the button
+                                              "margin-left": "10px"},
+                                  ),
+                    ],width=3,
+                    # style={
+                    #     "margin-top":"10px",
+                    #     },
+                ),
 
                 # Reset to defaults button
                 dbc.Col([
-                    html.Button('Reset to default', id='reset-val-ecs', n_clicks=0),
-                ],style={'width': "auto",
-                         "order":6,
-                         'textAlign':'center',
-                         'margin':'auto',}
+                    html.Button('Reset to Current Values', id='reset-val-ecs', n_clicks=0),
+                ], width=3,
+                    style={
+                          'textAlign':'center',
+                          'margin':'auto',}
                 ),
 
-                ## END OF ETHIOPIAN TAB CONTROLS ROW ##
-                ], justify='evenly',
-                ),
+                ## END OF ROW ##
+                ]),
+
+            # END OF CARD BODY
+            ],),
+
+            # END OF CARD
+            ], color='#F2F2F2'),
 
             html.Br(),
 
             #### -- GRAPHICS
                 dbc.Row([  # Row with GRAPHICS
+
+                    # AHLE Sunburst
+                    dbc.Col([
+                        dbc.Spinner(children=[
+                        dcc.Graph(id='ecs-ahle-sunburst',
+                                    style = {"height":"650px"},
+                                  config = {
+                                      "displayModeBar" : True,
+                                      "displaylogo": False,
+                                      'toImageButtonOptions': {
+                                          'format': 'png', # one of png, svg, jpeg, webp
+                                          'filename': 'GBADs_Ethiopia_AHLE_Sunburst'
+                                          },
+                                      'modeBarButtonsToRemove': ['zoom',
+                                                                  'zoomIn',
+                                                                  'zoomOut',
+                                                                  'autoScale',
+                                                                  #'resetScale',  # Removes home button
+                                                                  'pan',
+                                                                  'select2d',
+                                                                  'lasso2d']
+                                      }
+                                  )
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                        # End of AHLE Sunburst
+                        ],style={"width":5}),
 
                     # Attribution Treemap
                     dbc.Col(
@@ -1916,9 +2898,9 @@ gbadsDash.layout = html.Div([
                         # html.P(id='dung-text-ecs'),
                         # html.P(id='hides-text-ecs'),
                         # html.P(id='milk-text-ecs'),
-                        
+
                         dcc.Graph(id='ecs-attr-treemap',
-                                   style = {"height":"650px"},
+                                    style = {"height":"650px"},
                                   config = {
                                       "displayModeBar" : True,
                                       "displaylogo": False,
@@ -1926,14 +2908,14 @@ gbadsDash.layout = html.Div([
                                           'format': 'png', # one of png, svg, jpeg, webp
                                           'filename': 'GBADs_Ethiopia_Attribution_Treemap'
                                           },
-                                      'modeBarButtonsToRemove': ['zoom',
-                                                                 'zoomIn',
-                                                                 'zoomOut',
-                                                                 'autoScale',
-                                                                 #'resetScale',  # Removes home button
-                                                                 'pan',
-                                                                 'select2d',
-                                                                 'lasso2d']
+                                      # 'modeBarButtonsToRemove': ['zoom',
+                                      #                            'zoomIn',
+                                      #                            'zoomOut',
+                                      #                            'autoScale',
+                                      #                            #'resetScale',  # Removes home button
+                                      #                            'pan',
+                                      #                            'select2d',
+                                      #                            'lasso2d']
                                       }
                                   )
 
@@ -1942,113 +2924,78 @@ gbadsDash.layout = html.Div([
                         # End of Attribution Treemap
                         style={"width":5}),
 
-                    # AHLE Sunburst
-                    dbc.Col([
-                        dbc.Spinner(children=[
-                        dcc.Graph(id='ecs-ahle-sunburst',
-                                   style = {"height":"650px"},
-                                  config = {
-                                      "displayModeBar" : True,
-                                      "displaylogo": False,
-                                      'toImageButtonOptions': {
-                                          'format': 'png', # one of png, svg, jpeg, webp
-                                          'filename': 'GBADs_Ethiopia_AHLE_Sunburst'
-                                          },
-                                      'modeBarButtonsToRemove': ['zoom',
-                                                                 'zoomIn',
-                                                                 'zoomOut',
-                                                                 'autoScale',
-                                                                 #'resetScale',  # Removes home button
-                                                                 'pan',
-                                                                 'select2d',
-                                                                 'lasso2d']
-                                      }
-                                  )
-                        # End of Spinner
-                        ],size="md", color="#393375", fullscreen=False),
-                        # End of AHLE Sunburst
-                        ],style={"width":5}),
-                    
-                    # dbc.Col(
-                    #     dbc.Spinner(children=[
-                    #     html.Div(children=[
-                    #             html.Img(src='/assets/EthiopianCaseStudyUpdatedSankeyFromGemma.png')
-                    #         ],
-                    #              style = {'margin-left':"10px",
-                    #                         "margin-bottom":"10px",
-                    #                         'margin-right':"10px"},
-                    #     ),
-                    #         # End of Spinner
-                    #         ],size="md", color="#393375", fullscreen=False),
-                    #         # End of Output
-                    #         width=9
-                    #         ),
                     ]),
                 html.Br(),
-            
+
             #### -- FOOTNOTES
             dbc.Row([
-               dbc.Col([
+                dbc.Col([
                   # Breed Standard Potential source
                   html.P("*Using population numbers from 2021"),
-               ]),
-               dbc.Col([
+                ]),
+                dbc.Col([
                   # Cost Assumptions
-                  html.P("*Ideal costs assume there were no mortality or morbidity."),
-               ]),
+                  html.P("*Ideal assumes there were no mortality or morbidity."),
+                ]),
             ], style={'margin-left':"40px", 'font-style': 'italic'}
             ),
             html.Br(),
             ### END OF FOOTNOTES
-            
+
             #### -- DATATABLE
             dbc.Row([
-               dbc.Col([
-                   html.Div([  # Core data for attribution
-                         html.Div( id='ecs-attr-datatable'),
+
+                dbc.Col([
+                    html.Div([  # Core data for AHLE
+                          html.Div( id='ecs-ahle-datatable'),
+                    ], style={'margin-left':"20px"}),
+                html.Br() # Spacer for bottom of page
+                ]),
+
+                dbc.Col([
+                    html.Div([  # Core data for attribution
+                          html.Div( id='ecs-attr-datatable'),
                     ], style={'margin-left':"20px",}),
                 html.Br(), # Spacer for bottom of page
                 ]),  # END OF COL
-                dbc.Col([
-                    html.Div([  # Core data for AHLE
-                         html.Div( id='ecs-ahle-datatable'),
-                    ], style={'margin-left':"20px"}),
-                html.Br() # Spacer for bottom of page
-                ]), # END OF COL
+
+                # END OF COL
             ]),
             html.Br(),
             ### END OF DATATABLE
-            
-                              
+
+            #### -- SANKEY
+            dbc.Row([
+                dbc.Spinner(children=[
+                    html.H4("Sankey for Attribution"),
+                        html.Div(children=[
+                                html.Img(src='/assets/ECS_Sanky_diagram_from_Gemma.png',
+                                style = {'width':'80vw'}),
+                                ],
+                                  style = {'margin-left':"10px",
+                                          "margin-bottom":"10px",
+                                          'margin-right':"10px",},
+                                  ),
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                    ]),
+                    html.Br(),
+            ### END OF SANKEY
+
+
         ### END OF ETHIOPIA TAB
-            ]),
+            ], style=ecs_tab_style, selected_style=ecs_tab_selected_style),
+
 
         #### USER GUIDE TAB
         dcc.Tab(label="User Guide & References", children =[
             html.Iframe(src="assets/GBADs_Documentation/_build/html/index.html", # this is for the jupyter books
                         # src="https://docs.python.org/3/", # this is for the placeholder python documentation
                         style={"width":"100%",
-                               "height":"2500px",   # Set large enough for your largest page and guide will use browser scroll bar. Otherwise, longer pages will get their own scroll bars.
-                               },)
+                                "height":"2500px",   # Set large enough for your largest page and guide will use browser scroll bar. Otherwise, longer pages will get their own scroll bars.
+                                },)
         ### END OF USER GUIDE TAB
-            ]),
-
-        #### REFERENCES TAB
-        # References are now part of user guide
-        # dcc.Tab(label="References", children =[
-        #    html.Iframe(id ="inline-reference-html",
-        #        title="Inline Frame Example",
-        #        style={"width":"80%",
-        #                "height":"800px",
-        #               'margin-top':'50px',
-        #               'margin-left':"150px",
-        #               'font-size':"medium"},
-        #          # src="assets/Web_bib_test.html"
-        #          src="assets/GBADs references.htm"
-        #        )
-
-        ### END OF REFERENCES TAB
-           # ])
+            ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
 
         ### END OF TABS ###
         ],style={'margin-right':'10px'} )
@@ -2074,8 +3021,8 @@ gbadsDash.layout = html.Div([
     Input(component_id='Region-country-alignment-poultry', component_property='value'),
     )
 def update_region_options_poultry(region_country):
-    if region_country == "OIE":
-        options = oie_region_options
+    if region_country == "WOAH":
+        options = WOAH_region_options
     elif region_country =="FAO":
         options = fao_region_options
     elif region_country == "World Bank":
@@ -2089,19 +3036,19 @@ def update_region_options_poultry(region_country):
     Input(component_id='select-region-poultry', component_property='value'),
     )
 def update_country_options_poultry(region_country, region):
-    if region_country == "OIE":
-        if region == "ALL":
+    if region_country == "WOAH":
+        if region == "All":
             options = country_options_poultry
         elif region == "Africa":
-            options = oie_africa_options
+            options = WOAH_africa_options
         elif region == "Americas":
-            options = oie_americas_options
+            options = WOAH_americas_options
         elif region == "Asia & the Pacific":
-            options = oie_asia_options
+            options = WOAH_asia_options
         else:
-            options = oie_europe_options
+            options = WOAH_europe_options
     elif region_country =="FAO":
-        if region == "ALL":
+        if region == "All":
             options = country_options_poultry
         elif region == "Africa":
             options = fao_africa_options
@@ -2114,9 +3061,9 @@ def update_country_options_poultry(region_country, region):
         else:
             options = fao_swp_options
     elif region_country == "World Bank":
-        if region == "ALL":
+        if region == "All":
             options = country_options_poultry
-        elif region == "Africa":
+        elif region == "Sub-Saharan Africa":
             options = wb_africa_options
         elif region == "Europe & Central Asia":
             options = wb_eca_options
@@ -2134,92 +3081,92 @@ def update_country_options_poultry(region_country, region):
 # Set slider starting values and add reference underneath based on selected country
 # Also enable "Reset to Default" button
 @gbadsDash.callback(
-   Output('achievable-pct-slider-poultry', 'value'),
-   Input(component_id='reset-val-poultry', component_property='n_clicks')   # Reset to defaults button
-   )
+    Output('achievable-pct-slider-poultry', 'value'),
+    Input(component_id='reset-val-poultry', component_property='n_clicks')   # Reset to defaults button
+    )
 def reset_achievablepct_poultry(reset):
-   return achievable_pct_poultry_default
+    return achievable_pct_poultry_default
 
 @gbadsDash.callback(
-   Output('dof-slider-poultry', 'value'),
-   Output('reference-dof-poultry', 'children'),
-   Input('select-country-poultry', 'value'),
-   Input('select-year-poultry', 'value'),
-   Input(component_id='reset-val-poultry', component_property='n_clicks')   # Reset to defaults button
-   )
+    Output('dof-slider-poultry', 'value'),
+    Output('reference-dof-poultry', 'children'),
+    Input('select-country-poultry', 'value'),
+    Input('select-year-poultry', 'value'),
+    Input(component_id='reset-val-poultry', component_property='n_clicks')   # Reset to defaults button
+    )
 def show_ref_daysonfeed_poultry(country, year, reset):
-   input_df = gbads_chickens_merged_fordash
-   _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
-   datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
-   country_shortname = country_shortnames[country]
-   if pd.isnull(datavalue):
+    input_df = gbads_chickens_merged_fordash
+    _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
+    datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
+    country_shortname = country_shortnames[country]
+    if pd.isnull(datavalue):
       slider = dof_poultry_default
       display = '(no data)'
-   else:
+    else:
       slider = datavalue
       display = f'{datavalue:.0f} days'
-   return slider, f'Average for {country_shortname} in {year}: {display}'
+    return slider, f'Average for {country_shortname} in {year}: {display}'
 
 @gbadsDash.callback(
-   Output('producer-price-slider-poultry', 'value'),
-   Output('reference-producerprice-poultry', 'children'),
-   Input('select-country-poultry', 'value'),
-   Input('select-year-poultry', 'value'),
-   Input(component_id='reset-val-poultry', component_property='n_clicks')   # Reset to defaults button
-   )
+    Output('producer-price-slider-poultry', 'value'),
+    Output('reference-producerprice-poultry', 'children'),
+    Input('select-country-poultry', 'value'),
+    Input('select-year-poultry', 'value'),
+    Input(component_id='reset-val-poultry', component_property='n_clicks')   # Reset to defaults button
+    )
 def show_ref_producerprice_poultry(country, year, reset):
-   input_df = gbads_chickens_merged_fordash
-   _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
-   datavalue = input_df.loc[_rowselect ,'acc_producerprice_usdperkgcarc'].values[0]
-   country_shortname = country_shortnames[country]
-   if pd.isnull(datavalue):
+    input_df = gbads_chickens_merged_fordash
+    _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
+    datavalue = input_df.loc[_rowselect ,'acc_producerprice_usdperkgcarc'].values[0]
+    country_shortname = country_shortnames[country]
+    if pd.isnull(datavalue):
       slider = producer_price_poultry_default
       display = '(no data)'
-   else:
+    else:
       slider = round(datavalue, 2)
       display = f'${datavalue:.2f}'
-   return slider, f'Average for {country_shortname} in {year}: {display}'
+    return slider, f'Average for {country_shortname} in {year}: {display}'
 
 @gbadsDash.callback(
-   Output('ration-price-slider-poultry', 'value'),
-   Output('reference-feedprice-poultry', 'children'),
-   Input('select-country-poultry', 'value'),
-   Input('select-year-poultry', 'value'),
-   Input(component_id='reset-val-poultry', component_property='n_clicks')   # Reset to defaults button
-   )
+    Output('ration-price-slider-poultry', 'value'),
+    Output('reference-feedprice-poultry', 'children'),
+    Input('select-country-poultry', 'value'),
+    Input('select-year-poultry', 'value'),
+    Input(component_id='reset-val-poultry', component_property='n_clicks')   # Reset to defaults button
+    )
 def show_ref_feedprice_poultry(country, year, reset):
-   input_df = gbads_chickens_merged_fordash
-   _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
-   datavalue = input_df.loc[_rowselect ,'acc_feedprice_usdpertonne'].values[0]
-   country_shortname = country_shortnames[country]
-   if pd.isnull(datavalue):
+    input_df = gbads_chickens_merged_fordash
+    _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
+    datavalue = input_df.loc[_rowselect ,'acc_feedprice_usdpertonne'].values[0]
+    country_shortname = country_shortnames[country]
+    if pd.isnull(datavalue):
       slider = ration_price_poultry_default
       display = '(no data)'
-   else:
+    else:
       slider = round(datavalue, 2)
       display = f'${datavalue:.2f}'
-   return slider, f'Average for {country_shortname} in {year}: {display}'
+    return slider, f'Average for {country_shortname} in {year}: {display}'
 
 # Using Breed Standard FCR as reference
 @gbadsDash.callback(
-   Output('fcr-slider-poultry', 'value'),
-   Output('reference-fcr-poultry', 'children'),
-   Input('select-country-poultry', 'value'),
-   Input('dof-slider-poultry', 'value'),
-   Input(component_id='reset-val-poultry', component_property='n_clicks')   # Reset to defaults button
-   )
+    Output('fcr-slider-poultry', 'value'),
+    Output('reference-fcr-poultry', 'children'),
+    Input('select-country-poultry', 'value'),
+    Input('dof-slider-poultry', 'value'),
+    Input(component_id='reset-val-poultry', component_property='n_clicks')   # Reset to defaults button
+    )
 def show_ref_fcr_poultry(country, dof, reset):
-   breed_label_touse = poultry_lookup_breed_from_country[country]
-   breed_df_touse = poultry_lookup_breed_df[breed_label_touse]
-   _rowselect = (breed_df_touse['dayonfeed'] == dof)
-   datavalue = breed_df_touse.loc[_rowselect ,'fcr'].values[0]
-   if pd.isnull(datavalue):
+    breed_label_touse = poultry_lookup_breed_from_country[country]
+    breed_df_touse = poultry_lookup_breed_df[breed_label_touse]
+    _rowselect = (breed_df_touse['dayonfeed'] == dof)
+    datavalue = breed_df_touse.loc[_rowselect ,'fcr'].values[0]
+    if pd.isnull(datavalue):
       slider = fcr_poultry_default
       display = '(no data)'
-   else:
+    else:
       slider = round(datavalue, 2)
       display = f'{datavalue:.2f}'
-   return slider, f'Breed standard: {display}'
+    return slider, f'Breed standard: {display}'
 
 # ------------------------------------------------------------------------------
 #### -- Data
@@ -2228,17 +3175,17 @@ def show_ref_fcr_poultry(country, dof, reset):
 # Updates when user changes achievable proportion slider
 # Does not care about simple filtering (country and year)
 @gbadsDash.callback(
-   Output('core-data-poultry','data'),
-   Input('achievable-pct-slider-poultry','value'),
-   Input('dof-slider-poultry','value'),
-   Input('select-country-poultry','value'),
-   Input('ration-price-slider-poultry','value'),
-   Input('fcr-slider-poultry','value')
-   )
+    Output('core-data-poultry','data'),
+    Input('achievable-pct-slider-poultry','value'),
+    Input('dof-slider-poultry','value'),
+    Input('select-country-poultry','value'),
+    Input('ration-price-slider-poultry','value'),
+    Input('fcr-slider-poultry','value')
+    )
 def update_core_data_poultry(achievable_pct, avg_dof, country, feedprice, fcr):
-   breed_label_touse = poultry_lookup_breed_from_country[country]
-   breed_df_touse = poultry_lookup_breed_df[breed_label_touse]
-   poultry_data_withbod = bod.calc_bod_master_poultry(
+    breed_label_touse = poultry_lookup_breed_from_country[country]
+    breed_df_touse = poultry_lookup_breed_df[breed_label_touse]
+    poultry_data_withbod = bod.calc_bod_master_poultry(
       gbads_chickens_merged_fordash
       ,ACHIEVABLE_PCT_MASTER=achievable_pct      # Integer [0, 120]: proportion of ideal production that is achievable without disease, i.e. efficiency of feed, medications, and practices
       ,AVG_DOF_MASTER=avg_dof                      # Integer (0, 63]: Average days on feed. Will lookup breed standard weight for this day on feed.
@@ -2246,33 +3193,33 @@ def update_core_data_poultry(achievable_pct, avg_dof, country, feedprice, fcr):
       ,FEEDPRICE_USDPERTONNE_MASTER=feedprice           # Float
       ,IDEAL_FCR_LIVE_MASTER=fcr                        # Float: ideal FCR per kg live weight
       # ,AVG_CARC_YIELD_MASTER=0.695                 # Float [0, 1]: average carcass yield as proportion of live weight. If blank, will use 'bod_breedstdyield_prpn'.
-   )
-   poultry_data_withbod['year'] = poultry_data_withbod['year'].astype(str)   # Change Year type to text
-   return poultry_data_withbod.to_json(date_format='iso', orient='split')
+    )
+    poultry_data_withbod['year'] = poultry_data_withbod['year'].astype(str)   # Change Year type to text
+    return poultry_data_withbod.to_json(date_format='iso', orient='split')
 
 # Can happen in any order after update_core_data
 # These update when user changes filtering (country and year)
 # Update data table to show user
 @gbadsDash.callback(
-   Output('poultry-background-data', 'children'),
-   Input('core-data-poultry','data'),
-   Input('select-country-poultry','value'),
-   Input('producer-price-slider-poultry','value'),
-   Input('ration-price-slider-poultry','value'),
-   )
+    Output('poultry-background-data', 'children'),
+    Input('core-data-poultry','data'),
+    Input('select-country-poultry','value'),
+    Input('producer-price-slider-poultry','value'),
+    Input('ration-price-slider-poultry','value'),
+    )
 def update_background_data_poultry(input_json, country ,producerprice ,rationprice):
-   # Dash callback input data is a string that names a json file
-   # First read it into a dataframe
-   input_df = pd.read_json(input_json, orient='split')
-   background_data = input_df.loc[(input_df['country'] == country)]
+    # Dash callback input data is a string that names a json file
+    # First read it into a dataframe
+    input_df = pd.read_json(input_json, orient='split')
+    background_data = input_df.loc[(input_df['country'] == country)]
 
-   # Add slider values as columns to display
-   background_data['producerprice_usdperkg'] = producerprice
-   background_data['rationprice_usdpertonne'] = rationprice
-   background_data['bod_totalburden_usd'] = background_data['bod_totalburden_tonnes'] * 1000 \
+    # Add slider values as columns to display
+    background_data['producerprice_usdperkg'] = producerprice
+    background_data['rationprice_usdpertonne'] = rationprice
+    background_data['bod_totalburden_usd'] = background_data['bod_totalburden_tonnes'] * 1000 \
       * background_data['producerprice_usdperkg']
 
-   columns_to_display_with_labels = {
+    columns_to_display_with_labels = {
       'country':'Country'
       ,'year':'Year'
 
@@ -2316,14 +3263,14 @@ def update_background_data_poultry(input_json, country ,producerprice ,rationpri
       ,'ideal_laborcost_usdperkglive':'Ideal Labour Cost (USD per kg live weight)'
       ,'ideal_medcost_usdperkglive':'Ideal Medicine Cost (USD per kg live weight)'
       ,'ideal_othercost_usdperkglive':'Ideal Other Costs (USD per kg live weight)'
-   }
+    }
 
-   # ------------------------------------------------------------------------------
-   # Format data to display in the table
-   # ------------------------------------------------------------------------------
-   # Order does not matter in these lists
-   # Zero decimal places
-   background_data.update(background_data[[
+    # ------------------------------------------------------------------------------
+    # Format data to display in the table
+    # ------------------------------------------------------------------------------
+    # Order does not matter in these lists
+    # Zero decimal places
+    background_data.update(background_data[[
       'acc_headplaced'
       ,'acc_headslaughtered'
       ,'acc_totalcarcweight_tonnes'
@@ -2337,10 +3284,10 @@ def update_background_data_poultry(input_json, country ,producerprice ,rationpri
       ,'wb_gdp_usd'
       ,'ideal_headplaced'
       ,'ideal_feed_tonnes'
-   ]].applymap('{:,.0f}'.format))
+    ]].applymap('{:,.0f}'.format))
 
-   # Two decimal places
-   background_data.update(background_data[[
+    # Two decimal places
+    background_data.update(background_data[[
       'bod_breedstdwt_kg'
       ,'bod_breedstdyield_prpn'
       ,'bod_breedstdcarcwt_kg'
@@ -2361,18 +3308,18 @@ def update_background_data_poultry(input_json, country ,producerprice ,rationpri
       ,'ideal_laborcost_usdperkglive'
       ,'ideal_medcost_usdperkglive'
       ,'ideal_othercost_usdperkglive'
-   ]].applymap('{:,.2f}'.format))
+    ]].applymap('{:,.2f}'.format))
 
-   # ------------------------------------------------------------------------------
-   # Hover-over text
-   # ------------------------------------------------------------------------------
-   # Read last row of data with filters applied to get source of each column.
-   # For most countries and columns, source is the same for every year.
-   # But if source differs for later years, want to report the latest.
-   background_data_lastrow = background_data.iloc[-1 ,:]
+    # ------------------------------------------------------------------------------
+    # Hover-over text
+    # ------------------------------------------------------------------------------
+    # Read last row of data with filters applied to get source of each column.
+    # For most countries and columns, source is the same for every year.
+    # But if source differs for later years, want to report the latest.
+    background_data_lastrow = background_data.iloc[-1 ,:]
 
-   # Define tooltips, using _src columns where appropriate
-   column_tooltips = {
+    # Define tooltips, using _src columns where appropriate
+    column_tooltips = {
       "acc_headplaced":f"Chicks placed ({background_data_lastrow['acc_headplaced_src']}) adjusted for net imports ({background_data_lastrow['acc_netimport_chicks_src']})"
       ,"acc_headslaughtered":f"Source: {background_data_lastrow['acc_headslaughtered_src']}"
       ,"acc_totalcarcweight_tonnes":f"Source: {background_data_lastrow['acc_totalcarcweight_tonnes_src']}"
@@ -2412,9 +3359,9 @@ def update_background_data_poultry(input_json, country ,producerprice ,rationpri
       ,"ideal_laborcost_usdperkglive":"Actual labor cost reduced proportionally with ideal land & housing cost"
       ,"ideal_medcost_usdperkglive":"Actual medicine cost reduced proportionally with ideal head placed / actual head placed"
       ,"ideal_othercost_usdperkglive":"Actual other cost reduced proportionally with ideal head placed / actual head placed"
-   }
+    }
 
-   return [
+    return [
             html.H4(f"Data for {country}"),
             # html.P('All currently processed data.  Unformatted and unfiltered.'),
             #html.P(' '.join(df['id'].tolist())),
@@ -2446,33 +3393,33 @@ def update_background_data_poultry(input_json, country ,producerprice ,rationpri
         ]
 
 @gbadsDash.callback(
-   Output('poultry-breed-data', 'children'),
-   Input('select-country-poultry','value'),
-   )
+    Output('poultry-breed-data', 'children'),
+    Input('select-country-poultry','value'),
+    )
 def update_breed_data_poultry(country):
-   breed_label_touse = poultry_lookup_breed_from_country[country]
-   breed_df_touse = poultry_lookup_breed_df[breed_label_touse]
+    breed_label_touse = poultry_lookup_breed_from_country[country]
+    breed_df_touse = poultry_lookup_breed_df[breed_label_touse]
 
-   columns_to_display_with_labels = {
-     'dayonfeed':'Day on Feed'
-     ,'bodyweight_g':'Live Weight (g)'
-     ,'cmlfeedintake_g':'Cml Feed Intake (g)'
-     ,'fcr':'FCR'
-     ,'pct_yield':'Carcass Yield'
-   }
-   # breed_df_touse = breed_df_touse.transpose()
+    columns_to_display_with_labels = {
+      'dayonfeed':'Day on Feed'
+      ,'bodyweight_g':'Live Weight (g)'
+      ,'cmlfeedintake_g':'Cml Feed Intake (g)'
+      ,'fcr':'FCR'
+      ,'pct_yield':'Carcass Yield'
+    }
+    # breed_df_touse = breed_df_touse.transpose()
 
-   # Subset columns
-   breed_df_touse = breed_df_touse[list(columns_to_display_with_labels)]
+    # Subset columns
+    breed_df_touse = breed_df_touse[list(columns_to_display_with_labels)]
 
-   # breed_df_touse = breed_df_touse.transpose()
+    # breed_df_touse = breed_df_touse.transpose()
 
-   # Format numbers
-   breed_df_touse.update(breed_df_touse[['dayonfeed' ,'bodyweight_g' ,'cmlfeedintake_g']].applymap('{:,.0f}'.format))
-   breed_df_touse.update(breed_df_touse[['pct_yield']].applymap('{:,.1f}%'.format))
-   breed_df_touse.update(breed_df_touse[['fcr']].applymap('{:,.2f}'.format))
+    # Format numbers
+    breed_df_touse.update(breed_df_touse[['dayonfeed' ,'bodyweight_g' ,'cmlfeedintake_g']].applymap('{:,.0f}'.format))
+    breed_df_touse.update(breed_df_touse[['pct_yield']].applymap('{:,.1f}%'.format))
+    breed_df_touse.update(breed_df_touse[['fcr']].applymap('{:,.2f}'.format))
 
-   return [
+    return [
             html.H4(f"{breed_label_touse} Breed Standard"),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
@@ -2489,56 +3436,56 @@ def update_breed_data_poultry(country):
 # ------------------------------------------------------------------------------
 # Update waterfall chart
 @gbadsDash.callback(
-   Output('poultry-waterfall','figure'),
-   Input('core-data-poultry','data'),
-   Input('select-metric-poultry', 'value'),
-   Input('select-country-poultry','value'),
-   Input('select-year-poultry','value'),
-   Input('producer-price-slider-poultry','value')
-   )
+    Output('poultry-waterfall','figure'),
+    Input('core-data-poultry','data'),
+    Input('select-metric-poultry', 'value'),
+    Input('select-country-poultry','value'),
+    Input('select-year-poultry','value'),
+    Input('producer-price-slider-poultry','value')
+    )
 def update_waterfall_poultry(input_json, metric, country, year, producerprice):
-   # Dash callback input data is a string that names a json file
-   # First read it into a dataframe
-   input_df = pd.read_json(input_json, orient='split')
+    # Dash callback input data is a string that names a json file
+    # First read it into a dataframe
+    input_df = pd.read_json(input_json, orient='split')
 
-   # Structure for plot
-   waterfall_df = prep_bod_forwaterfall(input_df ,USDPERKG=producerprice)
+    # Structure for plot
+    waterfall_df = prep_bod_forwaterfall(input_df ,USDPERKG=producerprice)
 
-   # Apply country and year filters
-   waterfall_df = waterfall_df.loc[(waterfall_df['country'] == country) & (waterfall_df['year'] == year)]
+    # Apply country and year filters
+    waterfall_df = waterfall_df.loc[(waterfall_df['country'] == country) & (waterfall_df['year'] == year)]
 
-   x = waterfall_df['Component']
-   y = waterfall_df[metric]
+    x = waterfall_df['Component']
+    y = waterfall_df[metric]
 
-   # Burden of disease
-   mortality = waterfall_df.loc[waterfall_df['Component'] == 'Mortality & Condemns', metric ].iloc[0]
-   morbidity = waterfall_df.loc[waterfall_df['Component'] == 'Morbidity', metric].iloc[0]
-   BOD = abs(mortality + morbidity)
+    # Burden of disease
+    mortality = waterfall_df.loc[waterfall_df['Component'] == 'Mortality & Condemns', metric ].iloc[0]
+    morbidity = waterfall_df.loc[waterfall_df['Component'] == 'Morbidity', metric].iloc[0]
+    BOD = abs(mortality + morbidity)
 
-   if metric.upper() == 'TONNES':
+    if metric.upper() == 'TONNES':
       text = [f"{i:,.0f}" for i in waterfall_df[metric]]
       BOD = '{:,.0f}'.format(BOD)
       BOD = BOD + ' tonnes'
       axis_title = 'Tonnes carcass weight'
       axis_format = ''
-   elif metric.upper() == 'US DOLLARS':
+    elif metric.upper() == 'US DOLLARS':
       text = [f"${i:,.0f}" for i in waterfall_df[metric]]
       BOD = '${:,.0f} USD'.format(BOD)
       axis_title = 'US dollars'
       axis_format = ''
-   elif metric.upper() == 'PERCENT OF GDP':
+    elif metric.upper() == 'PERCENT OF GDP':
       text = [f"{i:.3%}" for i in waterfall_df[metric]]
       BOD = '{:,.3%}'.format(BOD)
       BOD = BOD + ' of GDP'
       axis_title = 'Percent of GDP'
       axis_format = '~%'
-   elif metric.upper() == 'PERCENT OF BREED STANDARD':
+    elif metric.upper() == 'PERCENT OF BREED STANDARD':
       text = [f"{i:.2%}" for i in waterfall_df[metric]]
       BOD = '{:,.2%}'.format(BOD)
       BOD = BOD + ' of Breed Standard'
       axis_title = 'Percent of Breed Standard'
       axis_format = '~%'
-   elif metric.upper() == 'PERCENT OF REALISED PRODUCTION':
+    elif metric.upper() == 'PERCENT OF REALISED PRODUCTION':
       text = [f"{i:.2%}" for i in waterfall_df[metric]]
       BOD = '{:,.2%}'.format(BOD)
       BOD = BOD + ' of Breed Standard'
@@ -2546,16 +3493,16 @@ def update_waterfall_poultry(input_json, metric, country, year, producerprice):
       axis_format = '~%'
 
 
-   fig = create_waterfall(x, y, text)
-   fig.update_layout(title_text=f'Poultry Production | {country}, {year} <br><sup>Burden of disease: {BOD} lost production (Mortality & Condemns + Morbidity)</sup>'
-                     ,font_size=15
-                     ,yaxis_title=axis_title
-                     ,yaxis_tickformat=axis_format
-                     )
+    fig = create_waterfall(x, y, text)
+    fig.update_layout(title_text=f'Poultry Production | {country}, {year} <br><sup>Burden of disease: {BOD} lost production (Mortality & Condemns + Morbidity)</sup>'
+                      ,font_size=15
+                      ,yaxis_title=axis_title
+                      ,yaxis_tickformat=axis_format
+                      )
 
-   # Adjust color for Effect of Feed and Practices bar if negative
-   if (waterfall_df.loc[waterfall_df['Component'] == 'Effect of Feed & Practices', metric].iloc[0]) < 0:
-       fig.add_shape(
+    # Adjust color for Effect of Feed and Practices bar if negative
+    if (waterfall_df.loc[waterfall_df['Component'] == 'Effect of Feed & Practices', metric].iloc[0]) < 0:
+        fig.add_shape(
         type="rect",
         fillcolor="#E84C3D",
         line=dict(color="#E84C3D",
@@ -2570,8 +3517,8 @@ def update_waterfall_poultry(input_json, metric, country, year, producerprice):
         )
 
 
-   # Adjust color of Breed Standard Potential bar
-   fig.add_shape(
+    # Adjust color of Breed Standard Potential bar
+    fig.add_shape(
     type="rect",
     fillcolor="#3598DB",
     line=dict(color="#3598DB",
@@ -2585,8 +3532,8 @@ def update_waterfall_poultry(input_json, metric, country, year, producerprice):
     yref="y"
     )
 
-   # Adjust color of Realised production bar
-   fig.add_shape(
+    # Adjust color of Realised production bar
+    fig.add_shape(
     type="rect",
     fillcolor="#2DCC70",
     line=dict(color="#2DCC70",
@@ -2599,28 +3546,28 @@ def update_waterfall_poultry(input_json, metric, country, year, producerprice):
     y1=fig.data[0].y[-1], yref="y"
     )
 
-   fig.add_annotation(x=2, xref='x',         # x position is absolute on axis
+    fig.add_annotation(x=2, xref='x',         # x position is absolute on axis
                       y=0, yref='paper',     # y position is relative [0,1] to work regardless of scale
                       text="Source: GBADs",
                       showarrow=False,
                       yshift=10,
                       font=dict(
-                         family="Helvetica",
-                         size=18,
-                         color="black"
-                         )
+                          family="Helvetica",
+                          size=18,
+                          color="black"
+                          )
                       )
-   return fig
+    return fig
 
 # Update Waterfall footnote
 @gbadsDash.callback(
-   Output('waterfall-footnote-poultry','children'),
-   Input('select-country-poultry','value')
-   )
+    Output('waterfall-footnote-poultry','children'),
+    Input('select-country-poultry','value')
+    )
 def update_waterfall_footnote_poultry(country):
-   breed_label_touse = poultry_lookup_breed_from_country[country]
-   display_text = f"*Using {breed_label_touse} breed standard for {country}"
-   return display_text
+    breed_label_touse = poultry_lookup_breed_from_country[country]
+    display_text = f"*Using {breed_label_touse} breed standard for {country}"
+    return display_text
 
 # # Update Sankey diagram
 # @gbadsDash.callback(
@@ -2713,62 +3660,62 @@ def update_waterfall_footnote_poultry(country):
 
 # Update Stacked bar chart
 @gbadsDash.callback(
-   Output('poultry-stacked-bar','figure'),
-   Input('core-data-poultry','data'),
-   Input('select-country-poultry','value'),
-   Input('select-year-poultry','value'),
-   )
+    Output('poultry-stacked-bar','figure'),
+    Input('core-data-poultry','data'),
+    Input('select-country-poultry','value'),
+    Input('select-year-poultry','value'),
+    )
 def update_stacked_bar_poultry(input_json, country, year):
 
-   input_df = pd.read_json(input_json, orient='split')
+    input_df = pd.read_json(input_json, orient='split')
 
-   # -----------------------------------------------------------------------------
-   # Base plot
-   # -----------------------------------------------------------------------------
-   # Structure for plot
-   stackedbar_df = prep_bod_forstackedbar_poultry(input_df)
+    # -----------------------------------------------------------------------------
+    # Base plot
+    # -----------------------------------------------------------------------------
+    # Structure for plot
+    stackedbar_df = prep_bod_forstackedbar_poultry(input_df)
 
-   # Apply country and year filters
-   stackedbar_df = stackedbar_df.loc[(stackedbar_df['country'] == country) & (stackedbar_df['year'] == year)]
+    # Apply country and year filters
+    stackedbar_df = stackedbar_df.loc[(stackedbar_df['country'] == country) & (stackedbar_df['year'] == year)]
 
-   x = stackedbar_df['opt_or_act']
-   y = stackedbar_df['cost_usdperkglive']
-   color = stackedbar_df['Cost Item']
-   poultry_bar_fig = create_stacked_bar_poultry(stackedbar_df, x, y, color)
+    x = stackedbar_df['opt_or_act']
+    y = stackedbar_df['cost_usdperkglive']
+    color = stackedbar_df['Cost Item']
+    poultry_bar_fig = create_stacked_bar_poultry(stackedbar_df, x, y, color)
 
-   # Burden of disease
-   BOD = stackedbar_df.loc[stackedbar_df['cost_item'] == 'bod_costs' ,'cost_usdperkglive'].values[0]
+    # Burden of disease
+    BOD = stackedbar_df.loc[stackedbar_df['cost_item'] == 'bod_costs' ,'cost_usdperkglive'].values[0]
 
-   poultry_bar_fig.update_layout(title_text=f'Poultry Costs | {country}, {year}<br><sup>Burden of disease: ${BOD :.2f} increased cost per kg live weight</sup>',
-                               font_size=15)
+    poultry_bar_fig.update_layout(title_text=f'Poultry Costs | {country}, {year}<br><sup>Burden of disease: ${BOD :.2f} increased cost per kg live weight</sup>',
+                                font_size=15)
 
-   # # -----------------------------------------------------------------------------
-   # # Add connecting lines
-   # # -----------------------------------------------------------------------------
-   # optactcost_1_t = costs_poultry.set_index('Costs').transpose().reset_index(drop=True)
-   # optactcost_1_t_dict = optactcost_1_t.to_dict()
+    # # -----------------------------------------------------------------------------
+    # # Add connecting lines
+    # # -----------------------------------------------------------------------------
+    # optactcost_1_t = costs_poultry.set_index('Costs').transpose().reset_index(drop=True)
+    # optactcost_1_t_dict = optactcost_1_t.to_dict()
 
-   # for i in range(0,1):
-   #     for j, _ in enumerate(optactcost_1_t_dict):
-   #         y1 = 0
-   #         y2 = 0
-   #         for key in list(optactcost_1_t_dict.keys())[:j+1]:
-   #             y1 += optactcost_1_t_dict[key][i]
-   #             y2 += optactcost_1_t_dict[key][i+1]
+    # for i in range(0,1):
+    #     for j, _ in enumerate(optactcost_1_t_dict):
+    #         y1 = 0
+    #         y2 = 0
+    #         for key in list(optactcost_1_t_dict.keys())[:j+1]:
+    #             y1 += optactcost_1_t_dict[key][i]
+    #             y2 += optactcost_1_t_dict[key][i+1]
 
-   #         poultry_bar_fig.add_trace(go.Scatter(
-   #             # x=[0.25, 0.75],
-   #             x = [optactcost_2['opt_or_act'][i],optactcost_2['opt_or_act'][i+6]],
-   #             # x0 = optactcost_2['opt_or_act'][i],
-   #             # x1 = optactcost_2['opt_or_act'][i+5],
-   #             # x0=swine_bar_fig.data[1].y[0],
-   #             y=[y1, y2],
-   #             mode="lines",
-   #             showlegend=False,
-   #             line={'dash': 'dot', 'color': "#7A7A7A"}
-   #         ))
+    #         poultry_bar_fig.add_trace(go.Scatter(
+    #             # x=[0.25, 0.75],
+    #             x = [optactcost_2['opt_or_act'][i],optactcost_2['opt_or_act'][i+6]],
+    #             # x0 = optactcost_2['opt_or_act'][i],
+    #             # x1 = optactcost_2['opt_or_act'][i+5],
+    #             # x0=swine_bar_fig.data[1].y[0],
+    #             y=[y1, y2],
+    #             mode="lines",
+    #             showlegend=False,
+    #             line={'dash': 'dot', 'color': "#7A7A7A"}
+    #         ))
 
-   return poultry_bar_fig
+    return poultry_bar_fig
 
 
 # ==============================================================================
@@ -2783,8 +3730,8 @@ def update_stacked_bar_poultry(input_json, country, year):
     Input(component_id='Region-country-alignment-swine', component_property='value'),
     )
 def update_region_options_swine(region_country):
-    if region_country == "OIE":
-        options = oie_region_options
+    if region_country == "WOAH":
+        options = WOAH_region_options
     elif region_country =="FAO":
         options = fao_region_options
     elif region_country == "World Bank":
@@ -2798,19 +3745,19 @@ def update_region_options_swine(region_country):
     Input(component_id='select-region-swine', component_property='value'),
     )
 def update_country_options_swine(region_country, region):
-    if region_country == "OIE":
-        if region == "ALL":
+    if region_country == "WOAH":
+        if region == "All":
             options = country_options_swine
         elif region == "Africa":
-            options = oie_africa_options
+            options = WOAH_africa_options
         elif region == "Americas":
-            options = oie_americas_options
+            options = WOAH_americas_options
         elif region == "Asia & the Pacific":
-            options = oie_asia_options
+            options = WOAH_asia_options
         else:
-            options = oie_europe_options
+            options = WOAH_europe_options
     elif region_country =="FAO":
-        if region == "ALL":
+        if region == "All":
             options = country_options_swine
         elif region == "Africa":
             options = fao_africa_options
@@ -2823,9 +3770,9 @@ def update_country_options_swine(region_country, region):
         else:
             options = fao_swp_options
     elif region_country == "World Bank":
-        if region == "ALL":
+        if region == "All":
             options = country_options_swine
-        elif region == "Africa":
+        elif region == "Sub-Saharan Africa":
             options = wb_africa_options
         elif region == "Europe & Central Asia":
             options = wb_eca_options
@@ -2845,7 +3792,7 @@ def update_country_options_swine(region_country, region):
     Input(component_id='reset-val-swine', component_property='n_clicks')   # Reset to defaults button
     )
 def reset_daysonfeed_swine(reset):
-   return dof_swine_default
+    return dof_swine_default
 
 # @gbadsDash.callback(
 #     Output('dof-slider-swine', 'value'),
@@ -2888,73 +3835,73 @@ def reset_daysonfeed_swine(reset):
 #    return slider, f'Average for {country_shortname} in {year}: {display}'
 
 @gbadsDash.callback(
-   Output('achievable-weight-slider-swine', 'value'),
-   Output('reference-liveweight-swine', 'children'),
-   Input('select-country-swine', 'value'),
-   Input('select-year-swine', 'value'),
-   Input(component_id='reset-val-swine', component_property='n_clicks')   # Reset to defaults button
-   )
+    Output('achievable-weight-slider-swine', 'value'),
+    Output('reference-liveweight-swine', 'children'),
+    Input('select-country-swine', 'value'),
+    Input('select-year-swine', 'value'),
+    Input(component_id='reset-val-swine', component_property='n_clicks')   # Reset to defaults button
+    )
 def show_ref_liveweight_swine(country, year, reset):
-   input_df = gbads_pigs_merged_fordash
-   _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
-   datavalue = input_df.loc[_rowselect ,'acc_avgliveweight_kg'].values[0]
-   country_shortname = country_shortnames[country]
-   if pd.isnull(datavalue):
+    input_df = gbads_pigs_merged_fordash
+    _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
+    datavalue = input_df.loc[_rowselect ,'acc_avgliveweight_kg'].values[0]
+    country_shortname = country_shortnames[country]
+    if pd.isnull(datavalue):
       slider = achievable_weight_swine_default
       display = '(no data)'
-   else:
+    else:
       slider = round(datavalue * 1.1 ,0)   # 10% higher than actual
       display = f'{datavalue:.1f} kg'
-   return slider, f'Average for {country_shortname} in {year}: {display}'
+    return slider, f'Average for {country_shortname} in {year}: {display}'
 
 @gbadsDash.callback(
-   Output('producer-price-slider-swine', 'value'),
-   Output('reference-producerprice-swine', 'children'),
-   Input('select-country-swine', 'value'),
-   Input('select-year-swine', 'value'),
-   Input(component_id='reset-val-swine', component_property='n_clicks')   # Reset to defaults button
-   )
+    Output('producer-price-slider-swine', 'value'),
+    Output('reference-producerprice-swine', 'children'),
+    Input('select-country-swine', 'value'),
+    Input('select-year-swine', 'value'),
+    Input(component_id='reset-val-swine', component_property='n_clicks')   # Reset to defaults button
+    )
 def show_ref_producerprice_swine(country, year, reset):
-   input_df = gbads_pigs_merged_fordash
-   _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
-   datavalue = input_df.loc[_rowselect ,'acc_producerprice_usdperkgcarc'].values[0]
-   country_shortname = country_shortnames[country]
-   if pd.isnull(datavalue):
+    input_df = gbads_pigs_merged_fordash
+    _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
+    datavalue = input_df.loc[_rowselect ,'acc_producerprice_usdperkgcarc'].values[0]
+    country_shortname = country_shortnames[country]
+    if pd.isnull(datavalue):
       slider = producer_price_swine_default
       display = '(no data)'
-   else:
+    else:
       slider = round(datavalue ,2)
       display = f'${datavalue:.2f}'
-   return slider, f'Average for {country_shortname} in {year}: {display}'
+    return slider, f'Average for {country_shortname} in {year}: {display}'
 
 @gbadsDash.callback(
-   Output('ration-price-slider-swine', 'value'),
-   Output('reference-feedprice-swine', 'children'),
-   Input('select-country-swine', 'value'),
-   Input('select-year-swine', 'value'),
-   Input(component_id='reset-val-swine', component_property='n_clicks')   # Reset to defaults button
-   )
+    Output('ration-price-slider-swine', 'value'),
+    Output('reference-feedprice-swine', 'children'),
+    Input('select-country-swine', 'value'),
+    Input('select-year-swine', 'value'),
+    Input(component_id='reset-val-swine', component_property='n_clicks')   # Reset to defaults button
+    )
 def show_ref_feedprice_swine(country, year, reset):
-   input_df = gbads_pigs_merged_fordash
-   _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
-   datavalue = input_df.loc[_rowselect ,'acc_feedprice_usdpertonne'].values[0]
-   country_shortname = country_shortnames[country]
-   if pd.isnull(datavalue):
+    input_df = gbads_pigs_merged_fordash
+    _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
+    datavalue = input_df.loc[_rowselect ,'acc_feedprice_usdpertonne'].values[0]
+    country_shortname = country_shortnames[country]
+    if pd.isnull(datavalue):
       slider = ration_price_swine_default
       display = '(no data)'
-   else:
+    else:
       slider = round(datavalue ,2)
       display = f'${datavalue:.2f}'
-   return slider, f'Average for {country_shortname} in {year}: {display}'
+    return slider, f'Average for {country_shortname} in {year}: {display}'
 
 # Using Breed Standard FCR as reference
 @gbadsDash.callback(
-   Output('fcr-slider-swine', 'value'),
-   Output('reference-fcr-swine', 'children'),
-   Input('select-country-swine', 'value'),
-   Input('dof-slider-swine', 'value'),
-   Input(component_id='reset-val-swine', component_property='n_clicks')   # Reset to defaults button
-   )
+    Output('fcr-slider-swine', 'value'),
+    Output('reference-fcr-swine', 'children'),
+    Input('select-country-swine', 'value'),
+    Input('dof-slider-swine', 'value'),
+    Input(component_id='reset-val-swine', component_property='n_clicks')   # Reset to defaults button
+    )
 def show_ref_fcr_swine(country, dof, reset):
     breed_label_touse = swine_lookup_breed_from_country[country]
     breed_df_touse = swine_lookup_breed_df[breed_label_touse]
@@ -3002,13 +3949,13 @@ def show_ref_fcr_swine(country, dof, reset):
     )
 def update_core_data_swine(achievable_wt ,avg_dof ,feedprice ,fcr):
     swine_data_withbod = bod.calc_bod_master_swine(
-       gbads_pigs_merged_fordash
-       ,ACHIEVABLE_WT_KG_MASTER=achievable_wt             # Float: achievable weight without disease
-       ,AVG_DOF_MASTER=avg_dof                            # Integer [1, 176]: Average days on feed. Will lookup breed standard weight for this day on feed.
-       ,BREED_DF_MASTER=swinebreedstd_pic_growthandfeed   # Data frame with breed reference information. Must contain columns 'dayonfeed' and 'bodyweight_g'.
-       ,AVG_CARC_YIELD_MASTER=0.75                        # Float [0, 1]: average carcass yield in kg meat per kg live weight
-       ,FEEDPRICE_USDPERTONNE_MASTER=feedprice           # Float
-       ,IDEAL_FCR_LIVE_MASTER=fcr                        # Float: ideal FCR per kg live weight
+        gbads_pigs_merged_fordash
+        ,ACHIEVABLE_WT_KG_MASTER=achievable_wt             # Float: achievable weight without disease
+        ,AVG_DOF_MASTER=avg_dof                            # Integer [1, 176]: Average days on feed. Will lookup breed standard weight for this day on feed.
+        ,BREED_DF_MASTER=swinebreedstd_pic_growthandfeed   # Data frame with breed reference information. Must contain columns 'dayonfeed' and 'bodyweight_g'.
+        ,AVG_CARC_YIELD_MASTER=0.75                        # Float [0, 1]: average carcass yield in kg meat per kg live weight
+        ,FEEDPRICE_USDPERTONNE_MASTER=feedprice           # Float
+        ,IDEAL_FCR_LIVE_MASTER=fcr                        # Float: ideal FCR per kg live weight
     )
     swine_data_withbod['year'] = swine_data_withbod['year'].astype(str)   # Change Year type to text
     return swine_data_withbod.to_json(date_format='iso', orient='split')
@@ -3035,25 +3982,25 @@ def update_core_data_swine(achievable_wt ,avg_dof ,feedprice ,fcr):
 # These update when user changes filtering (country and year)
 # Update data table to show user
 @gbadsDash.callback(
-   Output('swine-background-data', 'children'),
-   Input('core-data-swine','data'),
-   Input('select-country-swine','value'),
-   Input('producer-price-slider-swine','value'),
-   Input('ration-price-slider-swine','value'),
-   )
+    Output('swine-background-data', 'children'),
+    Input('core-data-swine','data'),
+    Input('select-country-swine','value'),
+    Input('producer-price-slider-swine','value'),
+    Input('ration-price-slider-swine','value'),
+    )
 def update_background_data_swine(input_json, country ,producerprice ,rationprice):
-   # Dash callback input data is a string that names a json file
-   # First read it into a dataframe
-   input_df = pd.read_json(input_json, orient='split')
-   background_data = input_df.loc[(input_df['country'] == country)]
+    # Dash callback input data is a string that names a json file
+    # First read it into a dataframe
+    input_df = pd.read_json(input_json, orient='split')
+    background_data = input_df.loc[(input_df['country'] == country)]
 
-   # Add slider values as columns to display
-   background_data['producerprice_usdperkg'] = producerprice
-   background_data['rationprice_usdpertonne'] = rationprice
-   background_data['bod_totalburden_usd'] = background_data['bod_totalburden_tonnes'] * 1000 \
+    # Add slider values as columns to display
+    background_data['producerprice_usdperkg'] = producerprice
+    background_data['rationprice_usdpertonne'] = rationprice
+    background_data['bod_totalburden_usd'] = background_data['bod_totalburden_tonnes'] * 1000 \
       * background_data['producerprice_usdperkg']
 
-   columns_to_display_with_labels = {
+    columns_to_display_with_labels = {
       'country':'Country'
       ,'year':'Year'
 
@@ -3099,13 +4046,13 @@ def update_background_data_swine(input_json, country ,producerprice ,rationprice
       ,'ideal_nonfeedvariablecost_usdperkgcarc':'Ideal Non-feed Variable Costs (USD per kg carcass weight)'
       ,'ideal_laborcost_usdperkgcarc':'Ideal Labour Cost (USD per kg carcass weight)'
       ,'ideal_landhousingcost_usdperkgcarc':'Ideal Land & Housing Cost (USD per kg carcass weight)'
-   }
-   # ------------------------------------------------------------------------------
-   # Format data to display in the table
-   # ------------------------------------------------------------------------------
-   # Order does not matter in these lists
-   # Zero decimal places
-   background_data.update(background_data[[
+    }
+    # ------------------------------------------------------------------------------
+    # Format data to display in the table
+    # ------------------------------------------------------------------------------
+    # Order does not matter in these lists
+    # Zero decimal places
+    background_data.update(background_data[[
       'acc_breedingsows'
       ,'acc_headweaned'
       ,'acc_headplaced'
@@ -3122,18 +4069,18 @@ def update_background_data_swine(input_json, country ,producerprice ,rationprice
       ,'wb_gdp_usd'
       ,'ideal_headplaced'
       ,'ideal_feed_tonnes'
-   ]].applymap('{:,.0f}'.format))
+    ]].applymap('{:,.0f}'.format))
 
-   # One decimal place
-   background_data.update(background_data[[
+    # One decimal place
+    background_data.update(background_data[[
       'bod_breedstdwt_kg'
       ,'bod_breedstdcarcwt_kg'
       ,'acc_avgcarcweight_kg'
       # ,'acc_avgfeedintake_kgperhd'
-   ]].applymap('{:,.1f}'.format))
+    ]].applymap('{:,.1f}'.format))
 
-   # Two decimal places
-   background_data.update(background_data[[
+    # Two decimal places
+    background_data.update(background_data[[
       'producerprice_usdperkg'
       ,'bod_totalburden_usd'
       ,'bod_breedstdyield_prpn'
@@ -3147,17 +4094,17 @@ def update_background_data_swine(input_json, country ,producerprice ,rationprice
       ,'ideal_nonfeedvariablecost_usdperkgcarc'
       ,'ideal_laborcost_usdperkgcarc'
       ,'ideal_landhousingcost_usdperkgcarc'
-   ]].applymap('{:,.2f}'.format))
+    ]].applymap('{:,.2f}'.format))
 
-   # ------------------------------------------------------------------------------
-   # Hover-over text
-   # ------------------------------------------------------------------------------
-   # Read last row of data with filters applied to get source of each column.
-   # For most countries and columns, source is the same for every year.
-   # But if source differs for later years, want to report the latest.
-   background_data_lastrow = background_data.iloc[-1 ,:]
+    # ------------------------------------------------------------------------------
+    # Hover-over text
+    # ------------------------------------------------------------------------------
+    # Read last row of data with filters applied to get source of each column.
+    # For most countries and columns, source is the same for every year.
+    # But if source differs for later years, want to report the latest.
+    background_data_lastrow = background_data.iloc[-1 ,:]
 
-   column_tooltips = {
+    column_tooltips = {
       'acc_breedingsows':f"Source: {background_data_lastrow['acc_breedingsows_src']}"
       # ,"acc_headfarrowed":f"Breeding sows ({background_data_lastrow['acc_headfarrowed_src']}) x (Avg litter size) x (Avg litters per sow per year)"
       ,"acc_headweaned":f"[Breeding Sows] x Pigs weaned per sow per year ({background_data_lastrow['acc_litters_persow_peryear_src']})"
@@ -3199,11 +4146,10 @@ def update_background_data_swine(input_json, country ,producerprice ,rationprice
       ,"ideal_nonfeedvariablecost_usdperkgcarc":"Actual non-feed variable cost reduced proportionally with ideal head placed / actual head placed"
       ,"ideal_landhousingcost_usdperkgcarc":"Actual land & housing cost reduced proportionally with ideal head placed / actual head placed"
       ,"ideal_laborcost_usdperkgcarc":"Actual labor cost reduced proportionally with ideal land & housing cost"
-   }
+    }
 
-   return [
+    return [
             html.H4(f"Data for {country}"),
-            # html.P('All currently processed data.  Unformatted and unfiltered.'),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 data=background_data.to_dict('records'),
@@ -3230,27 +4176,27 @@ def update_background_data_swine(input_json, country ,producerprice ,rationprice
         ]
 
 @gbadsDash.callback(
-   Output('swine-breed-data', 'children'),
-   Input('core-data-swine','data')   # Currently only one breed used, so no inputs needed. But Dash wants an input here.
-   )
+    Output('swine-breed-data', 'children'),
+    Input('core-data-swine','data')   # Currently only one breed used, so no inputs needed. But Dash wants an input here.
+    )
 def update_breed_data_swine(breed):
-   columns_to_display_with_labels = {
-     'dayonfeed':'Day on Feed'
-     ,'bodyweight_kg':'Live Weight (kg)'
-     ,'cml_feedintake_kg':'Cml Feed Intake (kg)'
-     ,'cml_fcr':'FCR'
-   }
-   breed_data = swinebreedstd_pic_growthandfeed.copy()
+    columns_to_display_with_labels = {
+      'dayonfeed':'Day on Feed'
+      ,'bodyweight_kg':'Live Weight (kg)'
+      ,'cml_feedintake_kg':'Cml Feed Intake (kg)'
+      ,'cml_fcr':'FCR'
+    }
+    breed_data = swinebreedstd_pic_growthandfeed.copy()
 
-   # Subset columns
-   breed_data = breed_data[list(columns_to_display_with_labels)]
+    # Subset columns
+    breed_data = breed_data[list(columns_to_display_with_labels)]
 
-   # Format numbers
-   breed_data.update(breed_data[['dayonfeed']].applymap('{:,.0f}'.format))
-   breed_data.update(breed_data[['bodyweight_kg' ,'cml_feedintake_kg']].applymap('{:,.1f}'.format))
-   breed_data.update(breed_data[['cml_fcr']].applymap('{:,.2f}'.format))
+    # Format numbers
+    breed_data.update(breed_data[['dayonfeed']].applymap('{:,.0f}'.format))
+    breed_data.update(breed_data[['bodyweight_kg' ,'cml_feedintake_kg']].applymap('{:,.1f}'.format))
+    breed_data.update(breed_data[['cml_fcr']].applymap('{:,.2f}'.format))
 
-   return [
+    return [
             html.H4("PIC Breed Standard"),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
@@ -3268,74 +4214,74 @@ def update_breed_data_swine(breed):
 # ------------------------------------------------------------------------------
 # Update waterfall chart
 @gbadsDash.callback(
-   Output('swine-waterfall','figure'),
-   Input('core-data-swine','data'),
-   Input('select-metric-swine', 'value'),
-   Input('select-country-swine','value'),
-   Input('select-year-swine','value'),
-   Input('producer-price-slider-swine','value')
-   )
+    Output('swine-waterfall','figure'),
+    Input('core-data-swine','data'),
+    Input('select-metric-swine', 'value'),
+    Input('select-country-swine','value'),
+    Input('select-year-swine','value'),
+    Input('producer-price-slider-swine','value')
+    )
 def update_waterfall_swine(input_json, metric, country, year, producerprice):
-   # Dash callback input data is a string that names a json file
-   # First read it into a dataframe
-   input_df = pd.read_json(input_json, orient='split')
+    # Dash callback input data is a string that names a json file
+    # First read it into a dataframe
+    input_df = pd.read_json(input_json, orient='split')
 
-   # Structure for plot
-   waterfall_df = prep_bod_forwaterfall(input_df ,USDPERKG=producerprice)
+    # Structure for plot
+    waterfall_df = prep_bod_forwaterfall(input_df ,USDPERKG=producerprice)
 
-   # Apply country and year filters
-   waterfall_df = waterfall_df.loc[(waterfall_df['country'] == country) & (waterfall_df['year'] == year)]
+    # Apply country and year filters
+    waterfall_df = waterfall_df.loc[(waterfall_df['country'] == country) & (waterfall_df['year'] == year)]
 
-   ### JR: Simplified plot spec after calcs moved to prep_bod_forwaterfall()
-   x = waterfall_df['Component']
-   y = waterfall_df[metric]
+    ### JR: Simplified plot spec after calcs moved to prep_bod_forwaterfall()
+    x = waterfall_df['Component']
+    y = waterfall_df[metric]
 
-   # Burden of disease
-   mortality = waterfall_df.loc[waterfall_df['Component'] == 'Mortality & Condemns', metric].iloc[0]
-   morbidity = waterfall_df.loc[waterfall_df['Component'] == 'Morbidity', metric].iloc[0]
-   BOD = abs(mortality + morbidity)
+    # Burden of disease
+    mortality = waterfall_df.loc[waterfall_df['Component'] == 'Mortality & Condemns', metric].iloc[0]
+    morbidity = waterfall_df.loc[waterfall_df['Component'] == 'Morbidity', metric].iloc[0]
+    BOD = abs(mortality + morbidity)
 
-   if metric.upper() == 'TONNES':
+    if metric.upper() == 'TONNES':
       text = [f"{i:,.0f}" for i in waterfall_df[metric]]
       BOD = '{:,.0f}'.format(BOD)
       BOD = BOD + ' tonnes'
       axis_title = 'Tonnes carcass weight'
       axis_format = ''
-   elif metric.upper() == 'US DOLLARS':
+    elif metric.upper() == 'US DOLLARS':
       text = [f"${i:,.0f}" for i in waterfall_df[metric]]
       BOD = '${:,.0f} USD'.format(BOD)
       axis_title = 'US dollars'
       axis_format = ''
-   elif metric.upper() == 'PERCENT OF GDP':
+    elif metric.upper() == 'PERCENT OF GDP':
       text = [f"{i:.3%}" for i in waterfall_df[metric]]
       BOD = '{:,.3%}'.format(BOD)
       BOD = BOD + ' of GDP'
       axis_title = 'Percent of GDP'
       axis_format = '~%'
-   elif metric.upper() == 'PERCENT OF BREED STANDARD':
+    elif metric.upper() == 'PERCENT OF BREED STANDARD':
       text = [f"{i:.2%}" for i in waterfall_df[metric]]
       BOD = '{:,.2%}'.format(BOD)
       BOD = BOD + ' of Breed Standard'
       axis_title = 'Percent of Breed Standard'
       axis_format = '~%'
-   elif metric.upper() == 'PERCENT OF REALISED PRODUCTION':
+    elif metric.upper() == 'PERCENT OF REALISED PRODUCTION':
       text = [f"{i:.2%}" for i in waterfall_df[metric]]
       BOD = '{:,.2%}'.format(BOD)
       BOD = BOD + ' of Breed Standard'
       axis_title = 'Percent of Realised Production'
       axis_format = '~%'
 
-   fig = create_waterfall(x, y, text)
+    fig = create_waterfall(x, y, text)
 
-   fig.update_layout(title_text=f'Swine Production | {country}, {year} <br><sup>Burden of disease: {BOD} lost production (Mortality & Condemns + Morbidity)</sup>'
-                     ,font_size=15
-                     ,yaxis_title=axis_title
-                     ,yaxis_tickformat=axis_format
-                     )
+    fig.update_layout(title_text=f'Swine Production | {country}, {year} <br><sup>Burden of disease: {BOD} lost production (Mortality & Condemns + Morbidity)</sup>'
+                      ,font_size=15
+                      ,yaxis_title=axis_title
+                      ,yaxis_tickformat=axis_format
+                      )
 
-   # Adjust color for Effect of Feed and Practices bar if negative
-   if (waterfall_df.loc[waterfall_df['Component'] == 'Effect of Feed & Practices', metric].iloc[0]) < 0:
-       fig.add_shape(
+    # Adjust color for Effect of Feed and Practices bar if negative
+    if (waterfall_df.loc[waterfall_df['Component'] == 'Effect of Feed & Practices', metric].iloc[0]) < 0:
+        fig.add_shape(
         type="rect",
         fillcolor="#E84C3D",
         line=dict(color="#E84C3D",
@@ -3349,8 +4295,8 @@ def update_waterfall_swine(input_json, metric, country, year, producerprice):
         yref="y"
         )
 
-   # Adjust color of Breed Standard Potential bar
-   fig.add_shape(
+    # Adjust color of Breed Standard Potential bar
+    fig.add_shape(
     type="rect",
     fillcolor="#3598DB",
     line=dict(color="#3598DB",
@@ -3364,8 +4310,8 @@ def update_waterfall_swine(input_json, metric, country, year, producerprice):
     yref="y"
     )
 
-   # Add outline to Realised production bar
-   fig.add_shape(
+    # Add outline to Realised production bar
+    fig.add_shape(
     type="rect",
     fillcolor="#2DCC70",
     line=dict(color="#2DCC70",
@@ -3379,18 +4325,18 @@ def update_waterfall_swine(input_json, metric, country, year, producerprice):
     yref="y"
     )
 
-   fig.add_annotation(x=2, xref='x',         # x position is absolute on axis
+    fig.add_annotation(x=2, xref='x',         # x position is absolute on axis
                       y=0, yref='paper',     # y position is relative [0,1] to work regardless of scale
                       text="Source: GBADs",
                       showarrow=False,
                       yshift=10,
                       font=dict(
-                         family="Helvetica",
-                         size=18,
-                         color="black"
-                         )
+                          family="Helvetica",
+                          size=18,
+                          color="black"
+                          )
                       )
-   return fig
+    return fig
 
 # # Update Sankey diagram
 # @gbadsDash.callback(
@@ -3475,63 +4421,63 @@ def update_waterfall_swine(input_json, metric, country, year, producerprice):
 
 # Update Stacked bar chart
 @gbadsDash.callback(
-   Output('swine-stacked-bar','figure'),
-   Input('core-data-swine','data'),
-   Input('select-country-swine','value'),
-   Input('select-year-swine','value'),
-   )
+    Output('swine-stacked-bar','figure'),
+    Input('core-data-swine','data'),
+    Input('select-country-swine','value'),
+    Input('select-year-swine','value'),
+    )
 def update_stacked_bar_swine(input_json, country, year):
 
-   input_df = pd.read_json(input_json, orient='split')
+    input_df = pd.read_json(input_json, orient='split')
 
-   # -----------------------------------------------------------------------------
-   # Base plot
-   # -----------------------------------------------------------------------------
-   # Structure for plot
-   stackedbar_df = prep_bod_forstackedbar_swine(input_df)
+    # -----------------------------------------------------------------------------
+    # Base plot
+    # -----------------------------------------------------------------------------
+    # Structure for plot
+    stackedbar_df = prep_bod_forstackedbar_swine(input_df)
 
-   # Apply country and year filters
-   stackedbar_df = stackedbar_df.loc[(stackedbar_df['country'] == country) & (stackedbar_df['year'] == year)]
+    # Apply country and year filters
+    stackedbar_df = stackedbar_df.loc[(stackedbar_df['country'] == country) & (stackedbar_df['year'] == year)]
 
-   x = stackedbar_df['opt_or_act']
-   y = stackedbar_df['cost_usdperkgcarc']
-   color = stackedbar_df['Cost Item']
-   swine_bar_fig = create_stacked_bar_swine(stackedbar_df, x, y, color)
+    x = stackedbar_df['opt_or_act']
+    y = stackedbar_df['cost_usdperkgcarc']
+    color = stackedbar_df['Cost Item']
+    swine_bar_fig = create_stacked_bar_swine(stackedbar_df, x, y, color)
 
-   # Burden of disease
-   BOD = stackedbar_df.loc[stackedbar_df['cost_item'] == 'bod_costs' ,'cost_usdperkgcarc'].values[0]
+    # Burden of disease
+    BOD = stackedbar_df.loc[stackedbar_df['cost_item'] == 'bod_costs' ,'cost_usdperkgcarc'].values[0]
 
-   swine_bar_fig.update_layout(title_text=f'Swine Costs | {country}, {year}<br><sup>Burden of disease: ${BOD :.2f} increased cost per kg carcass weight</sup>',
-                               font_size=15)
+    swine_bar_fig.update_layout(title_text=f'Swine Costs | {country}, {year}<br><sup>Burden of disease: ${BOD :.2f} increased cost per kg carcass weight</sup>',
+                                font_size=15)
 
 
-   # # -----------------------------------------------------------------------------
-   # # Add connecting lines
-   # # -----------------------------------------------------------------------------
-   # optactcost_1_t = costs_swine.set_index('Costs').transpose().reset_index(drop=True)
-   # optactcost_1_t_dict = optactcost_1_t.to_dict()
+    # # -----------------------------------------------------------------------------
+    # # Add connecting lines
+    # # -----------------------------------------------------------------------------
+    # optactcost_1_t = costs_swine.set_index('Costs').transpose().reset_index(drop=True)
+    # optactcost_1_t_dict = optactcost_1_t.to_dict()
 
-   # for i in range(0,1):
-   #     for j, _ in enumerate(optactcost_1_t_dict):
-   #         y1 = 0
-   #         y2 = 0
-   #         for key in list(optactcost_1_t_dict.keys())[:j+1]:
-   #             y1 += optactcost_1_t_dict[key][i]
-   #             y2 += optactcost_1_t_dict[key][i+1]
+    # for i in range(0,1):
+    #     for j, _ in enumerate(optactcost_1_t_dict):
+    #         y1 = 0
+    #         y2 = 0
+    #         for key in list(optactcost_1_t_dict.keys())[:j+1]:
+    #             y1 += optactcost_1_t_dict[key][i]
+    #             y2 += optactcost_1_t_dict[key][i+1]
 
-   #         swine_bar_fig.add_trace(go.Scatter(
-   #             # x=[0.25, 0.75],
-   #             x = [optactcost_2['opt_or_act'][i],optactcost_2['opt_or_act'][i+6]],
-   #             # x0 = optactcost_2['opt_or_act'][i],
-   #             # x1 = optactcost_2['opt_or_act'][i+5],
-   #             # x0=swine_bar_fig.data[1].y[0],
-   #             y=[y1, y2],
-   #             mode="lines",
-   #             showlegend=False,
-   #             line={'dash': 'dot', 'color': "#7A7A7A"}
-   #         ))
+    #         swine_bar_fig.add_trace(go.Scatter(
+    #             # x=[0.25, 0.75],
+    #             x = [optactcost_2['opt_or_act'][i],optactcost_2['opt_or_act'][i+6]],
+    #             # x0 = optactcost_2['opt_or_act'][i],
+    #             # x1 = optactcost_2['opt_or_act'][i+5],
+    #             # x0=swine_bar_fig.data[1].y[0],
+    #             y=[y1, y2],
+    #             mode="lines",
+    #             showlegend=False,
+    #             line={'dash': 'dot', 'color': "#7A7A7A"}
+    #         ))
 
-   return swine_bar_fig
+    return swine_bar_fig
 
 # ==============================================================================
 #### UPDATE ETHIOPIA
@@ -3541,16 +4487,11 @@ def update_stacked_bar_swine(input_json, country, year):
 # ------------------------------------------------------------------------------
 # ECS reset to defaults button
 @gbadsDash.callback(
-    Output(component_id='growth-slider-ecs', component_property='value'),
-    Output(component_id='reproduction-slider-ecs', component_property='value'),
-    Output(component_id='mortality-slider-ecs', component_property='value'),
-    Output(component_id='costs-slider-ecs', component_property='value'),
-    Output(component_id='offtake-slider-ecs', component_property='value'),
-    Input(component_id='reset-val-ecs', component_property='n_clicks')
+    Output('select-redu-ecs', 'value'),
+    Input('reset-val-ecs', 'n_clicks')
     )
 def reset_to_default_ecs(reset):
-    return growth_ecs_default, reproduction_ecs_default, mortality_ecs_default, costs_ecs_default, offtake_ecs_default
-
+    return factor_ecs_default
 
 # # Add text display for outputs
 # # Herd growth
@@ -3646,96 +4587,6 @@ def reset_to_default_ecs(reset):
 # ------------------------------------------------------------------------------
 #### -- Data
 # ------------------------------------------------------------------------------
-# Attribution Data
-@gbadsDash.callback(
-    Output('core-data-attr-ecs','data'),
-    Input('select-prodsys-ecs','value'),
-    Input('select-age-ecs','value'),
-    Input('select-sex-ecs','value'),
-    Input('select-attr-ecs','value'),
-    )
-def update_core_data_attr_ecs(prodsys, age, sex, attr):
-    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
-        
-    # Prodicton System filter
-    if prodsys == 'Crop livestock mixed':
-        input_df=input_df.loc[(input_df['production_system'] == 'Crop livestock mixed')]
-    elif prodsys == "Pastoral":
-        input_df=input_df.loc[(input_df['production_system'] == prodsys)]
-    else:
-        input_df=input_df
-        
-    # Age filter
-    if age == 'Adult':
-        input_df=input_df.loc[(input_df['age_group'] == age)]
-    elif age == "Juvenile":
-        input_df=input_df.loc[(input_df['age_group'] == age)]
-    elif age == "Neonatal":
-        input_df=input_df.loc[(input_df['age_group'] == age)]
-    else:
-        input_df=input_df
-    
-    # # Sex filter
-    # if sex == 'Male':
-    #     input_df=input_df.loc[(input_df['sex'] == sex)]
-    # elif sex == "Female":
-    #     input_df=input_df.loc[(input_df['sex'] == sex)]
-    # elif sex == "Overall Sex":
-    #     input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-    # else:
-    #     input_df=input_df
-        
-    # # Attribution filter
-    # if attr == 'External':
-    #     input_df=input_df.loc[(input_df['cause'] == attr)]
-    # elif attr == "Infectious":
-    #     input_df=input_df.loc[(input_df['cause'] == attr)]
-    # elif attr == "Non-infectious":
-    #     input_df=input_df.loc[(input_df['cause'] == attr)]
-    # else:
-    #     input_df=input_df
-    
-    return input_df.to_json(date_format='iso', orient='split')
-
-# Attribution datatable below graphic
-@gbadsDash.callback(
-   Output('ecs-attr-datatable', 'children'),
-   Input('core-data-attr-ecs','data')   # Currently only one breed used, so no inputs needed. But Dash wants an input here.
-   )
-def update_ecs_attr_data(input_json):
-    input_df = pd.read_json(input_json, orient='split')
-    
-    columns_to_display_with_labels = {
-      'production_system':'Production System'
-      ,'age_group':'Age'
-      ,'sex':'Sex'
-      ,'ahle_component':'AHLE Component'
-      ,'cause':'Attribution'
-      ,'mean':'Mean (birr)'
-    }
-   # breed_data = swinebreedstd_pic_growthandfeed.copy()
-
-    # Subset columns
-    input_df = input_df[list(columns_to_display_with_labels)]
-
-   # # Format numbers
-   # breed_data.update(breed_data[['dayonfeed']].applymap('{:,.0f}'.format))
-   # breed_data.update(breed_data[['bodyweight_kg' ,'cml_feedintake_kg']].applymap('{:,.1f}'.format))
-   # breed_data.update(breed_data[['cml_fcr']].applymap('{:,.2f}'.format))
-   
-    return [
-            html.H4("Attribution Data"),
-            dash_table.DataTable(
-                columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
-                data=input_df.to_dict('records'),
-                export_format="csv",
-                style_cell={
-                    # 'minWidth': '250px',
-                    'font-family':'sans-serif',
-                    },
-            )
-        ]
-
 # AHLE Data
 @gbadsDash.callback(
     Output('core-data-ahle-ecs','data'),
@@ -3743,21 +4594,21 @@ def update_ecs_attr_data(input_json):
     Input('select-prodsys-ecs','value'),
     Input('select-age-ecs','value'),
     Input('select-sex-ecs','value'),
-    
+
     )
 def update_core_data_ahle_ecs(species, prodsys, age, sex):
     input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary.csv'))
-    
+
     # Species filter
     if species == 'Goat':
         input_df=input_df.loc[(input_df['species'] == species)]
     elif species == "Sheep":
         input_df=input_df.loc[(input_df['species'] == species)]
-    elif species == "All small ruminants":
-        input_df=input_df.loc[(input_df['species'] == species)]
+    elif species == "All Small Ruminants":
+        input_df=input_df.loc[(input_df['species'] == 'All small ruminants')]
     else:
         input_df=input_df
-        
+
     # Prodicton System filter
     if prodsys == 'Crop livestock mixed':
         input_df=input_df.loc[(input_df['production_system'] == 'Crop livestock mixed')]
@@ -3767,7 +4618,7 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
         input_df=input_df.loc[(input_df['production_system'] == 'Overall')]
     else:
         input_df=input_df
-        
+
     # Age filter
     if age == 'Adult':
         input_df=input_df.loc[(input_df['age_group'] == age)]
@@ -3779,7 +4630,7 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
         input_df=input_df.loc[(input_df['age_group'] == 'Overall')]
     else:
         input_df=input_df
-        
+
     # Sex filter
     if sex == 'Male':
         input_df=input_df.loc[(input_df['sex'] == sex)]
@@ -3789,37 +4640,69 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
         input_df=input_df.loc[(input_df['sex'] == 'Overall')]
     else:
         input_df=input_df
-    
+
     return input_df.to_json(date_format='iso', orient='split')
 
 
-# Attribution datatable below graphic
+# AHLE datatable below graphic
 @gbadsDash.callback(
-   Output('ecs-ahle-datatable', 'children'),
-   Input('core-data-ahle-ecs','data'),
-   )
-def update_ecs_ahle_data(input_json):
+    Output('ecs-ahle-datatable', 'children'),
+    Input('core-data-ahle-ecs','data'),
+    Input('select-currency-ecs','value'),
+)
+def update_ecs_ahle_data(input_json ,currency):
     input_df = pd.read_json(input_json, orient='split')
-    
+
+    # If currency is USD, use USD columns
+    display_currency = 'Birr'
+    if currency == 'USD':
+        display_currency = 'USD'
+
+        input_df['mean_current'] = input_df['mean_current_usd']
+        input_df['stdev_current'] = input_df['stdev_current_usd']
+        input_df['mean_mortality_zero'] = input_df['mean_mortality_zero_usd']
+        input_df['stdev_mortality_zero'] = input_df['stdev_mortality_zero_usd']
+        input_df['mean_ideal'] = input_df['mean_ideal_usd']
+        input_df['stdev_ideal'] = input_df['stdev_ideal_usd']
+
+    # Create AHLE columns
+    input_df['mean_AHLE'] = input_df['mean_ideal'] - input_df['mean_current']
+    input_df['mean_AHLE_mortality'] = input_df['mean_mortality_zero'] - input_df['mean_current']
+
+    # Format numbers
+    input_df.update(input_df[['mean_current',
+                              'mean_ideal',
+                              'mean_mortality_zero',
+                              'mean_AHLE',
+                              'mean_AHLE_mortality',]].applymap('{:,.0f}'.format))
+
     columns_to_display_with_labels = {
       'species':'Species'
       ,'production_system':'Production System'
       ,'item':'Value or Cost'
       ,'age_group':'Age'
       ,'sex':'Sex'
-      ,'mean_current':'Current (mean)'
-      ,'mean_ideal':'Ideal (mean)'
-      ,'mean_mortality_zero':'Zero Mortality (mean)'
+      ,'mean_current':f'Current Mean ({display_currency})'
+      ,'mean_ideal':f'Ideal Mean ({display_currency})'
+      ,'mean_mortality_zero':f'Mortality Zero Mean ({display_currency})'
+      ,'mean_AHLE':'AHLE (Ideal - Current)'
+      ,'mean_AHLE_mortality':'AHLE due to Mortality (Mortality Zero - Current)'
     }
-   # breed_data = swinebreedstd_pic_growthandfeed.copy()
 
     # Subset columns
     input_df = input_df[list(columns_to_display_with_labels)]
 
-   # # Format numbers
-   # breed_data.update(breed_data[['dayonfeed']].applymap('{:,.0f}'.format))
-   # breed_data.update(breed_data[['bodyweight_kg' ,'cml_feedintake_kg']].applymap('{:,.1f}'.format))
-   # breed_data.update(breed_data[['cml_fcr']].applymap('{:,.2f}'.format))
+    # Keep only items for the waterfall
+    waterfall_plot_values = ('Value of Offtake',
+                              'Value of Herd Increase',
+                              'Value of Manure',
+                              'Value of Hides',
+                              'Feed Cost',
+                              'Labour Cost',
+                              'Health Cost',
+                              'Capital Cost',
+                              'Gross Margin')
+    input_df = input_df.loc[input_df['item'].isin(waterfall_plot_values)]
 
 
     return [
@@ -3832,125 +4715,1334 @@ def update_ecs_ahle_data(input_json):
                     # 'minWidth': '250px',
                     'font-family':'sans-serif',
                     },
+                style_table={'overflowX': 'scroll'},
             )
         ]
 
+
+# Attribution Data
+@gbadsDash.callback(
+    Output('core-data-attr-ecs','data'),
+    Input('select-prodsys-ecs','value'),
+    Input('select-age-ecs','value'),
+    Input('select-sex-ecs','value'),
+    Input('select-attr-ecs','value'),
+    )
+def update_core_data_attr_ecs(prodsys, age, sex, attr):
+    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
+
+    # Prodicton System filter
+    if prodsys == 'Crop livestock mixed':
+        input_df=input_df.loc[(input_df['production_system'] == 'Crop livestock mixed')]
+    elif prodsys == "Pastoral":
+        input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+    else:
+        input_df=input_df
+
+    # Age filter
+    if age == 'Adult':
+        if sex == 'Male':
+            input_df=input_df.loc[(input_df['age_group'] == age)]
+            input_df=input_df.loc[(input_df['sex'] == sex)]
+        elif sex == "Female":
+            input_df=input_df.loc[(input_df['age_group'] == age)]
+            input_df=input_df.loc[(input_df['sex'] == sex)]
+        else:
+            input_df=input_df.loc[(input_df['age_group'] == age)]
+            input_df=input_df
+    elif age == "Juvenile":
+        if sex == 'Male':
+            input_df=input_df.loc[(input_df['age_group'] == age)]
+            input_df=input_df.loc[(input_df['sex'] == 'Overall')]
+        elif sex == "Female":
+            input_df=input_df.loc[(input_df['age_group'] == age)]
+            input_df=input_df.loc[(input_df['sex'] == 'Overall')]
+        else:
+            input_df=input_df.loc[(input_df['age_group'] == age)]
+            input_df=input_df.loc[(input_df['sex'] == 'Overall')]
+    elif age == "Neonatal":
+        if sex == 'Male':
+            input_df=input_df.loc[(input_df['age_group'] == age)]
+            input_df=input_df.loc[(input_df['sex'] == 'Overall')]
+        elif sex == "Female":
+            input_df=input_df.loc[(input_df['age_group'] == age)]
+            input_df=input_df.loc[(input_df['sex'] == 'Overall')]
+        else:
+            input_df=input_df.loc[(input_df['age_group'] == age)]
+            input_df=input_df.loc[(input_df['sex'] == 'Overall')]
+    else:
+        if sex == 'Male':
+            input_df=input_df.loc[(input_df['sex'] == sex)]
+        elif sex == "Female":
+            input_df=input_df.loc[(input_df['sex'] == sex)]
+        else:
+            input_df=input_df
+
+    # Attribution filter
+    if attr == 'External':
+        input_df=input_df.loc[(input_df['cause'] == attr)]
+    elif attr == "Infectious":
+        input_df=input_df.loc[(input_df['cause'] == attr)]
+    elif attr == "Non-infectious":
+        input_df=input_df.loc[(input_df['cause'] == attr)]
+    else:
+        input_df=input_df
+
+    return input_df.to_json(date_format='iso', orient='split')
+
+# Attribution datatable below graphic
+@gbadsDash.callback(
+    Output('ecs-attr-datatable', 'children'),
+    Input('core-data-attr-ecs','data'),   # Currently only one breed used, so no inputs needed. But Dash wants an input here.
+    Input('select-currency-ecs','value'),
+    )
+def update_ecs_attr_data(input_json, currency):
+    input_df = pd.read_json(input_json, orient='split')
+
+    # If currency is USD, use USD columns
+    display_currency = 'Birr'
+    if currency == 'USD':
+        display_currency = 'USD'
+
+    # Format numbers
+    input_df.update(input_df[['mean',
+                              'sd',
+                              'lower95',
+                              'upper95',
+                              ]].applymap('{:,.0f}'.format))
+    input_df.update(input_df[['pct_of_total']].applymap('{:,.2f}%'.format))
+
+    columns_to_display_with_labels = {
+      'production_system':'Production System'
+      ,'age_group':'Age'
+      ,'sex':'Sex'
+      ,'ahle_component':'AHLE Component'
+      ,'cause':'Attribution'
+      ,'mean':f'Mean ({display_currency})'
+      ,'sd':'Std. Dev.'
+      ,'lower95':'Lower 95%'
+      ,'upper95':'Upper 95%'
+      ,'pct_of_total':'Percent of Total AHLE'
+    }
+
+    # Subset columns
+    input_df = input_df[list(columns_to_display_with_labels)]
+
+    return [
+            html.H4("Attribution Data"),
+            dash_table.DataTable(
+                columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+                data=input_df.to_dict('records'),
+                export_format="csv",
+                style_cell={
+                    # 'minWidth': '250px',
+                    'font-family':'sans-serif',
+                    },
+                style_table={'overflowX': 'scroll',
+                              'height': '320px',
+                              'overflowY': 'auto'},
+                page_action='none',
+            )
+        ]
 
 
 # ------------------------------------------------------------------------------
 #### -- Figures
 # ------------------------------------------------------------------------------
-@gbadsDash.callback(
-   Output('ecs-attr-treemap','figure'),
-   Input('core-data-attr-ecs','data'),
-   Input('select-prodsys-ecs','value'),
-   )
-def update_attr_treemap_ecs(input_json, prodsys):
-   # Data
-   input_df = pd.read_json(input_json, orient='split')
-   # input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
-   
-   # Prep data
-   input_df = prep_ahle_fortreemap_ecs(input_df)
-
-    # Set up treemap structure
-   ecs_treemap_fig = create_attr_treemap_ecs(input_df)
-   
-   # Add title
-   ecs_treemap_fig.update_layout(title_text=f'Attribution for All small ruminants using {prodsys}',
-                               font_size=15,
-                               margin=dict(t=100))
-
-   return ecs_treemap_fig
-
-
+# AHLE Waterfall
 @gbadsDash.callback(
     Output('ecs-ahle-sunburst','figure'),
     Input('core-data-ahle-ecs','data'),
+    Input('select-age-ecs','value'),
     Input('select-species-ecs','value'),
+    Input('select-display-ecs','value'),
+    Input('select-compare-ecs','value'),
+    Input('select-prodsys-ecs','value'),
+    Input('select-sex-ecs','value'),
+    Input('select-currency-ecs','value'),
     )
-def update_ahle_sunburst_ecs(input_json, species):
+def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsys, sex, currency):
     # Data
-    # input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv'))
     input_df = pd.read_json(input_json, orient='split')
-    
-    # Prep the data 
-    # sunburst_df = prep_ahle_forsunburst_ecs(input_df)
-    working_df = input_df.copy()
-    
-    # Trim the data to keep things needed for the treemap
-    ecs_ahle_summary_sheep_sunburst = working_df[['species',
-                                                  'production_system',
-                                                  'age_group',
-                                                  'sex',
-                                                  'item',
-                                                  'mean_current',
-                                                  'mean_ideal',
-                                                  'mean_mortality_zero']]
 
-    # Keep only items for the waterfall
-    waterfall_plot_values = ('Value of Offtake',
-                             'Value of Herd Increase',
-                             'Value of Manure',
-                             'Value of Hides',
-                             'Feed Cost',
-                             'Labour Cost',
-                             'Health Cost',
-                             'Capital Cost',
-                             'Gross Margin')
-    ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['item'].isin(waterfall_plot_values)]
+    # If currency is USD, use USD columns
+    display_currency = 'Ethiopian Birr'
+    if currency == 'USD':
+        display_currency = 'USD'
+
+        input_df['mean_current'] = input_df['mean_current_usd']
+        input_df['stdev_current'] = input_df['stdev_current_usd']
+        input_df['mean_mortality_zero'] = input_df['mean_mortality_zero_usd']
+        input_df['stdev_mortality_zero'] = input_df['stdev_mortality_zero_usd']
+        input_df['mean_ideal'] = input_df['mean_ideal_usd']
+        input_df['stdev_ideal'] = input_df['stdev_ideal_usd']
+
+    # Prep the data
+    prep_df = prep_ahle_forwaterfall_ecs(input_df)
+
+    # Age filter
+    if age == "Neonatal": # Removing value of hides for neonatal
+        waterfall_plot_values = ('Value of Offtake',
+                                  'Value of Herd Increase',
+                                  'Value of Manure',
+                                  'Feed Cost',
+                                  'Labour Cost',
+                                  'Health Cost',
+                                  'Capital Cost',
+                                  'Gross Margin')
+        prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
+        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+        x = prep_df['item']
+    else:
+        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+        x = prep_df['item']
+
+    # display and Compare filters
+    if display == "Difference (AHLE)":
+        # Applying the condition
+        prep_df["item"] = np.where(prep_df["item"] == "Gross Margin", "AHLE", prep_df["item"])
+        x = prep_df['item']
+        if compare == 'Ideal':
+            y = prep_df['mean_AHLE']
+        else:
+            y = prep_df['mean_AHLE_mortality']
+        # Create graph
+        name = 'AHLE'
+        ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
+        # Add title
+        ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope (AHLE) | {species} <br><sup>Difference between {compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
+                                        yaxis_title=display_currency,
+                                        font_size=15,
+                                        margin=dict(t=100))
+    else:
+        if compare == 'Ideal':
+            y = prep_df['mean_ideal']
+            name = "Ideal"
+            # Create graph
+            ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
+            # Add current with lag
+            ecs_waterfall_fig.add_trace(go.Waterfall(
+                name = 'Current',
+                measure = measure,
+                x = x,
+                y = prep_df['mean_current'],
+                decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
+                increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
+                totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
+                connector = {"line":{"dash":"dot"}},
+                ))
+            ecs_waterfall_fig.update_layout(
+                waterfallgroupgap = 0.5,
+                )
+            # Add title
+            ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
+                                            yaxis_title=display_currency,
+                                            font_size=15,
+                                            margin=dict(t=100))
+            # Adjust hoverover
+            # ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} <extra></extra>')
+
+        else:
+            y = prep_df['mean_mortality_zero']
+            name = 'Mortality 0'
+            # Create graph
+            ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
+            # Add current with lag
+            ecs_waterfall_fig.add_trace(go.Waterfall(
+                name = 'Current',
+                measure = measure,
+                x = x,
+                y = prep_df['mean_current'],
+                decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
+                increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
+                totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
+                connector = {"line":{"dash":"dot"}},
+                ))
+            ecs_waterfall_fig.update_layout(
+                waterfallgroupgap = 0.5,
+                )
+            # Add title
+            ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
+                                            yaxis_title=display_currency,
+                                            font_size=15,
+                                            margin=dict(t=100))
+            # Adjust hoverover
+            # ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} <extra></extra>')
+
+    # Add tooltip
+    if currency == 'Birr':
+        ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} Birr<extra></extra>')
+    elif currency == 'USD':
+        ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} USD<extra></extra>')
+    else:
+        ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} <extra></extra>')
+
+    return ecs_waterfall_fig
+
+
+# Attribution Treemap
+@gbadsDash.callback(
+    Output('ecs-attr-treemap','figure'),
+    Input('core-data-attr-ecs','data'),
+    Input('select-prodsys-ecs','value'),
+    Input('select-age-ecs','value'),
+    Input('select-sex-ecs','value'),
+    Input('select-attr-ecs','value'),
+    Input('select-currency-ecs','value'),
+    )
+def update_attr_treemap_ecs(input_json, prodsys, age, sex, cause, currency):
+    # Data
+    input_df = pd.read_json(input_json, orient='split')
+
+    # If currency is USD, use USD columns
+    display_currency = 'Birr'
+    if currency == 'USD':
+        display_currency = 'USD'
+        input_df['median'] = input_df['median_usd']
+        input_df['mean'] = input_df['mean_usd']
+        input_df['sd'] = input_df['sd_usd']
+        input_df['lower95'] = input_df['lower95_usd']
+        input_df['upper95'] = input_df['upper95_usd']
+
+    # Prep data
+    input_df = prep_ahle_fortreemap_ecs(input_df)
+
+    # Set up treemap structure
+    ecs_treemap_fig = create_attr_treemap_ecs(input_df)
+
+    # Add title
+    ecs_treemap_fig.update_layout(title_text=f'Attribution | All Small Ruminants <br><sup> Using {prodsys} for {age} and {sex} attributed to {cause}</sup><br>',
+                                  font_size=15,
+                                  margin=dict(t=100))
+    # Add % of total AHLE
+    ecs_treemap_fig.data[0].texttemplate = "%{label}<br>% of Total AHLE=%{customdata[0]:,.2f}%"
+
+    # Add tooltip
+    if currency == 'Birr':
+        ecs_treemap_fig.update_traces(root_color="white",
+                                      hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} Birr<extra></extra>')
+
+    elif currency == 'USD':
+        ecs_treemap_fig.update_traces(root_color="white",
+                                      hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} USD<extra></extra>')
+    else:
+        ecs_treemap_fig.update_traces(root_color="white",
+                                      hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f}<br><extra></extra>')
+
+    return ecs_treemap_fig
+
+
+# ==============================================================================
+#### UPDATE GLOBAL AGGREGATE
+# ==============================================================================
+# ------------------------------------------------------------------------------
+#### -- Controls
+# ------------------------------------------------------------------------------
+# Update regions based on region contry aligment selection:
+@gbadsDash.callback(
+    Output(component_id='select-region-overview-ga', component_property='options'),
+    Input(component_id='Region-country-alignment-overview-ga', component_property='value'),
+    )
+def update_region_overview_options_ga(region_country):
+    if region_country == "WOAH":
+        options = WOAH_region_options_ga
+    elif region_country =="FAO":
+        options = fao_region_options_ga
+    elif region_country == "World Bank":
+        options = wb_region_options_ga
+    return options
+
+@gbadsDash.callback(
+    Output(component_id='select-region-detail-ga', component_property='options'),
+    Input(component_id='Region-country-alignment-detail-ga', component_property='value'),
+    )
+def update_region_detail_options_ga(region_country):
+    if region_country == "WOAH":
+        options = WOAH_region_options_ga
+    elif region_country =="FAO":
+        options = fao_region_options_ga
+    elif region_country == "World Bank":
+        options = wb_region_options_ga
+    return options
+
+
+# Update country options based on region and income group selection
+@gbadsDash.callback(
+    Output(component_id='select-country-overview-ga', component_property='options'),
+    Input(component_id='Region-country-alignment-overview-ga', component_property='value'),
+    Input(component_id='select-region-overview-ga', component_property='value'),
+    Input('select-incomegrp-overview-ga','value'),
+    )
+def update_country_overview_options_ga(region_country, region, income):
+    if region_country == "WOAH":
+        if region == "All":
+            options = country_options_ga
+        elif region == "Africa":
+            options = WOAH_africa_options_ga
+        elif region == "Americas":
+            options = WOAH_americas_options_ga
+        elif region == "Asia & the Pacific":
+            options = WOAH_asia_options_ga
+        elif region == "Europe":
+            options = WOAH_europe_options_ga
+        else:
+            options = WOAH_me_options_ga
+    elif region_country =="FAO":
+        if region == "All":
+            options = country_options_ga
+        elif region == "Africa":
+            options = fao_africa_options_ga
+        elif region == "Asia":
+            options = fao_asia_options_ga
+        elif region == "Europe and Central Asia":
+            options = fao_eca_options_ga
+        elif region == "Latin America and the Caribbean":
+            options = fao_lac_options_ga
+        elif region == "Near East and North Africa":
+            options = fao_ena_options_ga
+        else:
+            options = fao_swp_options_ga
+    elif region_country == "World Bank":
+        if region == "All":
+            if income == "All":
+                options = country_options_ga
+            else:
+                options_df = ga_countries_biomass.loc[(ga_countries_biomass['incomegroup'] == income)]
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
+        else:
+            options_df = ga_countries_biomass.loc[(ga_countries_biomass['region'] == region)]
+            if income == "All":
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
+            else:
+                options_df = options_df.loc[(options_df['incomegroup'] == income)]
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
+    else:
+        options = country_options_ga
+
+    return options
+
+# Update country options based on region and income group selection
+@gbadsDash.callback(
+    Output('select-country-detail-ga', 'options'),
+    Input('Region-country-alignment-detail-ga', 'value'),
+    Input('select-region-detail-ga', 'value'),
+    Input('select-incomegrp-detail-ga','value'),
+    )
+def update_country_detail_options_ga(region_country, region, income):
+    if region_country == "WOAH":
+        if region == "All":
+            options = country_options_ga
+        elif region == "Africa":
+            options = WOAH_africa_options_ga
+        elif region == "Americas":
+            options = WOAH_americas_options_ga
+        elif region == "Asia & the Pacific":
+            options = WOAH_asia_options_ga
+        elif region == "Europe":
+            options = WOAH_europe_options_ga
+        else:
+            options = WOAH_me_options_ga
+    elif region_country =="FAO":
+        if region == "All":
+            options = country_options_ga
+        elif region == "Africa":
+            options = fao_africa_options_ga
+        elif region == "Asia":
+            options = fao_asia_options_ga
+        elif region == "Europe and Central Asia":
+            options = fao_eca_options_ga
+        elif region == "Latin America and the Caribbean":
+            options = fao_lac_options_ga
+        elif region == "Near East and North Africa":
+            options = fao_ena_options_ga
+        else:
+            options = fao_swp_options_ga
+    elif region_country == "World Bank":
+        if region == "All":
+            if income == "All":
+                options = country_options_ga
+            else:
+                options_df = ga_countries_biomass.loc[(ga_countries_biomass['incomegroup'] == income)]
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
+        else:
+            options_df = ga_countries_biomass.loc[(ga_countries_biomass['region'] == region)]
+            if income == "All":
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
+            else:
+                options_df = options_df.loc[(options_df['incomegroup'] == income)]
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
+    else:
+        options = country_options_ga
+
+    return options
+
+# Update species options based on region and country selections
+@gbadsDash.callback(
+    Output(component_id='select-species-ga', component_property='options'),
+    Input(component_id='select-country-overview-ga', component_property='value'),
+    Input(component_id='select-region-overview-ga', component_property='value'),
+    )
+def update_species_options_ga(country, region):
+    if region == 'All':
+        if country == "All":
+            options = []
+            for i in ga_countries_biomass['species'].unique():
+                str(options.append({'label':i,'value':(i)}))
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+            options = []
+            for i in input_df['species'].unique():
+                str(options.append({'label':i,'value':(i)}))
+    elif region == "Sub-Saharan Africa":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_africa_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "East Asia & Pacific":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_eap_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "Europe & Central Asia":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_eca_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "Latin America & the Caribbean":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_lac_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "Middle East & North Africa":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_mena_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "North America":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_na_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    else:
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_southasia_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+
+    return options
+
+# ------------------------------------------------------------------------------
+#### -- Data
+# ------------------------------------------------------------------------------
+# Add AHLE calcs to global data
+# Updates when user changes mortality, morbidity, or vet & med rates
+@gbadsDash.callback(
+    Output('core-data-world-ahle','data'),
+    Input('base-mortality-rate-ga','value'),
+    # Input('base-morbidity-rate-ga','value'),
+    # Input('base-vetmed-rate-ga','value'),
+    )
+def update_core_data_world_ahle(base_mort_rate):# ,base_morb_rate ,base_vetmed_rate):
+    world_ahle_withcalcs = ga_countries_biomass.copy()
+
+    # Add mortality, morbidity, and vetmed rate columns
+    world_ahle_withcalcs = ga.add_mortality_rate(world_ahle_withcalcs)
+    world_ahle_withcalcs = ga.add_morbidity_rate(world_ahle_withcalcs)
+    world_ahle_withcalcs = ga.add_vetmed_rates(world_ahle_withcalcs)
+
+    # Apply AHLE calcs
+    world_ahle_withcalcs = ga.ahle_calcs_adj_outputs(world_ahle_withcalcs)
+
+    return world_ahle_withcalcs.to_json(date_format='iso', orient='split')
+
+# World AHLE ABT Data
+@gbadsDash.callback(
+    Output('core-data-world-ahle-abt-ga','data'),
+    Input('select-species-ga','value'),
+    Input('Region-country-alignment-overview-ga','value'),
+    Input('select-region-overview-ga', 'value'),
+    Input('select-country-overview-ga','value'),
+    Input('select-incomegrp-overview-ga','value'),
+    )
+def update_core_data_world_ahle_abt_ga(species,region_country,region,country,income):
+    input_df = ga_countries_biomass.copy()
+
+    # Filter Region & country
+    if region == "All":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in country_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "Sub-Saharan Africa":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_africa_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "East Asia & Pacific":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_eap_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "Europe & Central Asia":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_eca_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "Latin America & the Caribbean":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_lac_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "Middle East & North Africa":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_mena_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "North America":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_na_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+    else:
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_southasia_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+
+    # Filter Income Group
+    if income == 'All':
+        input_df = input_df
+    else:
+        input_df = input_df.loc[(input_df['incomegroup'] == income)]
+
+    # Filter Species
+    input_df = input_df.loc[(input_df['species'] == species)]
+
+    # Add mortality, morbidity, and vetmed rate columns
+    input_df = ga.add_mortality_rate(input_df)
+    input_df = ga.add_morbidity_rate(input_df)
+    input_df = ga.add_vetmed_rates(input_df)
+
+    # Apply AHLE calcs
+    input_df = ga.ahle_calcs_adj_outputs(input_df)
+
+    return input_df.to_json(date_format='iso', orient='split')
+
+
+# Attribution datatable below graphic
+@gbadsDash.callback(
+    Output('ga-world-abt-datatable', 'children'),
+    Input('core-data-world-ahle-abt-ga','data'),
+    # Input('select-currency-ecs','value'),
+    )
+def update_overview_table_ga(input_json):
+    input_df = pd.read_json(input_json, orient='split')
+
+    # Format numbers
+    input_df.update(input_df[['biomass',
+                              'population',
+                              'liveweight',
+                              'ahle_total_2010usd',
+                              ]].applymap('{:,.0f}'.format))
+
+    columns_to_display_with_labels = {
+       'country':'Country'
+       ,'species':'Species'
+       ,'year':'Year'
+       ,'incomegroup': 'Income Group'
+       ,'ahle_total_2010usd': 'Total AHLE (2010 USD)'
+       ,'biomass':'Biomass (kg)'
+       ,'population':'Population (head)'
+       ,'liveweight':'Average Live Weight (kg)'
+    }
+
+    # Subset columns
+    input_df = input_df[list(columns_to_display_with_labels)]
+
+    # Hover-over text
+    column_tooltips = {
+       'incomegroup':'Source: World Bank via GBADs knowledge engine'
+       # ,'ahle_total_2010usd': ')'
+       ,'biomass':'Source: FAO via GBADs knowledge engine'
+       ,'population':'Source: FAO via GBADs knowledge engine'
+       ,'liveweight':'Source: FAO via GBADs knowledge engine'
+    }
+    return [
+            html.H4("Global Aggregation Data"),
+            dash_table.DataTable(
+                columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+                fixed_rows={'headers': True, 'data': 0},
+                data=input_df.to_dict('records'),
+                export_format="csv",
+                style_cell={
+                    'font-family':'sans-serif',
+                    },
+                style_table={'overflowX': 'scroll',
+                              'height': '680px',
+                              'overflowY': 'auto'},
+                page_action='none',
+
+                # Hover-over for column headers
+                tooltip_header=column_tooltips,
+                tooltip_delay=1500,
+                tooltip_duration=50000,
+
+                # Underline columns with tooltips
+                style_header_conditional=[{
+                    'if': {'column_id': col},
+                    'textDecoration': 'underline',
+                    'textDecorationStyle': 'dotted',
+                    } for col in list(column_tooltips)],
+            )
+        ]
+
+@gbadsDash.callback(
+    Output('ga-detailtab-displaytable', 'children'),
+    Input('core-data-world-ahle','data'),
+    Input('select-region-detail-ga','value'),
+    Input('select-incomegrp-detail-ga','value'),
+    Input('select-country-detail-ga','value'),
+    )
+def update_display_table_ga(input_json ,selected_region ,selected_incgrp ,selected_country):
+    # Read data
+    input_df = pd.read_json(input_json, orient='split')
+
+    # Apply filters
+    input_df_filtered = input_df
+
+    # Region, Country and Income group might not be filtered
+    if selected_region == 'All':
+        if selected_country == 'All':
+            input_df_filtered = input_df_filtered
+            # print_selected_country = 'All countries, '
+            print_selected_country = 'Global, '
+
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                input_df_filtered = input_df_filtered
+                print_selected_incgrp = 'all income groups, '
+            else:
+                input_df_filtered = input_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}, '
+        else:
+            input_df_filtered = input_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country}'
+            print_selected_incgrp = ''
+    else:
+        if selected_country == 'All':
+            input_df_filtered = input_df_filtered.query(f"region == '{selected_region}'")
+            print_selected_country = f'All {selected_region} countries,'
+
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                input_df_filtered = input_df_filtered
+                print_selected_incgrp = 'all income groups, '
+            else:
+                input_df_filtered = input_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}, '
+        else:
+            input_df_filtered = input_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country}'
+            print_selected_incgrp = ''
+
+    columns_to_display_with_labels = {
+        'region':'Region'
+        ,'incomegroup':'Income group'
+        ,'country':'Country'
+        ,'species':'Species'
+        ,'year':'Year'
+        ,'population':'Population (head)'
+        ,'liveweight':'Average liveweight (kg)'
+        ,'biomass':'Biomass (kg)'
+
+        ,'production_eggs_tonnes':'Egg production (tonnes)'
+        ,'production_meat_tonnes':'Meat production (tonnes)'
+        ,'production_milk_tonnes':'Milk production (tonnes)'
+        ,'production_wool_tonnes':'Wool production (tonnes)'
+
+        ,'producer_price_meat_live_usdpertonne_cnst2010':'Liveweight price (USD per tonne)'
+        ,'producer_price_eggs_usdpertonne_cnst2010':'Egg price (USD per tonne)'
+        ,'producer_price_meat_usdpertonne_cnst2010':'Meat price (USD per tonne)'
+        ,'producer_price_milk_usdpertonne_cnst2010':'Milk price (USD per tonne)'
+        ,'producer_price_wool_usdpertonne_cnst2010':'Wool price (USD per tonne)'
+
+        ,'biomass_value_2010usd':'Value of biomass (USD)'
+        ,'output_value_eggs_2010usd':'Value of Egg production (USD)'
+        ,'output_value_meat_2010usd':'Value of Meat production (USD)'
+        ,'output_value_milk_2010usd':'Value of Milk production (USD)'
+        ,'output_value_wool_2010usd':'Value of Wool production (USD)'
+
+        ,'mortality_rate':'Mortality rate'
+        ,'morbidity_rate':'Morbidity rate'
+
+        ,'ideal_biomass_value_2010usd':'Value of ideal biomass (USD)'
+        ,'ideal_output_value_eggs_2010usd':'Value of ideal egg production (USD)'
+        ,'ideal_output_value_meat_2010usd':'Value of ideal meat production (USD)'
+        ,'ideal_output_value_milk_2010usd':'Value of ideal milk production (USD)'
+        ,'ideal_output_value_wool_2010usd':'Value of ideal wool production (USD)'
+
+        ,'vetspend_biomass_farm_usdperkgbm':'Producers vet & med cost per kg biomass (USD)'
+        ,'vetspend_biomass_public_usdperkgbm':'Public vet & med cost per kg biomass (USD)'
+        ,'vetspend_production_usdperkgprod':'Producers vet & med cost per kg production (USD)'
+        ,'vetspend_farm_usd':'Total producers vet & med cost (USD)'
+        ,'vetspend_public_usd':'Total public vet & med cost (USD)'
+
+        ,'ahle_dueto_reducedoutput_2010usd':'Value of AHLE due to reduced output (USD)'
+        ,'ahle_dueto_vetandmedcost_2010usd':'Value of AHLE due to vet & med cost (USD)'
+        ,'ahle_total_2010usd':'Total value of AHLE (USD)'
+    }
+    # ------------------------------------------------------------------------------
+    # Format data to display in the table
+    # ------------------------------------------------------------------------------
+    # Order does not matter in these lists
+    # Zero decimal places without comma
+    input_df_filtered.update(input_df_filtered[[
+        'year'
+    ]].applymap('{:.0f}'.format))
+
+    # Zero decimal places
+    input_df_filtered.update(input_df_filtered[[
+        'population'
+        ,'biomass'
+        ,'production_eggs_tonnes'
+        ,'production_meat_tonnes'
+        ,'production_milk_tonnes'
+        ,'production_wool_tonnes'
+    ]].applymap('{:,.0f}'.format))
+
+    # One decimal place
+    input_df_filtered.update(input_df_filtered[[
+        'liveweight'
+    ]].applymap('{:,.1f}'.format))
+
+    # Two decimal places
+    input_df_filtered.update(input_df_filtered[[
+        'producer_price_meat_live_usdpertonne_cnst2010'
+        ,'producer_price_eggs_usdpertonne_cnst2010'
+        ,'producer_price_meat_usdpertonne_cnst2010'
+        ,'producer_price_milk_usdpertonne_cnst2010'
+        ,'producer_price_wool_usdpertonne_cnst2010'
+
+        ,'biomass_value_2010usd'
+        ,'output_value_eggs_2010usd'
+        ,'output_value_meat_2010usd'
+        ,'output_value_milk_2010usd'
+        ,'output_value_wool_2010usd'
+
+        ,'mortality_rate'
+        ,'morbidity_rate'
+
+        ,'ideal_biomass_value_2010usd'
+        ,'ideal_output_value_eggs_2010usd'
+        ,'ideal_output_value_meat_2010usd'
+        ,'ideal_output_value_milk_2010usd'
+        ,'ideal_output_value_wool_2010usd'
+
+        ,'vetspend_biomass_farm_usdperkgbm'
+        ,'vetspend_biomass_public_usdperkgbm'
+        ,'vetspend_production_usdperkgprod'
+        ,'vetspend_farm_usd'
+        ,'vetspend_public_usd'
+
+        ,'ahle_dueto_reducedoutput_2010usd'
+        ,'ahle_dueto_vetandmedcost_2010usd'
+        ,'ahle_total_2010usd'
+
+    ]].applymap('{:,.2f}'.format))
+
+    # ------------------------------------------------------------------------------
+    # Hover-over text
+    # ------------------------------------------------------------------------------
+    column_tooltips = {
+        'region':'World Bank region'
+        ,'incomegroup':'World Bank income group'
+        ,'population':'Source: FAO'
+        ,'liveweight':'Source: FAO'
+
+        ,'production_eggs_tonnes':'Source: FAO'
+        ,'production_meat_tonnes':'Source: FAO'
+        ,'production_milk_tonnes':'Source: FAO'
+        ,'production_wool_tonnes':'Source: FAO'
+
+        ,'producer_price_meat_live_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        ,'producer_price_eggs_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        ,'producer_price_meat_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        ,'producer_price_milk_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        ,'producer_price_wool_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+
+        ,'biomass_value_2010usd':'Constant 2010 US dollars'
+        ,'output_value_eggs_2010usd':'Constant 2010 US dollars'
+        ,'output_value_meat_2010usd':'Constant 2010 US dollars'
+        ,'output_value_milk_2010usd':'Constant 2010 US dollars'
+        ,'output_value_wool_2010usd':'Constant 2010 US dollars'
+
+        # ,'mortality_rate':''
+        # ,'morbidity_rate':''
+
+        ,'ideal_biomass_value_2010usd':'Constant 2010 US dollars'
+        ,'ideal_output_value_eggs_2010usd':'Constant 2010 US dollars'
+        ,'ideal_output_value_meat_2010usd':'Constant 2010 US dollars'
+        ,'ideal_output_value_milk_2010usd':'Constant 2010 US dollars'
+        ,'ideal_output_value_wool_2010usd':'Constant 2010 US dollars'
+
+        # ,'vetspend_biomass_farm_usdperkgbm':''
+        # ,'vetspend_biomass_public_usdperkgbm':''
+        # ,'vetspend_production_usdperkgprod':''
+        # ,'vetspend_farm_usd':''
+        # ,'vetspend_public_usd':''
+
+        ,'ahle_dueto_reducedoutput_2010usd':'Constant 2010 US dollars'
+        ,'ahle_dueto_vetandmedcost_2010usd':'Constant 2010 US dollars'
+        ,'ahle_total_2010usd':'Constant 2010 US dollars'
+    }
+    
+    # !!!- Adjust header size based on the column name length
+    # # custom width for each column as a workaround for this issue: 
+    # long_column_names = [{"if": {"column_id": column}, "min-width": "300px"} for column in df.columns if len(column) >= 30]
+    # med_column_names = [{"if": {"column_id": column}, "min-width": "225px"} for column in df.columns if (len(column) > 15 and len(column)) < 30]
+    # small_column_names = [{"if": {"column_id": column}, "min-width": "100px"} for column in df.columns if len(column) <= 15]
+    
+    # adjusted_columns = long_column_names + med_column_names + small_column_names
+    return [
+        html.H4(f"Detailed data for {print_selected_country}{print_selected_incgrp}"),
+        dash_table.DataTable(
+            columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+            fixed_rows={'headers': True, 'data': 0},
+            data=input_df_filtered.to_dict('records'),
+            export_format="csv",
+            sort_action = 'native',
+            style_cell={'font-family':'sans-serif'},
+            style_table={'overflowX': 'scroll',
+                         'height': '680px',
+                         'overflowY': 'auto'
+                         },
+
+            # Hover-over for column headers
+            tooltip_header=column_tooltips,
+            tooltip_delay=1500,
+            tooltip_duration=50000,
+
+            # Underline columns with tooltips
+            style_header_conditional=[{
+                'if': {'column_id': col},
+                'textDecoration': 'underline',
+                'textDecorationStyle': 'dotted',
+                } for col in list(column_tooltips)],
+        )
+    ]
+
+# ------------------------------------------------------------------------------
+#### -- Figures
+# ------------------------------------------------------------------------------
+# Biomass Map
+@gbadsDash.callback(
+   Output('ga-map-or-line-select','figure'),
+   Input('core-data-world-ahle-abt-ga','data'),
+   Input('viz-radio-ga','value'),
+   Input('select-species-ga','value'),
+   Input('select-country-overview-ga', 'value'),
+   Input('select-region-overview-ga', 'value'),
+   Input('map-display-radio-ga','value'),
+   # Input('select-currency-ecs','value'),
+   )
+def update_bio_ahle_visual_ga(input_json, viz_selection, species, country_select, region, display):
+   # Data
+   input_df = pd.read_json(input_json, orient='split')
+
+   if viz_selection == 'Map':
+       # Set values from the data
+       iso_alpha3 = input_df['country_iso3']
+       country = input_df['country']
+       year = input_df['year']
+
+       # # Establish AHLE
+       input_df['ahle_total_2010usd'] = input_df['ahle_total_2010usd'].fillna(0)
+
+
+       # Set value based on map display option
+       if display == 'Biomass':
+           display_title = 'Biomass (kg)'
+           value = input_df['biomass']
+       elif display == 'Live Weight':
+           display_title = 'Average Live Weight (kg)'
+           value = input_df['liveweight']
+       elif display == 'Population':
+           display_title = 'Population (head)'
+           value = input_df['population']
+       elif display == 'Animal Health Loss Envelope (AHLE)':
+           display_title = 'AHLE (2010 USD)'
+           value = input_df['ahle_total_2010usd']
+       else:
+           display = 'AHLE per kg biomass'
+           display_title = 'AHLE (USD per kg biomass)'
+           value = input_df['ahle_2010usd_perkgbm']
+
+       # Set up map structure
+       ga_biomass_ahle_visual = create_biomass_map_ga(input_df, iso_alpha3, value, country, display_title)
+
+       # Add title
+       if region == 'All':
+           if country_select =='All':
+               ga_biomass_ahle_visual.update_layout(title_text=f'Global {display_title} for {species}',
+                                             font_size=15,
+                                             margin=dict(t=100))
+           else:
+               ga_biomass_ahle_visual.update_layout(title_text=f'{country_select} {display_title} for {species}',
+                                             font_size=15,
+                                             margin=dict(t=100))
+               ga_biomass_ahle_visual.update_coloraxes(showscale=False)
+       else:
+             if country_select =='All':
+                 ga_biomass_ahle_visual.update_layout(title_text=f'{region} {display_title} for {species}',
+                                               font_size=15,
+                                               margin=dict(t=100))
+             else:
+                 ga_biomass_ahle_visual.update_layout(title_text=f'{country_select} {display_title} for {species}',
+                                               font_size=15,
+                                               margin=dict(t=100))
+                 ga_biomass_ahle_visual.update_coloraxes(showscale=False)
+
+   elif viz_selection == 'Line chart':
+       # Specify which columns to keep forline chart
+       input_df = input_df[['country', 'year', 'species', 'biomass', 'population', 'liveweight']]
+
+       # Melt data to create facets for line chart
+       input_df = input_df.melt(id_vars=['country', 'year', 'species'],
+                                value_vars=['biomass', 'population', 'liveweight'],
+                                var_name='facet',
+                                value_name='value')
+
+       # Set values from the data
+       year = input_df['year']
+       value = input_df['value']
+       country = input_df['country']
+       facet = input_df['facet']
+
+       # Set up line plot structure
+       ga_biomass_ahle_visual = create_line_chart_ga(input_df, year, value, country, facet)
+
+   return ga_biomass_ahle_visual
+
+# Global AHLE Waterfall
+@gbadsDash.callback(
+    Output('ga-ahle-waterfall','figure'),
+    Input('core-data-world-ahle','data'),
+    Input('select-region-detail-ga','value'),
+    Input('select-incomegrp-detail-ga','value'),
+    Input('select-country-detail-ga','value'),
+    Input('select-year-ga','value'),
+    Input('select-display-ga','value'),
+    )
+def update_ahle_waterfall_ga(input_json ,selected_region ,selected_incgrp ,selected_country ,selected_year, display):
+    # Read core data
+    input_df = pd.read_json(input_json, orient='split')
+
+    # Prep the data
+    prep_df = prep_ahle_forwaterfall_ga(input_df)
 
     # Make costs negative
-    costs = ('Feed Cost',
-             'Labour Cost',
-             'Health Cost',
-             'Capital Cost')
-    ecs_ahle_summary_sheep_sunburst['mean_current'] = np.where(ecs_ahle_summary_sheep_sunburst.item.isin(costs), ecs_ahle_summary_sheep_sunburst['mean_current']* -1, ecs_ahle_summary_sheep_sunburst['mean_current'])
+    _vetmed_rows = (prep_df['item'].str.contains('VET' ,case=False))
+    prep_df.loc[_vetmed_rows ,'value_usd_current'] = -1 * prep_df['value_usd_current']
 
-    # Sort Item column to keep values and costs together
-    ecs_ahle_summary_sheep_sunburst['item'] = ecs_ahle_summary_sheep_sunburst['item'].astype('category')
-    ecs_ahle_summary_sheep_sunburst.item.cat.set_categories(waterfall_plot_values, inplace=True)
-    ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.sort_values(["item"])
-   
-    # Create graph
-    ecs_sunburst_fig = create_ahle_sunburst_ecs(ecs_ahle_summary_sheep_sunburst)
-   
-    # Add title
-    ecs_sunburst_fig.update_layout(title_text=f'Animal Health Loss Envelope (AHLE) | {species} <br><sup>Gross Margin = Total Value Increase - Total Expenditure</sup><br>',
-                                font_size=15,
-                                margin=dict(t=100))
+    # Apply user filters
+    # There will always be a year filter
+    prep_df_filtered = prep_df.query(f"year == {selected_year}")
 
-    return ecs_sunburst_fig
+    # Region, Country and Income group might not be filtered
+    if selected_region == 'All':
+        if selected_country == 'All':
+            prep_df_filtered = prep_df_filtered
+            # print_selected_country = 'All countries, '
+            print_selected_country = 'Global, '
 
-# @gbadsDash.callback(
-#     Output('ecs-ahle-sunburst','figure'),
-#     Input('select-species-ecs','value'),
-#     )
-# def update_ahle_sunburst_ecs(species):
-#     # Data
-#     input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv'))
-   
-#     sunburst_df = prep_ahle_forsunburst_ecs(input_df)
-   
-#     # Calculate Gross Margin to display
-#     Total_Value_Increase = sunburst_df.loc[sunburst_df['Total'] == 'Total Value Increase', 'envelope'].sum()
-#     Total_Expenditure = sunburst_df.loc[sunburst_df['Total'] == 'Total Expenditure', 'envelope'].sum()
-#     Gross_Margin = Total_Value_Increase - Total_Expenditure
-#     # Gross_Margin = '${:,.0f} USD'.format(Gross_Margin)
-#     Gross_Margin = humanize.intword(Gross_Margin) + ' birr'
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                prep_df_filtered = prep_df_filtered
+                print_selected_incgrp = 'all income groups, '
+            else:
+                prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}, '
+        else:
+            prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country} '
+            print_selected_incgrp = ''
+    else:
+        if selected_country == 'All':
+            prep_df_filtered = prep_df_filtered.query(f"region == '{selected_region}'")
+            print_selected_country = f'All {selected_region} countries,'
 
-#     # Apply absolute value to only show positive values (proportions of Gross Margin)
-#     sunburst_df['envelope'] = abs(sunburst_df['envelope'])
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                prep_df_filtered = prep_df_filtered
+                print_selected_incgrp = 'all income groups, '
+            else:
+                prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}, '
+        else:
+            prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country} '
+            print_selected_incgrp = ''
 
-#     ecs_sunburst_fig = create_ahle_sunburst_ecs(sunburst_df)
-   
-#     ecs_sunburst_fig.update_layout(title_text=f'Health Loss Envelope | {species} <br><sup>Gross Margin: {Gross_Margin} (Total Value Increase - Total Expenditure)</sup><br>',
-#                                 font_size=15,
-#                                 margin=dict(t=100))
+    # Get sum for each item (summing over countries if multiple)
+    prep_df_sums = prep_df_filtered.groupby('item')[['value_usd_current' ,'value_usd_ideal']].sum()
+    prep_df_sums = prep_df_sums.reset_index()
 
-#     return ecs_sunburst_fig
+    # Get total AHLE for printing
+    # _netvalue = (prep_df_sums['item'] == 'Net value')
+    # current_net_value = prep_df_sums.loc[_netvalue ,'value_usd_current'].values[0]
+    # ideal_net_value = prep_df_sums.loc[_netvalue ,'value_usd_ideal'].values[0]
+    # total_ahle = ideal_net_value - current_net_value
+
+    # Create AHLE differences bars (ideal - current)
+    prep_df_sums['value_usd_ahle_diff'] = prep_df_sums['value_usd_ideal'] - prep_df_sums['value_usd_current']
+
+    # Add vet spend back in
+    # prod_vetspend = prep_df_sums[prep_df_sums['item']=='Producers vet & med costs']['value_usd_ahle_diff'].values[0]
+    # pub_vetspend = prep_df_sums[prep_df_sums['item']=='Public vet & med costs']['value_usd_ahle_diff'].values[0]
+
+    # prep_df_sums['value_usd_ahle_diff'] = prep_df_sums['value_usd_ahle_diff'] + prep_df_sums[prep_df_sums['item']=='Biomass']
+    total_ahle = prep_df_sums[prep_df_sums['item']=='Net value']['value_usd_ahle_diff'].values[0]
+    # total_ahle = total_ahle + prod_vetspend + pub_vetspend
+
+    if display =='Current & Ideal':
+        # Create graph with current values
+        name = 'Current'
+        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+        x = prep_df_sums['item']
+        y = prep_df_sums['value_usd_current']
+        ga_waterfall_fig = create_ahle_waterfall_ga(prep_df_sums, name, measure, x, y)
+
+        # Add ideal values side-by-side
+        ga_waterfall_fig.add_trace(go.Waterfall(
+            name = 'Ideal',
+            measure = measure,
+            x = x,
+            y = prep_df_sums['value_usd_ideal'],
+            decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
+            increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
+            totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
+            connector = {"line":{"dash":"dot"}},
+            ))
+        ga_waterfall_fig.update_layout(
+            waterfallgroupgap = 0.5,    # Gap between bars
+            )
+
+        ga_waterfall_fig.update_layout(title_text=f'Current & ideal output values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
+                                       yaxis_title='US Dollars (2010 constant)',
+                                       font_size=15)
+    else:
+        # Create graph with differences
+        name = 'AHLE'
+        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+        x = prep_df_sums['item']
+        y = prep_df_sums['value_usd_ahle_diff']
+        ga_waterfall_fig = create_ahle_waterfall_ga(prep_df_sums, name, measure, x, y)
+
+        ga_waterfall_fig.update_layout(title_text=f'Ideal minus current output values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
+                                       yaxis_title='US Dollars (2010 constant)',
+                                       font_size=15)
+
+    return ga_waterfall_fig
+
+# Global AHLE plot over time
+@gbadsDash.callback(
+    Output('ga-ahle-over-time','figure'),
+    Input('core-data-world-ahle','data'),
+    Input('select-region-detail-ga','value'),
+    Input('select-incomegrp-detail-ga','value'),
+    Input('select-country-detail-ga','value'),
+    Input('select-item-ga','value'),
+    Input('select-display-ga','value'),
+    )
+def update_ahle_lineplot_ga(input_json ,selected_region ,selected_incgrp ,selected_country ,selected_item ,display):
+    # Read core data
+    input_df = pd.read_json(input_json, orient='split')
+
+    # Prep the data
+    # Initial data prep is same as waterfall!
+    prep_df = prep_ahle_forwaterfall_ga(input_df)
+
+    # Apply user filters
+    # There will always be an item filter
+    prep_df_filtered = prep_df.query(f"item == '{selected_item}'")
+    if selected_item == 'Net value':
+        print_selected_item = f'{selected_item} over time'
+    else:
+        print_selected_item = f'value of {selected_item} over time'
+
+    # Region, Country and Income group might not be filtered
+    if selected_region == 'All':
+        if selected_country == 'All':
+            prep_df_filtered = prep_df_filtered
+            print_selected_country = 'Global, '
+
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                prep_df_filtered = prep_df_filtered
+                print_selected_incgrp = 'all income groups'
+            else:
+                prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}'
+        else:
+            prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country}'
+            print_selected_incgrp = ''
+    else:
+        if selected_country == 'All':
+            prep_df_filtered = prep_df_filtered.query(f"region == '{selected_region}'")
+            print_selected_country = f'All {selected_region} countries, '
+
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                prep_df_filtered = prep_df_filtered
+                print_selected_incgrp = 'all income groups'
+            else:
+                prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}'
+        else:
+            prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country}'
+            print_selected_incgrp = ''
+
+    # Create AHLE (dfiierence) value
+    prep_df_filtered['value_usd_ahle_diff'] = prep_df_filtered['value_usd_ideal'] - prep_df_filtered['value_usd_current']
+
+    # Get sum for each year
+    prep_df_sums = prep_df_filtered.groupby('year')[['value_usd_current' ,'value_usd_ideal', 'value_usd_ahle_diff']].sum()
+    prep_df_sums = prep_df_sums.reset_index()
 
 
+    if display == "Current & Ideal":
+        # Plot current value
+        plot_current_value = go.Scatter(
+            x=prep_df_sums['year']
+            ,y=prep_df_sums['value_usd_current']
+            ,name='Current'
+            ,line=dict(color='#0028CA')
+            )
+        # Overlay ideal value
+        plot_ideal_value = go.Scatter(
+            x=prep_df_sums['year']
+            ,y=prep_df_sums['value_usd_ideal']
+            ,name='Ideal'
+            ,line=dict(color='#00CA0F')
+            )
+
+        ga_lineplot_fig = make_subplots()
+        ga_lineplot_fig.add_trace(plot_ideal_value)
+        ga_lineplot_fig.add_trace(plot_current_value)
+        ga_lineplot_fig.update_layout(title_text=f'Current & ideal {print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
+                                      yaxis_title='US Dollars (2010 constant)',
+                                      font_size=15,
+                                      plot_bgcolor="#ededed",)
+
+    else:
+        # Change line color based on if AHLE or cost is selected
+        costs = "costs"
+        if selected_item == 'Net value':
+            # Plot AHLE value
+            plot_ahle_value = go.Scatter(
+                x=prep_df_sums['year']
+                ,y=prep_df_sums['value_usd_ahle_diff']
+                ,name=f'{display}'
+                ,line=dict(color='#F7931D')
+                )
+        elif costs in selected_item:
+            # Plot AHLE value
+            plot_ahle_value = go.Scatter(
+                x=prep_df_sums['year']
+                ,y=prep_df_sums['value_usd_ahle_diff']
+                ,name=f'{display}'
+                ,line=dict(color='#E84C3D')
+                )
+        else:
+            # Plot AHLE value
+            plot_ahle_value = go.Scatter(
+                x=prep_df_sums['year']
+                ,y=prep_df_sums['value_usd_ahle_diff']
+                ,name=f'{display}'
+                ,line=dict(color='#3598DB')
+                )
+
+        ga_lineplot_fig = make_subplots()
+        ga_lineplot_fig.add_trace(plot_ahle_value)
+        ga_lineplot_fig.update_layout(title_text=f'Ideal minus current {print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
+                                      yaxis_title='US Dollars (2010 constant)',
+                                      font_size=15,
+                                      plot_bgcolor="#ededed",)
+
+
+    return ga_lineplot_fig
 
 #%% 6. RUN APP
 #############################################################################################################
@@ -3959,7 +6051,6 @@ if __name__ == "__main__":
    # NOTE: These statements are not executed when in gunicorn, because in gunicorn this program is loaded as module
 
    # use_port = fa.get_open_port()  # selects first unused port >= 8050
-   # use_port = 8050                  # set to fixed fixed number
    use_port = 8050                 # set to fixed fixed number
 
    fa.run_server(app, use_port, debug=True)

@@ -1,1 +1,0 @@
-# Ideal production (dollars)

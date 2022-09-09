@@ -12,7 +12,7 @@ Selecting country, year, and metric
 ```
 
 <p><b>Region-country alignment</b><br />
-Allows the user to select which organization's region definitions to use when limiting countries with the the <i>Region</i> selector. Options are: OIE, FAO, or World Bank.
+Allows the user to select which organization's region definitions to use when limiting countries with the the <i>Region</i> selector. Options are: WOAH, FAO, or World Bank.
 </p>
 <p><b>Region</b><br />
 Limits the countries in the <i>Country</i> dropdown to those in the selected region.

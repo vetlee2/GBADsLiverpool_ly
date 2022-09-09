@@ -1,4 +1,15 @@
 # =================================================================
+# About
+# =================================================================
+# This code reads an Excel file which defines the scenarios to run.
+# If you see the below error, the cause is likely a missing parenthesis
+# for one of the parameter values in the Excel file.
+#
+# Error in parse(text = functioncall_string) : 
+#      <text>:2:0: unexpected end of input
+#
+
+# =================================================================
 # Top-level program parameters
 # =================================================================
 # -----------------------------------------------------------------
@@ -8,17 +19,23 @@
 cmd_nruns <- 10
 
 # Folder location to save outputs
-cmd_output_directory <- '.'   # '.' to write to same folder this code is in
+cmd_output_directory <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Program outputs'
+
+# Full path to scenario control file
+cmd_scenario_file <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters MAJOR SCENARIOS ONLY.xlsx'
+#cmd_scenario_file <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters.xlsx'
 
 # -----------------------------------------------------------------
 # Get from command line arguments
 # -----------------------------------------------------------------
-# Only look for command arguments if this was invoked from the command line
+# If this was invoked from the command line, look for command arguments
+# Will overwrite manual settings above
 if (grepl('Rterm.exe', paste(commandArgs(), collapse=" "), ignore.case = TRUE, fixed = TRUE))
 {
 	cmd_args <- commandArgs(trailingOnly=TRUE)	# Fetch command line arguments
-	cmd_nruns <- as.numeric(cmd_args[1]) 			# First argument: number of runs. Convert to numeric.
-	cmd_output_directory <- cmd_args[2] 			# Second argument: folder location to save outputs
+	cmd_nruns <- as.numeric(cmd_args[1]) 			# Arg 1: number of runs. Convert to numeric.
+	cmd_output_directory <- cmd_args[2] 			# Arg 2: folder location to save outputs
+	cmd_scenario_file <- cmd_args[3] 				# Arg 3: full path to scenario control file
 }
 
 # -----------------------------------------------------------------
@@ -1636,25 +1653,37 @@ build_summary_df <- function(
 # Run scenarios
 # =================================================================
 library(readxl)
-library(gtools)
 
 # Read control table
-ahle_scenarios <- read_excel("/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters.xlsx")
+ahle_scenarios <- read_excel(cmd_scenario_file ,'Sheet1')
 
 # Drop rows where parameter name is empty or commented
 ahle_scenarios <- ahle_scenarios[!is.na(ahle_scenarios$'AHLE Parameter') ,]
-ahle_scenarios <- ahle_scenarios[!grepl('#', ahle_scenarios$'AHLE Parameter') ,]
+ahle_scenarios <- ahle_scenarios[!grepl('#', ahle_scenarios$'AHLE Parameter') ,] 	# Will drop all rows whose parameter name contains a pound sign
 
-# Construct function arguments as "name = value"
-# CLM Sheep Current scenario
-ahle_scenarios$arglist_clm_s_current <- do.call(paste, c(ahle_scenarios[c("AHLE Parameter", "CLM_S_Current")], sep="="))
+# Create version with just scenario columns
+remove_cols <- c('AHLE Parameter' ,'Notes')
+ahle_scenarios_cln <- subset(ahle_scenarios, select = !(names(ahle_scenarios) %in% remove_cols)) 
 
-# Get as single string and append cmd arguments
-argstring_clm_s_current <- toString(ahle_scenarios$arglist_clm_s_current)
-argstring_clm_s_current_touse <- paste('nruns =' ,cmd_nruns ,',' ,argstring_clm_s_current)
+# Loop through scenario columns, calling the function for each
+for (COLNAME in colnames(ahle_scenarios_cln)){
+	print('> Running AHLE scenario:')
+	print(COLNAME)
 
-# Define macro
-run_scenario <- strmacro(ARGLIST ,expr = compartmental_model(ARGLIST))
+	# Construct function arguments as "name = value"
+	ahle_scenarios_cln$arglist <- do.call(paste, c(ahle_scenarios[c("AHLE Parameter", COLNAME)], sep="="))
 
-# Call macro
-run_scenario(argstring_clm_s_current_touse)
+	# Get as single string and append cmd arguments
+	argstring <- toString(ahle_scenarios_cln$arglist)
+	argstring_touse <- paste('nruns=' ,cmd_nruns ,',' ,argstring ,sep='')
+	
+	# Construct function call
+	functioncall_string <- paste('compartmental_model(' ,argstring_touse ,')' ,sep='')
+	print('> Function call:')
+	print(functioncall_string)
+
+	# Call function and save result to file
+	result <- eval(parse(text=functioncall_string))
+	filename <- paste('ahle_' ,COLNAME ,'.csv' ,sep='')
+	write.csv(result[[2]], file.path(cmd_output_directory, filename), row.names=FALSE)
+}

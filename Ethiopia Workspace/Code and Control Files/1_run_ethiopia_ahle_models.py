@@ -436,7 +436,10 @@ ahle_combo_raw.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_stacked.csv
 #### Create rows to filter scenarios
 # =============================================================================
 # Create a row for each age*sex group by duplication
-# Keep only Total System results
+# Keep only Total System results (where group = "Overall")
+#!!! Note: in ahle_combo_expanded and ahle_combo, the 'group' column designates
+# the SCENARIO being represented. This is different from the meaning of group
+# in the raw simulation output.
 group_basetable = pd.DataFrame({
    'agesex_group':[
       'Neonatal Female'

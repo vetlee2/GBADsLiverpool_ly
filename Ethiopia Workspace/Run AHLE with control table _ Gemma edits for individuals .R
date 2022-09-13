@@ -17,10 +17,8 @@
 # -----------------------------------------------------------------
 # Number of simulation iterations
 <<<<<<< Updated upstream
-cmd_nruns <- 2
-=======
+
 cmd_nruns <- 1
->>>>>>> Stashed changes
 
 # Folder location to save outputs
 #cmd_output_directory <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Program outputs'
@@ -884,7 +882,6 @@ compartmental_model <- function(
 		####
 		
 		## 
-		month <- 1
 		for(month in c(1:Num_months))
 		{
 			births[month] <- sum(sample(Mu, AF, replace = T))

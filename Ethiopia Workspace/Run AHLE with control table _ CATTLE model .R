@@ -1,48 +1,24 @@
 # =================================================================
-# About
-# =================================================================
-# This code reads an Excel file which defines the scenarios to run.
-# If you see the below error, the cause is likely a missing parenthesis
-# for one of the parameter values in the Excel file.
-#
-# Error in parse(text = functioncall_string) : 
-#      <text>:2:0: unexpected end of input
-#
-
-# =================================================================
 # Top-level program parameters
 # =================================================================
 # -----------------------------------------------------------------
 # Set manually
 # -----------------------------------------------------------------
 # Number of simulation iterations
-<<<<<<< Updated upstream
-cmd_nruns <- 2
-=======
-cmd_nruns <- 1
->>>>>>> Stashed changes
+cmd_nruns <- 10
 
 # Folder location to save outputs
-#cmd_output_directory <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Program outputs'
-cmd_output_directory <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Program outputs'
-
-
-# Full path to scenario control file
-#cmd_scenario_file <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters MAJOR SCENARIOS ONLY.xlsx'
-cmd_scenario_file <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters.xlsx'
+cmd_output_directory <- '.'   # '.' to write to same folder this code is in
 
 # -----------------------------------------------------------------
 # Get from command line arguments
 # -----------------------------------------------------------------
-# If this was invoked from the command line, look for command arguments
-# Will overwrite manual settings above
-## ONLY FOR PYTHON ##
+# Only look for command arguments if this was invoked from the command line
 if (grepl('Rterm.exe', paste(commandArgs(), collapse=" "), ignore.case = TRUE, fixed = TRUE))
 {
 	cmd_args <- commandArgs(trailingOnly=TRUE)	# Fetch command line arguments
-	cmd_nruns <- as.numeric(cmd_args[1]) 			# Arg 1: number of runs. Convert to numeric.
-	cmd_output_directory <- cmd_args[2] 			# Arg 2: folder location to save outputs
-	cmd_scenario_file <- cmd_args[3] 				# Arg 3: full path to scenario control file
+	cmd_nruns <- as.numeric(cmd_args[1]) 			# First argument: number of runs. Convert to numeric.
+	cmd_output_directory <- cmd_args[2] 			# Second argument: folder location to save outputs
 }
 
 # -----------------------------------------------------------------
@@ -90,22 +66,26 @@ compartmental_model <- function(
 	,Num_months 	## NOTE - if you change this you must change rates to be monthly 
 	
 	# Initial population
-	,N_NF_t0		# Neonatal female
+	,N_NF_t0		# Neonatal female (0-1)
 	,N_NM_t0		# Neonatal male
-	,N_JF_t0		# Juvenile female
+	,N_JF_t0		# Juvenile female (1-3)
 	,N_JM_t0		# Juvenile male
-	,N_AF_t0		# Adult female
+	,N_AF_t0		# Adult female (3-15)
 	,N_AM_t0		# Adult male
+	,N_O_t0		# Adult male
+	
 
 	## Growth rate N -> J and J-> A
-	,Beta_N
-	,Beta_J
+	,Beta
 	
-	# Castration rate
+	## castration rate (to make oxen)
+	,Castration
 	
 	# Fertility
+	,conception
 	,part
 	,prolif
+	,abortion
 	
 	# lactation
 	,prop_F_milked
@@ -119,7 +99,8 @@ compartmental_model <- function(
 	## Currently fixed, but, should this be dependant on new pop size, to keep pop size as it was at t0
 	## offtake must = offtake + dif between NNFt0 etc and NJF current
 	,GammaF 		# offtake rate female (juv and adult only) 
-	,GammaM 		# offtake rate male
+	,GammaM  # offtake rate  male
+	,GammaO # offtake rate Oxen castrated male
 	
 	# Mortality ## informed from META analysis
 	,AlphaN		# mortality rate neonate ## parameter derived from meat pooled proportion and variance 
@@ -130,7 +111,8 @@ compartmental_model <- function(
 	# Culls
 	,CullF	 	# cullrate Adult Female ## These will be valueless
 	,CullM		# cullrate Adult Male  ## These will still have a value
-
+	,CullO		# cullrate Adult castrated Male (oxen)  ## These will still have a value
+	
 	## Production parameters (kg)
 
 	# Liveweight conversion (kg) ## Informed from META analysis
@@ -140,7 +122,8 @@ compartmental_model <- function(
 	,lwJM 		# Liveweight Juvenille # Same here##parameters derived from meta pooled mean and variance
 	,lwAF 		# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
 	,lwAM 		# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
-
+	,lwO 		# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+	
 	# carcase yeild
 	,ccy 			# As a % of Liveweight for all groups
 
@@ -199,7 +182,7 @@ compartmental_model <- function(
 	## Labour cost
 	## birr/head/month
 	## example code to change labour cost to selecting from distribution
-	,Lab_SR
+	,Lab_cattle
 	,lab_non_health	## 0.86 in ideal this was not used in the current and this may not apply for ideal
 	
 	## Helath care costs
@@ -218,7 +201,7 @@ compartmental_model <- function(
 	## Off take which go for fertility in females
 #	hides_rate_of = 1 - fert_offtake
 # dont need to adjust for this anymore
-	DM_req_prpn_AF <- 0.026
+	#DM_req_prpn_AM <- 0.026
 	## dry matter requirements (measured in kg and calculated as a % of Liveweight)
 	kg_DM_req_NF = DM_req_prpn_NF * lwNF  	# Dry matter required by neonates
 	kg_DM_req_NM = DM_req_prpn_NM * lwNM  	# Dry matter required by neonates
@@ -228,7 +211,6 @@ compartmental_model <- function(
 	kg_DM_req_AM = DM_req_prpn_AM * lwAM  	# Dry matter required by adults
 
 	## NOTE in the pastoral system this purchased feed will be 0
-	
 	DM_purch_NF <- (kg_DM_req_NF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
 	DM_purch_NM <- (kg_DM_req_NM * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
 	DM_purch_JF <- (kg_DM_req_JF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
@@ -236,8 +218,8 @@ compartmental_model <- function(
 	DM_purch_AF <- (kg_DM_req_AF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
 	DM_purch_AM <- (kg_DM_req_AM * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
 
-#prpn_lskeepers_purch_feed <- 0.25
-#prpn_feed_paid_for <- rpert(10000, 0, 1, 0.5)
+#	prpn_lskeepers_purch_feed <- 0.25
+#	prpn_feed_paid_for <- rpert(10000, 0, 1, 0.5)
 	  
 	KG_Feed_purchased_NF <- DM_purch_NF / DM_in_feed
 	KG_Feed_purchased_NM <- DM_purch_NM / DM_in_feed
@@ -258,7 +240,7 @@ compartmental_model <- function(
 	# Create vectors to store the model outputs at each time step
 	# --------------------------------------------------------------
 	# population
-#	Num_months <- 12
+	#Num_months <- 12
 	numNF <- rep(0, Num_months)
 	numJF <- rep(0, Num_months)
 	numAF <- rep(0, Num_months)
@@ -266,35 +248,6 @@ compartmental_model <- function(
 	numJM <- rep(0, Num_months)
 	numAM <- rep(0, Num_months)
 	numN <- rep(0, Num_months)
-	
-	#births
-	births <- rep(0, Num_months)
-	
-	#growth
-	growth_NF <- rep(0, Num_months)
-	growth_NM <- rep(0, Num_months)
-	growth_JF <- rep(0, Num_months)
-	growth_JM <- rep(0, Num_months)
-	
-	#deaths
-	deaths_NF <- rep(0, Num_months)
-	deaths_NM <- rep(0, Num_months)
-	deaths_JF <- rep(0, Num_months)
-	deaths_JM <- rep(0, Num_months)
-	deaths_AF <- rep(0, Num_months)
-	deaths_AM <- rep(0, Num_months)
-	
-	#culls
-	culls_AF <- rep(0, Num_months)
-	culls_AM <- rep(0, Num_months)
-	
-	Cumulative_culls_AM <- rep(0, Num_months)
-	
-	# offtake
-	offtake_JF <- rep(0, Num_months)
-	offtake_JM <- rep(0, Num_months)
-	offtake_AF <- rep(0, Num_months)
-	offtake_AM <- rep(0, Num_months)
 
 	Monthly_mortality <- rep(0, Num_months)
 	Total_Mortality <- rep(0, Num_months)
@@ -482,7 +435,7 @@ compartmental_model <- function(
 	numJM_M <- matrix(, nrow = nruns, ncol = Num_months)
 	numAM_M <- matrix(, nrow = nruns, ncol = Num_months)
 	numN_M <- matrix(, nrow = nruns, ncol = Num_months)
-	
+
 	Monthly_mortality_M <- matrix(, nrow = nruns, ncol = Num_months)
 	Total_Mortality_M <- matrix(, nrow = nruns, ncol = Num_months)
 
@@ -510,8 +463,6 @@ compartmental_model <- function(
 	# Meat
 	Quant_Meat_kg_M <- matrix(, nrow = nruns, ncol = Num_months)
 
-	
-	
 	# Offtake
 	Num_Offtake_M <- matrix(, nrow = nruns, ncol = Num_months)
 
@@ -721,8 +672,6 @@ compartmental_model <- function(
 		pJM_t0 <- JM/N
 		pAM_t0 <- AM/N
 		
-		culls <- 0
-		
 		Num_dead <- 0
 		
 		Num_dead_NF <- 0
@@ -884,40 +833,16 @@ compartmental_model <- function(
 		####
 		
 		## 
-		month <- 1
 		for(month in c(1:Num_months))
 		{
-			births[month] <- sum(sample(Mu, AF, replace = T))
+			numNF[month] = NF + (sum(sample(Mu, AF, replace = T)) * 0.5) - (sum(sample(Beta, NF, replace = T))) - (sum(sample(AlphaN, NF, replace = T)))
 			
-			deaths_NF[month] <- sum(sample(AlphaN, NF, replace = T))
-			deaths_JF[month] <- sum(sample(AlphaJ, JF, replace = T))
-			deaths_AF[month] <- sum(sample(AlphaF, AF, replace = T))
-		
-			deaths_NM[month] <- sum(sample(AlphaN, NM, replace = T))
-			deaths_JM[month] <- sum(sample(AlphaJ, JM, replace = T))
-			deaths_AM[month] <- sum(sample(AlphaM, AM, replace = T))
-			
-			offtake_JF[month] <- sum(sample(GammaF, JF, replace = T))
-			offtake_AF[month] <- sum(sample(GammaF, AF, replace = T))
-			offtake_JM[month] <- sum(sample(GammaM, JM, replace = T))
-			offtake_AM[month] <- sum(sample(GammaM, AM, replace = T))
-			
-			growth_NF[month] <- sum(sample(Beta, NF, replace = T))
-			growth_JF[month] <- sum(sample(Beta, JF, replace = T))
-			growth_NM[month] <- sum(sample(Beta, NM, replace = T))
-			growth_JM[month] <- sum(sample(Beta, JM, replace = T))
-			
-			culls_AF[month] <- sum(sample(CullF, AF,  replace = T))
-			culls_AM[month] <- sum(sample(CullM, AM,  replace = T))
-			
-			# now the population model uses numbers calculated in stochastic equations above
-		  numNF[month] = NF + (births[month] * 0.5) - deaths_NF[month] - growth_NF[month]
-			numJF[month] = JF + growth_NF[month] - growth_JF[month] - offtake_JF[month] - deaths_JF[month]
-			numAF[month] = AF + growth_JF[month] - offtake_AF[month] - deaths_AF[month] - culls_AF[month]
+			numJF[month] = JF + (sum(sample(Beta, NF,  replace = T))) - (sum(sample(Beta, JF,  replace = T))) - (sum(sample(GammaF, JF, replace = T))) - (sum(sample(AlphaJ, JF, replace = T))) 
+			numAF[month] = AF + (sum(sample(Beta, JF,  replace = T))) - (sum(sample(GammaF, AF, replace = T))) - (sum(sample(AlphaF, AF, replace = T))) - (sum(sample(CullF, AF,  replace = T)))
 
-			numNM[month] = NM + (births[month] * 0.5) - growth_NM[month] - deaths_NM[month]
-			numJM[month] = JM + growth_NM[month] - growth_JM[month] - offtake_JM[month] - deaths_JM[month]
-			numAM[month] = AM + growth_JM[month] - offtake_AM[month] - deaths_AM[month] - culls_AM[month]
+			numNM[month] = NM + (sum(sample(Mu, AF, replace = T)) * 0.5) - (sum(sample(Beta, NM,  replace = T))) - (sum(sample(AlphaN, NM, replace = T)))
+			numJM[month] = JM + (sum(sample(Beta, NM,  replace = T))) - (sum(sample(Beta, JM,  replace = T))) - (sum(sample(GammaM, JM,  replace = T))) - (sum(sample(AlphaJ, JM,  replace = T)))
+			numAM[month] = AM + (sum(sample(Beta, JM,  replace = T))) - (sum(sample(GammaM, AM,  replace = T))) - (sum(sample(AlphaM, AM,  replace = T))) - (sum(sample(CullM, AM,  replace = T)))
 
 			numN[month] = numNF[month] + numJF[month] + numAF[month] + numNM[month] + numJM[month] + numAM[month]
 
@@ -933,18 +858,18 @@ compartmental_model <- function(
 			
 			## total mortality
 
-			## age group deaths (cumilative within age groups then sum for total cumilative)
-			Total_Mortality_NF[month] = Num_dead_NF + deaths_NF[month]
+			## age group deaths (cumilative within age groups so dont need to make total culilative)
+			Total_Mortality_NF[month] = Num_dead_NF + (sum(sample(AlphaN, NF, replace = T)))
 			Num_dead_NF = Total_Mortality_NF[month]
-			Total_Mortality_NM[month] = Num_dead_NM + deaths_NM[month]
+			Total_Mortality_NM[month] = Num_dead_NM + (sum(sample(AlphaN, NM, replace = T)))
 			Num_dead_NM = Total_Mortality_NM[month]
-			Total_Mortality_JF[month] = Num_dead_JF + deaths_JF[month]
+			Total_Mortality_JF[month] = Num_dead_JF + (sum(sample(AlphaJ, JF, replace = T)))
 			Num_dead_JF = Total_Mortality_JF[month]
-			Total_Mortality_JM[month] = Num_dead_JM + deaths_JM[month]
+			Total_Mortality_JM[month] = Num_dead_JM + (sum(sample(AlphaJ, JM, replace = T)))
 			Num_dead_JM = Total_Mortality_JM[month]
-			Total_Mortality_AF[month] = Num_dead_AF + deaths_AF[month]
+			Total_Mortality_AF[month] = Num_dead_AF + (sum(sample(AlphaF, AF, replace = T)))
 			Num_dead_AF = Total_Mortality_AF[month]
-			Total_Mortality_AM[month] = Num_dead_AM + deaths_AM[month]
+			Total_Mortality_AM[month] = Num_dead_AM + (sum(sample(AlphaM, AM, replace = T)))
 			Num_dead_AM = Total_Mortality_AM[month]
 
 
@@ -952,14 +877,16 @@ compartmental_model <- function(
 			                                    Total_Mortality_JF[month] + Total_Mortality_JM[month] + 
 			                                    Total_Mortality_AF[month] + Total_Mortality_AM[month]
 			
+			Num_dead = Total_Mortality[month]
+			
 			## Note, this model is stochastic so the whole N population is different from the individual age groups
 			## to make the total N sum to the same as the other age groups it should be calculated differently
 			## A sum of age groups rather than another simulation
 			
 			## This calculates monthly mortality rate so it can be evaluated
-		# redundant in model function
-			#Monthly_mortality[month] = Total_Mortality[month] / numN[month]
+			Monthly_mortality[month] = Total_Mortality[month] / numN[month]
 
+			
 			# Population growth (total population in month - original population size)
 			Pop_growth[month] =  numN[month] - Nt0
 
@@ -986,11 +913,11 @@ compartmental_model <- function(
 			
 			# Offtake (all offtake added + culled adult males)
 
-			## offtake from different age cats (offtake... is from original calculation, Offtake... is cum.sum, Num_Offtake is monthly cumilative)
-			Num_Offtake_JF[month] <- Offtake_JF + offtake_JF[month]
-			Num_Offtake_JM[month] <- Offtake_JM + offtake_JM[month]
-			Num_Offtake_AF[month] <- Offtake_AF + offtake_AF[month]
-			Num_Offtake_AM[month] <- Offtake_AM + offtake_AM[month] + culls_AM[month]
+			## offtake from different age cats
+			Num_Offtake_JF[month] <- Offtake_JF + (sum(sample(GammaF, JF, replace = T)))
+			Num_Offtake_JM[month] <- Offtake_JM + (sum(sample(GammaM, JM, replace = T)))
+			Num_Offtake_AF[month] <- Offtake_AF + (sum(sample(GammaF, AF, replace = T)))
+			Num_Offtake_AM[month] <- Offtake_AM + (sum(sample(GammaM, AM, replace = T))) + (sum(sample(CullM, AM, replace = T)))
 
 			##
 			Offtake_JF = Num_Offtake_JF[month]
@@ -1004,10 +931,15 @@ compartmental_model <- function(
 			Offtake = Num_Offtake[month]
 			
 			## Offtake Liveweight
-			Offtake_Liveweight_kg_JF[month] = sum(sample(lwJF, Num_Offtake_JF[month], replace = T))
-			Offtake_Liveweight_kg_JM[month] = sum(sample(lwJM, Num_Offtake_JM[month], replace = T))
-			Offtake_Liveweight_kg_AF[month] = sum(sample(lwAF, Num_Offtake_AF[month], replace = T))
-			Offtake_Liveweight_kg_AM[month] = sum(sample(lwAM, Num_Offtake_AM[month], replace = T))
+			Offtake_Liveweight_kg_JF[month] = Offtake_Liveweight_JF + sum(sample(lwJF, Num_Offtake_JF[month], replace = T))
+			Offtake_Liveweight_kg_JM[month] = Offtake_Liveweight_JM + sum(sample(lwJM, Num_Offtake_JM[month], replace = T))
+			Offtake_Liveweight_kg_AF[month] = Offtake_Liveweight_AF + sum(sample(lwAF, Num_Offtake_AF[month], replace = T))
+			Offtake_Liveweight_kg_AM[month] = Offtake_Liveweight_AM + sum(sample(lwAM, Num_Offtake_AM[month], replace = T))
+			
+			Offtake_Liveweight_JF <- Offtake_Liveweight_kg_JF[month]
+			Offtake_Liveweight_JM <- Offtake_Liveweight_kg_JM[month]
+			Offtake_Liveweight_AF <- Offtake_Liveweight_kg_AF[month]
+			Offtake_Liveweight_AM <- Offtake_Liveweight_kg_AM[month]
 			
 			Offtake_Liveweight_kg[month] <- Offtake_Liveweight_kg_JF[month] + Offtake_Liveweight_kg_JM[month] +
 			                                Offtake_Liveweight_kg_AF[month] + Offtake_Liveweight_kg_AM[month]
@@ -1015,23 +947,21 @@ compartmental_model <- function(
 			# Changed here, made meat from offtake only
 			# whole population as meat
 		
-			Quant_Meat_kg[month] = Meat_kg + (Offtake_Liveweight_kg_JF[month] * ccy) + 
-                                       (Offtake_Liveweight_kg_JM[month] * ccy) +
-			                                 (Offtake_Liveweight_kg_AF[month] * ccy) + 
-			                                 (Offtake_Liveweight_kg_AM[month] * ccy) 
+			Quant_Meat_kg[month] = Meat_kg + (sum(sample(lwJF, Offtake_JF, replace = T)) * ccy) + 
+			                                (sum(sample(lwJM, Offtake_JM, replace = T)) * ccy) +
+			                                (sum(sample(lwAF, Offtake_AF, replace = T)) * ccy) + 
+			                                (sum(sample(lwAM, Offtake_AM, replace = T)) * ccy) 
 			
 			## 
 			Meat_kg = Quant_Meat_kg[month]
 
-			## to here... tidying code!
-
 			# Hides per month (only calculated on offftake as a proportion (1-prop females for fertility), we could add a proportion of dead too? * Expert opinion question)
 			
 			# Quantity of hides in the dif age sex groups
-			Quant_Hides_JF[month] = Hides_JF + (offtake_JF[month] * hides_rate) + (deaths_JF[month] * hides_rate_mor)
-			Quant_Hides_JM[month] = Hides_JM + (offtake_JM[month] * hides_rate) + (deaths_JM[month] * hides_rate_mor)
-			Quant_Hides_AF[month] = Hides_AF + (offtake_AF[month] * hides_rate) + (deaths_AF[month] * hides_rate_mor)
-			Quant_Hides_AM[month] = Hides_AM + (offtake_AM[month] * hides_rate) + (deaths_AM[month] * hides_rate_mor) + (culls_AM[month] * hides_rate)
+			Quant_Hides_JF[month] = Hides_JF + (sum(sample(GammaF, JF, replace = T)) * hides_rate) + (sum(sample(AlphaF, JF, replace = T)) * hides_rate_mor)
+			Quant_Hides_JM[month] = Hides_JM + (sum(sample(GammaM, JM, replace = T)) * hides_rate) + (sum(sample(AlphaM, JM, replace = T)) * hides_rate_mor)
+			Quant_Hides_AF[month] = Hides_AF + (sum(sample(GammaF, AF, replace = T)) * hides_rate) + (sum(sample(AlphaF, AF, replace = T)) * hides_rate_mor)
+			Quant_Hides_AM[month] = Hides_AM + (sum(sample(GammaM, AM, replace = T)) * hides_rate) + (sum(sample(AlphaM, AM, replace = T)) * hides_rate_mor) + (sum(sample(CullM, AM, replace = T)) * hides_rate)
 			
 			Hides_JF = Quant_Hides_JF[month]
 			Hides_JM = Quant_Hides_JM[month]
@@ -1112,18 +1042,18 @@ compartmental_model <- function(
 			## with the new equation structure below if offtake changes or varies or we add uncertainty then the financial value of offtake will change
 
 			## Juv and adults only
-			Value_Offtake_JF[month] = sum(sample(fvJF, Num_Offtake_JF[month], replace = T))
+			Value_Offtake_JF[month] = Value_offt_JF + (sum(sample(fvJF, Num_Offtake_JF[month], replace = T)))
+			Value_offt_JF = Value_Offtake_JF[month] 
 
-			Value_Offtake_JM[month] = sum(sample(fvJM, Num_Offtake_JM[month], replace = T))
+			Value_Offtake_JM[month] = Value_offt_JM + (sum(sample(fvJM, Num_Offtake_JM[month], replace = T))) 
+			Value_offt_JM = Value_Offtake_JM[month] 
 
-			Value_Offtake_AF[month] = sum(sample(fvAF, Num_Offtake_AF[month], replace = T))
-
-			# need cumilative culls for this to work
-			Cumulative_culls_AM[month] <- culls + culls_AM[month]
-			culls <- Cumulative_culls_AM[month]
+			Value_Offtake_AF[month] = Value_offt_AF + (sum(sample(fvAF, Num_Offtake_AF[month], replace = T))) 
+			Value_offt_AF = Value_Offtake_AF[month] 
 			
-			Value_Offtake_AM[month] = (sum(sample(fvAM, Num_Offtake_AM[month], replace = T))) + (sum(sample(fvAM, Cumulative_culls_AM[month], replace = T)))  
-
+			Value_Offtake_AM[month] = Value_offt_AM + (sum(sample(fvAM, Num_Offtake_AM[month], replace = T))) + (sum(sample(CullM, AM, replace = T) * sample(fvAM, AM, replace = T)))  
+			Value_offt_AM = Value_Offtake_AM[month] 
+			
 			## sum total population
 			Value_Offtake[month] = Value_Offtake_JF[month]  +  Value_Offtake_JM[month] + Value_Offtake_AF[month] + Value_Offtake_AM[month]
 			Value_offt = Value_Offtake[month] 
@@ -1221,9 +1151,9 @@ compartmental_model <- function(
 			Feed_AM = Feed_cost_AM[month]
 
 			# total feed cost
-			Feed_cost[month] = Feed_cost_NF[month] + Feed_cost_NM[month] + 
-			                         Feed_cost_JF[month] + Feed_cost_JM[month] +
-			                         Feed_cost_AF[month] + Feed_cost_AM[month]
+			Feed_cost[month] = Feed_cost_NF[month] + Feed_cost_NM[month]  
+			                        + Feed_cost_JF[month] + Feed_cost_JM[month]
+			                        + Feed_cost_AF[month] + Feed_cost_AM[month]
 			                               
 			Feed = Feed_cost[month]
 			
@@ -1311,7 +1241,6 @@ compartmental_model <- function(
 		### Fill all of the matrices
 
 		# population
-		
 		numNF_M[i, ] <- numNF
 		numJF_M[i, ] <- numJF
 		numAF_M[i, ] <- numAF
@@ -1660,7 +1589,6 @@ compartmental_model <- function(
 	return(list(Gross_margin_M[,12] ,summary_df_updated))
 }
 
-
 build_summary_df <- function(
 	items_to_summarize 	# Labeled list of matrices to summarize. Matrix names should be WITHOUT SUFFIXES (without _M, _NF_M, etc.). Will iterate through all suffixes. Labels will be used in output data.
 )
@@ -1718,38 +1646,25 @@ build_summary_df <- function(
 # Run scenarios
 # =================================================================
 library(readxl)
+library(gtools)
 
 # Read control table
-ahle_scenarios <- read_excel(cmd_scenario_file ,'Sheet1')
+ahle_scenarios <- read_excel("/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters.xlsx")
 
 # Drop rows where parameter name is empty or commented
 ahle_scenarios <- ahle_scenarios[!is.na(ahle_scenarios$'AHLE Parameter') ,]
-ahle_scenarios <- ahle_scenarios[!grepl('#', ahle_scenarios$'AHLE Parameter') ,] 	# Will drop all rows whose parameter name contains a pound sign
+ahle_scenarios <- ahle_scenarios[!grepl('#', ahle_scenarios$'AHLE Parameter') ,]
 
-# Create version with just scenario columns
-remove_cols <- c('AHLE Parameter' ,'Notes')
-ahle_scenarios_cln <- subset(ahle_scenarios, select = !(names(ahle_scenarios) %in% remove_cols)) 
+# Construct function arguments as "name = value"
+# CLM Sheep Current scenario
+ahle_scenarios$arglist_clm_s_current <- do.call(paste, c(ahle_scenarios[c("AHLE Parameter", "CLM_S_Current")], sep="="))
 
+# Get as single string and append cmd arguments
+argstring_clm_s_current <- toString(ahle_scenarios$arglist_clm_s_current)
+argstring_clm_s_current_touse <- paste('nruns =' ,cmd_nruns ,',' ,argstring_clm_s_current)
 
-# Loop through scenario columns, calling the function for each
-for (COLNAME in colnames(ahle_scenarios_cln)){
-	print('> Running AHLE scenario:')
-	print(COLNAME)
+# Define macro
+run_scenario <- strmacro(ARGLIST ,expr = compartmental_model(ARGLIST))
 
-	# Construct function arguments as "name = value"
-	ahle_scenarios_cln$arglist <- do.call(paste, c(ahle_scenarios[c("AHLE Parameter", COLNAME)], sep="="))
-
-	# Get as single string and append cmd arguments
-	argstring <- toString(ahle_scenarios_cln$arglist)
-	argstring_touse <- paste('nruns=' ,cmd_nruns ,',' ,argstring ,sep='')
-	
-	# Construct function call
-	functioncall_string <- paste('compartmental_model(' ,argstring_touse ,')' ,sep='')
-	print('> Function call:')
-	print(functioncall_string)
-
-	# Call function and save result to file
-	result <- eval(parse(text=functioncall_string))
-	filename <- paste('ahle_' ,COLNAME ,'.csv' ,sep='')
-	write.csv(result[[2]], file.path(cmd_output_directory, filename), row.names=FALSE)
-}
+# Call macro
+run_scenario(argstring_clm_s_current_touse)

@@ -16,7 +16,6 @@
 # Set manually
 # -----------------------------------------------------------------
 # Number of simulation iterations
-<<<<<<< Updated upstream
 
 cmd_nruns <- 1
 
@@ -1750,3 +1749,4 @@ for (COLNAME in colnames(ahle_scenarios_cln)){
 	filename <- paste('ahle_' ,COLNAME ,'.csv' ,sep='')
 	write.csv(result[[2]], file.path(cmd_output_directory, filename), row.names=FALSE)
 }
+

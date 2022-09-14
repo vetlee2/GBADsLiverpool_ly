@@ -433,15 +433,23 @@ datainfo(ahle_combo_raw)
 ahle_combo_raw.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_stacked.csv') ,index=False)
 
 # =============================================================================
-#### Create rows to filter scenarios
+#### Create scenario summary view
 # =============================================================================
-# Create a row for each age*sex group by duplication
-# Keep only Total System results (where group = "Overall")
-#!!! Note: in ahle_combo_expanded and ahle_combo, the 'group' column designates
-# the SCENARIO being represented. This is different from the meaning of group
-# in the raw simulation output.
-group_basetable = pd.DataFrame({
-   'agesex_group':[
+'''
+This produces a summary data set with a different structure than before. This uses
+only the total system value for each item and drops the age/sex specific values.
+It then creates a row for each scenario. Scenarios set either specific age/sex
+groups to ideal conditions or all age/sex groups simultaneously. In all cases, the
+total system values are reported.
+
+For example, the ideal_AF scenario sets Adult Females to ideal conditions while
+leaving other age/sex groups at their current conditions; the resulting values are
+the total system values (gross margin, health cost, etc.) when Adult Females are at
+their ideal.
+'''
+# Create a row for each age*sex scenario and the overall scenarios
+scenario_basetable = pd.DataFrame({
+   'agesex_scenario':[
       'Neonatal Female'
       ,'Neonatal Male'
       # ,'Neonatal Overall'
@@ -461,22 +469,25 @@ group_basetable = pd.DataFrame({
       ]
    ,'group':'Overall'
    })
-ahle_combo_expanded = pd.merge(
-   left=group_basetable
-   ,right=ahle_combo_raw.query("group.str.upper() == 'OVERALL'")
+ahle_combo_scensmry = pd.merge(
+   left=scenario_basetable
+   ,right=ahle_combo_raw.query("group.str.upper() == 'OVERALL'")    # Keep only Total System results (group = "Overall")
    ,on='group'
    ,how='outer'
    )
 
-# Rename agesex_group and drop plain group
-ahle_combo_expanded = ahle_combo_expanded.drop(columns='group').rename(columns={'agesex_group':'group'})
+# Rename agesex_scenario and drop plain group
+# Note: in ahle_combo_scensmry, the 'group' column designates the SCENARIO being
+# represented. This is different from the meaning of 'group' in the raw simulation
+# output.
+ahle_combo_scensmry = ahle_combo_scensmry.drop(columns='group').rename(columns={'agesex_scenario':'group'})
 
 # Split age and sex groups into their own columns
-ahle_combo_expanded[['age_group' ,'sex']] = ahle_combo_expanded['group'].str.split(' ' ,expand=True)
-ahle_combo_expanded['group'] = ahle_combo_expanded['group'].replace({'Overall Overall':'Overall'})
+ahle_combo_scensmry[['age_group' ,'sex']] = ahle_combo_scensmry['group'].str.split(' ' ,expand=True)
+ahle_combo_scensmry['group'] = ahle_combo_scensmry['group'].replace({'Overall Overall':'Overall'})
 
 # =============================================================================
-#### Assign correct scenario to each group
+#### Assign results from correct scenario to each group
 # =============================================================================
 def create_means_touse(INPUT_ROW):
    if INPUT_ROW['group'].upper() == 'OVERALL':
@@ -530,11 +541,11 @@ def create_means_touse(INPUT_ROW):
       OUTPUT_IDEAL_MEAN = None
       OUTPUT_IDEAL_SD = None
    return pd.Series([OUTPUT_MORTZERO_MEAN ,OUTPUT_MORTZERO_SD ,OUTPUT_IDEAL_MEAN ,OUTPUT_IDEAL_SD])
-ahle_combo_expanded[['mean_mortality_zero_touse' ,'stdev_mortality_zero_touse' ,'mean_ideal_touse' ,'stdev_ideal_touse']] = ahle_combo_expanded.apply(create_means_touse ,axis=1)      # Apply to each row of the dataframe (axis=1)
-datainfo(ahle_combo_expanded)
+ahle_combo_scensmry[['mean_mortality_zero_touse' ,'stdev_mortality_zero_touse' ,'mean_ideal_touse' ,'stdev_ideal_touse']] = ahle_combo_scensmry.apply(create_means_touse ,axis=1)      # Apply to each row of the dataframe (axis=1)
+datainfo(ahle_combo_scensmry)
 
 # Create subset of columns for checking
-mean_cols = [i for i in list(ahle_combo_expanded) if 'mean' in i]
+mean_cols = [i for i in list(ahle_combo_scensmry) if 'mean' in i]
 keep_cols = [
    'species'
    ,'production_system'
@@ -543,7 +554,7 @@ keep_cols = [
    ,'age_group'
    ,'sex'
    ] + mean_cols
-ahle_combo_expanded_tocheck = ahle_combo_expanded[keep_cols].copy()
+ahle_combo_scensmry_tocheck = ahle_combo_scensmry[keep_cols].copy()
 
 # Keep only reconciled scenario columns
 # Keep only sex-specific rows as combined sex groups must be calculated for most
@@ -559,18 +570,26 @@ keep_cols = [
    ,'mean_mortality_zero_touse' ,'stdev_mortality_zero_touse'
    ,'mean_ideal_touse' ,'stdev_ideal_touse'
    ]
-ahle_combo = ahle_combo_expanded[keep_cols].copy()
-ahle_combo = ahle_combo.rename(columns={
+ahle_combo_scensmry = ahle_combo_scensmry[keep_cols].copy()
+ahle_combo_scensmry = ahle_combo_scensmry.rename(columns={
    'mean_mortality_zero_touse':'mean_mortality_zero'
    ,'stdev_mortality_zero_touse':'stdev_mortality_zero'
    ,'mean_ideal_touse':'mean_ideal'
    ,'stdev_ideal_touse':'stdev_ideal'
    })
-datainfo(ahle_combo)
+datainfo(ahle_combo_scensmry)
 
 # =============================================================================
 #### Add group summaries
 # =============================================================================
+#!!! Model output items for individual age/sex scenarios don't sum!
+# For now, using MAX
+# Only the AHLE (gross margin DIFFERENCE between ideal and current) is expected to sum
+#!!! Revisit this. The structure isn't right. Don't need these sums.
+#!!! Only need items 'gross margin' and 'health cost' to calculate AHLE. Then, only need to sum AHLE.
+
+ahle_combo = ahle_combo_scensmry.copy()
+
 mean_cols = [i for i in list(ahle_combo) if 'mean' in i]
 sd_cols = [i for i in list(ahle_combo) if 'stdev' in i]
 
@@ -586,7 +605,7 @@ for i ,VARCOL in enumerate(var_cols):
 # # Create Overall sum
 # # -----------------------------------------------------------------------------
 # # Update: this already exists on data
-# #!!! Must happen first to avoid double-counting!
+# #!!! Must be first sum to avoid double-counting!
 # ahle_combo_sumall = ahle_combo.pivot_table(
 #     index=['species' ,'production_system' ,'item']
 #     ,values=mean_cols + var_cols
@@ -606,8 +625,6 @@ for i ,VARCOL in enumerate(var_cols):
 # -----------------------------------------------------------------------------
 # Create Overall sex for each age group
 # -----------------------------------------------------------------------------
-#!!! Results for individual age/sex scenarios don't sum!
-# For now, using MAX
 # For Adults
 ahle_combo_sumsexes_adult = ahle_combo.query("age_group.str.upper() == 'ADULT'").pivot_table(
     index=['species' ,'production_system' ,'item' ,'age_group']
@@ -764,7 +781,7 @@ ahle_combo = ahle_combo.sort_values(
 datainfo(ahle_combo)
 
 # Export
-ahle_combo.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.csv') ,index=False)
+# ahle_combo.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.csv') ,index=False)
 
 #%% Calculate AHLE components
 

@@ -95,9 +95,8 @@ compartmental_model <- function(
 	,N_AM_t0		# Adult male
 
 	## Growth rate N -> J and J-> A
-	,Beta_N
-	,Beta_J
-	
+	,Beta
+
 	# Castration rate
 	
 	# Fertility

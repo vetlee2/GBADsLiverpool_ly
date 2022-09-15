@@ -437,14 +437,14 @@ ahle_combo_raw.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_stacked.csv
 # =============================================================================
 '''
 This produces a summary data set with a different structure than before. This uses
-only the total system value for each item and drops the age/sex specific values.
+only the total system value for each item (dropping the age/sex-specific values).
 It then creates a row for each scenario. Scenarios set either specific age/sex
 groups to ideal conditions or all age/sex groups simultaneously. In all cases, the
 total system values are reported.
 
 For example, the ideal_AF scenario sets Adult Females to ideal conditions while
 leaving other age/sex groups at their current conditions; the resulting values are
-the total system values (gross margin, health cost, etc.) when Adult Females are at
+the total system values of gross margin, health cost, etc., when Adult Females are at
 their ideal.
 '''
 # Create a row for each age*sex scenario and the overall scenarios

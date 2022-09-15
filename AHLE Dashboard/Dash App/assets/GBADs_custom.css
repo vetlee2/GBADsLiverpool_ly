@@ -15,7 +15,7 @@ body {
 background-color: #F2F2F2 !important;
 }
 
-/* Add a margin to the left side of the page within the tabs*/
+/* Add a margin to the sides of the page within the tabs*/
 .tab-content {
     margin-left: 20px;
 }

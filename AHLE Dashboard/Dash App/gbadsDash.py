@@ -460,6 +460,18 @@ ecs_attr_options = [{'label': "All Causes", 'value': "All Causes", 'disabled': F
 
 for i in np.sort(ecs_ahle_all_withattr['cause'].unique()):
    str(ecs_attr_options.append({'label':i,'value':(i)}))
+   
+# Hierarchy 
+ecs_hierarchy_attr_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Cause",
+                                                                                    "Production System",
+                                                                                    "Age Group",
+                                                                                    "Sex",
+                                                                                    "AHLE Component"
+                                                                                    ]]
+# Drill down options for hierarchy
+ecs_hierarchy_dd_attr_options = [{'label': i, 'value': i, 'disabled': False} for i in ["None"]]
+
+ecs_hierarchy_dd_attr_options += ecs_hierarchy_attr_options
 
 # Species
 ecs_ahle_summary['species'] = ecs_ahle_summary['species'].replace({'All small ruminants': 'All Small Ruminants'})
@@ -1054,7 +1066,7 @@ def prep_ahle_fortreemap_ecs(INPUT_DF):
                                        'pct_of_total']]
 
    # Can only have positive values
-   ecs_ahle_attr_treemap['mean'] = abs( ecs_ahle_attr_treemap['mean'])
+   ecs_ahle_attr_treemap['mean'] = abs(ecs_ahle_attr_treemap['mean'])
 
    # Replace 'overall' values with more descriptive values
    # ecs_ahle_summary_tree_pivot['age_group'] = ecs_ahle_summary_tree_pivot['age_group'].replace({'Overall': 'Overall Age'})
@@ -2636,9 +2648,6 @@ gbadsDash.layout = html.Div([
                                           inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                           ),
                             ],
-                            # style={
-                            #          "margin-top":"10px",
-                            #          },
                         ),
 
                         # Compare
@@ -2770,9 +2779,61 @@ gbadsDash.layout = html.Div([
                             },
                       ),
                 ]), # END OF ROW
+                #     # Hierarchy
+                #     dbc.Row([html.H5("Hierarchy",
+                #                      style={"font-weight": "bold"}),
+                #     # Top Level
+                #     dbc.Col([
+                #         html.H6("Top Level"),
+                #         dcc.Dropdown(id='select-top-lvl-attr-ecs',
+                #                       options=ecs_hierarchy_attr_options,
+                #                       value='Cause',
+                #                       clearable = False,
+                #                       ),
+                #         ]),
+                #     # Drill Down 1
+                #     dbc.Col([
+                #         html.H6("Drill Down 1"),
+                #         dcc.Dropdown(id='select-dd-1-attr-ecs',
+                #                       options=ecs_hierarchy_dd_attr_options,
+                #                       value='Production System',
+                #                       clearable = False,
+                #                       ),
+                #         ]),
+                #     # Drill Down 2
+                #     dbc.Col([
+                #         html.H6("Drill Down 2"),
+                #         dcc.Dropdown(id='select-dd-2-attr-ecs',
+                #                       options=ecs_hierarchy_dd_attr_options,
+                #                       value='Age Group',
+                #                       clearable = False,
+                #                       ),
+                #         ]),
+                # ]), # END OF ROW
+                    
+                # dbc.Row([
+                # # Drill Down 3
+                # dbc.Col([
+                #     html.H6("Drill Down 3"),
+                #     dcc.Dropdown(id='select-dd-3-attr-ecs',
+                #                   options=ecs_hierarchy_dd_attr_options,
+                #                   value='Sex',
+                #                   clearable = False,
+                #                   ),
+                #     ]),
+                # # Drill Down 4
+                # dbc.Col([
+                #     html.H6("Drill Down 4"),
+                #     dcc.Dropdown(id='select-dd-4-attr-ecs',
+                #                   options=ecs_hierarchy_dd_attr_options,
+                #                   value='AHLE Component',
+                #                   clearable = False,
+                #                   ),
+                #     ]),
+                # ]), # END OF ROW
 
                 # END OF CARD BODY
-                ],),
+                ]),
 
                 # END OF CARD
                 ], color='#F2F2F2'),
@@ -2998,7 +3059,8 @@ gbadsDash.layout = html.Div([
             ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
 
         ### END OF TABS ###
-        ],style={'margin-right':'10px'} )
+        ],style={'margin-right':'10px',
+                 'margin-left': '10px'} )
     ])
 
 #%% 5. CALLBACKS

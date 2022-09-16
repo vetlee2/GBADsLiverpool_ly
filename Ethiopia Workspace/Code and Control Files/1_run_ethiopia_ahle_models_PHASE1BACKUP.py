@@ -313,12 +313,13 @@ N runs | Run time
 100      1m 53s
 1000     14m 40s
 '''
-r_script = os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE function with control file scenarios.R')    # Full path to the R program you want to run
+# r_script = os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE function with control file scenarios.R')    # Full path to the R program you want to run
+r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table _ Gemma edits for individuals .R')    # Full path to the R program you want to run
 
 # Arguments to R function, as list of strings.
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
-   '1000'                         # Arg 1: Number of simulation runs.
+   '1'                         # Arg 1: Number of simulation runs.
    ,ETHIOPIA_OUTPUT_FOLDER     # Arg 2: Folder location for saving output files
    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters.xlsx')    # Arg 3: full path to scenario control file
 ]
@@ -327,11 +328,14 @@ timerstart()
 run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=99)
 timerstop()
 
-#%% Combine scenario result files
+#%% Process AHLE with control file scenarios
 
 # =============================================================================
-#### Merge scenarios
+#### Combine
 # =============================================================================
+# -----------------------------------------------------------------------------
+# Merge scenarios
+# -----------------------------------------------------------------------------
 def combine_ahle_scenarios(
       input_folder
       ,input_file_prefix   # String
@@ -383,266 +387,55 @@ def combine_ahle_scenarios(
 
    return dfcombined
 
-ahle_sheep_clm = combine_ahle_scenarios(
+ahle_combo_sheep_clm = combine_ahle_scenarios(
    input_folder=ETHIOPIA_OUTPUT_FOLDER
    ,input_file_prefix='ahle_CLM_S'
    ,label_species='Sheep'
    ,label_prodsys='Crop livestock mixed'
 )
-datainfo(ahle_sheep_clm)
-ahle_sheep_past = combine_ahle_scenarios(
+datainfo(ahle_combo_sheep_clm)
+ahle_combo_sheep_past = combine_ahle_scenarios(
    input_folder=ETHIOPIA_OUTPUT_FOLDER
    ,input_file_prefix='ahle_Past_S'
    ,label_species='Sheep'
    ,label_prodsys='Pastoral'
 )
-datainfo(ahle_sheep_past)
-ahle_goat_clm = combine_ahle_scenarios(
+datainfo(ahle_combo_sheep_past)
+ahle_combo_goat_clm = combine_ahle_scenarios(
    input_folder=ETHIOPIA_OUTPUT_FOLDER
    ,input_file_prefix='ahle_CLM_G'
    ,label_species='Goat'
    ,label_prodsys='Crop livestock mixed'
 )
-datainfo(ahle_goat_clm)
-ahle_goat_past = combine_ahle_scenarios(
+datainfo(ahle_combo_goat_clm)
+ahle_combo_goat_past = combine_ahle_scenarios(
    input_folder=ETHIOPIA_OUTPUT_FOLDER
    ,input_file_prefix='ahle_Past_G'
    ,label_species='Goat'
    ,label_prodsys='Pastoral'
 )
-datainfo(ahle_goat_past)
+datainfo(ahle_combo_goat_past)
 
 # -----------------------------------------------------------------------------
 # Stack species and production systems
 # -----------------------------------------------------------------------------
-ahle_combo = pd.concat(
-   [ahle_sheep_clm ,ahle_sheep_past ,ahle_goat_clm ,ahle_goat_past]      # List of dataframes to concatenate
+ahle_combo_raw = pd.concat(
+   [ahle_combo_sheep_clm ,ahle_combo_sheep_past ,ahle_combo_goat_clm ,ahle_combo_goat_past]      # List of dataframes to concatenate
    ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
    ,join='outer'        # 'outer': keep all index values from all data frames
    ,ignore_index=True   # True: do not keep index values on concatenation axis
 )
-
-# Split age and sex groups into their own columns
-ahle_combo[['age_group' ,'sex']] = ahle_combo['group'].str.split(' ' ,expand=True)
-ahle_combo.loc[ahle_combo['group'].str.upper() == 'OVERALL' ,'sex'] = 'Combined'
-
-# Reorder columns
-cols_first = ['species' ,'production_system' ,'item' ,'group' ,'age_group' ,'sex']
-cols_other = [i for i in list(ahle_combo) if i not in cols_first]
-ahle_combo = ahle_combo.reindex(columns=cols_first + cols_other)
-
-datainfo(ahle_combo)
+datainfo(ahle_combo_raw)
 
 # =============================================================================
-#### Export
+#### Export stacked data
 # =============================================================================
-ahle_combo.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_stacked.csv') ,index=False)
-
-#%% Add group summaries
-'''
-Creating aggregate groups for filtering in the dashboard
-'''
-#!!! The overall sum Gross Margin produced here is not equal to the overall
-Gross Margin coming out of the AHLE simulation!
-I believe this is expected because the components of gross margin are not the
-same for every age*sex group. For example, only juveniles and adults produce
-offtake; neonates do not. Therefore, gross margin for neonates does not include
-a value of offtake.
+# Export
+ahle_combo_raw.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_stacked.csv') ,index=False)
 
 # =============================================================================
-#### Drop aggregate groups
+#### Create scenario summary view
 # =============================================================================
-# For consistency, drop any aggregate groups already in data
-_agg_rows = (ahle_combo['age_group'].str.upper() == 'OVERALL') \
-    | (ahle_combo['sex'].str.upper() == 'COMBINED')
-ahle_combo_noagg = ahle_combo.loc[~ _agg_rows]
-
-# Get distinct values for ages and sexes without aggregates
-age_group_values = list(ahle_combo_noagg['age_group'].unique())
-sex_values = list(ahle_combo_noagg['sex'].unique())
-
-# =============================================================================
-#### Build aggregate groups
-# =============================================================================
-# Only using MEAN and VARIANCE of each item, as the other statistics cannot
-# be summed.
-mean_cols = [i for i in list(ahle_combo) if 'mean' in i]
-sd_cols = [i for i in list(ahle_combo) if 'stdev' in i]
-
-keepcols = ['species' ,'production_system' ,'item' ,'group' ,'age_group' ,'sex'] \
-    + mean_cols + sd_cols
-
-ahle_combo_withagg = ahle_combo_noagg[keepcols].copy()
-datainfo(ahle_combo_withagg)
-
-# -----------------------------------------------------------------------------
-# Create variance columns
-# -----------------------------------------------------------------------------
-# Relying on the following properties of sums of random variables:
-#    mean(aX + bY) = a*mean(X) + b*mean(Y), regardless of correlation
-#    var(aX + bY) = a^2*var(X) + b^2*var(Y), assuming X and Y are uncorrelated
-var_cols = ['sqrd_' + COLNAME for COLNAME in sd_cols]
-for i ,VARCOL in enumerate(var_cols):
-   SDCOL = sd_cols[i]
-   ahle_combo_withagg[VARCOL] = ahle_combo_withagg[SDCOL]**2
-
-# -----------------------------------------------------------------------------
-# Create Overall sum
-# -----------------------------------------------------------------------------
-#!!! Must be first sum to avoid double-counting!
-ahle_combo_withagg_sumall = ahle_combo_withagg.pivot_table(
-    index=['species' ,'production_system' ,'item']
-    ,values=mean_cols + var_cols
-    ,aggfunc='sum'
-).reset_index()
-ahle_combo_withagg_sumall['group'] = 'Overall Combined'
-ahle_combo_withagg_sumall['age_group'] = 'Overall'
-ahle_combo_withagg_sumall['sex'] = 'Combined'
-
-ahle_combo_withagg = pd.concat(
-    [ahle_combo_withagg ,ahle_combo_withagg_sumall]
-    ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
-    ,join='outer'        # 'outer': keep all index values from all data frames
-    ,ignore_index=True   # True: do not keep index values on concatenation axis
-)
-del ahle_combo_withagg_sumall
-
-# -----------------------------------------------------------------------------
-# Create Overall sex for each age group
-# -----------------------------------------------------------------------------
-for AGE_GRP in age_group_values:
-    ahle_combo_withagg_sumsexes = ahle_combo_withagg.query(f"age_group == '{AGE_GRP}'").pivot_table(
-        index=['species' ,'production_system' ,'item' ,'age_group']
-        ,values=mean_cols + var_cols
-        ,aggfunc='sum'
-    ).reset_index()
-    ahle_combo_withagg_sumsexes['group'] = f'{AGE_GRP} Combined'
-    ahle_combo_withagg_sumsexes['sex'] = 'Combined'
-
-    # Stack
-    ahle_combo_withagg = pd.concat(
-        [ahle_combo_withagg ,ahle_combo_withagg_sumsexes]
-        ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
-        ,join='outer'        # 'outer': keep all index values from all data frames
-        ,ignore_index=True   # True: do not keep index values on concatenation axis
-    )
-del ahle_combo_withagg_sumsexes
-
-# -----------------------------------------------------------------------------
-# Create Overall age group for each sex
-# -----------------------------------------------------------------------------
-for SEX_GRP in sex_values:
-    ahle_combo_withagg_sumages = ahle_combo_withagg.query(f"sex == '{SEX_GRP}'").pivot_table(
-        index=['species' ,'production_system' ,'item' ,'sex']
-        ,values=mean_cols + var_cols
-        ,aggfunc='sum'
-    ).reset_index()
-    ahle_combo_withagg_sumages['group'] = f'Overall {SEX_GRP}'
-    ahle_combo_withagg_sumages['age_group'] = 'Overall'
-
-    # Stack
-    ahle_combo_withagg = pd.concat(
-        [ahle_combo_withagg ,ahle_combo_withagg_sumages]
-        ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
-        ,join='outer'        # 'outer': keep all index values from all data frames
-        ,ignore_index=True   # True: do not keep index values on concatenation axis
-    )
-del ahle_combo_withagg_sumages
-
-# -----------------------------------------------------------------------------
-# Create overall production system
-# -----------------------------------------------------------------------------
-ahle_combo_withagg_sumprod = ahle_combo_withagg.pivot_table(
-   index=['species' ,'item' ,'group' ,'age_group' ,'sex']
-   ,values=mean_cols + var_cols
-   ,aggfunc='sum'
-).reset_index()
-ahle_combo_withagg_sumprod['production_system'] = 'Overall'
-
-ahle_combo_withagg = pd.concat(
-   [ahle_combo_withagg ,ahle_combo_withagg_sumprod]
-   ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
-   ,join='outer'        # 'outer': keep all index values from all data frames
-   ,ignore_index=True   # True: do not keep index values on concatenation axis
-)
-del ahle_combo_withagg_sumprod
-
-# -----------------------------------------------------------------------------
-# Create overall species
-# -----------------------------------------------------------------------------
-ahle_combo_withagg_sumspec = ahle_combo_withagg.pivot_table(
-   index=['production_system' ,'item' ,'group' ,'age_group' ,'sex']
-   ,values=mean_cols + var_cols
-   ,aggfunc='sum'
-).reset_index()
-ahle_combo_withagg_sumspec['species'] = 'All small ruminants'
-
-ahle_combo_withagg = pd.concat(
-   [ahle_combo_withagg ,ahle_combo_withagg_sumspec]
-   ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
-   ,join='outer'        # 'outer': keep all index values from all data frames
-   ,ignore_index=True   # True: do not keep index values on concatenation axis
-)
-del ahle_combo_withagg_sumspec
-
-# -----------------------------------------------------------------------------
-# Calculate standard deviations
-# -----------------------------------------------------------------------------
-# Will overwrite standard deviations for the handful of groups that have them,
-# but that's OK.
-for i ,VARCOL in enumerate(var_cols):
-   SDCOL = sd_cols[i]
-   ahle_combo_withagg[SDCOL] = np.sqrt(ahle_combo_withagg[VARCOL])
-
-datainfo(ahle_combo_withagg)
-
-# =============================================================================
-#### Export
-# =============================================================================
-ahle_combo_withagg.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_stacked_agg.csv') ,index=False)
-
-#%% Calculate AHLE for each scenario
-'''
-Since overall gross margin is calculated in the base simulation code, and due to
-uncertainties I have about my aggregation code, this uses the basic ahle_combo
-data instead of ahle_combo_withagg.
-'''
-# =============================================================================
-#### Restructure
-# =============================================================================
-# For AHLE calcs, we want each item in a column
-# Only need items 'gross margin' and 'health cost'
-# Only need the system total: 'Overall Combined' group
-# Need means and standard deviations for later calculations
-mean_cols = [i for i in list(ahle_combo) if 'mean' in i]
-sd_cols = [i for i in list(ahle_combo) if 'stdev' in i]
-
-_rows_for_ahle = (ahle_combo['item'].str.upper().isin(['GROSS MARGIN' ,'HEALTH COST'])) \
-    & (ahle_combo['group'].str.upper() == 'OVERALL')
-
-ahle_combo_p = ahle_combo.loc[_rows_for_ahle].pivot(
-    index=['species' ,'production_system' ,'group' ,'age_group' ,'sex']
-    ,columns='item'
-    ,values=mean_cols + sd_cols
-).reset_index()
-ahle_combo_p = colnames_from_index(ahle_combo_p)   # Change multi-index to column names
-cleancolnames(ahle_combo_p)
-ahle_combo_p = ahle_combo_p.rename(
-    columns={'species_':'species' ,'production_system_':'production_system' ,'group_':'group' ,'age_group_':'age_group' ,'sex_':'sex'}
-)
-
-datainfo(ahle_combo_p)
-
-# =============================================================================
-#### Calculate AHLE
-# =============================================================================
-
-#%% === Break ===
-'''
-I'm revisiting everything below this line
-'''
-
-#%% Create scenario summary view
 '''
 This produces a summary data set with a different structure than before. This uses
 only the total system value for each item (dropping the age/sex-specific values).
@@ -655,9 +448,7 @@ leaving other age/sex groups at their current conditions; the resulting values a
 the total system values of gross margin, health cost, etc., when Adult Females are at
 their ideal.
 '''
-# =============================================================================
-#### Create a row for each age*sex and the overall scenario
-# =============================================================================
+# Create a row for each age*sex scenario and the overall scenarios
 scenario_basetable = pd.DataFrame({
    'agesex_scenario':[
       'Neonatal Female'
@@ -795,7 +586,7 @@ datainfo(ahle_combo_scensmry)
 #!!! Model output items for individual age/sex scenarios don't sum!
 # For now, using MAX
 # Only the AHLE (gross margin DIFFERENCE between ideal and current) is expected to sum
-#!!! Revisit this. The structure isn't right. Don't need all output items for each scenario.
+#!!! Revisit this. The structure isn't right. Don't need these sums.
 #!!! Only need items 'gross margin' and 'health cost' to calculate AHLE. Then, only need to sum AHLE.
 
 ahle_combo = ahle_combo_scensmry.copy()
@@ -975,7 +766,7 @@ for SDCOL in sd_cols:
       np.sqrt(ahle_combo[SDCOL]**2 / ahle_combo['exchg_rate_lcuperusdol']**2)
 
 # =============================================================================
-#### Export
+#### Export summary
 # =============================================================================
 # Reorder columns
 cols_first = ['species' ,'production_system' ,'item' ,'group' ,'age_group' ,'sex']

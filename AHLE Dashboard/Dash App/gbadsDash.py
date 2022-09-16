@@ -462,12 +462,12 @@ for i in np.sort(ecs_ahle_all_withattr['cause'].unique()):
    str(ecs_attr_options.append({'label':i,'value':(i)}))
    
 # Hierarchy 
-ecs_hierarchy_attr_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Cause",
-                                                                                    "Production System",
-                                                                                    "Age Group",
-                                                                                    "Sex",
-                                                                                    "AHLE Component"
-                                                                                    ]]
+ecs_hierarchy_attr_options = [{'label': "Cause", 'value': "cause", 'disabled': False},
+                              {'label': "Production System", 'value': "production_system", 'disabled': False},
+                              {'label': "Age Group", 'value': "age_group", 'disabled': False},
+                              {'label': "Sex", 'value': "sex", 'disabled': False},
+                              {'label': "AHLE Component", 'value': "ahle_component", 'disabled': False}]
+
 # Drill down options for hierarchy
 ecs_hierarchy_dd_attr_options = [{'label': i, 'value': i, 'disabled': False} for i in ["None"]]
 
@@ -1314,7 +1314,7 @@ def create_stacked_bar_swine(input_df, x, y, color):
     return bar_fig
 
 # Define the attribution treemap
-def create_attr_treemap_ecs(input_df):
+def create_attr_treemap_ecs(input_df, path):
     # # Make mean more legible
     # input_df["humanize_mean"]= input_df['mean'].apply(lambda x: humanize.intword(x))
 
@@ -1323,19 +1323,13 @@ def create_attr_treemap_ecs(input_df):
 
     treemap_fig = px.treemap(input_df,
                       # path=[
+                      #    'cause',
                       #    'production_system',
                       #    'age_group',
                       #    'sex',
                       #    'ahle_component',
-                      #    'cause'
                       #    ],
-                      path=[
-                         'cause',
-                         'production_system',
-                         'age_group',
-                         'sex',
-                         'ahle_component',
-                         ],
+                      path = path,
                       values='mean',
                       hover_data=['pct_of_total'],
                       custom_data=['pct_of_total'],
@@ -2764,73 +2758,73 @@ gbadsDash.layout = html.Div([
                     html.H5("Attribution Graph Controls",
                             className="card-title",
                             style={"font-weight": "bold"}),
-                    dbc.Row([
-                    # Attribution
+                #     dbc.Row([
+                #     # Attribution
+                #     dbc.Col([
+                #         html.H6("Attribution"),
+                #         dcc.Dropdown(id='select-attr-ecs',
+                #                       options=ecs_attr_options,
+                #                       value='All Causes',
+                #                       clearable = False,
+                #                       ),
+                #         ],style={
+                #             # "margin-top":"10px",
+                #             "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                #             },
+                #       ),
+                # ]), # END OF ROW
+                    # Hierarchy
+                    dbc.Row([html.H5("Hierarchy",
+                                      style={"font-weight": "bold"}),
+                    # Top Level
                     dbc.Col([
-                        html.H6("Attribution"),
-                        dcc.Dropdown(id='select-attr-ecs',
-                                      options=ecs_attr_options,
-                                      value='All Causes',
+                        html.H6("Top Level"),
+                        dcc.Dropdown(id='select-top-lvl-attr-ecs',
+                                      options=ecs_hierarchy_attr_options,
+                                      value='cause',
                                       clearable = False,
                                       ),
-                        ],style={
-                            # "margin-top":"10px",
-                            "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
-                            },
-                      ),
+                        ]),
+                    # Drill Down 1
+                    dbc.Col([
+                        html.H6("Drill Down 1"),
+                        dcc.Dropdown(id='select-dd-1-attr-ecs',
+                                      options=ecs_hierarchy_dd_attr_options,
+                                      value='production_system',
+                                      clearable = False,
+                                      ),
+                        ]),
+                    # Drill Down 2
+                    dbc.Col([
+                        html.H6("Drill Down 2"),
+                        dcc.Dropdown(id='select-dd-2-attr-ecs',
+                                      options=ecs_hierarchy_dd_attr_options,
+                                      value='age_group',
+                                      clearable = False,
+                                      ),
+                        ]),
                 ]), # END OF ROW
-                #     # Hierarchy
-                #     dbc.Row([html.H5("Hierarchy",
-                #                      style={"font-weight": "bold"}),
-                #     # Top Level
-                #     dbc.Col([
-                #         html.H6("Top Level"),
-                #         dcc.Dropdown(id='select-top-lvl-attr-ecs',
-                #                       options=ecs_hierarchy_attr_options,
-                #                       value='Cause',
-                #                       clearable = False,
-                #                       ),
-                #         ]),
-                #     # Drill Down 1
-                #     dbc.Col([
-                #         html.H6("Drill Down 1"),
-                #         dcc.Dropdown(id='select-dd-1-attr-ecs',
-                #                       options=ecs_hierarchy_dd_attr_options,
-                #                       value='Production System',
-                #                       clearable = False,
-                #                       ),
-                #         ]),
-                #     # Drill Down 2
-                #     dbc.Col([
-                #         html.H6("Drill Down 2"),
-                #         dcc.Dropdown(id='select-dd-2-attr-ecs',
-                #                       options=ecs_hierarchy_dd_attr_options,
-                #                       value='Age Group',
-                #                       clearable = False,
-                #                       ),
-                #         ]),
-                # ]), # END OF ROW
                     
-                # dbc.Row([
-                # # Drill Down 3
-                # dbc.Col([
-                #     html.H6("Drill Down 3"),
-                #     dcc.Dropdown(id='select-dd-3-attr-ecs',
-                #                   options=ecs_hierarchy_dd_attr_options,
-                #                   value='Sex',
-                #                   clearable = False,
-                #                   ),
-                #     ]),
-                # # Drill Down 4
-                # dbc.Col([
-                #     html.H6("Drill Down 4"),
-                #     dcc.Dropdown(id='select-dd-4-attr-ecs',
-                #                   options=ecs_hierarchy_dd_attr_options,
-                #                   value='AHLE Component',
-                #                   clearable = False,
-                #                   ),
-                #     ]),
-                # ]), # END OF ROW
+                dbc.Row([
+                # Drill Down 3
+                dbc.Col([
+                    html.H6("Drill Down 3"),
+                    dcc.Dropdown(id='select-dd-3-attr-ecs',
+                                  options=ecs_hierarchy_dd_attr_options,
+                                  value='sex',
+                                  clearable = False,
+                                  ),
+                    ]),
+                # Drill Down 4
+                dbc.Col([
+                    html.H6("Drill Down 4"),
+                    dcc.Dropdown(id='select-dd-4-attr-ecs',
+                                  options=ecs_hierarchy_dd_attr_options,
+                                  value='ahle_component',
+                                  clearable = False,
+                                  ),
+                    ]),
+                ]), # END OF ROW
 
                 # END OF CARD BODY
                 ]),
@@ -4555,96 +4549,59 @@ def update_stacked_bar_swine(input_json, country, year):
 def reset_to_default_ecs(reset):
     return factor_ecs_default
 
-# # Add text display for outputs
-# # Herd growth
-# @gbadsDash.callback(
-#    Output('growth-text-ecs', 'children'),
-#    Input('core-data-poultry','data'),
-#    # Input('select-country-poultry', 'value'),
-#    # Input('select-year-poultry', 'value')
-#    )
-# def show_growth_text_ecs(input_json):
-#    input_df = pd.read_json(input_json, orient='split')
-#    # _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
-#    # datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
-#    # country_shortname = country_shortnames[country]
-#    # if pd.isnull(datavalue):
-#    #    display = '(no data)'
-#    # else:
-#    #    display = f'{datavalue:.0f} days'
-#    return 'Heard growth (number of animals): nan'
+# Update hierarchy dropdown filters to remove higher level selections from the options 
+@gbadsDash.callback(
+    Output('select-dd-1-attr-ecs','options'),
+    Input('select-top-lvl-attr-ecs','value'),
+    )
+def update_dd1_options_ecs(top_lvl_hierarchy):
+    options = ecs_hierarchy_dd_attr_options.copy()
+    for d in options:
+        for key, val in d.items():
+            if val == top_lvl_hierarchy:
+                d['disabled']= True
+    return options
 
-# # Offtake
-# @gbadsDash.callback(
-#    Output('offtake-text-ecs', 'children'),
-#    Input('core-data-poultry','data'),
-#    # Input('select-country-poultry', 'value'),
-#    # Input('select-year-poultry', 'value')
-#    )
-# def show_offtake_text_ecs(input_json):
-#    input_df = pd.read_json(input_json, orient='split')
-#    # _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
-#    # datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
-#    # country_shortname = country_shortnames[country]
-#    # if pd.isnull(datavalue):
-#    #    display = '(no data)'
-#    # else:
-#    #    display = f'{datavalue:.0f} days'
-#    return 'Offtake (number of animals): nan'
 
-# # Dung
 # @gbadsDash.callback(
-#    Output('dung-text-ecs', 'children'),
-#    Input('core-data-poultry','data'),
-#    # Input('select-country-poultry', 'value'),
-#    # Input('select-year-poultry', 'value')
-#    )
-# def show_dung_text_ecs(input_json):
-#    input_df = pd.read_json(input_json, orient='split')
-#    # _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
-#    # datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
-#    # country_shortname = country_shortnames[country]
-#    # if pd.isnull(datavalue):
-#    #    display = '(no data)'
-#    # else:
-#    #    display = f'{datavalue:.0f} days'
-#    return 'Dung ($): nan'
+#     Output('select-dd-2-attr-ecs','options'),
+#     Input('select-top-lvl-attr-ecs','value'),
+#     Input('select-dd-1-attr-ecs','value'),
+#     )
+# def update_dd2_options_ecs(top_lvl_hierarchy, dd1_hierarchy):
+#     options = ecs_hierarchy_dd_attr_options
+#     for d in options:
+#         for key, val in d.items():
+#             # d['disabled']= False
+#             if val == top_lvl_hierarchy or val == dd1_hierarchy:
+#                d['disabled']= True
+#     return options
 
-# # Hides
 # @gbadsDash.callback(
-#    Output('hides-text-ecs', 'children'),
-#    Input('core-data-poultry','data'),
-#    # Input('select-country-poultry', 'value'),
-#    # Input('select-year-poultry', 'value')
-#    )
-# def show_hides_text_ecs(input_json):
-#    input_df = pd.read_json(input_json, orient='split')
-#    # _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
-#    # datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
-#    # country_shortname = country_shortnames[country]
-#    # if pd.isnull(datavalue):
-#    #    display = '(no data)'
-#    # else:
-#    #    display = f'{datavalue:.0f} days'
-#    return 'Hides ($): nan'
+#     Output('select-dd-1-attr-ecs','options'),
+#     Input('select-top-lvl-attr-ecs','value'),
+#     )
+# def update_dd1_options_ecs(top_lvl_hierarchy):
+#     options = ecs_hierarchy_dd_attr_options
+#     for d in options:
+#         for key, val in d.items():
+#             if val == top_lvl_hierarchy:
+#                d['disabled']= True
+#     return options
 
-# # Milk
 # @gbadsDash.callback(
-#    Output('milk-text-ecs', 'children'),
-#    Input('core-data-poultry','data'),
-#    # Input('select-country-poultry', 'value'),
-#    # Input('select-year-poultry', 'value')
-#    )
-# def show_milk_text_ecs(input_json):
-#    input_df = pd.read_json(input_json, orient='split')
-#    # _rowselect = (input_df['country'] == country) & (input_df['year'] == year)
-#    # datavalue = input_df.loc[_rowselect ,'acc_avgdaysonfeed'].values[0]
-#    # country_shortname = country_shortnames[country]
-#    # if pd.isnull(datavalue):
-#    #    display = '(no data)'
-#    # else:
-#    #    display = f'{datavalue:.0f} days'
-#    return 'Milk (litres and $): nan'
+#     Output('select-dd-1-attr-ecs','options'),
+#     Input('select-top-lvl-attr-ecs','value'),
+#     )
+# def update_dd1_options_ecs(top_lvl_hierarchy):
+#     options = ecs_hierarchy_dd_attr_options
+#     for d in options:
+#         for key, val in d.items():
+#             if val == top_lvl_hierarchy:
+#                d['disabled']= True
+#     return options
+            
+
 
 # ------------------------------------------------------------------------------
 #### -- Data
@@ -4788,9 +4745,9 @@ def update_ecs_ahle_data(input_json ,currency):
     Input('select-prodsys-ecs','value'),
     Input('select-age-ecs','value'),
     Input('select-sex-ecs','value'),
-    Input('select-attr-ecs','value'),
+    # Input('select-attr-ecs','value'),
     )
-def update_core_data_attr_ecs(prodsys, age, sex, attr):
+def update_core_data_attr_ecs(prodsys, age, sex):
     input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
 
     # Prodicton System filter
@@ -4840,15 +4797,15 @@ def update_core_data_attr_ecs(prodsys, age, sex, attr):
         else:
             input_df=input_df
 
-    # Attribution filter
-    if attr == 'External':
-        input_df=input_df.loc[(input_df['cause'] == attr)]
-    elif attr == "Infectious":
-        input_df=input_df.loc[(input_df['cause'] == attr)]
-    elif attr == "Non-infectious":
-        input_df=input_df.loc[(input_df['cause'] == attr)]
-    else:
-        input_df=input_df
+    # # Attribution filter
+    # if attr == 'External':
+    #     input_df=input_df.loc[(input_df['cause'] == attr)]
+    # elif attr == "Infectious":
+    #     input_df=input_df.loc[(input_df['cause'] == attr)]
+    # elif attr == "Non-infectious":
+    #     input_df=input_df.loc[(input_df['cause'] == attr)]
+    # else:
+    #     input_df=input_df
 
     return input_df.to_json(date_format='iso', orient='split')
 
@@ -5049,10 +5006,16 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
     Input('select-prodsys-ecs','value'),
     Input('select-age-ecs','value'),
     Input('select-sex-ecs','value'),
-    Input('select-attr-ecs','value'),
+    # Input('select-attr-ecs','value'),
     Input('select-currency-ecs','value'),
+    Input('select-top-lvl-attr-ecs','value'),
+    Input('select-dd-1-attr-ecs','value'),
+    Input('select-dd-2-attr-ecs','value'),
+    Input('select-dd-3-attr-ecs','value'),
+    Input('select-dd-4-attr-ecs','value'),
     )
-def update_attr_treemap_ecs(input_json, prodsys, age, sex, cause, currency):
+def update_attr_treemap_ecs(input_json, prodsys, age, sex, currency, 
+                            top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_hierarchy, dd4_hierarchy):
     # Data
     input_df = pd.read_json(input_json, orient='split')
 
@@ -5068,12 +5031,24 @@ def update_attr_treemap_ecs(input_json, prodsys, age, sex, cause, currency):
 
     # Prep data
     input_df = prep_ahle_fortreemap_ecs(input_df)
+    
+    # Hiararchy structure
+    path = [top_lvl_hierarchy]
+    
+    if dd1_hierarchy != 'None':
+        path +=[dd1_hierarchy]
+    if dd2_hierarchy != 'None':
+        path +=[dd2_hierarchy]
+    if dd3_hierarchy != 'None':
+        path +=[dd3_hierarchy]
+    if dd4_hierarchy != 'None':
+        path +=[dd4_hierarchy]
 
     # Set up treemap structure
-    ecs_treemap_fig = create_attr_treemap_ecs(input_df)
+    ecs_treemap_fig = create_attr_treemap_ecs(input_df, path)
 
     # Add title
-    ecs_treemap_fig.update_layout(title_text=f'Attribution | All Small Ruminants <br><sup> Using {prodsys} for {age} and {sex} attributed to {cause}</sup><br>',
+    ecs_treemap_fig.update_layout(title_text=f'Attribution | All Small Ruminants <br><sup> Using {prodsys} for {age} and {sex}</sup><br>',
                                   font_size=15,
                                   margin=dict(t=100))
     # Add % of total AHLE
@@ -5346,6 +5321,7 @@ def update_species_options_ga(country, region):
             str(options.append({'label':i,'value':(i)}))
 
     return options
+
 
 # ------------------------------------------------------------------------------
 #### -- Data

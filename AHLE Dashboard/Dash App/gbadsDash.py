@@ -4549,6 +4549,7 @@ def update_stacked_bar_swine(input_json, country, year):
 def reset_to_default_ecs(reset):
     return factor_ecs_default
 
+# !!! - NOT CURRENTLY ACTING AS EXPECTED
 # Update hierarchy dropdown filters to remove higher level selections from the options 
 @gbadsDash.callback(
     Output('select-dd-1-attr-ecs','options'),

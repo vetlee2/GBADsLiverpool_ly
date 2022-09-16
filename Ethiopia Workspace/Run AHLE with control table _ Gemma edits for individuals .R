@@ -717,8 +717,6 @@ compartmental_model <- function(
 		pJM_t0 <- JM/N
 		pAM_t0 <- AM/N
 		
-		culls <- 0
-		
 		Num_dead <- 0
 		
 		Num_dead_NF <- 0
@@ -1113,11 +1111,7 @@ compartmental_model <- function(
 
 			Value_Offtake_AF[month] = sum(sample(fvAF, Num_Offtake_AF[month], replace = T))
 
-			# need cumilative culls for this to work
-			Cumulative_culls_AM[month] <- culls + culls_AM[month]
-			culls <- Cumulative_culls_AM[month]
-			
-			Value_Offtake_AM[month] = (sum(sample(fvAM, Num_Offtake_AM[month], replace = T))) + (sum(sample(fvAM, Cumulative_culls_AM[month], replace = T)))  
+			Value_Offtake_AM[month] = (sum(sample(fvAM, Num_Offtake_AM[month], replace = T)))   
 
 			## sum total population
 			Value_Offtake[month] = Value_Offtake_JF[month]  +  Value_Offtake_JM[month] + Value_Offtake_AF[month] + Value_Offtake_AM[month]

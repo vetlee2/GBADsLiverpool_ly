@@ -26,7 +26,7 @@ cmd_output_directory <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsL
 
 # Full path to scenario control file
 #cmd_scenario_file <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters MAJOR SCENARIOS ONLY.xlsx'
-cmd_scenario_file <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters.xlsx'
+cmd_scenario_file <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters CATTLE.xlsx'
 
 # -----------------------------------------------------------------
 # Get from command line arguments
@@ -132,7 +132,7 @@ compartmental_model <- function(
 	# Culls
 	,CullF	 	# cullrate Adult Female ## These will be valueless
 	,CullM		# cullrate Adult Male  ## These will still have a value
-  ,CullsO
+  ,CullO
 	## Production parameters (kg)
 
 	# Liveweight conversion (kg) ## Informed from META analysis
@@ -204,7 +204,7 @@ compartmental_model <- function(
 	,Labour
 	,lab_non_health	## 0.86 in ideal this was not used in the current and this may not apply for ideal
 	,Labour_Oxen
-	,Lab_dairy
+	,Labour_dairy
 	## Helath care costs
 	## birr/head/month
 	## this includes medicines and veterinary care
@@ -994,7 +994,7 @@ compartmental_model <- function(
 			numNM[month] = NM + (births[month] * 0.5) - growth_NM[month] - deaths_NM[month]
 			numJM[month] = JM + growth_NM[month] - growth_JM[month] - offtake_JM[month] - deaths_JM[month]
 			numAM[month] = AM + growth_JM[month] - offtake_AM[month] - deaths_AM[month] - culls_AM[month]
-			numO[month] = O + oxen[month] - offtake_O[month] - deaths_O[month] - CullsO[month]
+			numO[month] = O + oxen[month] - offtake_O[month] - deaths_O[month] - culls_O[month]
 			
 			numN[month] = numNF[month] + numJF[month] + numAF[month] + numNM[month] + numJM[month] + numAM[month] + numO[month]
 
@@ -1344,7 +1344,7 @@ compartmental_model <- function(
 			Labour_cost_NM[month] = Labour_NM + (sum(sample(Labour, NM, replace = T)) * lab_non_health) 
 			Labour_cost_JF[month] = Labour_JF + (sum(sample(Labour, JF, replace = T)) * lab_non_health) 
 			Labour_cost_JM[month] = Labour_JM + (sum(sample(Labour, JM, replace = T)) * lab_non_health) 
-			Labour_cost_AF[month] = Labour_AF + (sum(sample(Labour, AF, replace = T)) * lab_non_health) 
+			Labour_cost_AF[month] = Labour_AF + (sum(sample(Labour, AF, replace = T)) * lab_non_health) + (sum(sample(Labour_dairy, (AF * prop_F_milked), replace = T)))
 			Labour_cost_AM[month] = Labour_AM + (sum(sample(Labour, AM, replace = T)) * lab_non_health) 
 			Labour_cost_O[month] = Labour_O + (sum(sample(Labour, O, replace = T)) * lab_non_health) + (sum(sample(Labour_Oxen, O, replace = T)))
 			
@@ -1880,7 +1880,6 @@ ahle_scenarios <- ahle_scenarios[!grepl('#', ahle_scenarios$'AHLE Parameter') ,]
 remove_cols <- c('AHLE Parameter' ,'Notes')
 ahle_scenarios_cln <- subset(ahle_scenarios, select = !(names(ahle_scenarios) %in% remove_cols)) 
 
-
 # Loop through scenario columns, calling the function for each
 for (COLNAME in colnames(ahle_scenarios_cln)){
 	print('> Running AHLE scenario:')
@@ -1904,3 +1903,4 @@ for (COLNAME in colnames(ahle_scenarios_cln)){
 	write.csv(result[[2]], file.path(cmd_output_directory, filename), row.names=FALSE)
 }
 
+cmd_nruns <- 1

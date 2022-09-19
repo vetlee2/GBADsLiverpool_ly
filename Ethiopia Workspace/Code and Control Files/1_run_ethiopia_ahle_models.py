@@ -313,14 +313,21 @@ N runs | Run time
 100      1m 53s
 1000     14m 40s
 '''
-r_script = os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE function with control file scenarios.R')    # Full path to the R program you want to run
+# Full path to the R program you want to run
+r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table _ Gemma edits for individuals .R')
 
 # Arguments to R function, as list of strings.
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
-   '1000'                         # Arg 1: Number of simulation runs.
-   ,ETHIOPIA_OUTPUT_FOLDER     # Arg 2: Folder location for saving output files
-   ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters.xlsx')    # Arg 3: full path to scenario control file
+    # Arg 1: Number of simulation runs
+    '1'
+
+    # Arg 2: Folder location for saving output files
+    ,ETHIOPIA_OUTPUT_FOLDER
+
+    # Arg 3: full path to scenario control file
+    # ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters.xlsx')
+    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters MAJOR SCENARIOS ONLY.xlsx')
 ]
 
 timerstart()
@@ -438,16 +445,45 @@ datainfo(ahle_combo)
 # =============================================================================
 ahle_combo.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_stacked.csv') ,index=False)
 
+#%% Checks on raw simulation output
+
+ahle_combo_tocheck = ahle_combo.copy()
+
+_system_total = (ahle_combo_tocheck['group'].str.upper() == 'OVERALL')
+_item_grossmargin = (ahle_combo_tocheck['item'].str.upper() == 'GROSS MARGIN')
+
+# Change in Gross Margin for ideal overall vs. individual ideal
+check_gmchange_overall = ahle_combo_tocheck.loc[_system_total].loc[_item_grossmargin]
+check_gmchange_overall.eval(
+    '''
+    gmchange_ideal_overall = mean_ideal - mean_current
+
+    gmchange_ideal_af = mean_ideal_af - mean_current
+    gmchange_ideal_am = mean_ideal_am - mean_current
+    gmchange_ideal_jf = mean_ideal_jf - mean_current
+    gmchange_ideal_jm = mean_ideal_jm - mean_current
+    gmchange_ideal_nf = mean_ideal_nf - mean_current
+    gmchange_ideal_nm = mean_ideal_nm - mean_current
+    gmchange_ideal_sumind = gmchange_ideal_af + gmchange_ideal_am \
+        + gmchange_ideal_jf + gmchange_ideal_jm \
+            + gmchange_ideal_nf + gmchange_ideal_nm
+
+    gmchange_ideal_check = gmchange_ideal_sumind / gmchange_ideal_overall
+    '''
+    ,inplace=True
+)
+print(check_gmchange_overall['gmchange_ideal_check'])
+
 #%% Add group summaries
 '''
 Creating aggregate groups for filtering in the dashboard
 '''
 #!!! The overall sum Gross Margin produced here is not equal to the overall
-Gross Margin coming out of the AHLE simulation!
-I believe this is expected because the components of gross margin are not the
-same for every age*sex group. For example, only juveniles and adults produce
-offtake; neonates do not. Therefore, gross margin for neonates does not include
-a value of offtake.
+# Gross Margin coming out of the AHLE simulation!
+# I believe this is expected because the components of gross margin are not the
+# same for every age*sex group. For example, only juveniles and adults produce
+# offtake; neonates do not. Therefore, gross margin for neonates does not include
+# a value of offtake.
 
 # =============================================================================
 #### Drop aggregate groups

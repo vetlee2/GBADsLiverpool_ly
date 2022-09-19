@@ -1,0 +1,33 @@
+﻿Species,Production system,Age class,AHLE,mean,sd
+Sheep,Crop livestock mixed,Neonate,Mortality,1000,100
+Sheep,Crop livestock mixed,Neonate,Production loss,750,150
+Sheep,Crop livestock mixed,Juvenile,Mortality,500,20
+Sheep,Crop livestock mixed,Juvenile,Production loss,750,90
+Sheep,Crop livestock mixed,Adult female,Mortality,600,80
+Sheep,Crop livestock mixed,Adult female,Production loss,600,70
+Sheep,Crop livestock mixed,Adult male,Mortality,500,60
+Sheep,Crop livestock mixed,Adult male,Production loss,300,50
+Sheep,Pastoral,Neonate,Mortality,1000,100
+Sheep,Pastoral,Neonate,Production loss,750,150
+Sheep,Pastoral,Juvenile,Mortality,500,20
+Sheep,Pastoral,Juvenile,Production loss,750,90
+Sheep,Pastoral,Adult female,Mortality,600,80
+Sheep,Pastoral,Adult female,Production loss,600,70
+Sheep,Pastoral,Adult male,Mortality,500,60
+Sheep,Pastoral,Adult male,Production loss,300,50
+Goats,Crop livestock mixed,Neonate,Mortality,1000,100
+Goats,Crop livestock mixed,Neonate,Production loss,750,150
+Goats,Crop livestock mixed,Juvenile,Mortality,500,20
+Goats,Crop livestock mixed,Juvenile,Production loss,750,90
+Goats,Crop livestock mixed,Adult female,Mortality,600,80
+Goats,Crop livestock mixed,Adult female,Production loss,600,70
+Goats,Crop livestock mixed,Adult male,Mortality,500,60
+Goats,Crop livestock mixed,Adult male,Production loss,300,50
+Goats,Pastoral,Neonate,Mortality,1000,100
+Goats,Pastoral,Neonate,Production loss,750,150
+Goats,Pastoral,Juvenile,Mortality,500,20
+Goats,Pastoral,Juvenile,Production loss,750,90
+Goats,Pastoral,Adult female,Mortality,600,80
+Goats,Pastoral,Adult female,Production loss,600,70
+Goats,Pastoral,Adult male,Mortality,500,60
+Goats,Pastoral,Adult male,Production loss,300,50

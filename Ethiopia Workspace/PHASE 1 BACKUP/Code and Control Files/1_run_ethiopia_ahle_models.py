@@ -313,8 +313,7 @@ N runs | Run time
 100      1m 53s
 1000     14m 40s
 '''
-# r_script = os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE function with control file scenarios.R')    # Full path to the R program you want to run
-r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table _ Gemma edits for individuals .R')    # Full path to the R program you want to run
+r_script = os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE function with control file scenarios.R')    # Full path to the R program you want to run
 
 # Arguments to R function, as list of strings.
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.

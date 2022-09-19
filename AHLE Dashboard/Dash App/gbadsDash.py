@@ -4560,7 +4560,7 @@ def update_dd1_options_ecs(top_lvl_hierarchy):
     for d in options:
         for key, val in d.items():
             if val == top_lvl_hierarchy:
-                d['disabled']= True
+                d['disabled']=True
     return options
 
 
@@ -4573,32 +4573,36 @@ def update_dd1_options_ecs(top_lvl_hierarchy):
 #     options = ecs_hierarchy_dd_attr_options
 #     for d in options:
 #         for key, val in d.items():
-#             # d['disabled']= False
 #             if val == top_lvl_hierarchy or val == dd1_hierarchy:
 #                d['disabled']= True
 #     return options
 
 # @gbadsDash.callback(
-#     Output('select-dd-1-attr-ecs','options'),
+#     Output('select-dd-3-attr-ecs','options'),
 #     Input('select-top-lvl-attr-ecs','value'),
+#     Input('select-dd-1-attr-ecs','value'),
+#     Input('select-dd-2-attr-ecs','value'),
 #     )
-# def update_dd1_options_ecs(top_lvl_hierarchy):
+# def update_dd3_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy):
 #     options = ecs_hierarchy_dd_attr_options
 #     for d in options:
 #         for key, val in d.items():
-#             if val == top_lvl_hierarchy:
+#             if val == top_lvl_hierarchy or val == dd1_hierarchy or val == dd2_hierarchy:
 #                d['disabled']= True
 #     return options
 
 # @gbadsDash.callback(
-#     Output('select-dd-1-attr-ecs','options'),
+#     Output('select-dd-4-attr-ecs','options'),
 #     Input('select-top-lvl-attr-ecs','value'),
+#     Input('select-dd-1-attr-ecs','value'),
+#     Input('select-dd-2-attr-ecs','value'),
+#     Input('select-dd-3-attr-ecs','value'),
 #     )
-# def update_dd1_options_ecs(top_lvl_hierarchy):
+# def update_dd4_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_hierarchy):
 #     options = ecs_hierarchy_dd_attr_options
 #     for d in options:
 #         for key, val in d.items():
-#             if val == top_lvl_hierarchy:
+#             if val == top_lvl_hierarchy or val == dd1_hierarchy or val == dd2_hierarchy or val == dd3_hierarchy:
 #                d['disabled']= True
 #     return options
             

@@ -584,9 +584,6 @@ datainfo(ahle_combo_scensmry)
 # =============================================================================
 #!!! Model output items for individual age/sex scenarios don't sum!
 # For now, using MAX
-# Only the AHLE (gross margin DIFFERENCE between ideal and current) is expected to sum
-#!!! Revisit this. The structure isn't right. Don't need these sums.
-#!!! Only need items 'gross margin' and 'health cost' to calculate AHLE. Then, only need to sum AHLE.
 
 ahle_combo = ahle_combo_scensmry.copy()
 

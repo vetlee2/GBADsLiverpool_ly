@@ -328,6 +328,10 @@ r_args = [
     # Arg 3: full path to scenario control file
     # ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters.xlsx')
     ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters MAJOR SCENARIOS ONLY.xlsx')
+
+    # Arg 4: only run the first N scenarios from the control file
+    # -1: use all scenarios
+    ,'2'
 ]
 
 timerstart()
@@ -664,7 +668,13 @@ ahle_combo_p = ahle_combo.loc[_rows_for_ahle].pivot(
 ahle_combo_p = colnames_from_index(ahle_combo_p)   # Change multi-index to column names
 cleancolnames(ahle_combo_p)
 ahle_combo_p = ahle_combo_p.rename(
-    columns={'species_':'species' ,'production_system_':'production_system' ,'group_':'group' ,'age_group_':'age_group' ,'sex_':'sex'}
+    columns={
+        'species_':'species'
+        ,'production_system_':'production_system'
+        ,'group_':'group'
+        ,'age_group_':'age_group'
+        ,'sex_':'sex'
+    }
 )
 
 datainfo(ahle_combo_p)

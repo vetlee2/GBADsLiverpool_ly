@@ -16,17 +16,16 @@
 # Set manually
 # -----------------------------------------------------------------
 # Number of simulation iterations
-
 cmd_nruns <- 1
 
 # Folder location to save outputs
-#cmd_output_directory <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Program outputs'
 cmd_output_directory <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Program outputs'
 
-
 # Full path to scenario control file
-#cmd_scenario_file <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters MAJOR SCENARIOS ONLY.xlsx'
 cmd_scenario_file <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters.xlsx'
+
+# Optional: only run the first N scenarios from the control file
+cmd_run_first_n_scenarios = -1 	# -1 means use all scenarios in control file
 
 # -----------------------------------------------------------------
 # Get from command line arguments
@@ -37,19 +36,27 @@ cmd_scenario_file <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLive
 if (grepl('Rterm.exe', paste(commandArgs(), collapse=" "), ignore.case = TRUE, fixed = TRUE))
 {
 	cmd_args <- commandArgs(trailingOnly=TRUE)	# Fetch command line arguments
+	
 	cmd_nruns <- as.numeric(cmd_args[1]) 			# Arg 1: number of runs. Convert to numeric.
 	cmd_output_directory <- cmd_args[2] 			# Arg 2: folder location to save outputs
 	cmd_scenario_file <- cmd_args[3] 				# Arg 3: full path to scenario control file
+	cmd_run_first_n_scenarios <- cmd_args[4] 		# Arg 4: only run the first N scenarios from the control file
 }
 
 # -----------------------------------------------------------------
 # Show in console
 # -----------------------------------------------------------------
-print('Using the following program parameters:')
-print('   Number of simulation runs')
+print('Using the following program parameters')
+print('- Number of simulation runs:')
 print(cmd_nruns)
-print('   Output directory')
+print('- Output directory:')
 print(cmd_output_directory)
+print('- Scenario control file:')
+print(cmd_scenario_file)
+if (cmd_run_first_n_scenarios > 0){
+	print('- Scenarios used:')
+	print(cmd_run_first_n_scenarios)
+}
 
 # =================================================================
 # Libraries
@@ -1680,12 +1687,13 @@ build_summary_df <- function(
 				matrix_to_summarize <- dynGet(paste(base_matrix, suffix, sep=''))
 				vector_to_summarize <- matrix_to_summarize[,12]
 				
-				print('base label:')
-				print(base_label)
-				print('group label:')
-				print(group)
-				print('matrix to summarize:')
-				print(paste(base_matrix, suffix, sep=''))
+				# For debugging: print to console
+				#print('base label:')
+				#print(base_label)
+				#print('group label:')
+				#print(group)
+				#print('matrix to summarize:')
+				#print(paste(base_matrix, suffix, sep=''))
 				
 				item_mean <- mean(vector_to_summarize)
 				item_sd <- sd(vector_to_summarize)
@@ -1717,8 +1725,12 @@ ahle_scenarios <- ahle_scenarios[!grepl('#', ahle_scenarios$'AHLE Parameter') ,]
 
 # Create version with just scenario columns
 remove_cols <- c('AHLE Parameter' ,'Notes')
-ahle_scenarios_cln <- subset(ahle_scenarios, select = !(names(ahle_scenarios) %in% remove_cols)) 
+ahle_scenarios_cln <- subset(ahle_scenarios, select = !(names(ahle_scenarios) %in% remove_cols))
 
+# If specified, limit number of scenarios (columns) used
+if (cmd_run_first_n_scenarios > 0){
+	ahle_scenarios_cln <- ahle_scenarios_cln[ ,0:cmd_run_first_n_scenarios]
+}
 
 # Loop through scenario columns, calling the function for each
 for (COLNAME in colnames(ahle_scenarios_cln)){
@@ -1742,4 +1754,3 @@ for (COLNAME in colnames(ahle_scenarios_cln)){
 	filename <- paste('ahle_' ,COLNAME ,'.csv' ,sep='')
 	write.csv(result[[2]], file.path(cmd_output_directory, filename), row.names=FALSE)
 }
-

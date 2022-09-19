@@ -202,7 +202,7 @@ compartmental_model <- function(
 	## Labour cost
 	## birr/head/month
 	## example code to change labour cost to selecting from distribution
-	,Lab_SR
+	,Labour
 	,lab_non_health	## 0.86 in ideal this was not used in the current and this may not apply for ideal
 	
 	## Helath care costs
@@ -1226,12 +1226,12 @@ compartmental_model <- function(
 			
 			# Labour costs (number of SR's * labour cost per head per month)
 
-			Labour_cost_NF[month] = Labour_NF + (sum(sample(Lab_SR, NF, replace = T)) * lab_non_health) 
-			Labour_cost_NM[month] = Labour_NM + (sum(sample(Lab_SR, NM, replace = T)) * lab_non_health) 
-			Labour_cost_JF[month] = Labour_JF + (sum(sample(Lab_SR, JF, replace = T)) * lab_non_health) 
-			Labour_cost_JM[month] = Labour_JM + (sum(sample(Lab_SR, JM, replace = T)) * lab_non_health) 
-			Labour_cost_AF[month] = Labour_AF + (sum(sample(Lab_SR, AF, replace = T)) * lab_non_health) 
-			Labour_cost_AM[month] = Labour_AM + (sum(sample(Lab_SR, AM, replace = T)) * lab_non_health) 
+			Labour_cost_NF[month] = Labour_NF + (sum(sample(Labour, NF, replace = T)) * lab_non_health) 
+			Labour_cost_NM[month] = Labour_NM + (sum(sample(Labour, NM, replace = T)) * lab_non_health) 
+			Labour_cost_JF[month] = Labour_JF + (sum(sample(Labour, JF, replace = T)) * lab_non_health) 
+			Labour_cost_JM[month] = Labour_JM + (sum(sample(Labour, JM, replace = T)) * lab_non_health) 
+			Labour_cost_AF[month] = Labour_AF + (sum(sample(Labour, AF, replace = T)) * lab_non_health) 
+			Labour_cost_AM[month] = Labour_AM + (sum(sample(Labour, AM, replace = T)) * lab_non_health) 
 
 			Labour_NF = Labour_cost_NF[month]
 			Labour_NM = Labour_cost_NM[month]

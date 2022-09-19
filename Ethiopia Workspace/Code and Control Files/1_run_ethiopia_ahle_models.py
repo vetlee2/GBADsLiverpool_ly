@@ -326,12 +326,11 @@ r_args = [
     ,ETHIOPIA_OUTPUT_FOLDER
 
     # Arg 3: full path to scenario control file
-    # ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters.xlsx')
-    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters MAJOR SCENARIOS ONLY.xlsx')
+    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters.xlsx')
 
     # Arg 4: only run the first N scenarios from the control file
     # -1: use all scenarios
-    ,'2'
+    ,'-1'
 ]
 
 timerstart()

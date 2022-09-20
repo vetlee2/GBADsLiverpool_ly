@@ -308,6 +308,8 @@ Bonus: this prints plots to Rplots.pdf. I cannot find any line in the code which
 
 #%% Run AHLE with control file scenarios
 '''
+OLD RUN TIMES
+
 N runs | Run time
 10       32s
 100      1m 53s

@@ -481,11 +481,6 @@ for i in np.sort(ecs_ahle_summary['species'].unique()):
     str(ecs_species_options.append({'label':i,'value':(i)}))
 
 
-# # Metric
-# ecs_metric_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Number of animals",
-#                                                                             "Value of outputs",
-#                                                                             ]]
-
 # Display
 ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Current & Ideal",
                                                                              "Difference (AHLE)",
@@ -2789,9 +2784,9 @@ gbadsDash.layout = html.Div([
                     dbc.Col([
                         html.H6("Drill Down 1"),
                         dcc.Dropdown(id='select-dd-1-attr-ecs',
-                                      options=ecs_hierarchy_dd_attr_options,
-                                      value='production_system',
-                                      clearable = False,
+                                      # options=ecs_hierarchy_dd_attr_options,
+                                      # value='production_system',
+                                       clearable = False,
                                       ),
                         ]),
                     # Drill Down 2
@@ -2832,22 +2827,6 @@ gbadsDash.layout = html.Div([
                 # END OF CARD
                 ], color='#F2F2F2'),
                 ]),
-
-
-                # # Metric
-                # dbc.Col([
-                #     html.H6("Metric"),
-                #     dcc.Dropdown(id='select-metric-ecs',
-                #                  options=ecs_metric_options,
-                #                  value='Value of outputs',
-                #                  clearable = False,
-                #                  ),
-                #     ],style={
-                #              "order":8,
-                #              "margin-top":"10px",
-                #              "margin-right": '10px'
-                #              },
-                #     ),
 
 
                 # END OF DROPDOWN CONTROLS
@@ -3019,8 +2998,10 @@ gbadsDash.layout = html.Div([
             html.Br(),
             ### END OF DATATABLE
 
-            #### -- SANKEY
+            #### -- ADDITIONAL VISUALS
             dbc.Row([
+                # Sankey
+                dbc.Col([
                 dbc.Spinner(children=[
                     html.H4("Sankey for Attribution"),
                         html.Div(children=[
@@ -3034,8 +3015,26 @@ gbadsDash.layout = html.Div([
                         # End of Spinner
                         ],size="md", color="#393375", fullscreen=False),
                     ]),
-                    html.Br(),
-            ### END OF SANKEY
+                
+                # Attribution Stacked bBar
+                dbc.Col([
+                dbc.Spinner(children=[
+                    html.H4("Sankey for Attribution"),
+                        html.Div(children=[
+                                html.Img(src='/assets/ECS_Sanky_diagram_from_Gemma.png',
+                                style = {'width':'80vw'}),
+                                ],
+                                  style = {'margin-left':"10px",
+                                          "margin-bottom":"10px",
+                                          'margin-right':"10px",},
+                                  ),
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                    ]),
+                
+            ]), # END OF ROW
+            html.Br(),
+            ### END OF ADDITIONAL VISUALS
 
 
         ### END OF ETHIOPIA TAB
@@ -4553,15 +4552,17 @@ def reset_to_default_ecs(reset):
 # Update hierarchy dropdown filters to remove higher level selections from the options 
 @gbadsDash.callback(
     Output('select-dd-1-attr-ecs','options'),
+    Output('select-dd-1-attr-ecs','value'),
     Input('select-top-lvl-attr-ecs','value'),
     )
 def update_dd1_options_ecs(top_lvl_hierarchy):
     options = ecs_hierarchy_dd_attr_options.copy()
     for d in options:
-        for key, val in d.items():
-            if val == top_lvl_hierarchy:
-                d['disabled']=True
-    return options
+        # for key, val in d.items():
+        if d['value'] == top_lvl_hierarchy:
+            d['disabled']=True
+    value='production_system'
+    return options, value
 
 
 # @gbadsDash.callback(

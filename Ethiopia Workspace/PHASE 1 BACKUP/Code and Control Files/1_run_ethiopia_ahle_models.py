@@ -778,7 +778,7 @@ ahle_combo = ahle_combo.sort_values(
 datainfo(ahle_combo)
 
 # Export
-# ahle_combo.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.csv') ,index=False)
+ahle_combo.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.csv') ,index=False)
 
 #%% Calculate AHLE components
 

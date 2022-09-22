@@ -5062,8 +5062,9 @@ def update_attr_treemap_ecs(input_json, prodsys, age, sex, currency,
     ecs_treemap_fig.update_layout(title_text=f'Attribution | All Small Ruminants <br><sup> Using {prodsys} for {age} and {sex}</sup><br>',
                                   font_size=15,
                                   margin=dict(t=100))
+    # !!! - NEED TO FIX THIS WITH NEW HIERARCHY OPTIONS
     # Add % of total AHLE
-    ecs_treemap_fig.data[0].texttemplate = "%{label}<br>% of Total AHLE=%{customdata[0]:,.2f}%"
+    # ecs_treemap_fig.data[0].texttemplate = "%{label}<br>% of Total AHLE=%{customdata[0]:,.2f}%"
 
     # Add tooltip
     if currency == 'Birr':
@@ -5946,7 +5947,7 @@ def update_ahle_waterfall_ga(input_json ,selected_region ,selected_incgrp ,selec
             waterfallgroupgap = 0.5,    # Gap between bars
             )
 
-        ga_waterfall_fig.update_layout(title_text=f'Current & ideal output values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
+        ga_waterfall_fig.update_layout(title_text=f'Compare Current output values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
                                        yaxis_title='US Dollars (2010 constant)',
                                        font_size=15)
     else:

@@ -435,17 +435,20 @@ for i in np.sort(ecs_ahle_all_withattr['production_system'].unique()):
    str(ecs_prodsys_options.append({'label':i,'value':(i)}))
 
 # Age
-ecs_age_options = [{'label': "Overall Age", 'value': "Overall Age", 'disabled': False}]
+# Rename Overall to more descriptive
+ecs_ahle_summary['age_group'] = ecs_ahle_summary['age_group'].replace({'Overall': 'Overall Age'})
+# ecs_age_options = [{'label': "Overall Age", 'value': "Overall Age", 'disabled': False}]
 
-for i in np.sort(ecs_ahle_all_withattr['age_group'].unique()):
+ecs_age_options=[]
+for i in np.sort(ecs_ahle_summary['age_group'].unique()):
    str(ecs_age_options.append({'label':i,'value':(i)}))
 
 # Sex
 # Rename Overall to more descriptive
-ecs_ahle_all_withattr['sex'] = ecs_ahle_all_withattr['sex'].replace({'Overall': 'Overall Sex'})
+ecs_ahle_summary['sex'] = ecs_ahle_summary['sex'].replace({'Overall': 'Overall Sex'})
 
 ecs_sex_options_all = []
-for i in np.sort(ecs_ahle_all_withattr['sex'].unique()):
+for i in np.sort(ecs_ahle_summary['sex'].unique()):
    str(ecs_sex_options_all.append({'label':i,'value':(i)}))
 
 # Filter for juvenile and neonates
@@ -1079,14 +1082,14 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
    working_df = INPUT_DF.copy()
 
    # Trim the data to keep things needed for the waterfall
-   ecs_ahle_summary_sheep_sunburst = working_df[['species',
-                                                 'production_system',
-                                                 'age_group',
-                                                 'sex',
-                                                 'item',
-                                                 'mean_current',
-                                                 'mean_ideal',
-                                                 'mean_mortality_zero']]
+   ecs_ahle_waterfall = working_df[['species',
+                                    'production_system',
+                                    'age_group',
+                                    'sex',
+                                    'item',
+                                    'mean_current',
+                                    'mean_ideal',
+                                    'mean_mortality_zero']]
 
    # Keep only items for the waterfall
    waterfall_plot_values = ('Value of Offtake',
@@ -1098,28 +1101,28 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
                             'Health Cost',
                             'Capital Cost',
                             'Gross Margin')
-   ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['item'].isin(waterfall_plot_values)]
-
+   ecs_ahle_waterfall = ecs_ahle_waterfall.loc[ecs_ahle_waterfall['item'].isin(waterfall_plot_values)]
+   
    # Make costs negative
    costs = ('Feed Cost',
             'Labour Cost',
             'Health Cost',
             'Capital Cost')
-   ecs_ahle_summary_sheep_sunburst['mean_current'] = np.where(ecs_ahle_summary_sheep_sunburst.item.isin(costs), ecs_ahle_summary_sheep_sunburst['mean_current']* -1, ecs_ahle_summary_sheep_sunburst['mean_current'])
-   ecs_ahle_summary_sheep_sunburst['mean_ideal'] = np.where(ecs_ahle_summary_sheep_sunburst.item.isin(costs), ecs_ahle_summary_sheep_sunburst['mean_ideal']* -1, ecs_ahle_summary_sheep_sunburst['mean_ideal'])
-   ecs_ahle_summary_sheep_sunburst['mean_mortality_zero'] = np.where(ecs_ahle_summary_sheep_sunburst.item.isin(costs), ecs_ahle_summary_sheep_sunburst['mean_mortality_zero']* -1, ecs_ahle_summary_sheep_sunburst['mean_mortality_zero'])
+   ecs_ahle_waterfall['mean_current'] = np.where(ecs_ahle_waterfall.item.isin(costs), ecs_ahle_waterfall['mean_current']* -1, ecs_ahle_waterfall['mean_current'])
+   ecs_ahle_waterfall['mean_ideal'] = np.where(ecs_ahle_waterfall.item.isin(costs), ecs_ahle_waterfall['mean_ideal']* -1, ecs_ahle_waterfall['mean_ideal'])
+   ecs_ahle_waterfall['mean_mortality_zero'] = np.where(ecs_ahle_waterfall.item.isin(costs), ecs_ahle_waterfall['mean_mortality_zero']* -1, ecs_ahle_waterfall['mean_mortality_zero'])
 
    # Sort Item column to keep values and costs together
-   ecs_ahle_summary_sheep_sunburst['item'] = ecs_ahle_summary_sheep_sunburst['item'].astype('category')
-   ecs_ahle_summary_sheep_sunburst.item.cat.set_categories(waterfall_plot_values, inplace=True)
-   ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.sort_values(["item"])
+   ecs_ahle_waterfall['item'] = ecs_ahle_waterfall['item'].astype('category')
+   ecs_ahle_waterfall.item.cat.set_categories(waterfall_plot_values, inplace=True)
+   ecs_ahle_waterfall = ecs_ahle_waterfall.sort_values(["item"])
 
    # Create AHLE columns
-   ecs_ahle_summary_sheep_sunburst['mean_AHLE'] = ecs_ahle_summary_sheep_sunburst['mean_ideal'] - ecs_ahle_summary_sheep_sunburst['mean_current']
-   ecs_ahle_summary_sheep_sunburst['mean_AHLE_mortality'] = ecs_ahle_summary_sheep_sunburst['mean_mortality_zero'] - ecs_ahle_summary_sheep_sunburst['mean_current']
+   ecs_ahle_waterfall['mean_AHLE'] = ecs_ahle_waterfall['mean_ideal'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['mean_AHLE_mortality'] = ecs_ahle_waterfall['mean_mortality_zero'] - ecs_ahle_waterfall['mean_current']
 
 
-   OUTPUT_DF = ecs_ahle_summary_sheep_sunburst
+   OUTPUT_DF = ecs_ahle_waterfall
 
    return OUTPUT_DF
 
@@ -4548,6 +4551,22 @@ def update_stacked_bar_swine(input_json, country, year):
 def reset_to_default_ecs(reset):
     return factor_ecs_default
 
+# Update age group options based on species
+@gbadsDash.callback(
+    Output('select-age-ecs', 'options'),
+    Input('select-species-ecs', 'value'),
+    )
+def update_age_options_ecs(species):
+    if species == "Cattle":
+        options = ecs_age_options
+    else:
+        options = ecs_age_options.copy()
+        for d in options:
+            if d['value'] == 'Oxen':
+                options.remove(d)
+    return options
+
+
 # Update hierarchy dropdown filters to remove higher level selections from the options
 @gbadsDash.callback(
     Output('select-dd-1-attr-ecs','options'),
@@ -4561,7 +4580,9 @@ def update_dd1_options_ecs(top_lvl_hierarchy):
             d['disabled']=True
         else:
             d['disabled']=False
+            
     value='production_system'
+    
     return options, value
 
 
@@ -4630,9 +4651,7 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
     input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary.csv'))
 
     # Species filter
-    if species == 'Goat':
-        input_df=input_df.loc[(input_df['species'] == species)]
-    elif species == "Sheep":
+    if species == 'Goat' or species == "Sheep" or species == "Cattle":
         input_df=input_df.loc[(input_df['species'] == species)]
     elif species == "All Small Ruminants":
         input_df=input_df.loc[(input_df['species'] == 'All small ruminants')]
@@ -4640,9 +4659,7 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
         input_df=input_df
 
     # Prodicton System filter
-    if prodsys == 'Crop livestock mixed':
-        input_df=input_df.loc[(input_df['production_system'] == 'Crop livestock mixed')]
-    elif prodsys == "Pastoral":
+    if prodsys == 'Crop livestock mixed' or prodsys == "Pastoral":
         input_df=input_df.loc[(input_df['production_system'] == prodsys)]
     elif prodsys == "All Production Systems":
         input_df=input_df.loc[(input_df['production_system'] == 'Overall')]
@@ -4650,11 +4667,7 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
         input_df=input_df
 
     # Age filter
-    if age == 'Adult':
-        input_df=input_df.loc[(input_df['age_group'] == age)]
-    elif age == "Juvenile":
-        input_df=input_df.loc[(input_df['age_group'] == age)]
-    elif age == "Neonatal":
+    if age == 'Adult' or age == "Juvenile" or age == "Neonatal" or age == "Oxen":
         input_df=input_df.loc[(input_df['age_group'] == age)]
     elif age == "Overall Age":
         input_df=input_df.loc[(input_df['age_group'] == 'Overall')]
@@ -4662,9 +4675,7 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
         input_df=input_df
 
     # Sex filter
-    if sex == 'Male':
-        input_df=input_df.loc[(input_df['sex'] == sex)]
-    elif sex == "Female":
+    if sex == 'Male' or sex == "Female":
         input_df=input_df.loc[(input_df['sex'] == sex)]
     elif sex == "Overall Sex":
         input_df=input_df.loc[(input_df['sex'] == 'Overall')]

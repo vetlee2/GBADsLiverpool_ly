@@ -35,7 +35,7 @@ exchg_data_tomerge = exchg_data_tomerge.rename(columns={'official_exchange_rate_
 exchg_data_tomerge['exchg_rate_lcuperusdol'] = exchg_data_tomerge['exchg_rate_lcuperusdol'].astype('float64')                     # Convert a single column. Can replace original or make new column.
 exchg_data_tomerge = exchg_data_tomerge[['country_name' ,'exchg_rate_lcuperusdol']]
 
-#%% Run AHLE with control file scenarios
+#%% Run AHLE simulation
 '''
 OLD RUN TIMES
 
@@ -240,7 +240,7 @@ ahle_combo[['age_group' ,'sex']] = ahle_combo['group'].str.split(' ' ,expand=Tru
 ahle_combo.loc[ahle_combo['group'].str.upper() == 'OVERALL' ,'sex'] = 'Combined'
 
 # Special handling for Oxen
-ahle_combo.loc[ahle_combo['group'].str.upper() == 'OXEN' ,'age_group'] = 'Adult'
+ahle_combo.loc[ahle_combo['group'].str.upper() == 'OXEN' ,'age_group'] = 'Oxen'
 ahle_combo.loc[ahle_combo['group'].str.upper() == 'OXEN' ,'sex'] = 'Male'
 
 # Reorder columns
@@ -369,7 +369,7 @@ for i ,VARCOL in enumerate(var_cols):
    ahle_combo_withagg[VARCOL] = ahle_combo_withagg[SDCOL]**2
 
 # -----------------------------------------------------------------------------
-# Create Overall sum
+# Create Overall species, production system sum
 # -----------------------------------------------------------------------------
 #!!! Must be first sum to avoid double-counting!
 ahle_combo_withagg_sumall = ahle_combo_withagg.pivot_table(
@@ -452,7 +452,7 @@ del ahle_combo_withagg_sumprod
 # -----------------------------------------------------------------------------
 # Create overall species
 # -----------------------------------------------------------------------------
-ahle_combo_withagg_sumspec = ahle_combo_withagg.pivot_table(
+ahle_combo_withagg_sumspec = ahle_combo_withagg.query("species.str.upper().isin(['SHEEP' ,'GOAT'])").pivot_table(
    index=['production_system' ,'item' ,'group' ,'age_group' ,'sex']
    ,values=mean_cols + var_cols
    ,aggfunc='sum'

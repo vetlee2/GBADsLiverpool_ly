@@ -482,7 +482,7 @@ for i in np.sort(ecs_ahle_summary['species'].unique()):
 
 
 # Display
-ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Current & Ideal",
+ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Compare Current",
                                                                              "Difference (AHLE)",
                                                                             ]]
 
@@ -2632,7 +2632,7 @@ gbadsDash.layout = html.Div([
                             html.H6("Display"),
                             dcc.RadioItems(id='select-display-ecs',
                                           options=ecs_display_options,
-                                          value='Current & Ideal',
+                                          value='Compare Current',
                                           labelStyle={'display': 'block'},
                                           inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                           ),
@@ -5923,7 +5923,7 @@ def update_ahle_waterfall_ga(input_json ,selected_region ,selected_incgrp ,selec
     total_ahle = prep_df_sums[prep_df_sums['item']=='Net value']['value_usd_ahle_diff'].values[0]
     # total_ahle = total_ahle + prod_vetspend + pub_vetspend
 
-    if display =='Current & Ideal':
+    if display =='Compare Current':
         # Create graph with current values
         name = 'Current'
         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
@@ -6031,7 +6031,7 @@ def update_ahle_lineplot_ga(input_json ,selected_region ,selected_incgrp ,select
     prep_df_sums = prep_df_sums.reset_index()
 
 
-    if display == "Current & Ideal":
+    if display == "Compare Current":
         # Plot current value
         plot_current_value = go.Scatter(
             x=prep_df_sums['year']

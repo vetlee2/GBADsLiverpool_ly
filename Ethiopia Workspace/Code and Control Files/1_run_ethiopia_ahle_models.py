@@ -54,7 +54,7 @@ r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table _ Gemma edit
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
     # Arg 1: Number of simulation runs
-    '1'
+    '2'
 
     # Arg 2: Folder location for saving output files
     ,ETHIOPIA_OUTPUT_FOLDER
@@ -118,6 +118,9 @@ def combine_ahle_scenarios(
          ,'ideal_NF'
          ,'ideal_NM'
          ,'all_mortality_zero'
+         ,'all_mortality_minus25pct'
+         ,'all_mortality_minus50pct'
+         ,'all_mortality_minus75pct'
          ,'mortality_zero_AF'
          ,'mortality_zero_AM'
          ,'mortality_zero_J'

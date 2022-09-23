@@ -5028,7 +5028,6 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
     Input('select-prodsys-ecs','value'),
     Input('select-age-ecs','value'),
     Input('select-sex-ecs','value'),
-    # Input('select-attr-ecs','value'),
     Input('select-currency-ecs','value'),
     Input('select-top-lvl-attr-ecs','value'),
     Input('select-dd-1-attr-ecs','value'),

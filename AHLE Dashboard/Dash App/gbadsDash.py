@@ -506,6 +506,7 @@ ecs_redu_options = [{'label': i, 'value': i, 'disabled': True} for i in ['Curren
                                                                          '25%',
                                                                          '50%',
                                                                          '75%',
+                                                                         '100%',
                                                                          ]]
 
 # Defaults for sliders
@@ -2753,27 +2754,15 @@ gbadsDash.layout = html.Div([
             dbc.Col([
             dbc.Card([
                 dbc.CardBody([
-                    html.H5("Attribution Graph Controls",
+                    html.H5("Attribution Graph Controls - Hierarchy",
                             className="card-title",
                             style={"font-weight": "bold"}),
-                #     dbc.Row([
-                #     # Attribution
-                #     dbc.Col([
-                #         html.H6("Attribution"),
-                #         dcc.Dropdown(id='select-attr-ecs',
-                #                       options=ecs_attr_options,
-                #                       value='All Causes',
-                #                       clearable = False,
-                #                       ),
-                #         ],style={
-                #             # "margin-top":"10px",
-                #             "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
-                #             },
-                #       ),
-                # ]), # END OF ROW
-                    # Hierarchy
-                    dbc.Row([html.H5("Hierarchy",
-                                      style={"font-weight": "bold"}),
+                    
+                    dbc.Row([
+                        # # Hierarchy
+                        # html.H5("Hierarchy",
+                        #               style={"font-weight": "bold"}),
+                             
                     # Top Level
                     dbc.Col([
                         html.H6("Top Level"),
@@ -2782,7 +2771,10 @@ gbadsDash.layout = html.Div([
                                       value='cause',
                                       clearable = False,
                                       ),
-                        ]),
+                        ], style={
+                            "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                            },
+                        ),
                     # Drill Down 1
                     dbc.Col([
                         html.H6("Drill Down 1"),
@@ -2791,7 +2783,10 @@ gbadsDash.layout = html.Div([
                                       # value='production_system',
                                        clearable = False,
                                       ),
-                        ]),
+                        ], style={
+                            "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                            },
+                        ),
                     # Drill Down 2
                     dbc.Col([
                         html.H6("Drill Down 2"),
@@ -2800,7 +2795,11 @@ gbadsDash.layout = html.Div([
                                       value='age_group',
                                       clearable = False,
                                       ),
-                        ]),
+                        ], style={
+                            "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                            },
+                        ),
+                    
                 ]), # END OF ROW
                     
                 dbc.Row([
@@ -2822,6 +2821,15 @@ gbadsDash.layout = html.Div([
                                   clearable = False,
                                   ),
                     ]),
+                # # Drill Down 5
+                # dbc.Col([
+                #     html.H6("Drill Down 5"),
+                #     dcc.Dropdown(id='select-dd-5-attr-ecs',
+                #                   options=ecs_hierarchy_dd_attr_options,
+                #                   value='None',
+                #                   clearable = False,
+                #                   ),
+                #     ]),
                 ]), # END OF ROW
 
                 # END OF CARD BODY
@@ -2862,7 +2870,7 @@ gbadsDash.layout = html.Div([
 
                 # Reduction
                 dbc.Col([
-                    html.H6("Reduction"),
+                    html.H6("Improvement"),
                     dcc.RadioItems(id='select-redu-ecs',
                                   options=ecs_redu_options,
                                   value= "Current",
@@ -2929,13 +2937,6 @@ gbadsDash.layout = html.Div([
                     dbc.Col(
                         dbc.Spinner(children=[
 
-                        # # Text output
-                        # html.P(id='growth-text-ecs'),
-                        # html.P(id='offtake-text-ecs'),
-                        # html.P(id='dung-text-ecs'),
-                        # html.P(id='hides-text-ecs'),
-                        # html.P(id='milk-text-ecs'),
-
                         dcc.Graph(id='ecs-attr-treemap',
                                     style = {"height":"650px"},
                                   config = {
@@ -2978,29 +2979,8 @@ gbadsDash.layout = html.Div([
             ),
             html.Br(),
             ### END OF FOOTNOTES
-
-            #### -- DATATABLE
-            dbc.Row([
-
-                dbc.Col([
-                    html.Div([  # Core data for AHLE
-                          html.Div( id='ecs-ahle-datatable'),
-                    ], style={'margin-left':"20px"}),
-                html.Br() # Spacer for bottom of page
-                ]),
-
-                dbc.Col([
-                    html.Div([  # Core data for attribution
-                          html.Div( id='ecs-attr-datatable'),
-                    ], style={'margin-left':"20px",}),
-                html.Br(), # Spacer for bottom of page
-                ]),  # END OF COL
-
-                # END OF COL
-            ]),
-            html.Br(),
-            ### END OF DATATABLE
-
+            
+            
             #### -- ADDITIONAL VISUALS
             dbc.Row([
                 # Sankey
@@ -3038,6 +3018,29 @@ gbadsDash.layout = html.Div([
             ]), # END OF ROW
             html.Br(),
             ### END OF ADDITIONAL VISUALS
+
+
+            #### -- DATATABLE
+            dbc.Row([
+
+                dbc.Col([
+                    html.Div([  # Core data for AHLE
+                          html.Div( id='ecs-ahle-datatable'),
+                    ], style={'margin-left':"20px"}),
+                html.Br() # Spacer for bottom of page
+                ]),
+
+                dbc.Col([
+                    html.Div([  # Core data for attribution
+                          html.Div( id='ecs-attr-datatable'),
+                    ], style={'margin-left':"20px",}),
+                html.Br(), # Spacer for bottom of page
+                ]),  # END OF COL
+
+                # END OF COL
+            ]),
+            html.Br(),
+            ### END OF DATATABLE
 
 
         ### END OF ETHIOPIA TAB
@@ -4634,6 +4637,23 @@ def update_dd4_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_
                 d['disabled']=False
     return options
             
+# @gbadsDash.callback(
+#     Output('select-dd-5-attr-ecs','options'),
+#     Input('select-top-lvl-attr-ecs','value'),
+#     Input('select-dd-1-attr-ecs','value'),
+#     Input('select-dd-2-attr-ecs','value'),
+#     Input('select-dd-3-attr-ecs','value'),
+#     Input('select-dd-4-attr-ecs','value'),
+#     )
+# def update_dd5_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_hierarchy, dd4_hierarchy):
+#     options = ecs_hierarchy_dd_attr_options
+#     for d in options:
+#         if d['value'] != 'None':
+#             if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy or d['value'] == dd2_hierarchy or d['value'] == dd3_hierarchy or d['value'] == dd4_hierarchy:
+#                 d['disabled']= True
+#             else:
+#                 d['disabled']=False
+#     return options
 
 # ------------------------------------------------------------------------------
 #### -- Data

@@ -18,6 +18,17 @@
 
 #%% Prep for Attribution using latest AHLE inputs
 
+# =============================================================================
+#### Read data
+# =============================================================================
+ahle_combo_withahle = pd.read_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary2.pkl.gz'))
+
+#%% === BREAK ===
+'''
+Rewriting code below this line
+'''
+#%% Prep for Attribution using latest AHLE inputs
+
 # Restructure to use as input to Attribution function
 ahle_combo_forattr_means = ahle_combo_p.melt(
    id_vars=['species' ,'production_system' ,'group']

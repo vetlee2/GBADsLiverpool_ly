@@ -304,8 +304,8 @@ print(check_grossmargin_overall[['species' ,'production_system' ,'gmchange_dueto
 # =============================================================================
 #!!! The overall sum Gross Margin produced here is not equal to the overall
 # Gross Margin coming out of the AHLE simulation!
-# I have checked the simulation code and the elements of gross margin, production
-# value and total expenditure, are equal to the sum of the individual agesex groups
+# I have checked the simulation code, and the elements of gross margin - production
+# value and total expenditure - are equal to the sum of the individual agesex groups
 # by definition. So, I believe the discrepancy is because we have only done a single
 # run of the simulation, and some elements are far from their means by random chance.
 # Check this again after running the simulation with several samples.
@@ -322,13 +322,16 @@ check_agesex_sums = pd.merge(
     ,on=['species' ,'production_system' ,'item']
     ,how='left'
 )
+check_agesex_sums = check_agesex_sums.rename(columns={'mean_current':'mean_current_overall'})
 
 check_agesex_sums.eval(
     '''
-    check_ratio = mean_current_sumagesex / mean_current
+    check_ratio = mean_current_sumagesex / mean_current_overall
     '''
     ,inplace=True
 )
+print('Checking the sum of individual age/sex compared to the overall for each item')
+print(check_agesex_sums.groupby(['species' ,'production_system'])['check_ratio'].max())
 
 #%% Add group summaries
 '''
@@ -547,6 +550,7 @@ ahle_combo_summary = ahle_combo_summary.rename(
 datainfo(ahle_combo_summary)
 
 ahle_combo_summary.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.csv') ,index=False)
+ahle_combo_summary.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.pkl.gz'))
 
 #%% Calculate AHLE for each scenario
 '''
@@ -602,7 +606,6 @@ ahle_combo_withahle = ahle_combo_withagg_p.copy()
 ahle_combo_withahle.eval(
     '''
     ahle_total_mean = mean_ideal_gross_margin - mean_current_gross_margin
-
     ahle_dueto_mortality_mean = mean_all_mortality_zero_gross_margin - mean_current_gross_margin
     ahle_dueto_healthcost_mean = mean_current_health_cost
     ahle_dueto_productionloss_mean = ahle_total_mean - ahle_dueto_mortality_mean - ahle_dueto_healthcost_mean
@@ -617,7 +620,6 @@ ahle_combo_withahle.eval(
     # Repeat for USD
     '''
     ahle_total_usd_mean = mean_ideal_usd_gross_margin - mean_current_usd_gross_margin
-
     ahle_dueto_mortality_usd_mean = mean_all_mortality_zero_usd_gross_margin - mean_current_usd_gross_margin
     ahle_dueto_healthcost_usd_mean = mean_current_usd_health_cost
     ahle_dueto_productionloss_usd_mean = ahle_total_usd_mean - ahle_dueto_mortality_usd_mean - ahle_dueto_healthcost_usd_mean
@@ -671,8 +673,27 @@ ahle_combo_withahle = ahle_combo_withahle[keepcols]
 datainfo(ahle_combo_withahle)
 
 ahle_combo_withahle.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary2.csv') ,index=False)
+ahle_combo_withahle.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary2.pkl.gz'))
 
-#%% === Break ===
+#%% Checks on calculated AHLE
+
+ahle_combo_withahle_checks = ahle_combo_withahle.copy()
+
+# Sum of individual age/sex AHLE compared to overall AHLE
+ahle_combo_withahle_checks.eval(
+    '''
+    sum_ahle_individual = ahle_justfor_af_mean + ahle_justfor_am_mean \
+        + ahle_justfor_jf_mean + ahle_justfor_jm_mean \
+        + ahle_justfor_nf_mean + ahle_justfor_nm_mean
+
+    sum_ahle_individual_vs_overall = sum_ahle_individual / ahle_total_mean
+    '''
+    ,inplace=True
+)
+print('Checking the sum AHLE for individual ideal scenarios against the overall')
+print(ahle_combo_withahle_checks[['species' ,'production_system' ,'sum_ahle_individual_vs_overall']])
+
+#%% === BREAK ===
 '''
 I'm revisiting everything below this line
 '''

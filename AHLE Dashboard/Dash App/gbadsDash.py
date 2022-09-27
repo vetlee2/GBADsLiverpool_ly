@@ -189,6 +189,9 @@ swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'
 # AHLE Summary
 ecs_ahle_summary = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary.csv'))
 
+# AHLE Summary 2 - for stacked bar
+ecs_ahle_summary2 = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
+
 # Attribution Summary
 ecs_ahle_all_withattr = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
 
@@ -1117,6 +1120,12 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
    ecs_ahle_waterfall['item'] = ecs_ahle_waterfall['item'].astype('category')
    ecs_ahle_waterfall.item.cat.set_categories(waterfall_plot_values, inplace=True)
    ecs_ahle_waterfall = ecs_ahle_waterfall.sort_values(["item"])
+   
+   # Rename costs values to be more descriptive 
+   ecs_ahle_waterfall['item'] = ecs_ahle_waterfall['item'].replace({'Feed Cost': 'Expenditure on Feed',
+                                                                    'Labour Cost': 'Expenditure on Labour',
+                                                                    'Health Cost': 'Expenditure on Health',
+                                                                    'Capital Cost': 'Expenditure on Capital'})
 
    # Create AHLE columns
    ecs_ahle_waterfall['mean_AHLE'] = ecs_ahle_waterfall['mean_ideal'] - ecs_ahle_waterfall['mean_current']
@@ -1207,6 +1216,88 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
 
     return OUTPUT_DF
 
+def prep_ahle_forstackedbar_ecs(INPUT_DF):
+   working_df = INPUT_DF.copy()
+
+   # Birr costs
+   # Ordering here determines order in plot
+   cols_birr_costs = [
+      'ahle_justfor_nm_mean'   # Adjusted based on feed price slider
+      ,'ahle_justfor_nf_mean'
+      ,'ahle_justfor_jm_mean'
+      ,'ahle_justfor_jf_mean'
+       ,'ahle_justfor_am_mean'
+      ,'ahle_justfor_af_mean'
+   ]
+   # USD costs
+   cols_usd_costs = [
+      'ahle_justfor_nm_usd_mean'
+      ,'ahle_justfor_nf_usd_mean'
+      ,'ahle_justfor_jm_usd_mean'
+      ,'ahle_justfor_jf_usd_mean'
+       ,'ahle_justfor_am_usd_mean'
+      ,'ahle_justfor_af_usd_mean'
+   ]
+
+   # If any costs are missing for a given country and year, fill in zero
+   for COL in cols_birr_costs + cols_usd_costs:
+      working_df[COL] = working_df[COL].replace(np.nan ,0)
+
+   # Melt actual costs into rows
+   output_birr = working_df.melt(
+      id_vars=['species' ,'production_system']
+      ,value_vars=cols_birr_costs
+      ,var_name='ahle_due_to'
+      ,value_name='cost_birr'
+   )
+   # output_actual['opt_or_act'] = 'Actual'  # Value here determines bar label in plot
+
+   # Melt ideal costs into rows
+   output_usd = working_df.melt(
+      id_vars=['species' ,'production_system']
+      ,value_vars=cols_usd_costs
+      ,var_name='ahle_due_to'
+      ,value_name='cost_usd'
+   )
+   # output_ideal['opt_or_act'] = 'Ideal + Burden of disease'  # Value here determines bar label in plot
+
+   # Stack actual, ideal, and burden
+   OUTPUT_DF = pd.concat(
+      [output_birr ,output_usd]
+      ,axis=0
+      ,join='outer'
+      ,ignore_index=True
+   )
+
+   # Recode cost item names
+   # Keys are column names
+   # Values are cost items as you want them to appear in plot
+   # Actual and Ideal costs should appear in pairs, except for bod_costs which only appears once
+   pretty_ahle_cost_names = {
+      'ahle_justfor_nm_mean':'Neonatal male'
+      ,'ahle_justfor_nm_usd_mean':'Neonatal male'
+
+      ,'ahle_justfor_nf_mean':'Neonatal female'
+      ,'ahle_justfor_nf_usd_mean':'Neonatal female'
+
+      ,'ahle_justfor_jm_mean':'Juvenile male'
+      ,'ahle_justfor_jm_usd_mean':'Juvenile male'
+
+      ,'ahle_justfor_jf_mean':'Juvenile female'
+      ,'ahle_justfor_jf_usd_mean':'Juvenile female'
+
+       ,'ahle_justfor_am_mean':'Adult male'
+       ,'ahle_justfor_am_usd_mean':'Adult male'
+
+      ,'ahle_justfor_af_mean':'Adult female'
+      ,'ahle_justfor_af_usd_mean':'Adult female'
+
+   }
+   OUTPUT_DF['AHLE Due To'] = OUTPUT_DF['ahle_due_to'].replace(pretty_ahle_cost_names)
+
+   return OUTPUT_DF
+
+
 # =============================================================================
 #### Define the figures
 # =============================================================================
@@ -1230,6 +1321,12 @@ def create_waterfall(x, y, text):
 
      waterfall_fig.update_layout(clickmode='event+select', ### EVENT SELECT ??????
                                  plot_bgcolor="#ededed")
+     waterfall_fig.update_xaxes(
+         fixedrange=True
+         )
+     waterfall_fig.update_yaxes(
+         fixedrange=True
+         )
 
      return waterfall_fig
 
@@ -1284,6 +1381,12 @@ def create_stacked_bar_poultry(input_df, x, y, color):
        yaxis_title='Cost per kg live weight',
        yaxis_tickformat = "$.2f"
        )
+    bar_fig.update_xaxes(
+        fixedrange=True
+        )
+    bar_fig.update_yaxes(
+        fixedrange=True
+        )
     return bar_fig
 
 def create_stacked_bar_swine(input_df, x, y, color):
@@ -1310,6 +1413,12 @@ def create_stacked_bar_swine(input_df, x, y, color):
        yaxis_title='Cost per kg carcass weight',
        yaxis_tickformat = "$.2f"
        )
+    bar_fig.update_xaxes(
+        fixedrange=True
+        )
+    bar_fig.update_yaxes(
+        fixedrange=True
+        )
     return bar_fig
 
 # Define the attribution treemap
@@ -1368,8 +1477,44 @@ def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
                                      color="black"
                                      )
                                  )
+    waterfall_fig.update_xaxes(
+        fixedrange=True
+        )
+    waterfall_fig.update_yaxes(
+        fixedrange=True
+        )
 
     return waterfall_fig
+
+# Define the stacked bar
+def create_stacked_bar_ecs(input_df, x, y, color, yaxis_title):
+    bar_fig = px.bar(
+        input_df,
+        x=x,
+        y=y,
+        color=color,
+        color_discrete_map={
+          "Neonatal male":"#2A80B9",
+          "Neonatal female":"#6eb1de",
+          "Juvenile male":"#9B58B5",
+          "Juvenile female":"#caa6d8",
+          "Adult male":"#2DCC70",
+          "Adult female":"#82e3aa",
+          })
+    bar_fig.update_layout(
+        plot_bgcolor="#ededed",
+        hovermode=False,
+        showlegend=True,
+        xaxis_title=None,
+        yaxis_title=yaxis_title,
+        )
+    bar_fig.update_xaxes(
+        fixedrange=True
+        )
+    bar_fig.update_yaxes(
+        fixedrange=True
+        )
+    return bar_fig
 
 
 # Define the Biomass map
@@ -2983,31 +3128,42 @@ gbadsDash.layout = html.Div([
             
             #### -- ADDITIONAL VISUALS
             dbc.Row([
+                dbc.Col([ # AHLE Stacked Bar
+                    dbc.Spinner(children=[
+                    dcc.Graph(id='ahle-stacked-bar-ecs',
+                                style = {"height":"500px"},
+                              config = {
+                                  "displayModeBar" : True,
+                                  "displaylogo": False,
+                                  'toImageButtonOptions': {
+                                      'format': 'png', # one of png, svg, jpeg, webp
+                                      'filename': 'GBADs_AHLE_Stacked_Bar_ECS'
+                                      },
+                                  'modeBarButtonsToRemove': ['zoom',
+                                                              'zoomIn',
+                                                              'zoomOut',
+                                                              'autoScale',
+                                                              #'resetScale',  # Removes home button
+                                                              'pan',
+                                                              'select2d',
+                                                              'lasso2d']
+
+                                  })
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                        # End of Stacked Bar
+                        ],style={"width":5}
+                        ),
+                
                 # Sankey
                 dbc.Col([
                 dbc.Spinner(children=[
                     html.H4("Sankey for Attribution"),
                         html.Div(children=[
                                 html.Img(src='/assets/ECS_Sanky_diagram_from_Gemma.png',
-                                style = {'width':'80vw'}),
+                                style = {'width':'120vw'}),
                                 ],
-                                  style = {'margin-left':"10px",
-                                          "margin-bottom":"10px",
-                                          'margin-right':"10px",},
-                                  ),
-                        # End of Spinner
-                        ],size="md", color="#393375", fullscreen=False),
-                    ]),
-                
-                # Attribution Stacked bBar
-                dbc.Col([
-                dbc.Spinner(children=[
-                    html.H4("Sankey for Attribution"),
-                        html.Div(children=[
-                                html.Img(src='/assets/ECS_Sanky_diagram_from_Gemma.png',
-                                style = {'width':'80vw'}),
-                                ],
-                                  style = {'margin-left':"10px",
+                                  style = {
                                           "margin-bottom":"10px",
                                           'margin-right':"10px",},
                                   ),
@@ -4946,10 +5102,10 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
         waterfall_plot_values = ('Value of Offtake',
                                   'Value of Herd Increase',
                                   'Value of Manure',
-                                  'Feed Cost',
-                                  'Labour Cost',
-                                  'Health Cost',
-                                  'Capital Cost',
+                                  'Expenditure on Feed',
+                                  'Expenditure on Labour',
+                                  'Expenditure on Health',
+                                  'Expenditure on Capital',
                                   'Gross Margin')
         prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
@@ -5000,9 +5156,7 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
                                             yaxis_title=display_currency,
                                             font_size=15,
                                             margin=dict(t=100))
-            # Adjust hoverover
-            # ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} <extra></extra>')
-
+           
         else:
             y = prep_df['mean_mortality_zero']
             name = 'Mortality 0'
@@ -5027,9 +5181,7 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
                                             yaxis_title=display_currency,
                                             font_size=15,
                                             margin=dict(t=100))
-            # Adjust hoverover
-            # ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} <extra></extra>')
-
+            
     # Add tooltip
     if currency == 'Birr':
         ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} Birr<extra></extra>')
@@ -5092,7 +5244,7 @@ def update_attr_treemap_ecs(input_json, prodsys, age, sex, currency,
     ecs_treemap_fig.update_layout(title_text=f'Attribution | All Small Ruminants <br><sup> Using {prodsys} for {age} and {sex}</sup><br>',
                                   font_size=15,
                                   margin=dict(t=100))
-    # !!! - NEED TO FIX THIS WITH NEW HIERARCHY OPTIONS
+
     # Add % of total AHLE
     # ecs_treemap_fig.data[0].texttemplate = "%{label}<br>% of Total AHLE=%{customdata[0]:,.2f}%"
 
@@ -5110,6 +5262,59 @@ def update_attr_treemap_ecs(input_json, prodsys, age, sex, currency,
 
     return ecs_treemap_fig
 
+# Update Stacked bar chart
+@gbadsDash.callback(
+    Output('ahle-stacked-bar-ecs','figure'),
+    Input('select-prodsys-ecs','value'),
+    Input('select-species-ecs','value'),
+    Input('select-currency-ecs','value'),
+    )
+def update_stacked_bar_ecs(prodsys, species, currency):
+
+    # AHLE Summary 2 - for stacked bar
+    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
+
+    # Remove 'all small ruminants' as an option for display of species
+    input_df = input_df[input_df.species != 'All small ruminants']
+
+    # Rename values to match filters
+    # Species
+    # input_df['species'] = input_df['species'].replace({'All small ruminants': 'All Small Ruminants'})
+    input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
+
+    # -----------------------------------------------------------------------------
+    # Base plot
+    # -----------------------------------------------------------------------------
+    # Structure for plot
+    stackedbar_df = prep_ahle_forstackedbar_ecs(input_df)
+
+    # Apply production system filter
+    stackedbar_df = stackedbar_df.loc[(stackedbar_df['production_system'] == prodsys)]
+
+    x = stackedbar_df['species']
+    color = stackedbar_df['AHLE Due To']
+    # Change y based on selected currency value
+    if currency == 'Birr':
+        y = stackedbar_df['cost_birr']
+        yaxis_title = 'Ethiopian Birr'
+    else:
+        y = stackedbar_df['cost_usd']
+        yaxis_title = 'USD'
+    
+    # Create Stacked Bar 
+    ahle_bar_ecs_fig = create_stacked_bar_ecs(stackedbar_df, x, y, color, yaxis_title)
+
+    ahle_bar_ecs_fig.update_layout(title_text=f'AHLE Costs by Age Group | {prodsys}',
+                                font_size=15)
+    
+    # !!! - STILL WORKING ON THIS
+    # Add tooltip
+    if currency == 'Birr':
+        ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} Birr<extra></extra>')
+    elif currency == 'USD':
+        ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} USD<extra></extra>')
+
+    return ahle_bar_ecs_fig
 
 # ==============================================================================
 #### UPDATE GLOBAL AGGREGATE

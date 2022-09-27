@@ -313,8 +313,7 @@ N runs | Run time
 100      1m 53s
 1000     14m 40s
 '''
-# r_script = os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE function with control file scenarios.R')    # Full path to the R program you want to run
-r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table _ Gemma edits for individuals .R')    # Full path to the R program you want to run
+r_script = os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE function with control file scenarios.R')    # Full path to the R program you want to run
 
 # Arguments to R function, as list of strings.
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
@@ -585,9 +584,6 @@ datainfo(ahle_combo_scensmry)
 # =============================================================================
 #!!! Model output items for individual age/sex scenarios don't sum!
 # For now, using MAX
-# Only the AHLE (gross margin DIFFERENCE between ideal and current) is expected to sum
-#!!! Revisit this. The structure isn't right. Don't need these sums.
-#!!! Only need items 'gross margin' and 'health cost' to calculate AHLE. Then, only need to sum AHLE.
 
 ahle_combo = ahle_combo_scensmry.copy()
 
@@ -782,7 +778,7 @@ ahle_combo = ahle_combo.sort_values(
 datainfo(ahle_combo)
 
 # Export
-# ahle_combo.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.csv') ,index=False)
+ahle_combo.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.csv') ,index=False)
 
 #%% Calculate AHLE components
 

@@ -189,6 +189,9 @@ swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'
 # AHLE Summary
 ecs_ahle_summary = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary.csv'))
 
+# AHLE Summary 2 - for stacked bar
+ecs_ahle_summary2 = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
+
 # Attribution Summary
 ecs_ahle_all_withattr = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
 
@@ -435,17 +438,20 @@ for i in np.sort(ecs_ahle_all_withattr['production_system'].unique()):
    str(ecs_prodsys_options.append({'label':i,'value':(i)}))
 
 # Age
-ecs_age_options = [{'label': "Overall Age", 'value': "Overall Age", 'disabled': False}]
+# Rename Overall to more descriptive
+ecs_ahle_summary['age_group'] = ecs_ahle_summary['age_group'].replace({'Overall': 'Overall Age'})
+# ecs_age_options = [{'label': "Overall Age", 'value': "Overall Age", 'disabled': False}]
 
-for i in np.sort(ecs_ahle_all_withattr['age_group'].unique()):
+ecs_age_options=[]
+for i in np.sort(ecs_ahle_summary['age_group'].unique()):
    str(ecs_age_options.append({'label':i,'value':(i)}))
 
 # Sex
 # Rename Overall to more descriptive
-ecs_ahle_all_withattr['sex'] = ecs_ahle_all_withattr['sex'].replace({'Overall': 'Overall Sex'})
+ecs_ahle_summary['sex'] = ecs_ahle_summary['sex'].replace({'Overall': 'Overall Sex'})
 
 ecs_sex_options_all = []
-for i in np.sort(ecs_ahle_all_withattr['sex'].unique()):
+for i in np.sort(ecs_ahle_summary['sex'].unique()):
    str(ecs_sex_options_all.append({'label':i,'value':(i)}))
 
 # Filter for juvenile and neonates
@@ -481,13 +487,8 @@ for i in np.sort(ecs_ahle_summary['species'].unique()):
     str(ecs_species_options.append({'label':i,'value':(i)}))
 
 
-# # Metric
-# ecs_metric_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Number of animals",
-#                                                                             "Value of outputs",
-#                                                                             ]]
-
 # Display
-ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Current & Ideal",
+ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Compare Current",
                                                                              "Difference (AHLE)",
                                                                             ]]
 
@@ -508,6 +509,7 @@ ecs_redu_options = [{'label': i, 'value': i, 'disabled': True} for i in ['Curren
                                                                          '25%',
                                                                          '50%',
                                                                          '75%',
+                                                                         '100%',
                                                                          ]]
 
 # Defaults for sliders
@@ -1084,14 +1086,14 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
    working_df = INPUT_DF.copy()
 
    # Trim the data to keep things needed for the waterfall
-   ecs_ahle_summary_sheep_sunburst = working_df[['species',
-                                                 'production_system',
-                                                 'age_group',
-                                                 'sex',
-                                                 'item',
-                                                 'mean_current',
-                                                 'mean_ideal',
-                                                 'mean_mortality_zero']]
+   ecs_ahle_waterfall = working_df[['species',
+                                    'production_system',
+                                    'age_group',
+                                    'sex',
+                                    'item',
+                                    'mean_current',
+                                    'mean_ideal',
+                                    'mean_mortality_zero']]
 
    # Keep only items for the waterfall
    waterfall_plot_values = ('Value of Offtake',
@@ -1103,28 +1105,34 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
                             'Health Cost',
                             'Capital Cost',
                             'Gross Margin')
-   ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.loc[ecs_ahle_summary_sheep_sunburst['item'].isin(waterfall_plot_values)]
-
+   ecs_ahle_waterfall = ecs_ahle_waterfall.loc[ecs_ahle_waterfall['item'].isin(waterfall_plot_values)]
+   
    # Make costs negative
    costs = ('Feed Cost',
             'Labour Cost',
             'Health Cost',
             'Capital Cost')
-   ecs_ahle_summary_sheep_sunburst['mean_current'] = np.where(ecs_ahle_summary_sheep_sunburst.item.isin(costs), ecs_ahle_summary_sheep_sunburst['mean_current']* -1, ecs_ahle_summary_sheep_sunburst['mean_current'])
-   ecs_ahle_summary_sheep_sunburst['mean_ideal'] = np.where(ecs_ahle_summary_sheep_sunburst.item.isin(costs), ecs_ahle_summary_sheep_sunburst['mean_ideal']* -1, ecs_ahle_summary_sheep_sunburst['mean_ideal'])
-   ecs_ahle_summary_sheep_sunburst['mean_mortality_zero'] = np.where(ecs_ahle_summary_sheep_sunburst.item.isin(costs), ecs_ahle_summary_sheep_sunburst['mean_mortality_zero']* -1, ecs_ahle_summary_sheep_sunburst['mean_mortality_zero'])
+   ecs_ahle_waterfall['mean_current'] = np.where(ecs_ahle_waterfall.item.isin(costs), ecs_ahle_waterfall['mean_current']* -1, ecs_ahle_waterfall['mean_current'])
+   ecs_ahle_waterfall['mean_ideal'] = np.where(ecs_ahle_waterfall.item.isin(costs), ecs_ahle_waterfall['mean_ideal']* -1, ecs_ahle_waterfall['mean_ideal'])
+   ecs_ahle_waterfall['mean_mortality_zero'] = np.where(ecs_ahle_waterfall.item.isin(costs), ecs_ahle_waterfall['mean_mortality_zero']* -1, ecs_ahle_waterfall['mean_mortality_zero'])
 
    # Sort Item column to keep values and costs together
-   ecs_ahle_summary_sheep_sunburst['item'] = ecs_ahle_summary_sheep_sunburst['item'].astype('category')
-   ecs_ahle_summary_sheep_sunburst.item.cat.set_categories(waterfall_plot_values, inplace=True)
-   ecs_ahle_summary_sheep_sunburst = ecs_ahle_summary_sheep_sunburst.sort_values(["item"])
+   ecs_ahle_waterfall['item'] = ecs_ahle_waterfall['item'].astype('category')
+   ecs_ahle_waterfall.item.cat.set_categories(waterfall_plot_values, inplace=True)
+   ecs_ahle_waterfall = ecs_ahle_waterfall.sort_values(["item"])
+   
+   # Rename costs values to be more descriptive 
+   ecs_ahle_waterfall['item'] = ecs_ahle_waterfall['item'].replace({'Feed Cost': 'Expenditure on Feed',
+                                                                    'Labour Cost': 'Expenditure on Labour',
+                                                                    'Health Cost': 'Expenditure on Health',
+                                                                    'Capital Cost': 'Expenditure on Capital'})
 
    # Create AHLE columns
-   ecs_ahle_summary_sheep_sunburst['mean_AHLE'] = ecs_ahle_summary_sheep_sunburst['mean_ideal'] - ecs_ahle_summary_sheep_sunburst['mean_current']
-   ecs_ahle_summary_sheep_sunburst['mean_AHLE_mortality'] = ecs_ahle_summary_sheep_sunburst['mean_mortality_zero'] - ecs_ahle_summary_sheep_sunburst['mean_current']
+   ecs_ahle_waterfall['mean_AHLE'] = ecs_ahle_waterfall['mean_ideal'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['mean_AHLE_mortality'] = ecs_ahle_waterfall['mean_mortality_zero'] - ecs_ahle_waterfall['mean_current']
 
 
-   OUTPUT_DF = ecs_ahle_summary_sheep_sunburst
+   OUTPUT_DF = ecs_ahle_waterfall
 
    return OUTPUT_DF
 
@@ -1208,6 +1216,88 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
 
     return OUTPUT_DF
 
+def prep_ahle_forstackedbar_ecs(INPUT_DF):
+   working_df = INPUT_DF.copy()
+
+   # Birr costs
+   # Ordering here determines order in plot
+   cols_birr_costs = [
+      'ahle_justfor_nm_mean'   # Adjusted based on feed price slider
+      ,'ahle_justfor_nf_mean'
+      ,'ahle_justfor_jm_mean'
+      ,'ahle_justfor_jf_mean'
+       ,'ahle_justfor_am_mean'
+      ,'ahle_justfor_af_mean'
+   ]
+   # USD costs
+   cols_usd_costs = [
+      'ahle_justfor_nm_usd_mean'
+      ,'ahle_justfor_nf_usd_mean'
+      ,'ahle_justfor_jm_usd_mean'
+      ,'ahle_justfor_jf_usd_mean'
+       ,'ahle_justfor_am_usd_mean'
+      ,'ahle_justfor_af_usd_mean'
+   ]
+
+   # If any costs are missing for a given country and year, fill in zero
+   for COL in cols_birr_costs + cols_usd_costs:
+      working_df[COL] = working_df[COL].replace(np.nan ,0)
+
+   # Melt actual costs into rows
+   output_birr = working_df.melt(
+      id_vars=['species' ,'production_system']
+      ,value_vars=cols_birr_costs
+      ,var_name='ahle_due_to'
+      ,value_name='cost_birr'
+   )
+   # output_actual['opt_or_act'] = 'Actual'  # Value here determines bar label in plot
+
+   # Melt ideal costs into rows
+   output_usd = working_df.melt(
+      id_vars=['species' ,'production_system']
+      ,value_vars=cols_usd_costs
+      ,var_name='ahle_due_to'
+      ,value_name='cost_usd'
+   )
+   # output_ideal['opt_or_act'] = 'Ideal + Burden of disease'  # Value here determines bar label in plot
+
+   # Stack actual, ideal, and burden
+   OUTPUT_DF = pd.concat(
+      [output_birr ,output_usd]
+      ,axis=0
+      ,join='outer'
+      ,ignore_index=True
+   )
+
+   # Recode cost item names
+   # Keys are column names
+   # Values are cost items as you want them to appear in plot
+   # Actual and Ideal costs should appear in pairs, except for bod_costs which only appears once
+   pretty_ahle_cost_names = {
+      'ahle_justfor_nm_mean':'Neonatal male'
+      ,'ahle_justfor_nm_usd_mean':'Neonatal male'
+
+      ,'ahle_justfor_nf_mean':'Neonatal female'
+      ,'ahle_justfor_nf_usd_mean':'Neonatal female'
+
+      ,'ahle_justfor_jm_mean':'Juvenile male'
+      ,'ahle_justfor_jm_usd_mean':'Juvenile male'
+
+      ,'ahle_justfor_jf_mean':'Juvenile female'
+      ,'ahle_justfor_jf_usd_mean':'Juvenile female'
+
+       ,'ahle_justfor_am_mean':'Adult male'
+       ,'ahle_justfor_am_usd_mean':'Adult male'
+
+      ,'ahle_justfor_af_mean':'Adult female'
+      ,'ahle_justfor_af_usd_mean':'Adult female'
+
+   }
+   OUTPUT_DF['AHLE Due To'] = OUTPUT_DF['ahle_due_to'].replace(pretty_ahle_cost_names)
+
+   return OUTPUT_DF
+
+
 # =============================================================================
 #### Define the figures
 # =============================================================================
@@ -1231,6 +1321,12 @@ def create_waterfall(x, y, text):
 
      waterfall_fig.update_layout(clickmode='event+select', ### EVENT SELECT ??????
                                  plot_bgcolor="#ededed")
+     waterfall_fig.update_xaxes(
+         fixedrange=True
+         )
+     waterfall_fig.update_yaxes(
+         fixedrange=True
+         )
 
      return waterfall_fig
 
@@ -1285,6 +1381,12 @@ def create_stacked_bar_poultry(input_df, x, y, color):
        yaxis_title='Cost per kg live weight',
        yaxis_tickformat = "$.2f"
        )
+    bar_fig.update_xaxes(
+        fixedrange=True
+        )
+    bar_fig.update_yaxes(
+        fixedrange=True
+        )
     return bar_fig
 
 def create_stacked_bar_swine(input_df, x, y, color):
@@ -1311,6 +1413,12 @@ def create_stacked_bar_swine(input_df, x, y, color):
        yaxis_title='Cost per kg carcass weight',
        yaxis_tickformat = "$.2f"
        )
+    bar_fig.update_xaxes(
+        fixedrange=True
+        )
+    bar_fig.update_yaxes(
+        fixedrange=True
+        )
     return bar_fig
 
 # Define the attribution treemap
@@ -1369,8 +1477,44 @@ def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
                                      color="black"
                                      )
                                  )
+    waterfall_fig.update_xaxes(
+        fixedrange=True
+        )
+    waterfall_fig.update_yaxes(
+        fixedrange=True
+        )
 
     return waterfall_fig
+
+# Define the stacked bar
+def create_stacked_bar_ecs(input_df, x, y, color, yaxis_title):
+    bar_fig = px.bar(
+        input_df,
+        x=x,
+        y=y,
+        color=color,
+        color_discrete_map={
+          "Neonatal male":"#2A80B9",
+          "Neonatal female":"#6eb1de",
+          "Juvenile male":"#9B58B5",
+          "Juvenile female":"#caa6d8",
+          "Adult male":"#2DCC70",
+          "Adult female":"#82e3aa",
+          })
+    bar_fig.update_layout(
+        plot_bgcolor="#ededed",
+        hovermode=False,
+        showlegend=True,
+        xaxis_title=None,
+        yaxis_title=yaxis_title,
+        )
+    bar_fig.update_xaxes(
+        fixedrange=True
+        )
+    bar_fig.update_yaxes(
+        fixedrange=True
+        )
+    return bar_fig
 
 
 # Define the Biomass map
@@ -2637,7 +2781,7 @@ gbadsDash.layout = html.Div([
                             html.H6("Display"),
                             dcc.RadioItems(id='select-display-ecs',
                                           options=ecs_display_options,
-                                          value='Current & Ideal',
+                                          value='Compare Current',
                                           labelStyle={'display': 'block'},
                                           inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                           ),
@@ -2755,27 +2899,15 @@ gbadsDash.layout = html.Div([
             dbc.Col([
             dbc.Card([
                 dbc.CardBody([
-                    html.H5("Attribution Graph Controls",
+                    html.H5("Attribution Graph Controls - Hierarchy",
                             className="card-title",
                             style={"font-weight": "bold"}),
-                #     dbc.Row([
-                #     # Attribution
-                #     dbc.Col([
-                #         html.H6("Attribution"),
-                #         dcc.Dropdown(id='select-attr-ecs',
-                #                       options=ecs_attr_options,
-                #                       value='All Causes',
-                #                       clearable = False,
-                #                       ),
-                #         ],style={
-                #             # "margin-top":"10px",
-                #             "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
-                #             },
-                #       ),
-                # ]), # END OF ROW
-                    # Hierarchy
-                    dbc.Row([html.H5("Hierarchy",
-                                      style={"font-weight": "bold"}),
+                    
+                    dbc.Row([
+                        # # Hierarchy
+                        # html.H5("Hierarchy",
+                        #               style={"font-weight": "bold"}),
+                             
                     # Top Level
                     dbc.Col([
                         html.H6("Top Level"),
@@ -2784,16 +2916,22 @@ gbadsDash.layout = html.Div([
                                       value='cause',
                                       clearable = False,
                                       ),
-                        ]),
+                        ], style={
+                            "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                            },
+                        ),
                     # Drill Down 1
                     dbc.Col([
                         html.H6("Drill Down 1"),
                         dcc.Dropdown(id='select-dd-1-attr-ecs',
-                                      options=ecs_hierarchy_dd_attr_options,
-                                      value='production_system',
-                                      clearable = False,
+                                      # options=ecs_hierarchy_dd_attr_options,
+                                      # value='production_system',
+                                       clearable = False,
                                       ),
-                        ]),
+                        ], style={
+                            "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                            },
+                        ),
                     # Drill Down 2
                     dbc.Col([
                         html.H6("Drill Down 2"),
@@ -2802,7 +2940,11 @@ gbadsDash.layout = html.Div([
                                       value='age_group',
                                       clearable = False,
                                       ),
-                        ]),
+                        ], style={
+                            "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                            },
+                        ),
+                    
                 ]), # END OF ROW
                     
                 dbc.Row([
@@ -2824,6 +2966,15 @@ gbadsDash.layout = html.Div([
                                   clearable = False,
                                   ),
                     ]),
+                # # Drill Down 5
+                # dbc.Col([
+                #     html.H6("Drill Down 5"),
+                #     dcc.Dropdown(id='select-dd-5-attr-ecs',
+                #                   options=ecs_hierarchy_dd_attr_options,
+                #                   value='None',
+                #                   clearable = False,
+                #                   ),
+                #     ]),
                 ]), # END OF ROW
 
                 # END OF CARD BODY
@@ -2832,22 +2983,6 @@ gbadsDash.layout = html.Div([
                 # END OF CARD
                 ], color='#F2F2F2'),
                 ]),
-
-
-                # # Metric
-                # dbc.Col([
-                #     html.H6("Metric"),
-                #     dcc.Dropdown(id='select-metric-ecs',
-                #                  options=ecs_metric_options,
-                #                  value='Value of outputs',
-                #                  clearable = False,
-                #                  ),
-                #     ],style={
-                #              "order":8,
-                #              "margin-top":"10px",
-                #              "margin-right": '10px'
-                #              },
-                #     ),
 
 
                 # END OF DROPDOWN CONTROLS
@@ -2880,7 +3015,7 @@ gbadsDash.layout = html.Div([
 
                 # Reduction
                 dbc.Col([
-                    html.H6("Reduction"),
+                    html.H6("Improvement"),
                     dcc.RadioItems(id='select-redu-ecs',
                                   options=ecs_redu_options,
                                   value= "Current",
@@ -2947,13 +3082,6 @@ gbadsDash.layout = html.Div([
                     dbc.Col(
                         dbc.Spinner(children=[
 
-                        # # Text output
-                        # html.P(id='growth-text-ecs'),
-                        # html.P(id='offtake-text-ecs'),
-                        # html.P(id='dung-text-ecs'),
-                        # html.P(id='hides-text-ecs'),
-                        # html.P(id='milk-text-ecs'),
-
                         dcc.Graph(id='ecs-attr-treemap',
                                     style = {"height":"650px"},
                                   config = {
@@ -2996,6 +3124,57 @@ gbadsDash.layout = html.Div([
             ),
             html.Br(),
             ### END OF FOOTNOTES
+            
+            
+            #### -- ADDITIONAL VISUALS
+            dbc.Row([
+                dbc.Col([ # AHLE Stacked Bar
+                    dbc.Spinner(children=[
+                    dcc.Graph(id='ahle-stacked-bar-ecs',
+                                style = {"height":"500px"},
+                              config = {
+                                  "displayModeBar" : True,
+                                  "displaylogo": False,
+                                  'toImageButtonOptions': {
+                                      'format': 'png', # one of png, svg, jpeg, webp
+                                      'filename': 'GBADs_AHLE_Stacked_Bar_ECS'
+                                      },
+                                  'modeBarButtonsToRemove': ['zoom',
+                                                              'zoomIn',
+                                                              'zoomOut',
+                                                              'autoScale',
+                                                              #'resetScale',  # Removes home button
+                                                              'pan',
+                                                              'select2d',
+                                                              'lasso2d']
+
+                                  })
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                        # End of Stacked Bar
+                        ],style={"width":5}
+                        ),
+                
+                # Sankey
+                dbc.Col([
+                dbc.Spinner(children=[
+                    html.H4("Sankey for Attribution"),
+                        html.Div(children=[
+                                html.Img(src='/assets/ECS_Sanky_diagram_from_Gemma.png',
+                                style = {'width':'120vw'}),
+                                ],
+                                  style = {
+                                          "margin-bottom":"10px",
+                                          'margin-right':"10px",},
+                                  ),
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                    ]),
+                
+            ]), # END OF ROW
+            html.Br(),
+            ### END OF ADDITIONAL VISUALS
+
 
             #### -- DATATABLE
             dbc.Row([
@@ -3018,24 +3197,6 @@ gbadsDash.layout = html.Div([
             ]),
             html.Br(),
             ### END OF DATATABLE
-
-            #### -- SANKEY
-            dbc.Row([
-                dbc.Spinner(children=[
-                    html.H4("Sankey for Attribution"),
-                        html.Div(children=[
-                                html.Img(src='/assets/ECS_Sanky_diagram_from_Gemma.png',
-                                style = {'width':'80vw'}),
-                                ],
-                                  style = {'margin-left':"10px",
-                                          "margin-bottom":"10px",
-                                          'margin-right':"10px",},
-                                  ),
-                        # End of Spinner
-                        ],size="md", color="#393375", fullscreen=False),
-                    ]),
-                    html.Br(),
-            ### END OF SANKEY
 
 
         ### END OF ETHIOPIA TAB
@@ -4549,60 +4710,106 @@ def update_stacked_bar_swine(input_json, country, year):
 def reset_to_default_ecs(reset):
     return factor_ecs_default
 
-# !!! - NOT CURRENTLY ACTING AS EXPECTED
-# Update hierarchy dropdown filters to remove higher level selections from the options 
+# Update age group options based on species
+@gbadsDash.callback(
+    Output('select-age-ecs', 'options'),
+    Input('select-species-ecs', 'value'),
+    )
+def update_age_options_ecs(species):
+    if species == "Cattle":
+        options = ecs_age_options
+    else:
+        options = ecs_age_options.copy()
+        for d in options:
+            if d['value'] == 'Oxen':
+                options.remove(d)
+    return options
+
+
+# Update hierarchy dropdown filters to remove higher level selections from the options
 @gbadsDash.callback(
     Output('select-dd-1-attr-ecs','options'),
+    Output('select-dd-1-attr-ecs','value'),
     Input('select-top-lvl-attr-ecs','value'),
     )
 def update_dd1_options_ecs(top_lvl_hierarchy):
     options = ecs_hierarchy_dd_attr_options.copy()
     for d in options:
-        for key, val in d.items():
-            if val == top_lvl_hierarchy:
+        if d['value'] == top_lvl_hierarchy:
+            d['disabled']=True
+        else:
+            d['disabled']=False
+            
+    value='production_system'
+    
+    return options, value
+
+
+@gbadsDash.callback(
+    Output('select-dd-2-attr-ecs','options'),
+    Input('select-top-lvl-attr-ecs','value'),
+    Input('select-dd-1-attr-ecs','value'),
+    )
+def update_dd2_options_ecs(top_lvl_hierarchy, dd1_hierarchy):
+    options = ecs_hierarchy_dd_attr_options
+    for d in options:
+        if d['value'] != 'None':
+            if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy:
                 d['disabled']= True
+            else:
+                d['disabled']=False
     return options
 
+@gbadsDash.callback(
+    Output('select-dd-3-attr-ecs','options'),
+    Input('select-top-lvl-attr-ecs','value'),
+    Input('select-dd-1-attr-ecs','value'),
+    Input('select-dd-2-attr-ecs','value'),
+    )
+def update_dd3_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy):
+    options = ecs_hierarchy_dd_attr_options
+    for d in options:
+        if d['value'] != 'None':
+            if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy or d['value'] == dd2_hierarchy:
+                d['disabled']= True
+            else:
+                d['disabled']=False
+    return options
 
+@gbadsDash.callback(
+    Output('select-dd-4-attr-ecs','options'),
+    Input('select-top-lvl-attr-ecs','value'),
+    Input('select-dd-1-attr-ecs','value'),
+    Input('select-dd-2-attr-ecs','value'),
+    Input('select-dd-3-attr-ecs','value'),
+    )
+def update_dd4_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_hierarchy):
+    options = ecs_hierarchy_dd_attr_options
+    for d in options:
+        if d['value'] != 'None':
+            if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy or d['value'] == dd2_hierarchy or d['value'] == dd3_hierarchy:
+                d['disabled']= True
+            else:
+                d['disabled']=False
+    return options
+            
 # @gbadsDash.callback(
-#     Output('select-dd-2-attr-ecs','options'),
+#     Output('select-dd-5-attr-ecs','options'),
 #     Input('select-top-lvl-attr-ecs','value'),
 #     Input('select-dd-1-attr-ecs','value'),
+#     Input('select-dd-2-attr-ecs','value'),
+#     Input('select-dd-3-attr-ecs','value'),
+#     Input('select-dd-4-attr-ecs','value'),
 #     )
-# def update_dd2_options_ecs(top_lvl_hierarchy, dd1_hierarchy):
+# def update_dd5_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_hierarchy, dd4_hierarchy):
 #     options = ecs_hierarchy_dd_attr_options
 #     for d in options:
-#         for key, val in d.items():
-#             # d['disabled']= False
-#             if val == top_lvl_hierarchy or val == dd1_hierarchy:
-#                d['disabled']= True
+#         if d['value'] != 'None':
+#             if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy or d['value'] == dd2_hierarchy or d['value'] == dd3_hierarchy or d['value'] == dd4_hierarchy:
+#                 d['disabled']= True
+#             else:
+#                 d['disabled']=False
 #     return options
-
-# @gbadsDash.callback(
-#     Output('select-dd-1-attr-ecs','options'),
-#     Input('select-top-lvl-attr-ecs','value'),
-#     )
-# def update_dd1_options_ecs(top_lvl_hierarchy):
-#     options = ecs_hierarchy_dd_attr_options
-#     for d in options:
-#         for key, val in d.items():
-#             if val == top_lvl_hierarchy:
-#                d['disabled']= True
-#     return options
-
-# @gbadsDash.callback(
-#     Output('select-dd-1-attr-ecs','options'),
-#     Input('select-top-lvl-attr-ecs','value'),
-#     )
-# def update_dd1_options_ecs(top_lvl_hierarchy):
-#     options = ecs_hierarchy_dd_attr_options
-#     for d in options:
-#         for key, val in d.items():
-#             if val == top_lvl_hierarchy:
-#                d['disabled']= True
-#     return options
-            
-
 
 # ------------------------------------------------------------------------------
 #### -- Data
@@ -4620,9 +4827,7 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
     input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary.csv'))
 
     # Species filter
-    if species == 'Goat':
-        input_df=input_df.loc[(input_df['species'] == species)]
-    elif species == "Sheep":
+    if species == 'Goat' or species == "Sheep" or species == "Cattle":
         input_df=input_df.loc[(input_df['species'] == species)]
     elif species == "All Small Ruminants":
         input_df=input_df.loc[(input_df['species'] == 'All small ruminants')]
@@ -4630,9 +4835,7 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
         input_df=input_df
 
     # Prodicton System filter
-    if prodsys == 'Crop livestock mixed':
-        input_df=input_df.loc[(input_df['production_system'] == 'Crop livestock mixed')]
-    elif prodsys == "Pastoral":
+    if prodsys == 'Crop livestock mixed' or prodsys == "Pastoral":
         input_df=input_df.loc[(input_df['production_system'] == prodsys)]
     elif prodsys == "All Production Systems":
         input_df=input_df.loc[(input_df['production_system'] == 'Overall')]
@@ -4640,11 +4843,7 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
         input_df=input_df
 
     # Age filter
-    if age == 'Adult':
-        input_df=input_df.loc[(input_df['age_group'] == age)]
-    elif age == "Juvenile":
-        input_df=input_df.loc[(input_df['age_group'] == age)]
-    elif age == "Neonatal":
+    if age == 'Adult' or age == "Juvenile" or age == "Neonatal" or age == "Oxen":
         input_df=input_df.loc[(input_df['age_group'] == age)]
     elif age == "Overall Age":
         input_df=input_df.loc[(input_df['age_group'] == 'Overall')]
@@ -4652,9 +4851,7 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
         input_df=input_df
 
     # Sex filter
-    if sex == 'Male':
-        input_df=input_df.loc[(input_df['sex'] == sex)]
-    elif sex == "Female":
+    if sex == 'Male' or sex == "Female":
         input_df=input_df.loc[(input_df['sex'] == sex)]
     elif sex == "Overall Sex":
         input_df=input_df.loc[(input_df['sex'] == 'Overall')]
@@ -4905,10 +5102,10 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
         waterfall_plot_values = ('Value of Offtake',
                                   'Value of Herd Increase',
                                   'Value of Manure',
-                                  'Feed Cost',
-                                  'Labour Cost',
-                                  'Health Cost',
-                                  'Capital Cost',
+                                  'Expenditure on Feed',
+                                  'Expenditure on Labour',
+                                  'Expenditure on Health',
+                                  'Expenditure on Capital',
                                   'Gross Margin')
         prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
@@ -4959,9 +5156,7 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
                                             yaxis_title=display_currency,
                                             font_size=15,
                                             margin=dict(t=100))
-            # Adjust hoverover
-            # ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} <extra></extra>')
-
+           
         else:
             y = prep_df['mean_mortality_zero']
             name = 'Mortality 0'
@@ -4986,9 +5181,7 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
                                             yaxis_title=display_currency,
                                             font_size=15,
                                             margin=dict(t=100))
-            # Adjust hoverover
-            # ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} <extra></extra>')
-
+            
     # Add tooltip
     if currency == 'Birr':
         ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} Birr<extra></extra>')
@@ -5007,7 +5200,6 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
     Input('select-prodsys-ecs','value'),
     Input('select-age-ecs','value'),
     Input('select-sex-ecs','value'),
-    # Input('select-attr-ecs','value'),
     Input('select-currency-ecs','value'),
     Input('select-top-lvl-attr-ecs','value'),
     Input('select-dd-1-attr-ecs','value'),
@@ -5052,8 +5244,9 @@ def update_attr_treemap_ecs(input_json, prodsys, age, sex, currency,
     ecs_treemap_fig.update_layout(title_text=f'Attribution | All Small Ruminants <br><sup> Using {prodsys} for {age} and {sex}</sup><br>',
                                   font_size=15,
                                   margin=dict(t=100))
+
     # Add % of total AHLE
-    ecs_treemap_fig.data[0].texttemplate = "%{label}<br>% of Total AHLE=%{customdata[0]:,.2f}%"
+    # ecs_treemap_fig.data[0].texttemplate = "%{label}<br>% of Total AHLE=%{customdata[0]:,.2f}%"
 
     # Add tooltip
     if currency == 'Birr':
@@ -5069,6 +5262,59 @@ def update_attr_treemap_ecs(input_json, prodsys, age, sex, currency,
 
     return ecs_treemap_fig
 
+# Update Stacked bar chart
+@gbadsDash.callback(
+    Output('ahle-stacked-bar-ecs','figure'),
+    Input('select-prodsys-ecs','value'),
+    Input('select-species-ecs','value'),
+    Input('select-currency-ecs','value'),
+    )
+def update_stacked_bar_ecs(prodsys, species, currency):
+
+    # AHLE Summary 2 - for stacked bar
+    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
+
+    # Remove 'all small ruminants' as an option for display of species
+    input_df = input_df[input_df.species != 'All small ruminants']
+
+    # Rename values to match filters
+    # Species
+    # input_df['species'] = input_df['species'].replace({'All small ruminants': 'All Small Ruminants'})
+    input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
+
+    # -----------------------------------------------------------------------------
+    # Base plot
+    # -----------------------------------------------------------------------------
+    # Structure for plot
+    stackedbar_df = prep_ahle_forstackedbar_ecs(input_df)
+
+    # Apply production system filter
+    stackedbar_df = stackedbar_df.loc[(stackedbar_df['production_system'] == prodsys)]
+
+    x = stackedbar_df['species']
+    color = stackedbar_df['AHLE Due To']
+    # Change y based on selected currency value
+    if currency == 'Birr':
+        y = stackedbar_df['cost_birr']
+        yaxis_title = 'Ethiopian Birr'
+    else:
+        y = stackedbar_df['cost_usd']
+        yaxis_title = 'USD'
+    
+    # Create Stacked Bar 
+    ahle_bar_ecs_fig = create_stacked_bar_ecs(stackedbar_df, x, y, color, yaxis_title)
+
+    ahle_bar_ecs_fig.update_layout(title_text=f'AHLE Costs by Age Group | {prodsys}',
+                                font_size=15)
+    
+    # !!! - STILL WORKING ON THIS
+    # Add tooltip
+    if currency == 'Birr':
+        ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} Birr<extra></extra>')
+    elif currency == 'USD':
+        ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} USD<extra></extra>')
+
+    return ahle_bar_ecs_fig
 
 # ==============================================================================
 #### UPDATE GLOBAL AGGREGATE
@@ -5913,7 +6159,7 @@ def update_ahle_waterfall_ga(input_json ,selected_region ,selected_incgrp ,selec
     total_ahle = prep_df_sums[prep_df_sums['item']=='Net value']['value_usd_ahle_diff'].values[0]
     # total_ahle = total_ahle + prod_vetspend + pub_vetspend
 
-    if display =='Current & Ideal':
+    if display =='Compare Current':
         # Create graph with current values
         name = 'Current'
         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
@@ -5936,7 +6182,7 @@ def update_ahle_waterfall_ga(input_json ,selected_region ,selected_incgrp ,selec
             waterfallgroupgap = 0.5,    # Gap between bars
             )
 
-        ga_waterfall_fig.update_layout(title_text=f'Current & ideal output values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
+        ga_waterfall_fig.update_layout(title_text=f'Compare Current output values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
                                        yaxis_title='US Dollars (2010 constant)',
                                        font_size=15)
     else:
@@ -6021,7 +6267,7 @@ def update_ahle_lineplot_ga(input_json ,selected_region ,selected_incgrp ,select
     prep_df_sums = prep_df_sums.reset_index()
 
 
-    if display == "Current & Ideal":
+    if display == "Compare Current":
         # Plot current value
         plot_current_value = go.Scatter(
             x=prep_df_sums['year']

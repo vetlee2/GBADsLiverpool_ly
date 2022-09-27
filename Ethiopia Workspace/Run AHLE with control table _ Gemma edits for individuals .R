@@ -16,16 +16,17 @@
 # Set manually
 # -----------------------------------------------------------------
 # Number of simulation iterations
+
 cmd_nruns <- 1
 
 # Folder location to save outputs
+#cmd_output_directory <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Program outputs'
 cmd_output_directory <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Program outputs'
 
-# Full path to scenario control file
-cmd_scenario_file <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters.xlsx'
 
-# Optional: only run the first N scenarios from the control file
-cmd_run_first_n_scenarios = -1 	# -1 means use all scenarios in control file
+# Full path to scenario control file
+#cmd_scenario_file <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters MAJOR SCENARIOS ONLY.xlsx'
+cmd_scenario_file <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters.xlsx'
 
 # -----------------------------------------------------------------
 # Get from command line arguments
@@ -36,27 +37,19 @@ cmd_run_first_n_scenarios = -1 	# -1 means use all scenarios in control file
 if (grepl('Rterm.exe', paste(commandArgs(), collapse=" "), ignore.case = TRUE, fixed = TRUE))
 {
 	cmd_args <- commandArgs(trailingOnly=TRUE)	# Fetch command line arguments
-	
 	cmd_nruns <- as.numeric(cmd_args[1]) 			# Arg 1: number of runs. Convert to numeric.
 	cmd_output_directory <- cmd_args[2] 			# Arg 2: folder location to save outputs
 	cmd_scenario_file <- cmd_args[3] 				# Arg 3: full path to scenario control file
-	cmd_run_first_n_scenarios <- cmd_args[4] 		# Arg 4: only run the first N scenarios from the control file
 }
 
 # -----------------------------------------------------------------
 # Show in console
 # -----------------------------------------------------------------
-print('Using the following program parameters')
-print('- Number of simulation runs:')
+print('Using the following program parameters:')
+print('   Number of simulation runs')
 print(cmd_nruns)
-print('- Output directory:')
+print('   Output directory')
 print(cmd_output_directory)
-print('- Scenario control file:')
-print(cmd_scenario_file)
-if (cmd_run_first_n_scenarios > 0){
-	print('- Scenarios used:')
-	print(cmd_run_first_n_scenarios)
-}
 
 # =================================================================
 # Libraries
@@ -202,7 +195,7 @@ compartmental_model <- function(
 	## Labour cost
 	## birr/head/month
 	## example code to change labour cost to selecting from distribution
-	,Labour
+	,Lab_SR
 	,lab_non_health	## 0.86 in ideal this was not used in the current and this may not apply for ideal
 	
 	## Helath care costs
@@ -858,7 +851,6 @@ compartmental_model <- function(
 		Labour_AM <- 0
 
 		##
-		Health <- 0
 
 		Health_NF <- 0
 		Health_NM <- 0
@@ -1226,12 +1218,12 @@ compartmental_model <- function(
 			
 			# Labour costs (number of SR's * labour cost per head per month)
 
-			Labour_cost_NF[month] = Labour_NF + (sum(sample(Labour, NF, replace = T)) * lab_non_health) 
-			Labour_cost_NM[month] = Labour_NM + (sum(sample(Labour, NM, replace = T)) * lab_non_health) 
-			Labour_cost_JF[month] = Labour_JF + (sum(sample(Labour, JF, replace = T)) * lab_non_health) 
-			Labour_cost_JM[month] = Labour_JM + (sum(sample(Labour, JM, replace = T)) * lab_non_health) 
-			Labour_cost_AF[month] = Labour_AF + (sum(sample(Labour, AF, replace = T)) * lab_non_health) 
-			Labour_cost_AM[month] = Labour_AM + (sum(sample(Labour, AM, replace = T)) * lab_non_health) 
+			Labour_cost_NF[month] = Labour_NF + (sum(sample(Lab_SR, NF, replace = T)) * lab_non_health) 
+			Labour_cost_NM[month] = Labour_NM + (sum(sample(Lab_SR, NM, replace = T)) * lab_non_health) 
+			Labour_cost_JF[month] = Labour_JF + (sum(sample(Lab_SR, JF, replace = T)) * lab_non_health) 
+			Labour_cost_JM[month] = Labour_JM + (sum(sample(Lab_SR, JM, replace = T)) * lab_non_health) 
+			Labour_cost_AF[month] = Labour_AF + (sum(sample(Lab_SR, AF, replace = T)) * lab_non_health) 
+			Labour_cost_AM[month] = Labour_AM + (sum(sample(Lab_SR, AM, replace = T)) * lab_non_health) 
 
 			Labour_NF = Labour_cost_NF[month]
 			Labour_NM = Labour_cost_NM[month]
@@ -1264,7 +1256,7 @@ compartmental_model <- function(
 			Health_cost[month] = Health_cost_NF[month] + Health_cost_NM[month] 
 			                            + Health_cost_JF[month] + Health_cost_JM[month]
 			                            + Health_cost_AF[month] + Health_cost_AM[month]
-		#	Health = Health_cost[month]
+			Health = Health_cost[month]
 
 			# Capital costs
 
@@ -1687,13 +1679,12 @@ build_summary_df <- function(
 				matrix_to_summarize <- dynGet(paste(base_matrix, suffix, sep=''))
 				vector_to_summarize <- matrix_to_summarize[,12]
 				
-				# For debugging: print to console
-				#print('base label:')
-				#print(base_label)
-				#print('group label:')
-				#print(group)
-				#print('matrix to summarize:')
-				#print(paste(base_matrix, suffix, sep=''))
+				print('base label:')
+				print(base_label)
+				print('group label:')
+				print(group)
+				print('matrix to summarize:')
+				print(paste(base_matrix, suffix, sep=''))
 				
 				item_mean <- mean(vector_to_summarize)
 				item_sd <- sd(vector_to_summarize)
@@ -1725,23 +1716,24 @@ ahle_scenarios <- ahle_scenarios[!grepl('#', ahle_scenarios$'AHLE Parameter') ,]
 
 # Create version with just scenario columns
 remove_cols <- c('AHLE Parameter' ,'Notes')
-ahle_scenarios_cln <- subset(ahle_scenarios, select = !(names(ahle_scenarios) %in% remove_cols))
+ahle_scenarios_cln <- subset(ahle_scenarios, select = !(names(ahle_scenarios) %in% remove_cols)) 
 
-# If specified, limit number of scenarios (columns) used
-if (cmd_run_first_n_scenarios > 0){
-	ahle_scenarios_cln <- ahle_scenarios_cln[ ,0:cmd_run_first_n_scenarios]
-}
+#ahle_scenarios_cln2 <- as.data.frame(cbind(ahle_scenarios_cln$CLM_S_Current,
+#                             ahle_scenarios_cln$CLM_G_Current,
+#                             ahle_scenarios_cln$Past_S_Current,
+#                             ahle_scenarios_cln$Past_G_Current))
+#colnames(ahle_scenarios_cln2) <- list("CLM_S_Current", "CLM_G_Current", "Past_S_Current", "Past_G_Current")
 
 # Loop through scenario columns, calling the function for each
-for (COLNAME in colnames(ahle_scenarios_cln)){
+for (COLNAME in colnames(ahle_scenarios_cln2)){
 	print('> Running AHLE scenario:')
 	print(COLNAME)
 
 	# Construct function arguments as "name = value"
-	ahle_scenarios_cln$arglist <- do.call(paste, c(ahle_scenarios[c("AHLE Parameter", COLNAME)], sep="="))
+	ahle_scenarios_cln2$arglist <- do.call(paste, c(ahle_scenarios[c("AHLE Parameter", COLNAME)], sep="="))
 
 	# Get as single string and append cmd arguments
-	argstring <- toString(ahle_scenarios_cln$arglist)
+	argstring <- toString(ahle_scenarios_cln2$arglist)
 	argstring_touse <- paste('nruns=' ,cmd_nruns ,',' ,argstring ,sep='')
 	
 	# Construct function call
@@ -1754,3 +1746,4 @@ for (COLNAME in colnames(ahle_scenarios_cln)){
 	filename <- paste('ahle_' ,COLNAME ,'.csv' ,sep='')
 	write.csv(result[[2]], file.path(cmd_output_directory, filename), row.names=FALSE)
 }
+

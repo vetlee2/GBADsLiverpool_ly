@@ -209,7 +209,11 @@ compartmental_model <- function(
 	## birr/head/month
 	## this includes medicines and veterinary care
 	## and changing health care costs to select from distribution
-	,Health_exp			# the two national level estimates(national production and import of vet drugs and vaccines, and LFSDP and RPLRP projects) are used as bound for the price and used for unif distribution 14.3 was from an earlier study covering only two districts 
+	,Health_exp_prev			# the two national level estimates(national production and import of vet drugs and vaccines, and LFSDP and RPLRP projects) are used as bound for the price and used for unif distribution 14.3 was from an earlier study covering only two districts 
+	,Health_exp_treatment			# the two national level estimates(national production and import of vet drugs and vaccines, and LFSDP and RPLRP projects) are used as bound for the price and used for unif distribution 14.3 was from an earlier study covering only two districts 
+	
+	## in future we can break down treatments by class, and assess how this maps and correlates with AM use and AMR profiles
+	## could also model repeat treatment or disease recurrence. 
 	
 	## Capital costs
 	## for this we are using bank of Ethiopia inflation rate
@@ -1119,12 +1123,12 @@ compartmental_model <- function(
 			
 			# Hides per month (only calculated on offftake as a proportion (1-prop females for fertility), we could add a proportion of dead too? * Expert opinion question)
 			
-			# Quantity of hides in the dif age sex groups
-			Quant_Hides_JF[month] = Hides_JF + (offtake_JF[month] * hides_rate) + (deaths_JF[month] * hides_rate_mor)
-			Quant_Hides_JM[month] = Hides_JM + (offtake_JM[month] * hides_rate) + (deaths_JM[month] * hides_rate_mor)
-			Quant_Hides_AF[month] = Hides_AF + (offtake_AF[month] * hides_rate) + (deaths_AF[month] * hides_rate_mor)
-			Quant_Hides_AM[month] = Hides_AM + (offtake_AM[month] * hides_rate) + (deaths_AM[month] * hides_rate_mor) + (culls_AM[month] * hides_rate)
-			Quant_Hides_O[month] = Hides_O + (offtake_O[month] * hides_rate) + (deaths_O[month] * hides_rate_mor) + (culls_O[month] * hides_rate)
+			# Quantity of hides in the dif age sex groups (Only mortalities as offtake accounted for in live)
+			Quant_Hides_JF[month] = Hides_JF +  (deaths_JF[month] * hides_rate_mor)
+			Quant_Hides_JM[month] = Hides_JM + (deaths_JM[month] * hides_rate_mor)
+			Quant_Hides_AF[month] = Hides_AF + (deaths_AF[month] * hides_rate_mor)
+			Quant_Hides_AM[month] = Hides_AM + (deaths_AM[month] * hides_rate_mor) 
+			Quant_Hides_O[month] = Hides_O + (deaths_O[month] * hides_rate_mor) 
 			
 			Hides_JF = Quant_Hides_JF[month]
 			Hides_JM = Quant_Hides_JM[month]
@@ -1363,13 +1367,13 @@ compartmental_model <- function(
 
 			# Medicines and veterinary expenditure
 
-			Health_cost_NF[month] = Health_NF + (sum(sample(Health_exp, NF, replace = T))) 
-			Health_cost_NM[month] = Health_NM + (sum(sample(Health_exp, NM, replace = T))) 
-			Health_cost_JF[month] = Health_JF + (sum(sample(Health_exp, JF, replace = T))) 
-			Health_cost_JM[month] = Health_JM + (sum(sample(Health_exp, JM, replace = T))) 
-			Health_cost_AF[month] = Health_AF + (sum(sample(Health_exp, AF, replace = T))) 
-			Health_cost_AM[month] = Health_AM + (sum(sample(Health_exp, AM, replace = T))) 
-			Health_cost_O[month] = Health_O + (sum(sample(Health_exp, O, replace = T))) 
+			Health_cost_NF[month] = Health_NF + (sum(sample(Health_exp_prev, NF, replace = T))) + (sum(sample(Health_exp_treatment, NF, replace = T))) 
+			Health_cost_NM[month] = Health_NM + (sum(sample(Health_exp_prev, NM, replace = T))) + (sum(sample(Health_exp_treatment, NM, replace = T))) 
+			Health_cost_JF[month] = Health_JF + (sum(sample(Health_exp_prev, JF, replace = T))) + (sum(sample(Health_exp_treatment, JF, replace = T))) 
+			Health_cost_JM[month] = Health_JM + (sum(sample(Health_exp_prev, JM, replace = T))) + (sum(sample(Health_exp_treatment, JM, replace = T))) 
+			Health_cost_AF[month] = Health_AF + (sum(sample(Health_exp_prev, AF, replace = T))) + (sum(sample(Health_exp_treatment, AF, replace = T))) 
+			Health_cost_AM[month] = Health_AM + (sum(sample(Health_exp_prev, AM, replace = T))) + (sum(sample(Health_exp_treatment, AM, replace = T))) 
+			Health_cost_O[month] = Health_O + (sum(sample(Health_exp_prev, O, replace = T))) + (sum(sample(Health_exp_treatment, O, replace = T))) 
 			
 			Health_NF = Health_cost_NF[month]
 			Health_NM = Health_cost_NM[month]

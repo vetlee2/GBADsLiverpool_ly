@@ -1021,10 +1021,10 @@ compartmental_model <- function(
 			# Hides per month (only calculated on offftake as a proportion (1-prop females for fertility), we could add a proportion of dead too? * Expert opinion question)
 			
 			# Quantity of hides in the dif age sex groups
-			Quant_Hides_JF[month] = Hides_JF + (offtake_JF[month] * hides_rate) + (deaths_JF[month] * hides_rate_mor)
-			Quant_Hides_JM[month] = Hides_JM + (offtake_JM[month] * hides_rate) + (deaths_JM[month] * hides_rate_mor)
-			Quant_Hides_AF[month] = Hides_AF + (offtake_AF[month] * hides_rate) + (deaths_AF[month] * hides_rate_mor)
-			Quant_Hides_AM[month] = Hides_AM + (offtake_AM[month] * hides_rate) + (deaths_AM[month] * hides_rate_mor) + (culls_AM[month] * hides_rate)
+			Quant_Hides_JF[month] = Hides_JF + (deaths_JF[month] * hides_rate_mor)
+			Quant_Hides_JM[month] = Hides_JM + (deaths_JM[month] * hides_rate_mor)
+			Quant_Hides_AF[month] = Hides_AF + (deaths_AF[month] * hides_rate_mor)
+			Quant_Hides_AM[month] = Hides_AM + (deaths_AM[month] * hides_rate_mor) 
 			
 			Hides_JF = Quant_Hides_JF[month]
 			Hides_JM = Quant_Hides_JM[month]
@@ -1257,7 +1257,7 @@ compartmental_model <- function(
 			Health_cost[month] = Health_cost_NF[month] + Health_cost_NM[month] 
 			                            + Health_cost_JF[month] + Health_cost_JM[month]
 			                            + Health_cost_AF[month] + Health_cost_AM[month]
-			Health = Health_cost[month]
+		#	Health = Health_cost[month]
 
 			# Capital costs
 

@@ -340,14 +340,20 @@ Creating aggregate groups for filtering in the dashboard
 # =============================================================================
 #### Drop aggregate groups
 # =============================================================================
-# For consistency, drop any aggregate groups already in data
+# Some items only exist for Overall group in original file. Get all existing Overall records.
+ahle_combo_overall = ahle_combo.loc[ahle_combo['group'].str.upper() == 'OVERALL']
+
+# Rename sex to agree with newer convention
+ahle_combo_overall['sex'] = 'Overall'
+
+# Create version without any aggregate groups
 _agg_rows = (ahle_combo['age_group'].str.upper() == 'OVERALL') \
     | (ahle_combo['sex'].str.upper() == 'COMBINED')
-ahle_combo_noagg = ahle_combo.loc[~ _agg_rows]
+ahle_combo_indiv = ahle_combo.loc[~ _agg_rows]
 
 # Get distinct values for ages and sexes without aggregates
-age_group_values = list(ahle_combo_noagg['age_group'].unique())
-sex_values = list(ahle_combo_noagg['sex'].unique())
+age_group_values = list(ahle_combo_indiv['age_group'].unique())
+sex_values = list(ahle_combo_indiv['sex'].unique())
 
 # =============================================================================
 #### Build aggregate groups
@@ -360,7 +366,7 @@ sd_cols = [i for i in list(ahle_combo) if 'stdev' in i]
 keepcols = ['species' ,'production_system' ,'item' ,'group' ,'age_group' ,'sex'] \
     + mean_cols + sd_cols
 
-ahle_combo_withagg = ahle_combo_noagg[keepcols].copy()
+ahle_combo_withagg = ahle_combo_indiv[keepcols].copy()
 datainfo(ahle_combo_withagg)
 
 # -----------------------------------------------------------------------------
@@ -416,6 +422,10 @@ for AGE_GRP in age_group_values:
     )
 del ahle_combo_withagg_sumsexes
 
+# Oxen are a special age group which is only male. Drop "combined" sex.
+_oxen_combined = (ahle_combo_withagg['group'].str.upper() == 'OXEN COMBINED')
+ahle_combo_withagg = ahle_combo_withagg.drop(ahle_combo_withagg.loc[_oxen_combined].index).reset_index(drop=True)
+
 # -----------------------------------------------------------------------------
 # Create Overall age group for each sex
 # -----------------------------------------------------------------------------
@@ -436,6 +446,23 @@ for SEX_GRP in sex_values:
         ,ignore_index=True   # True: do not keep index values on concatenation axis
     )
 del ahle_combo_withagg_sumages
+
+# -----------------------------------------------------------------------------
+# Add back original Overall and de-dup
+# -----------------------------------------------------------------------------
+# Concatenate original Overall group data
+ahle_combo_withagg = pd.concat(
+   [ahle_combo_withagg ,ahle_combo_overall]
+   ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
+   ,join='outer'        # 'outer': keep all index values from all data frames
+   ,ignore_index=True   # True: do not keep index values on concatenation axis
+)
+
+# De-Dup, keeping new Overall group if it exists
+ahle_combo_withagg = ahle_combo_withagg.drop_duplicates(
+   subset=['species' ,'production_system' ,'item' ,'group']       # List (opt): only consider these columns when identifying duplicates. If None, consider all columns.
+   ,keep='first'                   # String: which occurrence to keep, 'first' or 'last'
+)
 
 # -----------------------------------------------------------------------------
 # Create overall production system
@@ -520,6 +547,20 @@ datainfo(ahle_combo_withagg)
 # =============================================================================
 #### Cleanup and Export
 # =============================================================================
+# -----------------------------------------------------------------------------
+# Remove rows added by Github
+# -----------------------------------------------------------------------------
+# Hoping this is due to a one-time file merge issue
+_git_rows = (ahle_combo_withagg['item'].str.contains('>>>')) \
+    | (ahle_combo_withagg['item'].str.contains('<<<')) \
+        | (ahle_combo_withagg['item'].str.contains('==='))
+
+ahle_combo_withagg = ahle_combo_withagg.loc[~ _git_rows]
+
+# -----------------------------------------------------------------------------
+# Subset and rename columns
+# -----------------------------------------------------------------------------
+# Do not need individual group scenario columns
 keepcols = [
     'species',
     'production_system',
@@ -667,7 +708,7 @@ ahle_combo_withahle['ahle_justfor_nm_usd_stdev'] = np.sqrt(ahle_combo_withahle['
 #### Cleanup and export
 # =============================================================================
 ahle_cols = [i for i in list(ahle_combo_withahle) if 'ahle' in i]
-keepcols = ['species' ,'production_system'] + ahle_cols
+keepcols = ['species' ,'production_system' ,'group'] + ahle_cols
 
 ahle_combo_withahle = ahle_combo_withahle[keepcols]
 datainfo(ahle_combo_withahle)

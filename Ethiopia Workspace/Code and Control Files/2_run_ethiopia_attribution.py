@@ -1,5 +1,8 @@
 #%% About
-
+'''
+This runs the R program provided by the University of Murdoch to add attribution
+for AHLE.
+'''
 #%% Run Attribution using example inputs
 
 # r_script = os.path.join(ETHIOPIA_CODE_FOLDER ,'Attribution function.R')    # Full path to the R program you want to run

@@ -64,7 +64,8 @@ r_args = [
 
     # Arg 4: only run the first N scenarios from the control file
     # -1: use all scenarios
-    ,'-1'
+    # 9/28: Gemma removed the code that performed this task
+    # ,'-1'
 ]
 
 timerstart()
@@ -91,7 +92,8 @@ r_args = [
 
     # Arg 4: only run the first N scenarios from the control file
     # -1: use all scenarios
-    ,'-1'
+    # 9/28: Gemma removed the code that performed this task
+    # ,'-1'
 ]
 
 timerstart()

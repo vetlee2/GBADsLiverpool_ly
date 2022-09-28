@@ -1093,11 +1093,16 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
                                     'item',
                                     'mean_current',
                                     'mean_ideal',
-                                    'mean_mortality_zero']]
+                                    'mean_mortality_zero',
+                                    'mean_current_usd',
+                                    'mean_ideal_usd',
+                                    'mean_all_mortality_zero_usd']]
 
    # Keep only items for the waterfall
    waterfall_plot_values = ('Value of Offtake',
                             'Value of Herd Increase',
+                            'Value of draught',
+                            'Value of Milk',
                             'Value of Manure',
                             'Value of Hides',
                             'Feed Cost',
@@ -1115,6 +1120,10 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
    ecs_ahle_waterfall['mean_current'] = np.where(ecs_ahle_waterfall.item.isin(costs), ecs_ahle_waterfall['mean_current']* -1, ecs_ahle_waterfall['mean_current'])
    ecs_ahle_waterfall['mean_ideal'] = np.where(ecs_ahle_waterfall.item.isin(costs), ecs_ahle_waterfall['mean_ideal']* -1, ecs_ahle_waterfall['mean_ideal'])
    ecs_ahle_waterfall['mean_mortality_zero'] = np.where(ecs_ahle_waterfall.item.isin(costs), ecs_ahle_waterfall['mean_mortality_zero']* -1, ecs_ahle_waterfall['mean_mortality_zero'])
+   ecs_ahle_waterfall['mean_current_usd'] = np.where(ecs_ahle_waterfall.item.isin(costs), ecs_ahle_waterfall['mean_current_usd']* -1, ecs_ahle_waterfall['mean_current_usd'])
+   ecs_ahle_waterfall['mean_ideal_usd'] = np.where(ecs_ahle_waterfall.item.isin(costs), ecs_ahle_waterfall['mean_ideal_usd']* -1, ecs_ahle_waterfall['mean_ideal_usd'])
+   ecs_ahle_waterfall['mean_all_mortality_zero_usd'] = np.where(ecs_ahle_waterfall.item.isin(costs), ecs_ahle_waterfall['mean_all_mortality_zero_usd']* -1, ecs_ahle_waterfall['mean_all_mortality_zero_usd'])
+
 
    # Sort Item column to keep values and costs together
    ecs_ahle_waterfall['item'] = ecs_ahle_waterfall['item'].astype('category')
@@ -1125,11 +1134,14 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
    ecs_ahle_waterfall['item'] = ecs_ahle_waterfall['item'].replace({'Feed Cost': 'Expenditure on Feed',
                                                                     'Labour Cost': 'Expenditure on Labour',
                                                                     'Health Cost': 'Expenditure on Health',
-                                                                    'Capital Cost': 'Expenditure on Capital'})
+                                                                    'Capital Cost': 'Expenditure on Capital',
+                                                                    'Value of draught': 'Value of Draught'})
 
    # Create AHLE columns
    ecs_ahle_waterfall['mean_AHLE'] = ecs_ahle_waterfall['mean_ideal'] - ecs_ahle_waterfall['mean_current']
    ecs_ahle_waterfall['mean_AHLE_mortality'] = ecs_ahle_waterfall['mean_mortality_zero'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['mean_AHLE_usd'] = ecs_ahle_waterfall['mean_ideal_usd'] - ecs_ahle_waterfall['mean_current_usd']
+   ecs_ahle_waterfall['mean_AHLE_mortality_usd'] = ecs_ahle_waterfall['mean_all_mortality_zero_usd'] - ecs_ahle_waterfall['mean_current_usd']
 
 
    OUTPUT_DF = ecs_ahle_waterfall
@@ -1294,6 +1306,10 @@ def prep_ahle_forstackedbar_ecs(INPUT_DF):
 
    }
    OUTPUT_DF['AHLE Due To'] = OUTPUT_DF['ahle_due_to'].replace(pretty_ahle_cost_names)
+   
+   # Add column with labels for each segment
+   # OUTPUT_DF['label'] = OUTPUT_DF['Cost Item'] + ' - $' + OUTPUT_DF['cost_usdperkglive'].round(2).astype(str)
+
 
    return OUTPUT_DF
 
@@ -4877,8 +4893,8 @@ def update_ecs_ahle_data(input_json ,currency):
 
         input_df['mean_current'] = input_df['mean_current_usd']
         input_df['stdev_current'] = input_df['stdev_current_usd']
-        input_df['mean_mortality_zero'] = input_df['mean_mortality_zero_usd']
-        input_df['stdev_mortality_zero'] = input_df['stdev_mortality_zero_usd']
+        input_df['mean_mortality_zero'] = input_df['mean_all_mortality_zero_usd']
+        input_df['stdev_mortality_zero'] = input_df['stdev_all_mortality_zero_usd']
         input_df['mean_ideal'] = input_df['mean_ideal_usd']
         input_df['stdev_ideal'] = input_df['stdev_ideal_usd']
 
@@ -5081,23 +5097,22 @@ def update_ecs_attr_data(input_json, currency):
 def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsys, sex, currency):
     # Data
     input_df = pd.read_json(input_json, orient='split')
+    
+    # Prep the data
+    prep_df = prep_ahle_forwaterfall_ecs(input_df)
 
     # If currency is USD, use USD columns
     display_currency = 'Ethiopian Birr'
     if currency == 'USD':
         display_currency = 'USD'
 
-        input_df['mean_current'] = input_df['mean_current_usd']
-        input_df['stdev_current'] = input_df['stdev_current_usd']
-        input_df['mean_mortality_zero'] = input_df['mean_mortality_zero_usd']
-        input_df['stdev_mortality_zero'] = input_df['stdev_mortality_zero_usd']
-        input_df['mean_ideal'] = input_df['mean_ideal_usd']
-        input_df['stdev_ideal'] = input_df['stdev_ideal_usd']
+        prep_df['mean_current'] = prep_df['mean_current_usd']
+        prep_df['mean_mortality_zero'] = prep_df['mean_all_mortality_zero_usd']
+        prep_df['mean_ideal'] = prep_df['mean_ideal_usd']
+        prep_df['mean_AHLE'] = prep_df['mean_AHLE_usd']
+        prep_df['mean_AHLE_mortality'] = prep_df['mean_AHLE_mortality_usd']
 
-    # Prep the data
-    prep_df = prep_ahle_forwaterfall_ecs(input_df)
-
-    # Age filter
+    # Filters
     if age == "Neonatal": # Removing value of hides for neonatal
         waterfall_plot_values = ('Value of Offtake',
                                   'Value of Herd Increase',
@@ -5109,11 +5124,40 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
                                   'Gross Margin')
         prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
-        x = prep_df['item']
+    elif age == 'Overall Age' and sex == 'Overall Sex':
+        if species == "Cattle": # Cattle have draught and milk added for overall groups
+            waterfall_plot_values = ('Value of Offtake',
+                                     'Value of Herd Increase',
+                                     'Value of Draught',
+                                     'Value of Milk',
+                                     'Value of Manure',
+                                     'Value of Hides',
+                                     'Expenditure on Feed',
+                                     'Expenditure on Labour',
+                                     'Expenditure on Health',
+                                     'Expenditure on Capital',
+                                     'Gross Margin')
+            prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
+            measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+        else: # all species have milk added for overall groups
+            waterfall_plot_values = ('Value of Offtake',
+                                     'Value of Herd Increase',
+                                     'Value of Milk',
+                                     'Value of Manure',
+                                     'Value of Hides',
+                                     'Expenditure on Feed',
+                                     'Expenditure on Labour',
+                                     'Expenditure on Health',
+                                     'Expenditure on Capital',
+                                     'Gross Margin')
+            prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
+            measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]            
     else:
         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
-        x = prep_df['item']
+        
 
+    x = prep_df['item']
+    
     # display and Compare filters
     if display == "Difference (AHLE)":
         # Applying the condition
@@ -5308,11 +5352,11 @@ def update_stacked_bar_ecs(prodsys, species, currency):
                                 font_size=15)
     
     # !!! - STILL WORKING ON THIS
-    # Add tooltip
-    if currency == 'Birr':
-        ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} Birr<extra></extra>')
-    elif currency == 'USD':
-        ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} USD<extra></extra>')
+    # # Add tooltip
+    # if currency == 'Birr':
+    #     ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} Birr<extra></extra>')
+    # elif currency == 'USD':
+    #     ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} USD<extra></extra>')
 
     return ahle_bar_ecs_fig
 

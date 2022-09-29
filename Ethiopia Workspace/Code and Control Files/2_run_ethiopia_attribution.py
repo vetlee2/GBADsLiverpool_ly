@@ -21,39 +21,33 @@ for AHLE.
 
 #%% Prep for Attribution using latest AHLE inputs
 
-# =============================================================================
-#### Read data
-# =============================================================================
-ahle_combo_withahle = pd.read_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary2.pkl.gz'))
-
-#%% === BREAK ===
-'''
-Rewriting code below this line
-'''
-#%% Prep for Attribution using latest AHLE inputs
+# Read data
+ahle_combo_withahle = pd.read_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_intermediate_calcs.pkl.gz'))
+datainfo(ahle_combo_withahle)
 
 # Restructure to use as input to Attribution function
-ahle_combo_forattr_means = ahle_combo_p.melt(
+ahle_combo_forattr_means = ahle_combo_withahle.melt(
    id_vars=['species' ,'production_system' ,'group']
-   ,value_vars=['ahle_due_to_mortality_mean' ,'ahle_due_to_healthcost_mean' ,'ahle_due_to_productionloss_mean']
+   ,value_vars=['ahle_dueto_mortality_mean' ,'ahle_dueto_healthcost_mean' ,'ahle_dueto_productionloss_mean']
    ,var_name='ahle_component'
    ,value_name='mean'
 )
-ahle_combo_forattr_stdev = ahle_combo_p.melt(
+ahle_combo_forattr_stdev = ahle_combo_withahle.melt(
    id_vars=['species' ,'production_system' ,'group']
-   ,value_vars=['ahle_due_to_mortality_stdev' ,'ahle_due_to_healthcost_stdev' ,'ahle_due_to_productionloss_stdev']
+   ,value_vars=['ahle_dueto_mortality_stdev' ,'ahle_dueto_healthcost_stdev' ,'ahle_dueto_productionloss_stdev']
    ,var_name='ahle_component'
    ,value_name='stdev'
 )
 
 # Rename AHLE components to match expert opinion file (data.csv)
 simplify_ahle_comps = {
-   "ahle_due_to_mortality_mean":"Mortality"
-   ,"ahle_due_to_healthcost_mean":"Health cost"
-   ,"ahle_due_to_productionloss_mean":"Production loss"
-   ,"ahle_due_to_mortality_stdev":"Mortality"
-   ,"ahle_due_to_healthcost_stdev":"Health cost"
-   ,"ahle_due_to_productionloss_stdev":"Production loss"
+   "ahle_dueto_mortality_mean":"Mortality"
+   ,"ahle_dueto_healthcost_mean":"Health cost"
+   ,"ahle_dueto_productionloss_mean":"Production loss"
+
+   ,"ahle_dueto_mortality_stdev":"Mortality"
+   ,"ahle_dueto_healthcost_stdev":"Health cost"
+   ,"ahle_dueto_productionloss_stdev":"Production loss"
 }
 ahle_combo_forattr_means['ahle_component'] = ahle_combo_forattr_means['ahle_component'].replace(simplify_ahle_comps)
 ahle_combo_forattr_stdev['ahle_component'] = ahle_combo_forattr_stdev['ahle_component'].replace(simplify_ahle_comps)
@@ -95,6 +89,9 @@ colnames = {
 }
 ahle_combo_forattr = ahle_combo_forattr.rename(columns=colnames)
 
+# Fill in missing standard deviations with zero
+ahle_combo_forattr['sd'] = ahle_combo_forattr['sd'].replace(np.nan ,0)
+
 # Write CSV
 ahle_combo_forattr.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_forattr.csv') ,index=False)
 
@@ -121,48 +118,21 @@ ahle_combo_withattr = attribution_summary.copy()
 cleancolnames(ahle_combo_withattr)
 datainfo(ahle_combo_withattr)
 
-rename_cols = {
-   "ahle":"ahle_component"
-   ,"age_class":"group"
-}
-ahle_combo_withattr = ahle_combo_withattr.rename(columns=rename_cols)
-
 # =============================================================================
 #### Add placeholder for health cost attribution
 # =============================================================================
 # Get health cost AHLE rows
-# _row_selection = (ahle_combo_forattr['AHLE'].str.upper() == 'HEALTH COST')
-# print(f"> Selected {_row_selection.sum() :,} rows.")
-# healthcost_attr = ahle_combo_forattr.loc[_row_selection].reset_index(drop=True).copy()
-# cleancolnames(healthcost_attr)
-
-# Update: using raw output from current scenario instead of those from age/sex scenario-specific
-_row_selection = (ahle_combo_raw['item'].str.upper() == 'HEALTH COST')
+_row_selection = (ahle_combo_forattr['AHLE'].str.upper() == 'HEALTH COST')
 print(f"> Selected {_row_selection.sum() :,} rows.")
-healthcost_attr = ahle_combo_raw.loc[_row_selection].reset_index(drop=True).copy()
+healthcost_attr = ahle_combo_forattr.loc[_row_selection].reset_index(drop=True).copy()
 cleancolnames(healthcost_attr)
 
-# Filter age/sex groups and rename to match attribution code
-_row_selection = (healthcost_attr['group'].str.upper().isin(groups_for_attribution_upper))
-print(f"> Selected {_row_selection.sum() :,} rows.")
-healthcost_attr = healthcost_attr.loc[_row_selection].reset_index(drop=True)
-
-# Rename groups to match attribution code
-healthcost_attr['group'] = healthcost_attr['group'].replace(groups_for_attribution)
-
-# Modify columns to match ahle_combo_withattr
-rename_cols = {
-   "item":"ahle_component"
-   ,"mean_current":"mean"
-}
-healthcost_attr = healthcost_attr.rename(columns=rename_cols)
-
 # Add variance for summing
-healthcost_attr['sqrd_sd'] = healthcost_attr['stdev_current']**2
+healthcost_attr['sqrd_sd'] = healthcost_attr['sd']**2
 
 # Sum to same level as ahle_combo_withattr
 healthcost_attr = healthcost_attr.pivot_table(
-   index=['production_system' ,'group' ,'ahle_component']
+   index=['production_system' ,'age_class' ,'ahle']
    ,values=['mean' ,'sqrd_sd']
    ,aggfunc='sum'
 ).reset_index()
@@ -171,9 +141,9 @@ healthcost_attr = healthcost_attr.pivot_table(
 # healthcost_attr_category_list = ['Treatment' ,'Prevention' ,'Professional time' ,'Other']
 healthcost_attr_category_list = ['Infectious' ,'Non-infectious' ,'External']
 healthcost_attr_category_df = pd.DataFrame({'cause':healthcost_attr_category_list
-                                           ,'ahle_component':'Health Cost'}
+                                           ,'ahle':'Health cost'}
                                           )
-healthcost_attr = pd.merge(left=healthcost_attr ,right=healthcost_attr_category_df ,on='ahle_component' ,how='outer')
+healthcost_attr = pd.merge(left=healthcost_attr ,right=healthcost_attr_category_df ,on='ahle' ,how='outer')
 
 # Allocate health cost AHLE equally to categories
 healthcost_attr['mean'] = healthcost_attr['mean'] / len(healthcost_attr_category_list)
@@ -198,37 +168,37 @@ ahle_combo_withattr = pd.concat(
 #### Add placeholder for attribution to specific diseases
 # =============================================================================
 # # Create placeholders
-diseases_ext = pd.DataFrame({
-    "cause":'External'
-    ,"disease":['Cause 1' ,'Cause 2' ,'Cause 3' ,'Cause 4' ,'Cause 5']
-    })
-diseases_inf = pd.DataFrame({
-    "cause":'Infectious'
-    ,"disease":['Pathogen 1' ,'Pathogen 2' ,'Pathogen 3' ,'Pathogen 4' ,'Pathogen 5']
-    })
-diseases_non = pd.DataFrame({
-    "cause":'Non-infectious'
-    ,"disease":['Non-inf 1' ,'Non-inf 2' ,'Non-inf 3' ,'Non-inf 4' ,'Non-inf 5']
-    })
-diseases = pd.concat(
-    [diseases_ext ,diseases_inf ,diseases_non]
-    ,axis=0
-    ,join='outer'        # 'outer': keep all index values from all data frames
-    ,ignore_index=True   # True: do not keep index values on concatenation axis
-)
+# diseases_ext = pd.DataFrame({
+#     "cause":'External'
+#     ,"disease":['Cause 1' ,'Cause 2' ,'Cause 3' ,'Cause 4' ,'Cause 5']
+#     })
+# diseases_inf = pd.DataFrame({
+#     "cause":'Infectious'
+#     ,"disease":['Pathogen 1' ,'Pathogen 2' ,'Pathogen 3' ,'Pathogen 4' ,'Pathogen 5']
+#     })
+# diseases_non = pd.DataFrame({
+#     "cause":'Non-infectious'
+#     ,"disease":['Non-inf 1' ,'Non-inf 2' ,'Non-inf 3' ,'Non-inf 4' ,'Non-inf 5']
+#     })
+# diseases = pd.concat(
+#     [diseases_ext ,diseases_inf ,diseases_non]
+#     ,axis=0
+#     ,join='outer'        # 'outer': keep all index values from all data frames
+#     ,ignore_index=True   # True: do not keep index values on concatenation axis
+# )
 
 # # Merge
-ahle_combo_withattr = pd.merge(
-    left=ahle_combo_withattr
-    ,right=diseases
-    ,on='cause'
-    ,how='outer'
-    )
-ahle_combo_withattr['median'] = ahle_combo_withattr['median'] / 5
-ahle_combo_withattr['mean'] = ahle_combo_withattr['mean'] / 5
-ahle_combo_withattr['sd'] = np.sqrt(ahle_combo_withattr['sd']**2 / 25)
-ahle_combo_withattr['lower95'] = ahle_combo_withattr['mean'] - (1.96 * ahle_combo_withattr['sd'])
-ahle_combo_withattr['upper95'] = ahle_combo_withattr['mean'] + (1.96 * ahle_combo_withattr['sd'])
+# ahle_combo_withattr = pd.merge(
+#     left=ahle_combo_withattr
+#     ,right=diseases
+#     ,on='cause'
+#     ,how='outer'
+#     )
+# ahle_combo_withattr['median'] = ahle_combo_withattr['median'] / 5
+# ahle_combo_withattr['mean'] = ahle_combo_withattr['mean'] / 5
+# ahle_combo_withattr['sd'] = np.sqrt(ahle_combo_withattr['sd']**2 / 25)
+# ahle_combo_withattr['lower95'] = ahle_combo_withattr['mean'] - (1.96 * ahle_combo_withattr['sd'])
+# ahle_combo_withattr['upper95'] = ahle_combo_withattr['mean'] + (1.96 * ahle_combo_withattr['sd'])
 
 # =============================================================================
 #### Calculate as percent of total
@@ -262,6 +232,12 @@ ahle_combo_withattr['sd_usd'] = np.sqrt(ahle_combo_withattr['sd']**2 / ahle_comb
 # =============================================================================
 #### Cleanup and export
 # =============================================================================
+rename_cols = {
+    "ahle":"ahle_component"
+    ,"age_class":"group"
+}
+ahle_combo_withattr = ahle_combo_withattr.rename(columns=rename_cols)
+
 # Split age and sex groups into their own columns
 ahle_combo_withattr[['age_group' ,'sex']] = ahle_combo_withattr['group'].str.split(' ' ,expand=True)
 recode_sex = {
@@ -277,11 +253,11 @@ recode_age = {
 ahle_combo_withattr['age_group'] = ahle_combo_withattr['age_group'].replace(recode_age)
 
 # Reorder columns
-cols_first = ['production_system' ,'group' ,'age_group' ,'sex' ,'ahle_component' ,'cause' ,'disease']
+cols_first = ['production_system' ,'group' ,'age_group' ,'sex' ,'ahle_component' ,'cause']
 cols_other = [i for i in list(ahle_combo_withattr) if i not in cols_first]
 ahle_combo_withattr = ahle_combo_withattr.reindex(columns=cols_first + cols_other)
 datainfo(ahle_combo_withattr)
 
 # Write CSV
-# ahle_combo_withattr.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_withattr.csv') ,index=False)
-ahle_combo_withattr.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_withattr_extra.csv') ,index=False)
+ahle_combo_withattr.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_withattr.csv') ,index=False)
+# ahle_combo_withattr.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_withattr_extra.csv') ,index=False)

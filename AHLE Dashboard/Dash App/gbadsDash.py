@@ -3135,6 +3135,7 @@ gbadsDash.layout = html.Div([
                 dbc.Col([
                   # Cost Assumptions
                   html.P("*Ideal assumes there were no mortality or morbidity."),
+                  html.P("*AHLE Components are production loss, mortality loss, and health costs. Health costs make up the smallest proportion.")
                 ]),
             ], style={'margin-left':"40px", 'font-style': 'italic'}
             ),

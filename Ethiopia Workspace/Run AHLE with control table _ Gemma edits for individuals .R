@@ -96,7 +96,6 @@ compartmental_model <- function(
 
 	## Growth rate N -> J and J-> A
 	,Beta
-
 	# Castration rate
 	
 	# Fertility
@@ -743,14 +742,6 @@ compartmental_model <- function(
 		Liveweight_kg_AF <- 0
 		Liveweight_kg_AM <- 0
 		##
-		Pop_growth <- 0
-
-		Pop_growth_NF <- 0
-		Pop_growth_NM <- 0
-		Pop_growth_JF <- 0
-		Pop_growth_JM <- 0
-		Pop_growth_AF <- 0
-		Pop_growth_AM <- 0
 
 		##
 		Offtake <- 0
@@ -990,8 +981,7 @@ compartmental_model <- function(
 			Offtake_AF = Num_Offtake_AF[month]
 			Offtake_AM = Num_Offtake_AM[month]
 			
-			Num_Offtake[month] = Num_Offtake_JF[month] +  Num_Offtake_JM[month]  + 
-			  Num_Offtake_AF[month] + Num_Offtake_AM[month] 
+			Num_Offtake[month] = Num_Offtake_JF[month] + Num_Offtake_JM[month] + Num_Offtake_AF[month] + Num_Offtake_AM[month] 
 			
 			Offtake = Num_Offtake[month]
 			
@@ -1062,8 +1052,7 @@ compartmental_model <- function(
 			Manure_kg_AF = Quant_Manure_AF[month]
 			Manure_kg_AM = Quant_Manure_AM[month]
 			
-			Quant_Manure[month] = Quant_Manure_NF[month] + Quant_Manure_NM[month] + Quant_Manure_JF[month]
-			                                + Quant_Manure_JM[month] + Quant_Manure_AF[month] + Quant_Manure_AM[month]
+			Quant_Manure[month] = Quant_Manure_NF[month] + Quant_Manure_NM[month] + Quant_Manure_JF[month] + Quant_Manure_JM[month] + Quant_Manure_AF[month] + Quant_Manure_AM[month]
 	
 			Manure_kg = Quant_Manure[month]
 			
@@ -1105,15 +1094,20 @@ compartmental_model <- function(
 
 			## Juv and adults only
 			Value_Offtake_JF[month] = sum(sample(fvJF, Num_Offtake_JF[month], replace = T))
-
+			Value_offt_JF = Value_Offtake_JF[month]
+			
 			Value_Offtake_JM[month] = sum(sample(fvJM, Num_Offtake_JM[month], replace = T))
-
+			Value_offt_JM = Value_Offtake_JM[month]
+			
 			Value_Offtake_AF[month] = sum(sample(fvAF, Num_Offtake_AF[month], replace = T))
-
-			Value_Offtake_AM[month] = (sum(sample(fvAM, Num_Offtake_AM[month], replace = T)))   
-
+			Value_offt_AF = Value_Offtake_AF[month]
+			
+			Value_Offtake_AM[month] = sum(sample(fvAM, Num_Offtake_AM[month], replace = T))   
+			Value_offt_AM = Value_Offtake_AM[month]
+			
 			## sum total population
-			Value_Offtake[month] = Value_Offtake_JF[month]  +  Value_Offtake_JM[month] + Value_Offtake_AF[month] + Value_Offtake_AM[month]
+			Value_Offtake[month] = Value_Offtake_JF[month] + Value_Offtake_JM[month] + Value_Offtake_AF[month] + Value_Offtake_AM[month]
+			
 			Value_offt = Value_Offtake[month] 
 
 			# financial value of heard increase (can only do for months > 1 as doing -1 month calcs)
@@ -1175,8 +1169,7 @@ compartmental_model <- function(
 			}
 
 			# total pop value of herd increase
-			Value_Herd_Increase[month] = Value_Herd_Increase_NF[month] + Value_Herd_Increase_NM[month] + Value_Herd_Increase_JF[month] +
-			                             Value_Herd_Increase_JM[month] + Value_Herd_Increase_AF[month] + Value_Herd_Increase_AM[month]
+			Value_Herd_Increase[month] = Value_Herd_Increase_NF[month] + Value_Herd_Increase_NM[month] + Value_Herd_Increase_JF[month] + Value_Herd_Increase_JM[month] + Value_Herd_Increase_AF[month] + Value_Herd_Increase_AM[month]
 			
 			Value_herd_inc = Value_Herd_Increase[month]
 		
@@ -1184,6 +1177,7 @@ compartmental_model <- function(
 
 			## Total value increase
 			Total_Value_increase[month] = Value_herd_inc + Value_offt
+			
 			Total_Value_increase_NF[month] = Value_herd_inc_NF 
 			Total_Value_increase_NM[month] = Value_herd_inc_NM 
 			Total_Value_increase_JF[month] = Value_herd_inc_JF + Value_offt_JF
@@ -1232,9 +1226,8 @@ compartmental_model <- function(
 			Labour_AF = Labour_cost_AF[month]
 			Labour_AM = Labour_cost_AM[month]
 			
-			Labour_cost[month] = Labour_cost_NF[month] + Labour_cost_NM[month] 
-			                            + Labour_cost_JF[month] + Labour_cost_JM[month]
-			                            + Labour_cost_AF[month] + Labour_cost_AM[month]
+			Labour_cost[month] = Labour_cost_NF[month] + Labour_cost_NM[month] + Labour_cost_JF[month] + 
+			  Labour_cost_JM[month] + Labour_cost_AF[month] + Labour_cost_AM[month]
 			Labour =  Labour_cost[month]
 
 			# Medicines and veterinary expenditure
@@ -1253,9 +1246,7 @@ compartmental_model <- function(
 			Health_AF = Health_cost_AF[month]
 			Health_AM = Health_cost_AM[month]
 			
-			Health_cost[month] = Health_cost_NF[month] + Health_cost_NM[month] 
-			                            + Health_cost_JF[month] + Health_cost_JM[month]
-			                            + Health_cost_AF[month] + Health_cost_AM[month]
+			Health_cost[month] = Health_cost_NF[month] + Health_cost_NM[month] + Health_cost_JF[month] + Health_cost_JM[month] + Health_cost_AF[month] + Health_cost_AM[month]
 			Health = Health_cost[month]
 
 			# Capital costs
@@ -1279,9 +1270,7 @@ compartmental_model <- function(
 			Capital_AM = Capital_cost_AM[month]
 
 			# total pop capital cost
-			Capital_cost[month] = Capital_cost_NF[month] + Capital_cost_NM[month]
-			                    + Capital_cost_JF[month] + Capital_cost_JM[month] 
-			                    + Capital_cost_AF[month] + Capital_cost_AM[month]
+			Capital_cost[month] = Capital_cost_NF[month] + Capital_cost_NM[month] + Capital_cost_JF[month] + Capital_cost_JM[month] + Capital_cost_AF[month] + Capital_cost_AM[month]
 			  
 			Capital = Capital_cost[month]
 			
@@ -1511,8 +1500,7 @@ compartmental_model <- function(
 	Total_number_change_AM_M <- Num_Offtake_AM_M + Pop_growth_AM_M
 	mean(Total_number_change_AM_M)
 
-	Total_number_change_M <- Total_number_change_NF_M + Total_number_change_NM_M + Total_number_change_JF_M +
-	  Total_number_change_JM_M + Total_number_change_AF_M + Total_number_change_AM_M
+	Total_number_change_M <- Total_number_change_NF_M + Total_number_change_NM_M + Total_number_change_JF_M + Total_number_change_JM_M + Total_number_change_AF_M + Total_number_change_AM_M
 	
 	## values
 	Value_Hides_M <- Quant_Hides_M * hides_value
@@ -1719,13 +1707,14 @@ remove_cols <- c('AHLE Parameter' ,'Notes')
 ahle_scenarios_cln <- subset(ahle_scenarios, select = !(names(ahle_scenarios) %in% remove_cols)) 
 
 #ahle_scenarios_cln2 <- as.data.frame(cbind(ahle_scenarios_cln$CLM_S_Current,
-#                             ahle_scenarios_cln$CLM_G_Current,
-#                             ahle_scenarios_cln$Past_S_Current,
-#                             ahle_scenarios_cln$Past_G_Current))
-#colnames(ahle_scenarios_cln2) <- list("CLM_S_Current", "CLM_G_Current", "Past_S_Current", "Past_G_Current")
+ #                            ahle_scenarios_cln$CLM_G_Current,
+  #                           ahle_scenarios_cln$Past_S_Current,
+   #                          ahle_scenarios_cln$Past_G_Current))
+
+# colnames(ahle_scenarios_cln2) <- list("CLM_S_Current", "CLM_G_Current", "Past_S_Current", "Past_G_Current")
 
 # Loop through scenario columns, calling the function for each
-for (COLNAME in colnames(ahle_scenarios_cln2)){
+for (COLNAME in colnames(ahle_scenarios_cln)){
 	print('> Running AHLE scenario:')
 	print(COLNAME)
 

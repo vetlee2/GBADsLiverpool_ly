@@ -127,7 +127,7 @@ compartmental_model <- function(
 	## offtake must = offtake + dif between NNFt0 etc and NJF current
 	,GammaF 		# offtake rate female (juv and adult only) 
 	,GammaM 		# offtake rate male
-	,GammaO
+	,GammaO     # offtake rate oxen
 	
 	# Mortality ## informed from META analysis
 	,AlphaN		# mortality rate neonate ## parameter derived from meat pooled proportion and variance 
@@ -135,10 +135,12 @@ compartmental_model <- function(
 	,AlphaF		# mortality  adult female ##Parameter derived from meat pooled proportion and variance
 	,AlphaM		# motality adult male ##Parameter derived from meat pooled proportion and variancethin the national herd for breeding
   ,AlphaO
+	
 	# Culls
 	,CullF	 	# cullrate Adult Female ## These will be valueless
 	,CullM		# cullrate Adult Male  ## These will still have a value
-  ,CullO
+  ,CullO    # cullrate Oxen  ## These will still have a value
+	
 	## Production parameters (kg)
 
 	# Liveweight conversion (kg) ## Informed from META analysis
@@ -148,7 +150,8 @@ compartmental_model <- function(
 	,lwJM 		# Liveweight Juvenille # Same here##parameters derived from meta pooled mean and variance
 	,lwAF 		# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
 	,lwAM 		# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
-  ,lwO
+  ,lwO      # Liveweight Oxen
+	
 	# carcase yeild
 	,ccy 			# As a % of Liveweight for all groups
 
@@ -160,7 +163,8 @@ compartmental_model <- function(
 	,fvNM			## Financial value of juv Male
 	,fvJM			## Financial value of adult Female
 	,fvAM			## Financial value of adult Male  
-  ,fvO
+  ,fvO      ## Financial value of Oxen
+	
 	## Off take which go for fertility in females (used when calculating hide numbers)
 	#,fert_offtake	# for breeding age females only 75% of offtake contribute to skins (25% remain in national breeding herd)
 
@@ -288,7 +292,8 @@ compartmental_model <- function(
 	#births
 	births <- rep(0, Num_months)
   #oxen (castrates)
-	oxen <- rep(0, Num_months)
+	oxen_J <- rep(0, Num_months)
+	oxen_A <- rep(0, Num_months)
 	
 	#growth
 	growth_NF <- rep(0, Num_months)
@@ -817,18 +822,9 @@ compartmental_model <- function(
 		Liveweight_kg_AF <- 0
 		Liveweight_kg_AM <- 0
 		Liveweight_kg_O <- 0
+	
 		##
-		Pop_growth <- 0
-
-		Pop_growth_NF <- 0
-		Pop_growth_NM <- 0
-		Pop_growth_JF <- 0
-		Pop_growth_JM <- 0
-		Pop_growth_AF <- 0
-		Pop_growth_AM <- 0
-		Pop_growth_O <- 0
 		
-		##
 		Offtake <- 0
 
 		Offtake_JF <- 0
@@ -968,33 +964,36 @@ compartmental_model <- function(
 		## 
 		for(month in c(1:Num_months))
 		{
-			births[month] <- sum(sample(Mu, AF, replace = T))
+		  births[month] <- sample(Mu, 1) * AF
+		  
+		  deaths_NF[month] <- (sample(AlphaN, 1) * NF)
+		  deaths_JF[month] <- (sample(AlphaJ, 1) * JF) 
+		  deaths_AF[month] <- (sample(AlphaF, 1) * AF)
+		  
+		  deaths_NM[month] <- (sample(AlphaN, 1) * NM)
+		  deaths_JM[month] <- (sample(AlphaJ, 1) * JM)
+		  deaths_AM[month] <- (sample(AlphaM, 1) * AM)
+			deaths_O[month] <- (sample(AlphaO, 1) * O)
 			
-			deaths_NF[month] <- sum(sample(AlphaN, NF, replace = T))
-			deaths_JF[month] <- sum(sample(AlphaJ, JF, replace = T))
-			deaths_AF[month] <- sum(sample(AlphaF, AF, replace = T))
-		
-			deaths_NM[month] <- sum(sample(AlphaN, NM, replace = T))
-			deaths_JM[month] <- sum(sample(AlphaJ, JM, replace = T))
-			deaths_AM[month] <- sum(sample(AlphaM, AM, replace = T))
-			deaths_O[month] <- sum(sample(AlphaO, O, replace = T))
+			offtake_JF[month] <- (sample(GammaF, 1) * JF)
+			offtake_AF[month] <- (sample(GammaF, 1) * AF)
+			offtake_JM[month] <- (sample(GammaM, 1) * JM)
+			offtake_AM[month] <- (sample(GammaM, 1) * AM)
+			offtake_O[month] <- (sample(GammaO, 1) * O)
 			
-			offtake_JF[month] <- sum(sample(GammaF, JF, replace = T))
-			offtake_AF[month] <- sum(sample(GammaF, AF, replace = T))
-			offtake_JM[month] <- sum(sample(GammaM, JM, replace = T))
-			offtake_AM[month] <- sum(sample(GammaM, AM, replace = T))
-			offtake_O[month] <- sum(sample(GammaO, O, replace = T))
+			oxen_J[month] <- ((sample(castration_rate, 1)) * (round(sum(0.33*JM))))
+			oxen_A[month] <- ((sample(castration_rate, 1)) * (round(sum(0.1*AM))))
 			
-			oxen[month] <- sum(sample(castration_rate, (round(sum((0.33*JM) + (0.1*AM)))), replace = T))
+			growth_NF[month] <- (sample(Beta_N, 1) * NF)
+			growth_JF[month] <- (sample(Beta_J, 1) * JF)
+			growth_NM[month] <- (sample(Beta_N, 1) * NM)
+			growth_JM[month] <- (sample(Beta_J, 1) * JM)
 			
-			growth_NF[month] <- sum(sample(Beta_N, NF, replace = T))
-			growth_JF[month] <- sum(sample(Beta_J, JF, replace = T))
-			growth_NM[month] <- sum(sample(Beta_N, NM, replace = T))
-			growth_JM[month] <- sum(sample(Beta_J, JM, replace = T))
+			culls_AF[month] <- (sample(CullF, 1) * AF)
+			culls_AM[month] <- (sample(CullM, 1) * AM)
+			culls_O[month] <- (sample(CullO, 1) * O)
 			
-			culls_AF[month] <- sum(sample(CullF, AF,  replace = T))
-			culls_AM[month] <- sum(sample(CullM, AM,  replace = T))
-			culls_O[month] <- sum(sample(CullO, O,  replace = T))
+			### >> to here...
 			
 			# now the population model uses numbers calculated in stochastic equations above
 		  numNF[month] = NF + (births[month] * 0.5) - deaths_NF[month] - growth_NF[month]
@@ -1002,9 +1001,9 @@ compartmental_model <- function(
 			numAF[month] = AF + growth_JF[month] - offtake_AF[month] - deaths_AF[month] - culls_AF[month]
 
 			numNM[month] = NM + (births[month] * 0.5) - growth_NM[month] - deaths_NM[month]
-			numJM[month] = JM + growth_NM[month] - growth_JM[month] - offtake_JM[month] - deaths_JM[month]
-			numAM[month] = AM + growth_JM[month] - offtake_AM[month] - deaths_AM[month] - culls_AM[month]
-			numO[month] = O + oxen[month] - offtake_O[month] - deaths_O[month] - culls_O[month]
+			numJM[month] = JM + growth_NM[month] - growth_JM[month] - offtake_JM[month] - deaths_JM[month] - oxen_J[month]
+			numAM[month] = AM + growth_JM[month] - offtake_AM[month] - deaths_AM[month] - culls_AM[month] - oxen_A[month]
+			numO[month] = O + oxen_J[month] + oxen_A[month] - offtake_O[month] - deaths_O[month] - culls_O[month]
 			
 			numN[month] = numNF[month] + numJF[month] + numAF[month] + numNM[month] + numJM[month] + numAM[month] + numO[month]
 
@@ -1055,24 +1054,24 @@ compartmental_model <- function(
 			# Population growth (total population in month - original population size)
 			Pop_growth[month] =  numN[month] - Nt0
 
-			Pop_growth_NF[month] =  numNF[month] - N_NF_t0
-			Pop_growth_NM[month] =  numNM[month] - N_NM_t0
-			Pop_growth_JF[month] =  numJF[month] - N_JF_t0
-			Pop_growth_JM[month] =  numJM[month] - N_JM_t0
-			Pop_growth_AF[month] =  numAF[month] - N_AF_t0
-			Pop_growth_AM[month] =  numAM[month] - N_AM_t0
-			Pop_growth_O[month] = numO[month] - N_O_t0
+			Pop_growth_NF[month] =  NF - N_NF_t0
+			Pop_growth_NM[month] =  NM - N_NM_t0
+			Pop_growth_JF[month] =  JF - N_JF_t0
+			Pop_growth_JM[month] =  JM - N_JM_t0
+			Pop_growth_AF[month] =  AF - N_AF_t0
+			Pop_growth_AM[month] =  AM - N_AM_t0
+			Pop_growth_O[month] = O - N_O_t0
 			
 			# whole population Liveweight (number in each age sex group * Liveweight conversion factor, for each month - NOT cumilative)
 			# note there is currently no difference in weights of adult animals
 			## and Liveweight should not be cumulative
-			Quant_Liveweight_kg_NF[month] = sum(sample(lwNF, NF, replace = T))
-			Quant_Liveweight_kg_NM[month] = sum(sample(lwNM, NM, replace = T))
-			Quant_Liveweight_kg_JF[month] = sum(sample(lwJF, JF, replace = T))
-			Quant_Liveweight_kg_JM[month] = sum(sample(lwJM, JM, replace = T))
-			Quant_Liveweight_kg_AF[month] = sum(sample(lwAF, AF, replace = T))
-			Quant_Liveweight_kg_AM[month] = sum(sample(lwAM, AM, replace = T))
-			Quant_Liveweight_kg_O[month] = sum(sample(lwO, O, replace = T))
+			Quant_Liveweight_kg_NF[month] = (NF * sample(lwNF, 1))
+			Quant_Liveweight_kg_NM[month] = (NM * sample(lwNM, 1))
+			Quant_Liveweight_kg_JF[month] = (JF * sample(lwJF, 1))
+			Quant_Liveweight_kg_JM[month] = (JM * sample(lwJM, 1))
+			Quant_Liveweight_kg_AF[month] = (AF * sample(lwAF, 1))
+			Quant_Liveweight_kg_AM[month] = (AM * sample(lwAM, 1))
+			Quant_Liveweight_kg_O[month] = (O * sample(lwO, 1))
 			
 			Quant_Liveweight_kg[month] = Quant_Liveweight_kg_NF[month] + Quant_Liveweight_kg_NM[month] +
 			  Quant_Liveweight_kg_JF[month] + Quant_Liveweight_kg_JM[month] + 
@@ -1094,22 +1093,18 @@ compartmental_model <- function(
 			Offtake_AM = Num_Offtake_AM[month]
 			Offtake_O = Num_Offtake_O[month]
 			
-			
-			Num_Offtake[month] = Num_Offtake_JF[month] +  Num_Offtake_JM[month]  + 
-			  Num_Offtake_AF[month] + Num_Offtake_AM[month] + Num_Offtake_O[month]
-			
+			Num_Offtake[month] = Num_Offtake_JF[month] + Num_Offtake_JM[month] + Num_Offtake_AF[month] + Num_Offtake_AM[month] + Num_Offtake_O[month]
 			Offtake = Num_Offtake[month]
 			
 			## Offtake Liveweight
-			Offtake_Liveweight_kg_JF[month] = sum(sample(lwJF, Num_Offtake_JF[month], replace = T))
-			Offtake_Liveweight_kg_JM[month] = sum(sample(lwJM, Num_Offtake_JM[month], replace = T))
-			Offtake_Liveweight_kg_AF[month] = sum(sample(lwAF, Num_Offtake_AF[month], replace = T))
-			Offtake_Liveweight_kg_AM[month] = sum(sample(lwAM, Num_Offtake_AM[month], replace = T))
-			Offtake_Liveweight_kg_O[month] = sum(sample(lwO, Num_Offtake_O[month], replace = T))
+			Offtake_Liveweight_kg_JF[month] = (sample(lwJF, 1) * Offtake_JF)
+			Offtake_Liveweight_kg_JM[month] = (sample(lwJM, 1) * Offtake_JM)
+			Offtake_Liveweight_kg_AF[month] = (sample(lwAF, 1) * Offtake_AF)
+			Offtake_Liveweight_kg_AM[month] = (sample(lwAM, 1) * Offtake_AM)
+			Offtake_Liveweight_kg_O[month] = (sample(lwO, 1) * Offtake_O)
 			
 			Offtake_Liveweight_kg[month] <- Offtake_Liveweight_kg_JF[month] + Offtake_Liveweight_kg_JM[month] +
-			                                Offtake_Liveweight_kg_AF[month] + Offtake_Liveweight_kg_AM[month] +
-			                                Offtake_Liveweight_kg_O[month]
+			                                Offtake_Liveweight_kg_AF[month] + Offtake_Liveweight_kg_AM[month] + Offtake_Liveweight_kg_O[month]
 			
 			# Changed here, made meat from offtake only
 			# whole population as meat
@@ -1124,7 +1119,7 @@ compartmental_model <- function(
 			Meat_kg = Quant_Meat_kg[month]
 
 			## Draught
-			cumilative_draught_income[month] <- draught_income + ((sum(sample(draught_rate, numO[month], replace = T))) * draught_day_value * 30)
+			cumilative_draught_income[month] <- draught_income + (O * (sample(draught_rate, 1)) * (draught_day_value * 30))
 			draught_income <- cumilative_draught_income[month]
 			
 			# Hides per month (only calculated on offftake as a proportion (1-prop females for fertility), we could add a proportion of dead too? * Expert opinion question)
@@ -1143,8 +1138,7 @@ compartmental_model <- function(
 			Hides_O = Quant_Hides_O[month]
 			
 			# sum for total population
-			Quant_Hides[month] = Quant_Hides_JF[month] + Quant_Hides_JM[month] + 	
-			                     Quant_Hides_AF[month] + Quant_Hides_AM[month] + Quant_Hides_O[month]
+			Quant_Hides[month] = Quant_Hides_JF[month] + Quant_Hides_JM[month] + Quant_Hides_AF[month] + Quant_Hides_AM[month] + Quant_Hides_O[month]
 			                                
 			Hides = Quant_Hides[month]
 			
@@ -1153,20 +1147,20 @@ compartmental_model <- function(
 			## Milk
 			# number of females giving birth in month x, multiplied by number that would be milked
 			## multiplied by lactation duration and daily yield)
-			Quant_Milk[month] = Milk + (sum(sample(part, AF, replace = T)) * prop_F_milked * lac_duration * avg_daily_yield_ltr) 
+			Quant_Milk[month] = Milk + (AF * (sample(part, 1)) * prop_F_milked * lac_duration * avg_daily_yield_ltr) 
 			  
 			Milk = Quant_Milk[month]
 			
 			## Manure 
 			
 			## manure from different age cats
-			Quant_Manure_NF[month] = Manure_kg_NF + (sum(sample(Man_N, numNF[month], replace = T) * 30))  
-			Quant_Manure_NM[month] = Manure_kg_NM + (sum(sample(Man_N, numNM[month], replace = T) * 30))  
-			Quant_Manure_JF[month] = Manure_kg_JF + (sum(sample(Man_J, numJF[month], replace = T) * 30))  
-			Quant_Manure_JM[month] = Manure_kg_JM + (sum(sample(Man_J, numJM[month], replace = T) * 30))  
-			Quant_Manure_AF[month] = Manure_kg_AF + (sum(sample(Man_A, numAF[month], replace = T) * 30))  
-			Quant_Manure_AM[month] = Manure_kg_AM + (sum(sample(Man_A, numAM[month], replace = T) * 30))  
-			Quant_Manure_O[month] = Manure_kg_O + (sum(sample(Man_A, numO[month], replace = T) * 30))  
+			Quant_Manure_NF[month] = Manure_kg_NF + (NF * (sample(Man_N, 1) * 30))  
+			Quant_Manure_NM[month] = Manure_kg_NM + (NM * (sample(Man_N, 1) * 30))  
+			Quant_Manure_JF[month] = Manure_kg_JF + (JF * (sample(Man_N, 1) * 30))  
+			Quant_Manure_JM[month] = Manure_kg_JM + (JM * (sample(Man_N, 1) * 30))  
+			Quant_Manure_AF[month] = Manure_kg_AF + (AF * (sample(Man_N, 1) * 30))  
+			Quant_Manure_AM[month] = Manure_kg_AM + (AM * (sample(Man_N, 1) * 30))  
+			Quant_Manure_O[month] = Manure_kg_O + (O * (sample(Man_A, 1) * 30))  
 			
 			Manure_kg_NF = Quant_Manure_NF[month]
 			Manure_kg_NM = Quant_Manure_NM[month]
@@ -1176,9 +1170,7 @@ compartmental_model <- function(
 			Manure_kg_AM = Quant_Manure_AM[month]
 			Manure_kg_O = Quant_Manure_O[month]
 			
-			Quant_Manure[month] = Quant_Manure_NF[month] + Quant_Manure_NM[month] + Quant_Manure_JF[month]
-			                                + Quant_Manure_JM[month] + Quant_Manure_AF[month] + Quant_Manure_AM[month] + Quant_Manure_O[month]
-	
+			Quant_Manure[month] = Quant_Manure_NF[month] + Quant_Manure_NM[month] + Quant_Manure_JF[month] + Quant_Manure_JM[month] + Quant_Manure_AF[month] + Quant_Manure_AM[month] + Quant_Manure_O[month]
 			Manure_kg = Quant_Manure[month]
 			
 			# Cumilative dry matter used by the system
@@ -1187,13 +1179,13 @@ compartmental_model <- function(
 		
 				## NOTE does this need to be multiplied by 30 to get a monthly dry matter requirement?
 			
-			Cumilative_Dry_Matter_NF[month] = Cumulitive_DM_NF + (30 * sum(sample(kg_DM_req_NF, NF, replace = T))) 
-			Cumilative_Dry_Matter_NM[month] = Cumulitive_DM_NM + (30 * sum(sample(kg_DM_req_NM, NM, replace = T)))
-			Cumilative_Dry_Matter_JF[month] = Cumulitive_DM_JF + (30 * sum(sample(kg_DM_req_JF, JF, replace = T)))
-			Cumilative_Dry_Matter_JM[month] = Cumulitive_DM_JM + (30 * sum(sample(kg_DM_req_JM, JM, replace = T)))
-			Cumilative_Dry_Matter_AF[month] = Cumulitive_DM_AF + (30 * sum(sample(kg_DM_req_AF, AF, replace = T)))
-			Cumilative_Dry_Matter_AM[month] = Cumulitive_DM_AM + (30 * sum(sample(kg_DM_req_AM, AM, replace = T)))
-			Cumilative_Dry_Matter_O[month] = Cumulitive_DM_O + (30 * sum(sample(kg_DM_req_O, O, replace = T)))
+			Cumilative_Dry_Matter_NF[month] = Cumulitive_DM_NF + (NF * (sample(kg_DM_req_NF, 1) * 30)) 
+			Cumilative_Dry_Matter_NM[month] = Cumulitive_DM_NM + (NM * (sample(kg_DM_req_NF, 1) * 30)) 
+			Cumilative_Dry_Matter_JF[month] = Cumulitive_DM_JF + (JF * (sample(kg_DM_req_NF, 1) * 30)) 
+			Cumilative_Dry_Matter_JM[month] = Cumulitive_DM_JM + (JM * (sample(kg_DM_req_NF, 1) * 30)) 
+			Cumilative_Dry_Matter_AF[month] = Cumulitive_DM_AF + (AF * (sample(kg_DM_req_NF, 1) * 30)) 
+			Cumilative_Dry_Matter_AM[month] = Cumulitive_DM_AM + (AM * (sample(kg_DM_req_NF, 1) * 30)) 
+			Cumilative_Dry_Matter_O[month] = Cumulitive_DM_O + (O * (sample(kg_DM_req_O, 1) * 30))
 			
 			Cumulitive_DM_NF = Cumilative_Dry_Matter_NF[month]
 			Cumulitive_DM_NM = Cumilative_Dry_Matter_NM[month]
@@ -1220,20 +1212,29 @@ compartmental_model <- function(
 			## with the new equation structure below if offtake changes or varies or we add uncertainty then the financial value of offtake will change
 
 			## Juv and adults only
-			Value_Offtake_JF[month] = sum(sample(fvJF, Num_Offtake_JF[month], replace = T))
-
-			Value_Offtake_JM[month] = sum(sample(fvJM, Num_Offtake_JM[month], replace = T))
-
-			Value_Offtake_AF[month] = sum(sample(fvAF, Num_Offtake_AF[month], replace = T))
-
-			Value_Offtake_AM[month] = (sum(sample(fvAM, Num_Offtake_AM[month], replace = T))) 
+			Value_Offtake_JF[month] = (sample(fvJF, 1) * Offtake_JF) 
+			Value_offt_JF = Value_Offtake_JF[month]
 			
-			Value_Offtake_O[month] = (sum(sample(fvO, Num_Offtake_O[month], replace = T))) 
+			Value_Offtake_JM[month] = (sample(fvJM, 1) * Offtake_JM)
+			Value_offt_JM = Value_Offtake_JM[month]
+			
+			Value_Offtake_AF[month] = (sample(fvAF, 1) * Offtake_AF)
+			Value_offt_AF = Value_Offtake_AF[month]
+			
+			Value_Offtake_AM[month] = (sample(fvAM, 1) * Offtake_AM)  
+			Value_offt_AM = Value_Offtake_AM[month]
+			
+			Value_Offtake_O[month] = (sample(fvO, 1) * Offtake_O) 
+			Value_offt_O = Value_Offtake_O[month]
+			
 			
 			## sum total population
-			Value_Offtake[month] = Value_Offtake_JF[month]  +  Value_Offtake_JM[month] + 
-			                       Value_Offtake_AF[month] + Value_Offtake_AM[month] + Value_Offtake_O[month]
-
+			Value_Offtake[month] = Value_Offtake_JF[month]  +  Value_Offtake_JM[month] + Value_Offtake_AF[month] + Value_Offtake_AM[month] + Value_Offtake_O[month]
+			Value_offt = Value_Offtake[month] 
+			
+			## >>>>>>To here 
+			
+			
 			# financial value of heard increase (can only do for months > 1 as doing -1 month calcs)
 
 			## Gemma edits here as this calculation doesnt make sense 

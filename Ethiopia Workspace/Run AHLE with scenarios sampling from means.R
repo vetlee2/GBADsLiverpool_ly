@@ -17,7 +17,7 @@
 # -----------------------------------------------------------------
 # Number of simulation iterations
 
-cmd_nruns <- 1
+cmd_nruns <- 1000
 
 # Folder location to save outputs
 #cmd_output_directory <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Program outputs'
@@ -946,12 +946,12 @@ compartmental_model <- function(
       # Population growth (total population in month - original population size)
       Pop_growth[month] =  numN[month] - Nt0
       
-      Pop_growth_NF[month] =  numNF[month] - N_NF_t0
-      Pop_growth_NM[month] =  numNM[month] - N_NM_t0
-      Pop_growth_JF[month] =  numJF[month] - N_JF_t0
-      Pop_growth_JM[month] =  numJM[month] - N_JM_t0
-      Pop_growth_AF[month] =  numAF[month] - N_AF_t0
-      Pop_growth_AM[month] =  numAM[month] - N_AM_t0
+      Pop_growth_NF[month] =  NF - N_NF_t0
+      Pop_growth_NM[month] =  NM - N_NM_t0
+      Pop_growth_JF[month] =  JF - N_JF_t0
+      Pop_growth_JM[month] =  JM - N_JM_t0
+      Pop_growth_AF[month] =  AF - N_AF_t0
+      Pop_growth_AM[month] =  AM - N_AM_t0
       
       # whole population Liveweight (number in each age sex group * Liveweight conversion factor, for each month - NOT cumilative)
       # note there is currently no difference in weights of adult animals
@@ -989,10 +989,10 @@ compartmental_model <- function(
       Offtake = Num_Offtake[month]
       
       ## Offtake Liveweight
-      Offtake_Liveweight_kg_JF[month] = sum(sample(lwJF, Num_Offtake_JF[month], replace = T))
-      Offtake_Liveweight_kg_JM[month] = sum(sample(lwJM, Num_Offtake_JM[month], replace = T))
-      Offtake_Liveweight_kg_AF[month] = sum(sample(lwAF, Num_Offtake_AF[month], replace = T))
-      Offtake_Liveweight_kg_AM[month] = sum(sample(lwAM, Num_Offtake_AM[month], replace = T))
+      Offtake_Liveweight_kg_JF[month] = (sample(lwJF, 1) * Offtake_JF)
+      Offtake_Liveweight_kg_JM[month] = (sample(lwJM, 1) * Offtake_JM)
+      Offtake_Liveweight_kg_AF[month] = (sample(lwAF, 1) * Offtake_AF)
+      Offtake_Liveweight_kg_AM[month] = (sample(lwAM, 1) * Offtake_AM)
       
       Offtake_Liveweight_kg[month] <- Offtake_Liveweight_kg_JF[month] + Offtake_Liveweight_kg_JM[month] +
         Offtake_Liveweight_kg_AF[month] + Offtake_Liveweight_kg_AM[month]
@@ -1033,20 +1033,20 @@ compartmental_model <- function(
       ## Milk
       # number of females giving birth in month x, multiplied by number that would be milked
       ## multiplied by lactation duration and daily yield)
-      Quant_Milk[month] = Milk + (sum(sample(part, AF, replace = T)) * prop_F_milked * lac_duration * avg_daily_yield_ltr) 
+      Quant_Milk[month] = Milk + (AF * (sample(part, 1)) * prop_F_milked * lac_duration * avg_daily_yield_ltr) 
       
       Milk = Quant_Milk[month]
       
       ## Manure 
       
       ## manure from different age cats
-      Quant_Manure_NF[month] = Manure_kg_NF + (sum(sample(Man_N, numNF[month], replace = T) * 30))  
-      Quant_Manure_NM[month] = Manure_kg_NM + (sum(sample(Man_N, numNM[month], replace = T) * 30))  
       
-      Quant_Manure_JF[month] = Manure_kg_JF + (sum(sample(Man_J, numJF[month], replace = T) * 30))  
-      Quant_Manure_JM[month] = Manure_kg_JM + (sum(sample(Man_J, numJM[month], replace = T) * 30))  
-      Quant_Manure_AF[month] = Manure_kg_AF + (sum(sample(Man_A, numAF[month], replace = T) * 30))  
-      Quant_Manure_AM[month] = Manure_kg_AM + (sum(sample(Man_A, numAM[month], replace = T) * 30))  
+      Quant_Manure_NF[month] = Manure_kg_NF + (NF * (sample(Man_N, 1) * 30))  
+      Quant_Manure_NM[month] = Manure_kg_NM + (NM * (sample(Man_N, 1) * 30))  
+      Quant_Manure_JF[month] = Manure_kg_JF + (JF * (sample(Man_N, 1) * 30))  
+      Quant_Manure_JM[month] = Manure_kg_JM + (JM * (sample(Man_N, 1) * 30))  
+      Quant_Manure_AF[month] = Manure_kg_AF + (AF * (sample(Man_N, 1) * 30))  
+      Quant_Manure_AM[month] = Manure_kg_AM + (AM * (sample(Man_N, 1) * 30))  
       
       Manure_kg_NF = Quant_Manure_NF[month]
       Manure_kg_NM = Quant_Manure_NM[month]
@@ -1065,12 +1065,12 @@ compartmental_model <- function(
       
       ## NOTE does this need to be multiplied by 30 to get a monthly dry matter requirement?
       
-      Cumilative_Dry_Matter_NF[month] = Cumulitive_DM_NF + (30 * sum(sample(kg_DM_req_NF, NF, replace = T))) 
-      Cumilative_Dry_Matter_NM[month] = Cumulitive_DM_NM + (30 * sum(sample(kg_DM_req_NM, NM, replace = T)))
-      Cumilative_Dry_Matter_JF[month] = Cumulitive_DM_JF + (30 * sum(sample(kg_DM_req_JF, JF, replace = T)))
-      Cumilative_Dry_Matter_JM[month] = Cumulitive_DM_JM + (30 * sum(sample(kg_DM_req_JM, JM, replace = T)))
-      Cumilative_Dry_Matter_AF[month] = Cumulitive_DM_AF + (30 * sum(sample(kg_DM_req_AF, AF, replace = T)))
-      Cumilative_Dry_Matter_AM[month] = Cumulitive_DM_AM + (30 * sum(sample(kg_DM_req_AM, AM, replace = T)))
+      Cumilative_Dry_Matter_NF[month] = Cumulitive_DM_NF + (NF * (sample(kg_DM_req_NF, 1) * 30)) 
+      Cumilative_Dry_Matter_NM[month] = Cumulitive_DM_NM + (NM * (sample(kg_DM_req_NF, 1) * 30)) 
+      Cumilative_Dry_Matter_JF[month] = Cumulitive_DM_JF + (JF * (sample(kg_DM_req_NF, 1) * 30)) 
+      Cumilative_Dry_Matter_JM[month] = Cumulitive_DM_JM + (JM * (sample(kg_DM_req_NF, 1) * 30)) 
+      Cumilative_Dry_Matter_AF[month] = Cumulitive_DM_AF + (AF * (sample(kg_DM_req_NF, 1) * 30)) 
+      Cumilative_Dry_Matter_AM[month] = Cumulitive_DM_AM + (AM * (sample(kg_DM_req_NF, 1) * 30)) 
       
       Cumulitive_DM_NF = Cumilative_Dry_Matter_NF[month]
       Cumulitive_DM_NM = Cumilative_Dry_Matter_NM[month]
@@ -1096,16 +1096,16 @@ compartmental_model <- function(
       ## with the new equation structure below if offtake changes or varies or we add uncertainty then the financial value of offtake will change
       
       ## Juv and adults only
-      Value_Offtake_JF[month] = sum(sample(fvJF, Num_Offtake_JF[month], replace = T))
+      Value_Offtake_JF[month] = (sample(fvJF, 1) * Offtake_JF) 
       Value_offt_JF = Value_Offtake_JF[month]
       
-      Value_Offtake_JM[month] = sum(sample(fvJM, Num_Offtake_JM[month], replace = T))
+      Value_Offtake_JM[month] = (sample(fvJM, 1) * Offtake_JM)
       Value_offt_JM = Value_Offtake_JM[month]
       
-      Value_Offtake_AF[month] = sum(sample(fvAF, Num_Offtake_AF[month], replace = T))
+      Value_Offtake_AF[month] = (sample(fvAF, 1) * Offtake_AF)
       Value_offt_AF = Value_Offtake_AF[month]
       
-      Value_Offtake_AM[month] = sum(sample(fvAM, Num_Offtake_AM[month], replace = T))   
+      Value_Offtake_AM[month] = (sample(fvAM, 1) * Offtake_AM)  
       Value_offt_AM = Value_Offtake_AM[month]
       
       ## sum total population
@@ -1121,61 +1121,30 @@ compartmental_model <- function(
       ##
       
       ## NOTE ##
-      ## This section isnt working now - need to change sampling structure, add if statement or something.
+      ## This section isn't working now - need to change sampling structure, add if statement or something.
       ## revert to old style of code?
-      if ((NF - N_NF_t0) > 0) {
-        Value_Herd_Increase_NF[month] = (sum(sample(fvNF, (NF - N_NF_t0), replace = T)))
+        Value_Herd_Increase_NF[month] = (sample(fvNF, 1) * (NF - N_NF_t0))
         Value_herd_inc_NF = Value_Herd_Increase_NF[month]
-      }	else {
-        Value_Herd_Increase_NF[month] = (NF - N_NF_t0) * sample(fvNF, 1)
-        Value_herd_inc_NF = Value_Herd_Increase_NF[month]
-      }
       
-      if ((NM - N_NM_t0) > 0)	{
-        Value_Herd_Increase_NM[month] = (sum(sample(fvNM, (NM - N_NM_t0), replace = T)))
-        Value_herd_inc_NM = Value_Herd_Increase_NM[month]
-      }	else {
         Value_Herd_Increase_NM[month] = (NM - N_NM_t0) * (sample(fvNM, 1))
         Value_herd_inc_NM = Value_Herd_Increase_NM[month]
-      }
       
-      if ((JF - N_JF_t0) > 0)	{
-        Value_Herd_Increase_JF[month] = (sum(sample(fvJF, (JF - N_JF_t0), replace = T)))
-        Value_herd_inc_JF = Value_Herd_Increase_JF[month]
-      }	else {
         Value_Herd_Increase_JF[month] = (JF - N_JF_t0) * (sample(fvJF, 1))
         Value_herd_inc_JF = Value_Herd_Increase_JF[month]
-      }
       
-      if ((JM - N_JM_t0) > 0) { 
-        Value_Herd_Increase_JM[month] = (sum(sample(fvJM, (JM - N_JM_t0), replace = T)))
-        Value_herd_inc_JM = Value_Herd_Increase_JM[month]
-      } else {
         Value_Herd_Increase_JM[month] = (JM - N_JM_t0) * (sample(fvJM, 1))
         Value_herd_inc_JM = Value_Herd_Increase_JM[month]
-      }
-      
-      if ((AF - N_AF_t0) > 0)	{
-        Value_Herd_Increase_AF[month] = (sum(sample(fvAF, (AF - N_AF_t0), replace = T)))
-        Value_herd_inc_AF = Value_Herd_Increase_AF[month]
-      } else {
+     
         Value_Herd_Increase_AF[month] = (AF - N_AF_t0) * (sample(fvAF, 1))
         Value_herd_inc_AF = Value_Herd_Increase_AF[month]
-      }
       
-      if ((AM - N_AM_t0) > 0) {
-        Value_Herd_Increase_AM[month] = (sum(sample(fvAM, (AM - N_AM_t0), replace = T)))
-        Value_herd_inc_AM = Value_Herd_Increase_AM[month]
-      } else {
         Value_Herd_Increase_AM[month] = (AM - N_AM_t0) * (sample(fvAM, 1))
         Value_herd_inc_AM = Value_Herd_Increase_AM[month]
-      }
       
       # total pop value of herd increase
       Value_Herd_Increase[month] = Value_Herd_Increase_NF[month] + Value_Herd_Increase_NM[month] + Value_Herd_Increase_JF[month] + Value_Herd_Increase_JM[month] + Value_Herd_Increase_AF[month] + Value_Herd_Increase_AM[month]
       
       Value_herd_inc = Value_Herd_Increase[month]
-      
       
       
       ## Total value increase
@@ -1190,19 +1159,17 @@ compartmental_model <- function(
       
       ## Expenditure in system
       # Feed cost
-      Feed_cost_NF[month] = Feed_NF + (sum(sample(Expenditure_on_feed_NF, NF, replace = T)) * 30) 
+      Feed_cost_NF[month] = Feed_NF + (NF * (sample(Expenditure_on_feed_NF, 1)) * 30) 
       Feed_NF = Feed_cost_NF[month]
-      Feed_cost_NM[month] = Feed_NM + (sum(sample(Expenditure_on_feed_NM, NM, replace = T)) * 30) 
+      Feed_cost_NM[month] = Feed_NM + (NM * (sample(Expenditure_on_feed_NM, 1)) * 30) 
       Feed_NM = Feed_cost_NM[month]
-      Feed_cost_JF[month] = Feed_JF + (sum(sample(Expenditure_on_feed_JF, JF, replace = T)) * 30)
+      Feed_cost_JF[month] = Feed_JF + (JF * (sample(Expenditure_on_feed_JF, 1)) * 30)
       Feed_JF = Feed_cost_JF[month]
-      
-      Feed_cost_JM[month] = Feed_JM + (sum(sample(Expenditure_on_feed_JM, JM, replace = T)) * 30)
+      Feed_cost_JM[month] = Feed_JM + (JM * (sample(Expenditure_on_feed_JM, 1)) * 30)
       Feed_JM = Feed_cost_JM[month]
-      
-      Feed_cost_AF[month] = Feed_AF + (sum(sample(Expenditure_on_feed_AF, AF, replace = T)) * 30)
+      Feed_cost_AF[month] = Feed_AF + (AF * (sample(Expenditure_on_feed_AF, 1)) * 30)
       Feed_AF = Feed_cost_AF[month]
-      Feed_cost_AM[month] = Feed_AM + (sum(sample(Expenditure_on_feed_AM, AM , replace = T)) * 30) 
+      Feed_cost_AM[month] = Feed_AM + (AM * (sample(Expenditure_on_feed_AM, 1)) * 30) 
       Feed_AM = Feed_cost_AM[month]
       
       # total feed cost
@@ -1215,12 +1182,12 @@ compartmental_model <- function(
       
       # Labour costs (number of SR's * labour cost per head per month)
       
-      Labour_cost_NF[month] = Labour_NF + (sum(sample(Lab_SR, NF, replace = T)) * lab_non_health) 
-      Labour_cost_NM[month] = Labour_NM + (sum(sample(Lab_SR, NM, replace = T)) * lab_non_health) 
-      Labour_cost_JF[month] = Labour_JF + (sum(sample(Lab_SR, JF, replace = T)) * lab_non_health) 
-      Labour_cost_JM[month] = Labour_JM + (sum(sample(Lab_SR, JM, replace = T)) * lab_non_health) 
-      Labour_cost_AF[month] = Labour_AF + (sum(sample(Lab_SR, AF, replace = T)) * lab_non_health) 
-      Labour_cost_AM[month] = Labour_AM + (sum(sample(Lab_SR, AM, replace = T)) * lab_non_health) 
+      Labour_cost_NF[month] = Labour_NF + (NF * (sample(Lab_SR, 1)) * lab_non_health) 
+      Labour_cost_NM[month] = Labour_NM + (NM * (sample(Lab_SR, 1)) * lab_non_health)  
+      Labour_cost_JF[month] = Labour_JF + (JF * (sample(Lab_SR, 1)) * lab_non_health)  
+      Labour_cost_JM[month] = Labour_JM + (JM * (sample(Lab_SR, 1)) * lab_non_health)  
+      Labour_cost_AF[month] = Labour_AF + (AF * (sample(Lab_SR, 1)) * lab_non_health)  
+      Labour_cost_AM[month] = Labour_AM + (AM * (sample(Lab_SR, 1)) * lab_non_health)  
       
       Labour_NF = Labour_cost_NF[month]
       Labour_NM = Labour_cost_NM[month]
@@ -1235,12 +1202,12 @@ compartmental_model <- function(
       
       # Medicines and veterinary expenditure
       
-      Health_cost_NF[month] = Health_NF + (sum(sample(Health_exp, NF, replace = T))) 
-      Health_cost_NM[month] = Health_NM + (sum(sample(Health_exp, NM, replace = T))) 
-      Health_cost_JF[month] = Health_JF + (sum(sample(Health_exp, JF, replace = T))) 
-      Health_cost_JM[month] = Health_JM + (sum(sample(Health_exp, JM, replace = T))) 
-      Health_cost_AF[month] = Health_AF + (sum(sample(Health_exp, AF, replace = T))) 
-      Health_cost_AM[month] = Health_AM + (sum(sample(Health_exp, AM, replace = T))) 
+      Health_cost_NF[month] = Health_NF + (NF * (sample(Health_exp, 1))) 
+      Health_cost_NM[month] = Health_NM + (NM * (sample(Health_exp, 1))) 
+      Health_cost_JF[month] = Health_JF + (JF * (sample(Health_exp, 1))) 
+      Health_cost_JM[month] = Health_JM + (JM * (sample(Health_exp, 1)))
+      Health_cost_AF[month] = Health_AF + (AF * (sample(Health_exp, 1))) 
+      Health_cost_AM[month] = Health_AM + (AM * (sample(Health_exp, 1))) 
       
       Health_NF = Health_cost_NF[month]
       Health_NM = Health_cost_NM[month]
@@ -1254,22 +1221,22 @@ compartmental_model <- function(
       
       # Capital costs
       
-      Capital_cost_NF[month] = (sum(sample(fvNF, numNF[1], replace = T)) * Interest_rate) 
+      Capital_cost_NF[month] = numNF[1] * (sample(fvNF, 1)) * Interest_rate 
       Capital_NF = Capital_cost_NF[month]
       
-      Capital_cost_NM[month] = (sum(sample(fvNM, numNM[1], replace = T)) * Interest_rate) 
+      Capital_cost_NM[month] = numNM[1] * (sample(fvNM, 1)) * Interest_rate  
       Capital_NM = Capital_cost_NM[month]
       
-      Capital_cost_JF[month] = (sum(sample(fvJF, numJF[1], replace = T)) * Interest_rate) 
+      Capital_cost_JF[month] = numJF[1] * (sample(fvJF, 1)) * Interest_rate  
       Capital_JF = Capital_cost_JF[month]
       
-      Capital_cost_JM[month] = (sum(sample(fvJM, numJM[1], replace = T)) * Interest_rate) 
+      Capital_cost_JM[month] = numJM[1] * (sample(fvJM, 1)) * Interest_rate  
       Capital_JM = Capital_cost_JM[month]
       
-      Capital_cost_AF[month] = (sum(sample(fvAF, numAF[1], replace = T)) * Interest_rate) 
+      Capital_cost_AF[month] = numAF[1] * (sample(fvAF, 1)) * Interest_rate  
       Capital_AF = Capital_cost_AF[month]
       
-      Capital_cost_AM[month] = (sum(sample(fvAM, numAM[1], replace = T)) * Interest_rate) 
+      Capital_cost_AM[month] = numAM[1] * (sample(fvAM, 1)) * Interest_rate  
       Capital_AM = Capital_cost_AM[month]
       
       # total pop capital cost
@@ -1722,10 +1689,10 @@ for (COLNAME in colnames(ahle_scenarios_cln)){
   print(COLNAME)
   
   # Construct function arguments as "name = value"
-  ahle_scenarios_cln2$arglist <- do.call(paste, c(ahle_scenarios[c("AHLE Parameter", COLNAME)], sep="="))
+  ahle_scenarios_cln$arglist <- do.call(paste, c(ahle_scenarios[c("AHLE Parameter", COLNAME)], sep="="))
   
   # Get as single string and append cmd arguments
-  argstring <- toString(ahle_scenarios_cln2$arglist)
+  argstring <- toString(ahle_scenarios_cln$arglist)
   argstring_touse <- paste('nruns=' ,cmd_nruns ,',' ,argstring ,sep='')
   
   # Construct function call

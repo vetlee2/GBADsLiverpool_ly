@@ -333,7 +333,10 @@ check_agesex_sums.eval(
     ,inplace=True
 )
 print('Checking the sum of individual age/sex compared to the overall for each item')
+print('Maximum ratio')
 print(check_agesex_sums.groupby(['species' ,'production_system'])['check_ratio'].max())
+print('Minimum ratio')
+print(check_agesex_sums.groupby(['species' ,'production_system'])['check_ratio'].min())
 
 #%% Add group summaries
 '''

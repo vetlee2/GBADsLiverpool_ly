@@ -779,10 +779,10 @@ compartmental_model <- function(
     Meat_kg <- 0
     Wool <- 0
     
-    prop_F_milked <- 0.2
-    lac_duration <- 60
-    avg_daily_yield_ltr <- 0.1
-    milk_value_ltr <- 10
+    prop_F_milked <- 0
+    lac_duration <- 0
+    avg_daily_yield_ltr <- 0
+    milk_value_ltr <- 0
     #
     Cumulitive_DM <- 0
     

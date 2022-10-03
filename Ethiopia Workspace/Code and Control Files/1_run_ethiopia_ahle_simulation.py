@@ -616,7 +616,6 @@ ahle_combo_withagg = ahle_combo_withagg.loc[~ _git_rows]
 # -----------------------------------------------------------------------------
 # Subset and rename columns
 # -----------------------------------------------------------------------------
-# Do not need individual group scenario columns
 keepcols = [
     'species',
     'production_system',
@@ -625,24 +624,50 @@ keepcols = [
     'age_group',
     'sex',
 
+    # Primary scenarios in Birr
     'mean_current',
-    'mean_ideal',
-    'mean_all_mortality_zero',
     'stdev_current',
+    'mean_ideal',
     'stdev_ideal',
+    'mean_all_mortality_zero',
     'stdev_all_mortality_zero',
 
+    # Primary scenarios in USD
     'mean_current_usd',
-    'mean_ideal_usd',
-    'mean_all_mortality_zero_usd',
     'stdev_current_usd',
+    'mean_ideal_usd',
     'stdev_ideal_usd',
+    'mean_all_mortality_zero_usd',
     'stdev_all_mortality_zero_usd',
+
+    # Marignal reduction scenarios in Birr
+    'mean_all_mort_25_imp',
+    'mean_all_mort_50_imp',
+    'mean_all_mort_75_imp',
+    'mean_current_repro_100_imp',
+    'mean_current_repro_25_imp',
+    'mean_current_repro_50_imp',
+    'mean_current_repro_75_imp',
+
+    # Marignal reduction scenarios in USD
+    'mean_all_mort_25_imp_usd',
+    'mean_all_mort_50_imp_usd',
+    'mean_all_mort_75_imp_usd',
+    'mean_current_repro_100_imp_usd',
+    'mean_current_repro_25_imp_usd',
+    'mean_current_repro_50_imp_usd',
+    'mean_current_repro_75_imp_usd',
 ]
 
 ahle_combo_withagg_smry = ahle_combo_withagg[keepcols].copy()
 ahle_combo_withagg_smry = ahle_combo_withagg_smry.rename(
-    columns={'mean_all_mortality_zero':'mean_mortality_zero' ,'stdev_all_mortality_zero':'stdev_mortality_zero'})
+    columns={
+        'mean_all_mortality_zero':'mean_mortality_zero'
+        ,'stdev_all_mortality_zero':'stdev_mortality_zero'
+        ,'mean_all_mortality_zero_usd':'mean_mortality_zero_usd'
+        ,'stdev_all_mortality_zero_usd':'stdev_mortality_zero_usd'
+        }
+    )
 
 datainfo(ahle_combo_withagg_smry)
 

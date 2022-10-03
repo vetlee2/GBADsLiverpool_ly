@@ -16,7 +16,7 @@
 # Set manually
 # -----------------------------------------------------------------
 # Number of simulation iterations
-cmd_nruns <- 1
+cmd_nruns <- 1000
 
 # Folder location to save outputs
 cmd_output_directory <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Program outputs'
@@ -1234,70 +1234,34 @@ compartmental_model <- function(
 			
 			## >>>>>>To here 
 			
-			
 			# financial value of heard increase (can only do for months > 1 as doing -1 month calcs)
 
 			## Gemma edits here as this calculation doesnt make sense 
 			## now calculation is change in population since t0 
 			## multiplied by price per head (each month compares to t0)
 			##
-			
-			if ((NF - N_NF_t0) > 0) {
-			Value_Herd_Increase_NF[month] = (sum(sample(fvNF, (NF - N_NF_t0), replace = T)))
-			Value_herd_inc_NF = Value_Herd_Increase_NF[month]
-			}	else {
+		
 			  Value_Herd_Increase_NF[month] = (NF - N_NF_t0) * sample(fvNF, 1)
 			  Value_herd_inc_NF = Value_Herd_Increase_NF[month]
-			}
-			
-			if ((NM - N_NM_t0) > 0)	{
-			Value_Herd_Increase_NM[month] = (sum(sample(fvNM, (NM - N_NM_t0), replace = T)))
-			Value_herd_inc_NM = Value_Herd_Increase_NM[month]
-			}	else {
+
 			  Value_Herd_Increase_NM[month] = (NM - N_NM_t0) * (sample(fvNM, 1))
 			  Value_herd_inc_NM = Value_Herd_Increase_NM[month]
-			}
-			
-			if ((JF - N_JF_t0) > 0)	{
-			Value_Herd_Increase_JF[month] = (sum(sample(fvJF, (JF - N_JF_t0), replace = T)))
-			Value_herd_inc_JF = Value_Herd_Increase_JF[month]
-			}	else {
+		
 			  Value_Herd_Increase_JF[month] = (JF - N_JF_t0) * (sample(fvJF, 1))
 			  Value_herd_inc_JF = Value_Herd_Increase_JF[month]
-			}
-			 
-			if ((JM - N_JM_t0) > 0) { 
-			Value_Herd_Increase_JM[month] = (sum(sample(fvJM, (JM - N_JM_t0), replace = T)))
-			Value_herd_inc_JM = Value_Herd_Increase_JM[month]
-			} else {
+		
 			  Value_Herd_Increase_JM[month] = (JM - N_JM_t0) * (sample(fvJM, 1))
 			  Value_herd_inc_JM = Value_Herd_Increase_JM[month]
-			}
-			
-			if ((AF - N_AF_t0) > 0)	{
-			Value_Herd_Increase_AF[month] = (sum(sample(fvAF, (AF - N_AF_t0), replace = T)))
-			Value_herd_inc_AF = Value_Herd_Increase_AF[month]
-			} else {
+		
 			  Value_Herd_Increase_AF[month] = (AF - N_AF_t0) * (sample(fvAF, 1))
 			  Value_herd_inc_AF = Value_Herd_Increase_AF[month]
-			}
-			
-			if ((AM - N_AM_t0) > 0) {
-			Value_Herd_Increase_AM[month] = (sum(sample(fvAM, (AM - N_AM_t0), replace = T)))
-			Value_herd_inc_AM = Value_Herd_Increase_AM[month]
-			} else {
-			Value_Herd_Increase_AM[month] = (AM - N_AM_t0) * (sample(fvAM, 1))
-			Value_herd_inc_AM = Value_Herd_Increase_AM[month]
-			}
-
-			if ((O - N_O_t0) > 0) {
-			  Value_Herd_Increase_O[month] = (sum(sample(fvO, (O - N_O_t0), replace = T)))
-			  Value_herd_inc_O = Value_Herd_Increase_O[month]
-			} else {
+		
+		  	Value_Herd_Increase_AM[month] = (AM - N_AM_t0) * (sample(fvAM, 1))
+			  Value_herd_inc_AM = Value_Herd_Increase_AM[month]
+		
 			  Value_Herd_Increase_O[month] = (O - N_O_t0) * (sample(fvO, 1))
 			  Value_herd_inc_O = Value_Herd_Increase_O[month]
-			}
-			
+
 			# total pop value of herd increase
 			Value_Herd_Increase[month] = Value_Herd_Increase_NF[month] + Value_Herd_Increase_NM[month] + Value_Herd_Increase_JF[month] +
 			                             Value_Herd_Increase_JM[month] + Value_Herd_Increase_AF[month] + Value_Herd_Increase_AM[month] + Value_Herd_Increase_O[month]
@@ -1305,9 +1269,7 @@ compartmental_model <- function(
 			# NOT SURE WE NEED MONTHLY  Value_herd_inc
 			Value_herd_inc = Value_Herd_Increase[month]
 		
-		
-
-			## Total value increase
+					## Total value increase
 			Total_Value_increase[month] = Value_herd_inc + Value_offt
 			Total_Value_increase_NF[month] = Value_herd_inc_NF 
 			Total_Value_increase_NM[month] = Value_herd_inc_NM 
@@ -1320,25 +1282,19 @@ compartmental_model <- function(
 			## Expenditure in system
 			# Feed cost
 		  
-			Feed_cost_NF[month] = Feed_NF + (sum(sample(Expenditure_on_feed_NF, NF, replace = T)) * 30) 
+			Feed_cost_NF[month] = Feed_NF + (NF * (sample(Expenditure_on_feed_NF, 1)) * 30) 
 			Feed_NF = Feed_cost_NF[month]
-  		
-			Feed_cost_NM[month] = Feed_NM + (sum(sample(Expenditure_on_feed_NM, NM, replace = T)) * 30) 
+			Feed_cost_NM[month] = Feed_NM + (NM * (sample(Expenditure_on_feed_NM, 1)) * 30) 
 			Feed_NM = Feed_cost_NM[month]
-			
-			Feed_cost_JF[month] = Feed_JF + (sum(sample(Expenditure_on_feed_JF, JF, replace = T)) * 30)
+			Feed_cost_JF[month] = Feed_JF + (JF * (sample(Expenditure_on_feed_JF, 1)) * 30)
 			Feed_JF = Feed_cost_JF[month]
-			  
-			Feed_cost_JM[month] = Feed_JM + (sum(sample(Expenditure_on_feed_JM, JM, replace = T)) * 30)
+			Feed_cost_JM[month] = Feed_JM + (JM * (sample(Expenditure_on_feed_JM, 1)) * 30)
 			Feed_JM = Feed_cost_JM[month]
-			
-  		Feed_cost_AF[month] = Feed_AF + (sum(sample(Expenditure_on_feed_AF, AF, replace = T)) * 30)
+			Feed_cost_AF[month] = Feed_AF + (AF * (sample(Expenditure_on_feed_AF, 1)) * 30)
 			Feed_AF = Feed_cost_AF[month]
-			  
-			Feed_cost_AM[month] = Feed_AM + (sum(sample(Expenditure_on_feed_AM, AM , replace = T)) * 30) 
+			Feed_cost_AM[month] = Feed_AM + (AM * (sample(Expenditure_on_feed_AM, 1)) * 30) 
 			Feed_AM = Feed_cost_AM[month]
-			
-			Feed_cost_O[month] = Feed_O + (sum(sample(Expenditure_on_feed_O, O, replace = T)) * 30) 
+			Feed_cost_O[month] = Feed_O + (O * (sample(Expenditure_on_feed_O, 1)) * 30) 
 			Feed_O = Feed_cost_O[month]
 			
 			# total feed cost
@@ -1351,13 +1307,13 @@ compartmental_model <- function(
 			
 			# Labour costs (number of animals's * labour cost per head per month)
 
-			Labour_cost_NF[month] = Labour_NF + (sum(sample(Labour, NF, replace = T)) * lab_non_health) 
-			Labour_cost_NM[month] = Labour_NM + (sum(sample(Labour, NM, replace = T)) * lab_non_health) 
-			Labour_cost_JF[month] = Labour_JF + (sum(sample(Labour, JF, replace = T)) * lab_non_health) 
-			Labour_cost_JM[month] = Labour_JM + (sum(sample(Labour, JM, replace = T)) * lab_non_health) 
-			Labour_cost_AF[month] = Labour_AF + (sum(sample(Labour, AF, replace = T)) * lab_non_health) + (sum(sample(Labour_dairy, (AF * prop_F_milked), replace = T)))
-			Labour_cost_AM[month] = Labour_AM + (sum(sample(Labour, AM, replace = T)) * lab_non_health) 
-			Labour_cost_O[month] = Labour_O + (sum(sample(Labour, O, replace = T)) * lab_non_health) + (sum(sample(Labour_Oxen, O, replace = T)))
+			Labour_cost_NF[month] = Labour_NF + (NF * (sample(Labour, 1)) * lab_non_health) 
+			Labour_cost_NM[month] = Labour_NM + (NM * (sample(Labour, 1)) * lab_non_health)  
+			Labour_cost_JF[month] = Labour_JF + (JF * (sample(Labour, 1)) * lab_non_health)  
+			Labour_cost_JM[month] = Labour_JM + (JM * (sample(Labour, 1)) * lab_non_health)  
+			Labour_cost_AF[month] = Labour_AF + (AF * (sample(Labour, 1)) * lab_non_health)  
+			Labour_cost_AM[month] = Labour_AM + (AM * (sample(Labour, 1)) * lab_non_health)  
+			Labour_cost_O[month] = Labour_O + (O * (sample(Labour, 1)) * lab_non_health) + (O * (sample(Labour_Oxen, 1)))
 			
 			Labour_NF = Labour_cost_NF[month]
 			Labour_NM = Labour_cost_NM[month]
@@ -1367,20 +1323,18 @@ compartmental_model <- function(
 			Labour_AM = Labour_cost_AM[month]
 			Labour_O = Labour_cost_O[month]
 			
-			Labour_cost[month] = Labour_cost_NF[month] + Labour_cost_NM[month] 
-			                            + Labour_cost_JF[month] + Labour_cost_JM[month]
-			                            + Labour_cost_AF[month] + Labour_cost_AM[month] + Labour_cost_O[month]
+			Labour_cost[month] = Labour_cost_NF[month] + Labour_cost_NM[month] + Labour_cost_JF[month] + Labour_cost_JM[month] + Labour_cost_AF[month] + Labour_cost_AM[month] + Labour_cost_O[month]
 			Labour =  Labour_cost[month]
 
 			# Medicines and veterinary expenditure
 
-			Health_cost_NF[month] = Health_NF + (sum(sample(Health_exp_prev, NF, replace = T))) + (sum(sample(Health_exp_treatment, NF, replace = T))) 
-			Health_cost_NM[month] = Health_NM + (sum(sample(Health_exp_prev, NM, replace = T))) + (sum(sample(Health_exp_treatment, NM, replace = T))) 
-			Health_cost_JF[month] = Health_JF + (sum(sample(Health_exp_prev, JF, replace = T))) + (sum(sample(Health_exp_treatment, JF, replace = T))) 
-			Health_cost_JM[month] = Health_JM + (sum(sample(Health_exp_prev, JM, replace = T))) + (sum(sample(Health_exp_treatment, JM, replace = T))) 
-			Health_cost_AF[month] = Health_AF + (sum(sample(Health_exp_prev, AF, replace = T))) + (sum(sample(Health_exp_treatment, AF, replace = T))) 
-			Health_cost_AM[month] = Health_AM + (sum(sample(Health_exp_prev, AM, replace = T))) + (sum(sample(Health_exp_treatment, AM, replace = T))) 
-			Health_cost_O[month] = Health_O + (sum(sample(Health_exp_prev, O, replace = T))) + (sum(sample(Health_exp_treatment, O, replace = T))) 
+			Health_cost_NF[month] = Health_NF + (NF * (sample(Health_exp_prev, 1))) + (NF * (sample(Health_exp_treatment, 1))) 
+			Health_cost_NM[month] = Health_NM + (NM * (sample(Health_exp_prev, 1))) + (NM * (sample(Health_exp_treatment, 1))) 
+			Health_cost_JF[month] = Health_JF + (JF * (sample(Health_exp_prev, 1))) + (JF * (sample(Health_exp_treatment, 1))) 
+			Health_cost_JM[month] = Health_JM + (JM * (sample(Health_exp_prev, 1))) + (JM * (sample(Health_exp_treatment, 1)))
+			Health_cost_AF[month] = Health_AF + (AF * (sample(Health_exp_prev, 1))) + (AF * (sample(Health_exp_treatment, 1)))
+			Health_cost_AM[month] = Health_AM + (AM * (sample(Health_exp_prev, 1))) + (AM * (sample(Health_exp_treatment, 1))) 
+			Health_cost_O[month] = Health_O + (O * (sample(Health_exp_prev, 1))) + (O * (sample(Health_exp_treatment, 1))) 
 			
 			Health_NF = Health_cost_NF[month]
 			Health_NM = Health_cost_NM[month]
@@ -1390,38 +1344,36 @@ compartmental_model <- function(
 			Health_AM = Health_cost_AM[month]
 			Health_O = Health_cost_O[month]
 			
-			Health_cost[month] = Health_cost_NF[month] + Health_cost_NM[month] 
-			                            + Health_cost_JF[month] + Health_cost_JM[month]
-			                            + Health_cost_AF[month] + Health_cost_AM[month] + Health_cost_O[month]
+			Health_cost[month] = Health_cost_NF[month] + Health_cost_NM[month] + Health_cost_JF[month] + Health_cost_JM[month] +
+			                             Health_cost_AF[month] + Health_cost_AM[month] + Health_cost_O[month]
 			Health = Health_cost[month]
 
 			# Capital costs
 
-			Capital_cost_NF[month] = (sum(sample(fvNF, numNF[1], replace = T)) * Interest_rate) 
+			Capital_cost_NF[month] = numNF[1] * (sample(fvNF, 1)) * Interest_rate 
 			Capital_NF = Capital_cost_NF[month]
-
-			Capital_cost_NM[month] = (sum(sample(fvNM, numNM[1], replace = T)) * Interest_rate) 
+			
+			Capital_cost_NM[month] = numNM[1] * (sample(fvNM, 1)) * Interest_rate  
 			Capital_NM = Capital_cost_NM[month]
-
-			Capital_cost_JF[month] = (sum(sample(fvJF, numJF[1], replace = T)) * Interest_rate) 
+			
+			Capital_cost_JF[month] = numJF[1] * (sample(fvJF, 1)) * Interest_rate  
 			Capital_JF = Capital_cost_JF[month]
-
-			Capital_cost_JM[month] = (sum(sample(fvJM, numJM[1], replace = T)) * Interest_rate) 
+			
+			Capital_cost_JM[month] = numJM[1] * (sample(fvJM, 1)) * Interest_rate  
 			Capital_JM = Capital_cost_JM[month]
-
-			Capital_cost_AF[month] = (sum(sample(fvAF, numAF[1], replace = T)) * Interest_rate) 
+			
+			Capital_cost_AF[month] = numAF[1] * (sample(fvAF, 1)) * Interest_rate  
 			Capital_AF = Capital_cost_AF[month]
-
-			Capital_cost_AM[month] = (sum(sample(fvAM, numAM[1], replace = T)) * Interest_rate) 
+			
+			Capital_cost_AM[month] = numAM[1] * (sample(fvAM, 1)) * Interest_rate  
 			Capital_AM = Capital_cost_AM[month]
 			
-			Capital_cost_O[month] = (sum(sample(fvO, numO[1], replace = T)) * Interest_rate) 
+			Capital_cost_O[month] = numO[1] * (sample(fvO, 1)) * Interest_rate
 			Capital_O = Capital_cost_O[month]
 			
 			# total pop capital cost
-			Capital_cost[month] = Capital_cost_NF[month] + Capital_cost_NM[month]
-			                    + Capital_cost_JF[month] + Capital_cost_JM[month] 
-			                    + Capital_cost_AF[month] + Capital_cost_AM[month] + Capital_cost_O[month]
+			Capital_cost[month] = Capital_cost_NF[month] + Capital_cost_NM[month] + Capital_cost_JF[month] + Capital_cost_JM[month] +
+			                      Capital_cost_AF[month] + Capital_cost_AM[month] + Capital_cost_O[month]
 			  
 			Capital = Capital_cost[month]
 			
@@ -1920,4 +1872,3 @@ for (COLNAME in colnames(ahle_scenarios_cln)){
 	write.csv(result[[2]], file.path(cmd_output_directory, filename), row.names=FALSE)
 }
 
-cmd_nruns <- 1

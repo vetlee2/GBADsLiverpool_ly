@@ -112,6 +112,7 @@ def combine_ahle_scenarios(
       ,label_prodsys       # String: add column 'production_system' with this label
       ,input_file_suffixes=[        # List of strings
          'Current'
+
          ,'Ideal'
          ,'ideal_AF'
          ,'ideal_AM'
@@ -119,14 +120,64 @@ def combine_ahle_scenarios(
          ,'ideal_JM'
          ,'ideal_NF'
          ,'ideal_NM'
+
          ,'all_mortality_zero'
          ,'mortality_zero_AF'
          ,'mortality_zero_AM'
          ,'mortality_zero_J'
          ,'mortality_zero_N'
-         # ,'all_mortality_minus25pct'
-         # ,'all_mortality_minus50pct'
-         # ,'all_mortality_minus75pct'
+
+         ,'all_mort_25_imp'
+         ,'mort_25_imp_AF'
+         ,'mort_25_imp_AM'
+         ,'mort_25_imp_J'
+         ,'mort_25_imp_N'
+
+         ,'all_mort_50_imp'
+         ,'mort_50_imp_AF'
+         ,'mort_50_imp_AM'
+         ,'mort_50_imp_J'
+         ,'mort_50_imp_N'
+
+         ,'all_mort_75_imp'
+         ,'mort_75_imp_AF'
+         ,'mort_75_imp_AM'
+         ,'mort_75_imp_J'
+         ,'mort_75_imp_N'
+
+         ,'Current_growth_100_imp_AF'
+         ,'Current_growth_100_imp_AM'
+         ,'Current_growth_100_imp_JF'
+         ,'Current_growth_100_imp_JM'
+         ,'Current_growth_100_imp_NF'
+         ,'Current_growth_100_imp_NM'
+
+         ,'Current_growth_25_imp_AF'
+         ,'Current_growth_25_imp_AM'
+         ,'Current_growth_25_imp_JF'
+         ,'Current_growth_25_imp_JM'
+         ,'Current_growth_25_imp_NF'
+         ,'Current_growth_25_imp_NM'
+
+         ,'Current_growth_50_imp_AF'
+         ,'Current_growth_50_imp_AM'
+         ,'Current_growth_50_imp_JF'
+         ,'Current_growth_50_imp_JM'
+         ,'Current_growth_50_imp_NF'
+         ,'Current_growth_50_imp_NM'
+
+         ,'Current_growth_75_imp_AF'
+         ,'Current_growth_75_imp_AM'
+         ,'Current_growth_75_imp_JF'
+         ,'Current_growth_75_imp_JM'
+         ,'Current_growth_75_imp_NF'
+         ,'Current_growth_75_imp_NM'
+
+         ,'Current_repro_100_imp'
+         ,'Current_repro_25_imp'
+         ,'Current_repro_50_imp'
+         ,'Current_repro_75_imp'
+
          ]
       ):
    dfcombined = pd.DataFrame()   # Initialize merged data
@@ -295,10 +346,10 @@ check_grossmargin_overall.eval(
     '''
     ,inplace=True
 )
-print('Checking the change in Gross Margin for ideal overall vs. individual ideal scenarios')
+print('\n> Checking the change in Gross Margin for ideal overall vs. individual ideal scenarios')
 print(check_grossmargin_overall[['species' ,'production_system' ,'gmchange_ideal_check']])
 
-print('Checking mortality as proportion of total AHLE')
+print('\n> Checking mortality as proportion of total AHLE')
 print(check_grossmargin_overall[['species' ,'production_system' ,'gmchange_dueto_mortality_prpn']])
 
 # =============================================================================
@@ -332,7 +383,7 @@ check_agesex_sums.eval(
     '''
     ,inplace=True
 )
-print('Checking the sum of individual age/sex compared to the overall for each item')
+print('\n> Checking the sum of individual age/sex compared to the overall for each item')
 print('Maximum ratio')
 print(check_agesex_sums.groupby(['species' ,'production_system'])['check_ratio'].max())
 print('Minimum ratio')
@@ -599,11 +650,7 @@ ahle_combo_withagg_smry.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_su
 ahle_combo_withagg_smry.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.pkl.gz'))
 
 #%% Calculate AHLE for each scenario
-'''
-Since overall gross margin is calculated in the base simulation code, and due to
-uncertainties I have about my aggregation code, this uses the basic ahle_combo
-data instead of ahle_combo_withagg.
-'''
+
 # =============================================================================
 #### Restructure
 # =============================================================================
@@ -741,5 +788,5 @@ ahle_combo_withahle_smry_checks.eval(
     '''
     ,inplace=True
 )
-print('Checking the sum AHLE for individual ideal scenarios against the overall')
+print('\n> Checking the sum AHLE for individual ideal scenarios against the overall')
 print(ahle_combo_withahle_smry_checks[['species' ,'production_system' ,'sum_ahle_individual_vs_overall']])

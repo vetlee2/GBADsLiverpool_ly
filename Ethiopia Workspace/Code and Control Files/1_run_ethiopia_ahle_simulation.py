@@ -397,7 +397,7 @@ Creating aggregate groups for filtering in the dashboard
 #### Drop aggregate groups
 # =============================================================================
 # Some items only exist for Overall group in original file. Get all existing Overall records.
-ahle_combo_overall = ahle_combo.loc[ahle_combo['group'].str.upper() == 'OVERALL']
+ahle_combo_overall = ahle_combo.loc[ahle_combo['group'].str.upper() == 'OVERALL'].copy()
 
 # Rename sex to agree with newer convention
 ahle_combo_overall['sex'] = 'Overall'
@@ -405,24 +405,43 @@ ahle_combo_overall['sex'] = 'Overall'
 # Create version without any aggregate groups
 _agg_rows = (ahle_combo['age_group'].str.upper() == 'OVERALL') \
     | (ahle_combo['sex'].str.upper() == 'COMBINED')
-ahle_combo_indiv = ahle_combo.loc[~ _agg_rows]
+ahle_combo_indiv = ahle_combo.loc[~ _agg_rows].copy()
 
 # Get distinct values for ages and sexes without aggregates
 age_group_values = list(ahle_combo_indiv['age_group'].unique())
 sex_values = list(ahle_combo_indiv['sex'].unique())
 
 # =============================================================================
+#### Add placeholder items
+# =============================================================================
+mean_cols = [i for i in list(ahle_combo) if 'mean' in i]
+sd_cols = [i for i in list(ahle_combo) if 'stdev' in i]
+
+# Get all combinations of key variables without item
+item_placeholder = ahle_combo_indiv[['species' ,'production_system' ,'group' ,'age_group' ,'sex']].drop_duplicates()
+item_placeholder['item'] = 'Cost of Infrastructure'
+
+# Stack placeholder item(s) with individual data
+ahle_combo_withplaceholders = pd.concat(
+    [ahle_combo_indiv ,item_placeholder]
+    ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
+    ,join='outer'        # 'outer': keep all index values from all data frames
+    ,ignore_index=True   # True: do not keep index values on concatenation axis
+)
+
+# Placeholder items get mean and SD zero
+for COL in [mean_cols + sd_cols]:
+    ahle_combo_withplaceholders[COL] = ahle_combo_withplaceholders[COL].replace(np.nan ,0)
+
+# =============================================================================
 #### Build aggregate groups
 # =============================================================================
 # Only using MEAN and VARIANCE of each item, as the other statistics cannot
 # be summed.
-mean_cols = [i for i in list(ahle_combo) if 'mean' in i]
-sd_cols = [i for i in list(ahle_combo) if 'stdev' in i]
-
 keepcols = ['species' ,'production_system' ,'item' ,'group' ,'age_group' ,'sex'] \
     + mean_cols + sd_cols
 
-ahle_combo_withagg = ahle_combo_indiv[keepcols].copy()
+ahle_combo_withagg = ahle_combo_withplaceholders[keepcols].copy()
 datainfo(ahle_combo_withagg)
 
 # -----------------------------------------------------------------------------

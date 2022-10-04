@@ -211,7 +211,7 @@ compartmental_model <- function(
 	## Labour cost
 	## birr/head/month
 	## example code to change labour cost to selecting from distribution
-	,Labour
+	,Labour_cattle
 	,lab_non_health	## 0.86 in ideal this was not used in the current and this may not apply for ideal
 	,Labour_Oxen
 	,Labour_dairy
@@ -228,6 +228,7 @@ compartmental_model <- function(
 	## Capital costs
 	## for this we are using bank of Ethiopia inflation rate
 	,Interest_rate
+	,Infrastructure_per_head
 )
 {
 	Mu <- (sample(part, size = 10000, replace = TRUE) * sample(prolif, size = 10000, replace = TRUE)) / 12 # birth rate (parturition rate * prolificacy rate / 12)
@@ -235,7 +236,7 @@ compartmental_model <- function(
 	## Off take which go for fertility in females
 #	hides_rate_of = 1 - fert_offtake
 # dont need to adjust for this anymore
-	DM_req_prpn_AF <- 0.026
+#	DM_req_prpn_AF <- 0.026
 	## dry matter requirements (measured in kg and calculated as a % of Liveweight)
 	kg_DM_req_NF = DM_req_prpn_NF * lwNF  	# Dry matter required by neonates
 	kg_DM_req_NM = DM_req_prpn_NM * lwNM  	# Dry matter required by neonates
@@ -246,7 +247,6 @@ compartmental_model <- function(
 	kg_DM_req_O = DM_req_prpn_O * lwO  	# Dry matter required by adults
 	
 	## NOTE in the pastoral system this purchased feed will be 0
-	
 	DM_purch_NF <- (kg_DM_req_NF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
 	DM_purch_NM <- (kg_DM_req_NM * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
 	DM_purch_JF <- (kg_DM_req_JF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
@@ -257,6 +257,7 @@ compartmental_model <- function(
 	
 #prpn_lskeepers_purch_feed <- 0.25
 #prpn_feed_paid_for <- rpert(10000, 0, 1, 0.5)
+	#DM_in_feed <- rpert(10000, 0.8, 0.95, 0.9)
 	  
 	KG_Feed_purchased_NF <- DM_purch_NF / DM_in_feed
 	KG_Feed_purchased_NM <- DM_purch_NM / DM_in_feed
@@ -267,6 +268,7 @@ compartmental_model <- function(
 	KG_Feed_purchased_O <- DM_purch_O / DM_in_feed
 	
 	## Expenditure on feed per animal
+#	Feed_cost_kg <- rpert(10000, 2.5, 6.5, 3.46)
 	Expenditure_on_feed_NF <- KG_Feed_purchased_NF * Feed_cost_kg
 	Expenditure_on_feed_NM <- KG_Feed_purchased_NM * Feed_cost_kg
 	Expenditure_on_feed_JF <- KG_Feed_purchased_JF * Feed_cost_kg
@@ -503,6 +505,17 @@ compartmental_model <- function(
 	Capital_cost_AF <- rep(0, Num_months)
 	Capital_cost_AM <- rep(0, Num_months)
 	Capital_cost_O <- rep(0, Num_months)
+	
+	# Infrastructure
+	Infrastructure_cost <- rep(0, Num_months)
+	
+	Infrastructure_cost_NF <- rep(0, Num_months)
+	Infrastructure_cost_NM <- rep(0, Num_months)
+	Infrastructure_cost_JF <- rep(0, Num_months)
+	Infrastructure_cost_JM <- rep(0, Num_months)
+	Infrastructure_cost_AF <- rep(0, Num_months)
+	Infrastructure_cost_AM <- rep(0, Num_months)
+	Infrastructure_cost_O <- rep(0, Num_months)
 	
 	# total expenditure
 	Total_expenditure <- rep(0, Num_months)
@@ -746,6 +759,17 @@ compartmental_model <- function(
 	Capital_cost_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
 	Capital_cost_O_M <- matrix(, nrow = nruns, ncol = Num_months)
 	
+	# Infrastucture 
+	Infrastructure_cost_M <- matrix(, nrow = nruns, ncol = Num_months)
+	Infrastructure_cost_NF_M <- matrix(, nrow = nruns, ncol = Num_months)
+	Infrastructure_cost_NM_M <- matrix(, nrow = nruns, ncol = Num_months)
+	Infrastructure_cost_JF_M <- matrix(, nrow = nruns, ncol = Num_months)
+	Infrastructure_cost_JM_M <- matrix(, nrow = nruns, ncol = Num_months)
+	Infrastructure_cost_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
+	Infrastructure_cost_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
+	Infrastructure_cost_O_M <- matrix(, nrow = nruns, ncol = Num_months)
+	
+	
 	# total expenditure
 	Total_expenditure_M <- matrix(, nrow = nruns, ncol = Num_months)
 
@@ -783,6 +807,7 @@ compartmental_model <- function(
 		AF <- N_AF_t0
 		AM <- N_AM_t0
 		O <- N_O_t0
+		
 		
 		## age sex group prop of pop at t0 - this ratio should probably stay the same
 		pNF_t0 <- NF/N
@@ -866,10 +891,10 @@ compartmental_model <- function(
 		draught_income <- 0
 
 		
-		prop_F_milked <- 0.2
-		lac_duration <- 60
-		avg_daily_yield_ltr <- 0.1
-		milk_value_ltr <- 10
+		prop_F_milked <- 0
+		lac_duration <- 0
+		avg_daily_yield_ltr <- 0
+		milk_value_ltr <- 0
 		#
 		Cumulitive_DM <- 0
 
@@ -954,13 +979,14 @@ compartmental_model <- function(
 		Capital_AM <- 0
 		Capital_O <- 0
 		
+		##
+
 		############################################################
 		#############     Simulation model            ##############
 		
 		## Gemma editing code here to make individual based sampling rather than a population mean
   	
 		####
-		
 		## 
 		for(month in c(1:Num_months))
 		{
@@ -983,7 +1009,7 @@ compartmental_model <- function(
 			
 			oxen_J[month] <- ((sample(castration_rate, 1)) * (round(sum(0.33*JM))))
 			oxen_A[month] <- ((sample(castration_rate, 1)) * (round(sum(0.1*AM))))
-			
+
 			growth_NF[month] <- (sample(Beta_N, 1) * NF)
 			growth_JF[month] <- (sample(Beta_J, 1) * JF)
 			growth_NM[month] <- (sample(Beta_N, 1) * NM)
@@ -1073,9 +1099,9 @@ compartmental_model <- function(
 			Quant_Liveweight_kg_AM[month] = (AM * sample(lwAM, 1))
 			Quant_Liveweight_kg_O[month] = (O * sample(lwO, 1))
 			
-			Quant_Liveweight_kg[month] = Quant_Liveweight_kg_NF[month] + Quant_Liveweight_kg_NM[month] +
-			  Quant_Liveweight_kg_JF[month] + Quant_Liveweight_kg_JM[month] + 
-			  Quant_Liveweight_kg_AF[month] + Quant_Liveweight_kg_AM[month] + Quant_Liveweight_kg_AM[month]
+			
+			
+			Quant_Liveweight_kg[month] = Quant_Liveweight_kg_NF[month] + Quant_Liveweight_kg_NM[month] + Quant_Liveweight_kg_JF[month] + Quant_Liveweight_kg_JM[month] + Quant_Liveweight_kg_AF[month] + Quant_Liveweight_kg_AM[month] + Quant_Liveweight_kg_AM[month]
 			
 			# Offtake (all offtake added + culled adult males)
 
@@ -1103,8 +1129,7 @@ compartmental_model <- function(
 			Offtake_Liveweight_kg_AM[month] = (sample(lwAM, 1) * Offtake_AM)
 			Offtake_Liveweight_kg_O[month] = (sample(lwO, 1) * Offtake_O)
 			
-			Offtake_Liveweight_kg[month] <- Offtake_Liveweight_kg_JF[month] + Offtake_Liveweight_kg_JM[month] +
-			                                Offtake_Liveweight_kg_AF[month] + Offtake_Liveweight_kg_AM[month] + Offtake_Liveweight_kg_O[month]
+			Offtake_Liveweight_kg[month] <- Offtake_Liveweight_kg_JF[month] + Offtake_Liveweight_kg_JM[month] + Offtake_Liveweight_kg_AF[month] + Offtake_Liveweight_kg_AM[month] + Offtake_Liveweight_kg_O[month]
 			
 			# Changed here, made meat from offtake only
 			# whole population as meat
@@ -1142,8 +1167,6 @@ compartmental_model <- function(
 			                                
 			Hides = Quant_Hides[month]
 			
-			## too here...
-			
 			## Milk
 			# number of females giving birth in month x, multiplied by number that would be milked
 			## multiplied by lactation duration and daily yield)
@@ -1156,10 +1179,10 @@ compartmental_model <- function(
 			## manure from different age cats
 			Quant_Manure_NF[month] = Manure_kg_NF + (NF * (sample(Man_N, 1) * 30))  
 			Quant_Manure_NM[month] = Manure_kg_NM + (NM * (sample(Man_N, 1) * 30))  
-			Quant_Manure_JF[month] = Manure_kg_JF + (JF * (sample(Man_N, 1) * 30))  
-			Quant_Manure_JM[month] = Manure_kg_JM + (JM * (sample(Man_N, 1) * 30))  
-			Quant_Manure_AF[month] = Manure_kg_AF + (AF * (sample(Man_N, 1) * 30))  
-			Quant_Manure_AM[month] = Manure_kg_AM + (AM * (sample(Man_N, 1) * 30))  
+			Quant_Manure_JF[month] = Manure_kg_JF + (JF * (sample(Man_J, 1) * 30))  
+			Quant_Manure_JM[month] = Manure_kg_JM + (JM * (sample(Man_J, 1) * 30))  
+			Quant_Manure_AF[month] = Manure_kg_AF + (AF * (sample(Man_A, 1) * 30))  
+			Quant_Manure_AM[month] = Manure_kg_AM + (AM * (sample(Man_A, 1) * 30))  
 			Quant_Manure_O[month] = Manure_kg_O + (O * (sample(Man_A, 1) * 30))  
 			
 			Manure_kg_NF = Quant_Manure_NF[month]
@@ -1196,9 +1219,7 @@ compartmental_model <- function(
 			Cumulitive_DM_O = Cumilative_Dry_Matter_O[month]
 			
 			## Total population
-			Cumilative_Dry_Matter[month] = Cumilative_Dry_Matter_NF[month] + Cumilative_Dry_Matter_NM[month] +
-			  Cumilative_Dry_Matter_JF[month] + Cumilative_Dry_Matter_JM[month] +
-			  Cumilative_Dry_Matter_AF[month] + Cumilative_Dry_Matter_AM[month] + Cumilative_Dry_Matter_O[month]
+			Cumilative_Dry_Matter[month] = Cumilative_Dry_Matter_NF[month] + Cumilative_Dry_Matter_NM[month] + Cumilative_Dry_Matter_JF[month] + Cumilative_Dry_Matter_JM[month] + Cumilative_Dry_Matter_AF[month] + Cumilative_Dry_Matter_AM[month] + Cumilative_Dry_Matter_O[month]
 			
 			Cumulitive_DM = Cumilative_Dry_Matter[month]
 			
@@ -1232,8 +1253,6 @@ compartmental_model <- function(
 			Value_Offtake[month] = Value_Offtake_JF[month]  +  Value_Offtake_JM[month] + Value_Offtake_AF[month] + Value_Offtake_AM[month] + Value_Offtake_O[month]
 			Value_offt = Value_Offtake[month] 
 			
-			## >>>>>>To here 
-			
 			# financial value of heard increase (can only do for months > 1 as doing -1 month calcs)
 
 			## Gemma edits here as this calculation doesnt make sense 
@@ -1263,8 +1282,7 @@ compartmental_model <- function(
 			  Value_herd_inc_O = Value_Herd_Increase_O[month]
 
 			# total pop value of herd increase
-			Value_Herd_Increase[month] = Value_Herd_Increase_NF[month] + Value_Herd_Increase_NM[month] + Value_Herd_Increase_JF[month] +
-			                             Value_Herd_Increase_JM[month] + Value_Herd_Increase_AF[month] + Value_Herd_Increase_AM[month] + Value_Herd_Increase_O[month]
+			Value_Herd_Increase[month] = Value_Herd_Increase_NF[month] + Value_Herd_Increase_NM[month] + Value_Herd_Increase_JF[month] + Value_Herd_Increase_JM[month] + Value_Herd_Increase_AF[month] + Value_Herd_Increase_AM[month] + Value_Herd_Increase_O[month]
 			
 			# NOT SURE WE NEED MONTHLY  Value_herd_inc
 			Value_herd_inc = Value_Herd_Increase[month]
@@ -1298,22 +1316,20 @@ compartmental_model <- function(
 			Feed_O = Feed_cost_O[month]
 			
 			# total feed cost
-			Feed_cost[month] = Feed_cost_NF[month] + Feed_cost_NM[month] + 
-			                         Feed_cost_JF[month] + Feed_cost_JM[month] +
-			                         Feed_cost_AF[month] + Feed_cost_AM[month] + Feed_cost_O[month]
+			Feed_cost[month] = Feed_cost_NF[month] + Feed_cost_NM[month] + Feed_cost_JF[month] + Feed_cost_JM[month] + Feed_cost_AF[month] + Feed_cost_AM[month] + Feed_cost_O[month]
 			                               
 			Feed = Feed_cost[month]
 			
 			
 			# Labour costs (number of animals's * labour cost per head per month)
-
-			Labour_cost_NF[month] = Labour_NF + (NF * (sample(Labour, 1)) * lab_non_health) 
-			Labour_cost_NM[month] = Labour_NM + (NM * (sample(Labour, 1)) * lab_non_health)  
-			Labour_cost_JF[month] = Labour_JF + (JF * (sample(Labour, 1)) * lab_non_health)  
-			Labour_cost_JM[month] = Labour_JM + (JM * (sample(Labour, 1)) * lab_non_health)  
-			Labour_cost_AF[month] = Labour_AF + (AF * (sample(Labour, 1)) * lab_non_health)  
-			Labour_cost_AM[month] = Labour_AM + (AM * (sample(Labour, 1)) * lab_non_health)  
-			Labour_cost_O[month] = Labour_O + (O * (sample(Labour, 1)) * lab_non_health) + (O * (sample(Labour_Oxen, 1)))
+		#	Labour_cattle <- rpert(10000, (260/12), (649/12), (368/12))
+			Labour_cost_NF[month] = Labour_NF + (NF * (sample(Labour_cattle, 1)) * lab_non_health) 
+			Labour_cost_NM[month] = Labour_NM + (NM * (sample(Labour_cattle, 1)) * lab_non_health)  
+			Labour_cost_JF[month] = Labour_JF + (JF * (sample(Labour_cattle, 1)) * lab_non_health)  
+			Labour_cost_JM[month] = Labour_JM + (JM * (sample(Labour_cattle, 1)) * lab_non_health)  
+			Labour_cost_AF[month] = Labour_AF + (AF * (sample(Labour_cattle, 1)) * lab_non_health)  
+			Labour_cost_AM[month] = Labour_AM + (AM * (sample(Labour_cattle, 1)) * lab_non_health)  
+			Labour_cost_O[month] = Labour_O + (O * (sample(Labour_cattle, 1)) * lab_non_health) + (O * (sample(Labour_Oxen, 1)))
 			
 			Labour_NF = Labour_cost_NF[month]
 			Labour_NM = Labour_cost_NM[month]
@@ -1377,16 +1393,29 @@ compartmental_model <- function(
 			  
 			Capital = Capital_cost[month]
 			
+			## Infrastructure cost
+			## simple calculation - number of animals at t0 * baseline annual infrastructure cost per head
+			Infrastructure_cost_NF[month] <- N_NF_t0 * (sample(Infrastructure_per_head, 1))
+			Infrastructure_cost_NM[month] <- N_NM_t0 * (sample(Infrastructure_per_head, 1))
+			Infrastructure_cost_JF[month] <- N_JF_t0 * (sample(Infrastructure_per_head, 1))
+			Infrastructure_cost_JM[month] <- N_JM_t0 * (sample(Infrastructure_per_head, 1))
+			Infrastructure_cost_AF[month] <- N_AF_t0 * (sample(Infrastructure_per_head, 1))
+			Infrastructure_cost_AM[month] <- N_AM_t0 * (sample(Infrastructure_per_head, 1))
+			Infrastructure_cost_O[month] <- N_O_t0 * (sample(Infrastructure_per_head, 1))
+			
+			Infrastructure_cost[month] <- Infrastructure_cost_NF[month] + Infrastructure_cost_NM[month] + Infrastructure_cost_JF[month] + Infrastructure_cost_JM[month] + Infrastructure_cost_AF[month] + Infrastructure_cost_AM[month] + Infrastructure_cost_O[month]
+			
 			##
-			Total_expenditure[month] =  Feed + Health + Labour + Capital
+			Total_expenditure[month] =  Feed + Health + Labour + Capital + Infrastructure_cost[month]
 
-			Total_expenditure_NF[month] =  Feed_NF + Health_NF + Labour_NF + Capital_NF
-			Total_expenditure_NM[month] =  Feed_NM + Health_NM + Labour_NM + Capital_NM
-			Total_expenditure_JF[month] =  Feed_JF + Health_JF + Labour_JF + Capital_JF
-			Total_expenditure_JM[month] =  Feed_JM + Health_JM + Labour_JM + Capital_JM
-			Total_expenditure_AF[month] =  Feed_AF + Health_AF + Labour_AF + Capital_AF
-			Total_expenditure_AM[month] =  Feed_AM + Health_AM + Labour_AM + Capital_AM
-			Total_expenditure_O[month] =  Feed_O + Health_O + Labour_O + Capital_O
+			Total_expenditure_NF[month] =  Feed_NF + Health_NF + Labour_NF + Capital_NF + Infrastructure_cost_NF[month]
+			Total_expenditure_NM[month] =  Feed_NM + Health_NM + Labour_NM + Capital_NM + Infrastructure_cost_NM[month]
+			Total_expenditure_JF[month] =  Feed_JF + Health_JF + Labour_JF + Capital_JF + Infrastructure_cost_JF[month]
+			Total_expenditure_JM[month] =  Feed_JM + Health_JM + Labour_JM + Capital_JM + Infrastructure_cost_JM[month]
+			Total_expenditure_AF[month] =  Feed_AF + Health_AF + Labour_AF + Capital_AF + Infrastructure_cost_AF[month]
+			Total_expenditure_AM[month] =  Feed_AM + Health_AM + Labour_AM + Capital_AM + Infrastructure_cost_AM[month]
+			
+			Total_expenditure_O[month] =  Feed_O + Health_O + Labour_O + Capital_O + Infrastructure_cost_O[month]
 		}
 	
 		### Fill all of the matrices
@@ -1587,6 +1616,16 @@ compartmental_model <- function(
 		Capital_cost_AM_M[i, ] <- Capital_cost_AM
 		Capital_cost_O_M[i, ] <- Capital_cost_O
 		
+		# Infrastructure
+		Infrastructure_cost_M[i, ] <- Infrastructure_cost
+		Infrastructure_cost_NF_M[i, ] <- Infrastructure_cost_NF
+		Infrastructure_cost_NM_M[i, ] <- Infrastructure_cost_NM
+		Infrastructure_cost_JF_M[i, ] <- Infrastructure_cost_JF
+		Infrastructure_cost_JM_M[i, ] <- Infrastructure_cost_JM
+		Infrastructure_cost_AF_M[i, ] <- Infrastructure_cost_AF
+		Infrastructure_cost_AM_M[i, ] <- Infrastructure_cost_AM
+		Infrastructure_cost_O_M[i, ] <- Infrastructure_cost_O
+		
 		# total expenditure
 		Total_expenditure_M[i, ] <- Total_expenditure
 
@@ -1723,6 +1762,8 @@ compartmental_model <- function(
 	Health_cost_J_M <- Health_cost_JF_M + Health_cost_JM_M
 	Capital_cost_N_M <- Capital_cost_NF_M + Capital_cost_NM_M
 	Capital_cost_J_M <- Capital_cost_JF_M + Capital_cost_JM_M
+	Infrastructure_cost_N_M <- Infrastructure_cost_NF_M + Infrastructure_cost_NM_M
+	Infrastructure_cost_J_M <- Infrastructure_cost_JF_M + Infrastructure_cost_JM_M
 	Total_expenditure_N_M <- Total_expenditure_NF_M + Total_expenditure_NM_M
 	Total_expenditure_J_M <- Total_expenditure_JF_M + Total_expenditure_JM_M
 
@@ -1763,6 +1804,7 @@ compartmental_model <- function(
 			,'Labour Cost' = 'Labour_cost'
 			,'Health Cost' = 'Health_cost'
 			,'Capital Cost' = 'Capital_cost'
+			,'Infrastructure Cost' = 'Infrastructure_cost'
 			,'Total Expenditure' = 'Total_expenditure'
 			
 			,'Gross Margin' = 'Gross_margin'

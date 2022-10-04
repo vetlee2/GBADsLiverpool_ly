@@ -206,6 +206,7 @@ compartmental_model <- function(
     ## Capital costs
     ## for this we are using bank of Ethiopia inflation rate
     ,Interest_rate
+    ,Infrastructure_per_head
 )
 {
   Mu <- (sample(part, size = 10000, replace = TRUE) * sample(prolif, size = 10000, replace = TRUE)) / 12 # birth rate (parturition rate * prolificacy rate / 12)
@@ -453,6 +454,18 @@ compartmental_model <- function(
   Capital_cost_AF <- rep(0, Num_months)
   Capital_cost_AM <- rep(0, Num_months)
   
+  # Infrastructure
+  Infrastructure_cost <- rep(0, Num_months)
+  
+  Infrastructure_cost_NF <- rep(0, Num_months)
+  Infrastructure_cost_NM <- rep(0, Num_months)
+  Infrastructure_cost_JF <- rep(0, Num_months)
+  Infrastructure_cost_JM <- rep(0, Num_months)
+  Infrastructure_cost_AF <- rep(0, Num_months)
+  Infrastructure_cost_AM <- rep(0, Num_months)
+  
+  
+  
   # total expenditure
   Total_expenditure <- rep(0, Num_months)
   
@@ -672,7 +685,16 @@ compartmental_model <- function(
   Capital_cost_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Capital_cost_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
   
-  # total expenditure
+  # Infrastructure
+  Infrastructure_cost_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Infrastructure_cost_NF_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Infrastructure_cost_NM_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Infrastructure_cost_JF_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Infrastructure_cost_JM_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Infrastructure_cost_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Infrastructure_cost_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
+  
+    # total expenditure
   Total_expenditure_M <- matrix(, nrow = nruns, ncol = Num_months)
   
   ## Example of making storage output a matrix
@@ -1028,8 +1050,6 @@ compartmental_model <- function(
       
       Hides = Quant_Hides[month]
       
-      ## too here...
-      
       ## Milk
       # number of females giving birth in month x, multiplied by number that would be milked
       ## multiplied by lactation duration and daily yield)
@@ -1038,15 +1058,14 @@ compartmental_model <- function(
       Milk = Quant_Milk[month]
       
       ## Manure 
-      
       ## manure from different age cats
       
       Quant_Manure_NF[month] = Manure_kg_NF + (NF * (sample(Man_N, 1) * 30))  
       Quant_Manure_NM[month] = Manure_kg_NM + (NM * (sample(Man_N, 1) * 30))  
-      Quant_Manure_JF[month] = Manure_kg_JF + (JF * (sample(Man_N, 1) * 30))  
-      Quant_Manure_JM[month] = Manure_kg_JM + (JM * (sample(Man_N, 1) * 30))  
-      Quant_Manure_AF[month] = Manure_kg_AF + (AF * (sample(Man_N, 1) * 30))  
-      Quant_Manure_AM[month] = Manure_kg_AM + (AM * (sample(Man_N, 1) * 30))  
+      Quant_Manure_JF[month] = Manure_kg_JF + (JF * (sample(Man_J, 1) * 30))  
+      Quant_Manure_JM[month] = Manure_kg_JM + (JM * (sample(Man_J, 1) * 30))  
+      Quant_Manure_AF[month] = Manure_kg_AF + (AF * (sample(Man_A, 1) * 30))  
+      Quant_Manure_AM[month] = Manure_kg_AM + (AM * (sample(Man_A, 1) * 30))  
       
       Manure_kg_NF = Quant_Manure_NF[month]
       Manure_kg_NM = Quant_Manure_NM[month]
@@ -1060,9 +1079,6 @@ compartmental_model <- function(
       Manure_kg = Quant_Manure[month]
       
       # Cumilative dry matter used by the system
-      
-      ## to here...  but need to check kg_DM_req_NF creation
-      
       ## NOTE does this need to be multiplied by 30 to get a monthly dry matter requirement?
       
       Cumilative_Dry_Matter_NF[month] = Cumulitive_DM_NF + (NF * (sample(kg_DM_req_NF, 1) * 30)) 
@@ -1085,7 +1101,6 @@ compartmental_model <- function(
         Cumilative_Dry_Matter_AF[month] + Cumilative_Dry_Matter_AM[month]
       
       Cumulitive_DM = Cumilative_Dry_Matter[month]
-      
       
       ## Production values (make sure all the values that update each month are updated here) 
       ## this is so each month the values are new and can be added to
@@ -1179,7 +1194,6 @@ compartmental_model <- function(
       
       Feed = Feed_cost[month]
       
-      
       # Labour costs (number of SR's * labour cost per head per month)
       
       Labour_cost_NF[month] = Labour_NF + (NF * (sample(Lab_SR, 1)) * lab_non_health) 
@@ -1244,15 +1258,26 @@ compartmental_model <- function(
       
       Capital = Capital_cost[month]
       
-      ##
-      Total_expenditure[month] =  Feed + Health + Labour + Capital
+      ## Infrastructure cost
+      ## simple calculation - number of animals at t0 * baseline annual infrastructure cost per head
+      Infrastructure_cost_NF[month] <- N_NF_t0 * (sample(Infrastructure_per_head, 1))
+      Infrastructure_cost_NM[month] <- N_NM_t0 * (sample(Infrastructure_per_head, 1))
+      Infrastructure_cost_JF[month] <- N_JF_t0 * (sample(Infrastructure_per_head, 1))
+      Infrastructure_cost_JM[month] <- N_JM_t0 * (sample(Infrastructure_per_head, 1))
+      Infrastructure_cost_AF[month] <- N_AF_t0 * (sample(Infrastructure_per_head, 1))
+      Infrastructure_cost_AM[month] <- N_AM_t0 * (sample(Infrastructure_per_head, 1))
       
-      Total_expenditure_NF[month] =  Feed_NF + Health_NF + Labour_NF + Capital_NF
-      Total_expenditure_NM[month] =  Feed_NM + Health_NM + Labour_NM + Capital_NM
-      Total_expenditure_JF[month] =  Feed_JF + Health_JF + Labour_JF + Capital_JF
-      Total_expenditure_JM[month] =  Feed_JM + Health_JM + Labour_JM + Capital_JM
-      Total_expenditure_AF[month] =  Feed_AF + Health_AF + Labour_AF + Capital_AF
-      Total_expenditure_AM[month] =  Feed_AM + Health_AM + Labour_AM + Capital_AM
+      Infrastructure_cost[month] <- Infrastructure_cost_NF[month] + Infrastructure_cost_NM[month] + Infrastructure_cost_JF[month] + Infrastructure_cost_JM[month] + Infrastructure_cost_AF[month] + Infrastructure_cost_AM[month]
+      
+      ##
+      Total_expenditure[month] =  Feed + Health + Labour + Capital + Infrastructure_cost[month]
+      
+      Total_expenditure_NF[month] =  Feed_NF + Health_NF + Labour_NF + Capital_NF + Infrastructure_cost_NF[month]
+      Total_expenditure_NM[month] =  Feed_NM + Health_NM + Labour_NM + Capital_NM + Infrastructure_cost_NM[month]
+      Total_expenditure_JF[month] =  Feed_JF + Health_JF + Labour_JF + Capital_JF + Infrastructure_cost_JF[month]
+      Total_expenditure_JM[month] =  Feed_JM + Health_JM + Labour_JM + Capital_JM + Infrastructure_cost_JM[month]
+      Total_expenditure_AF[month] =  Feed_AF + Health_AF + Labour_AF + Capital_AF + Infrastructure_cost_AF[month]
+      Total_expenditure_AM[month] =  Feed_AM + Health_AM + Labour_AM + Capital_AM + Infrastructure_cost_AM[month]
     }
     
     ### Fill all of the matrices
@@ -1435,6 +1460,15 @@ compartmental_model <- function(
     Capital_cost_AF_M[i, ] <- Capital_cost_AF
     Capital_cost_AM_M[i, ] <- Capital_cost_AM
     
+    # Infrastructure
+    Infrastructure_cost_M[i, ] <- Infrastructure_cost
+    Infrastructure_cost_NF_M[i, ] <- Infrastructure_cost_NF
+    Infrastructure_cost_NM_M[i, ] <- Infrastructure_cost_NM
+    Infrastructure_cost_JF_M[i, ] <- Infrastructure_cost_JF
+    Infrastructure_cost_JM_M[i, ] <- Infrastructure_cost_JM
+    Infrastructure_cost_AF_M[i, ] <- Infrastructure_cost_AF
+    Infrastructure_cost_AM_M[i, ] <- Infrastructure_cost_AM
+    
     # total expenditure
     Total_expenditure_M[i, ] <- Total_expenditure
     
@@ -1558,6 +1592,8 @@ compartmental_model <- function(
   Health_cost_J_M <- Health_cost_JF_M + Health_cost_JM_M
   Capital_cost_N_M <- Capital_cost_NF_M + Capital_cost_NM_M
   Capital_cost_J_M <- Capital_cost_JF_M + Capital_cost_JM_M
+  Infrastructure_cost_N_M <- Infrastructure_cost_NF_M + Infrastructure_cost_NM_M
+  Infrastructure_cost_J_M <- Infrastructure_cost_JF_M + Infrastructure_cost_JM_M
   Total_expenditure_N_M <- Total_expenditure_NF_M + Total_expenditure_NM_M
   Total_expenditure_J_M <- Total_expenditure_JF_M + Total_expenditure_JM_M
   
@@ -1597,6 +1633,7 @@ compartmental_model <- function(
       ,'Labour Cost' = 'Labour_cost'
       ,'Health Cost' = 'Health_cost'
       ,'Capital Cost' = 'Capital_cost'
+      ,'Infrastructure Cost' = 'Infrastructure_cost'
       ,'Total Expenditure' = 'Total_expenditure'
       
       ,'Gross Margin' = 'Gross_margin'

@@ -1001,9 +1001,10 @@ compartmental_model <- function(
 		  deaths_AM[month] <- (sample(AlphaM, 1) * AM)
 			deaths_O[month] <- (sample(AlphaO, 1) * O)
 			
-			offtake_JF[month] <- (sample(GammaF, 1) * JF)
+		# removing offtake from juveniles in cattle for now as I think they stay in national herd	
+		#	offtake_JF[month] <- (sample(GammaF, 1) * JF)
 			offtake_AF[month] <- (sample(GammaF, 1) * AF)
-			offtake_JM[month] <- (sample(GammaM, 1) * JM)
+		#	offtake_JM[month] <- (sample(GammaM, 1) * JM)
 			offtake_AM[month] <- (sample(GammaM, 1) * AM)
 			offtake_O[month] <- (sample(GammaO, 1) * O)
 			

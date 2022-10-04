@@ -17,7 +17,7 @@
 # -----------------------------------------------------------------
 # Number of simulation iterations
 
-cmd_nruns <- 1000
+cmd_nruns <- 10000
 
 # Folder location to save outputs
 #cmd_output_directory <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Program outputs'
@@ -1742,3 +1742,4 @@ for (COLNAME in colnames(ahle_scenarios_cln)){
   filename <- paste('ahle_' ,COLNAME ,'.csv' ,sep='')
   write.csv(result[[2]], file.path(cmd_output_directory, filename), row.names=FALSE)
 }
+

@@ -112,6 +112,7 @@ def combine_ahle_scenarios(
       ,label_prodsys       # String: add column 'production_system' with this label
       ,input_file_suffixes=[        # List of strings
          'Current'
+
          ,'Ideal'
          ,'ideal_AF'
          ,'ideal_AM'
@@ -119,14 +120,64 @@ def combine_ahle_scenarios(
          ,'ideal_JM'
          ,'ideal_NF'
          ,'ideal_NM'
+
          ,'all_mortality_zero'
          ,'mortality_zero_AF'
          ,'mortality_zero_AM'
          ,'mortality_zero_J'
          ,'mortality_zero_N'
-         # ,'all_mortality_minus25pct'
-         # ,'all_mortality_minus50pct'
-         # ,'all_mortality_minus75pct'
+
+         ,'all_mort_25_imp'
+         ,'mort_25_imp_AF'
+         ,'mort_25_imp_AM'
+         ,'mort_25_imp_J'
+         ,'mort_25_imp_N'
+
+         ,'all_mort_50_imp'
+         ,'mort_50_imp_AF'
+         ,'mort_50_imp_AM'
+         ,'mort_50_imp_J'
+         ,'mort_50_imp_N'
+
+         ,'all_mort_75_imp'
+         ,'mort_75_imp_AF'
+         ,'mort_75_imp_AM'
+         ,'mort_75_imp_J'
+         ,'mort_75_imp_N'
+
+         ,'Current_growth_100_imp_AF'
+         ,'Current_growth_100_imp_AM'
+         ,'Current_growth_100_imp_JF'
+         ,'Current_growth_100_imp_JM'
+         ,'Current_growth_100_imp_NF'
+         ,'Current_growth_100_imp_NM'
+
+         ,'Current_growth_25_imp_AF'
+         ,'Current_growth_25_imp_AM'
+         ,'Current_growth_25_imp_JF'
+         ,'Current_growth_25_imp_JM'
+         ,'Current_growth_25_imp_NF'
+         ,'Current_growth_25_imp_NM'
+
+         ,'Current_growth_50_imp_AF'
+         ,'Current_growth_50_imp_AM'
+         ,'Current_growth_50_imp_JF'
+         ,'Current_growth_50_imp_JM'
+         ,'Current_growth_50_imp_NF'
+         ,'Current_growth_50_imp_NM'
+
+         ,'Current_growth_75_imp_AF'
+         ,'Current_growth_75_imp_AM'
+         ,'Current_growth_75_imp_JF'
+         ,'Current_growth_75_imp_JM'
+         ,'Current_growth_75_imp_NF'
+         ,'Current_growth_75_imp_NM'
+
+         ,'Current_repro_100_imp'
+         ,'Current_repro_25_imp'
+         ,'Current_repro_50_imp'
+         ,'Current_repro_75_imp'
+
          ]
       ):
    dfcombined = pd.DataFrame()   # Initialize merged data
@@ -295,10 +346,10 @@ check_grossmargin_overall.eval(
     '''
     ,inplace=True
 )
-print('Checking the change in Gross Margin for ideal overall vs. individual ideal scenarios')
+print('\n> Checking the change in Gross Margin for ideal overall vs. individual ideal scenarios')
 print(check_grossmargin_overall[['species' ,'production_system' ,'gmchange_ideal_check']])
 
-print('Checking mortality as proportion of total AHLE')
+print('\n> Checking mortality as proportion of total AHLE')
 print(check_grossmargin_overall[['species' ,'production_system' ,'gmchange_dueto_mortality_prpn']])
 
 # =============================================================================
@@ -332,7 +383,7 @@ check_agesex_sums.eval(
     '''
     ,inplace=True
 )
-print('Checking the sum of individual age/sex compared to the overall for each item')
+print('\n> Checking the sum of individual age/sex compared to the overall for each item')
 print('Maximum ratio')
 print(check_agesex_sums.groupby(['species' ,'production_system'])['check_ratio'].max())
 print('Minimum ratio')
@@ -346,7 +397,7 @@ Creating aggregate groups for filtering in the dashboard
 #### Drop aggregate groups
 # =============================================================================
 # Some items only exist for Overall group in original file. Get all existing Overall records.
-ahle_combo_overall = ahle_combo.loc[ahle_combo['group'].str.upper() == 'OVERALL']
+ahle_combo_overall = ahle_combo.loc[ahle_combo['group'].str.upper() == 'OVERALL'].copy()
 
 # Rename sex to agree with newer convention
 ahle_combo_overall['sex'] = 'Overall'
@@ -354,24 +405,43 @@ ahle_combo_overall['sex'] = 'Overall'
 # Create version without any aggregate groups
 _agg_rows = (ahle_combo['age_group'].str.upper() == 'OVERALL') \
     | (ahle_combo['sex'].str.upper() == 'COMBINED')
-ahle_combo_indiv = ahle_combo.loc[~ _agg_rows]
+ahle_combo_indiv = ahle_combo.loc[~ _agg_rows].copy()
 
 # Get distinct values for ages and sexes without aggregates
 age_group_values = list(ahle_combo_indiv['age_group'].unique())
 sex_values = list(ahle_combo_indiv['sex'].unique())
 
 # =============================================================================
+#### Add placeholder items
+# =============================================================================
+mean_cols = [i for i in list(ahle_combo) if 'mean' in i]
+sd_cols = [i for i in list(ahle_combo) if 'stdev' in i]
+
+# Get all combinations of key variables without item
+item_placeholder = ahle_combo_indiv[['species' ,'production_system' ,'group' ,'age_group' ,'sex']].drop_duplicates()
+item_placeholder['item'] = 'Cost of Infrastructure'
+
+# Stack placeholder item(s) with individual data
+ahle_combo_withplaceholders = pd.concat(
+    [ahle_combo_indiv ,item_placeholder]
+    ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
+    ,join='outer'        # 'outer': keep all index values from all data frames
+    ,ignore_index=True   # True: do not keep index values on concatenation axis
+)
+
+# Placeholder items get mean and SD zero
+for COL in [mean_cols + sd_cols]:
+    ahle_combo_withplaceholders[COL] = ahle_combo_withplaceholders[COL].replace(np.nan ,0)
+
+# =============================================================================
 #### Build aggregate groups
 # =============================================================================
 # Only using MEAN and VARIANCE of each item, as the other statistics cannot
 # be summed.
-mean_cols = [i for i in list(ahle_combo) if 'mean' in i]
-sd_cols = [i for i in list(ahle_combo) if 'stdev' in i]
-
 keepcols = ['species' ,'production_system' ,'item' ,'group' ,'age_group' ,'sex'] \
     + mean_cols + sd_cols
 
-ahle_combo_withagg = ahle_combo_indiv[keepcols].copy()
+ahle_combo_withagg = ahle_combo_withplaceholders[keepcols].copy()
 datainfo(ahle_combo_withagg)
 
 # -----------------------------------------------------------------------------
@@ -565,7 +635,6 @@ ahle_combo_withagg = ahle_combo_withagg.loc[~ _git_rows]
 # -----------------------------------------------------------------------------
 # Subset and rename columns
 # -----------------------------------------------------------------------------
-# Do not need individual group scenario columns
 keepcols = [
     'species',
     'production_system',
@@ -574,24 +643,50 @@ keepcols = [
     'age_group',
     'sex',
 
+    # Primary scenarios in Birr
     'mean_current',
-    'mean_ideal',
-    'mean_all_mortality_zero',
     'stdev_current',
+    'mean_ideal',
     'stdev_ideal',
+    'mean_all_mortality_zero',
     'stdev_all_mortality_zero',
 
+    # Primary scenarios in USD
     'mean_current_usd',
-    'mean_ideal_usd',
-    'mean_all_mortality_zero_usd',
     'stdev_current_usd',
+    'mean_ideal_usd',
     'stdev_ideal_usd',
+    'mean_all_mortality_zero_usd',
     'stdev_all_mortality_zero_usd',
+
+    # Marignal reduction scenarios in Birr
+    'mean_all_mort_25_imp',
+    'mean_all_mort_50_imp',
+    'mean_all_mort_75_imp',
+    'mean_current_repro_100_imp',
+    'mean_current_repro_25_imp',
+    'mean_current_repro_50_imp',
+    'mean_current_repro_75_imp',
+
+    # Marignal reduction scenarios in USD
+    'mean_all_mort_25_imp_usd',
+    'mean_all_mort_50_imp_usd',
+    'mean_all_mort_75_imp_usd',
+    'mean_current_repro_100_imp_usd',
+    'mean_current_repro_25_imp_usd',
+    'mean_current_repro_50_imp_usd',
+    'mean_current_repro_75_imp_usd',
 ]
 
 ahle_combo_withagg_smry = ahle_combo_withagg[keepcols].copy()
 ahle_combo_withagg_smry = ahle_combo_withagg_smry.rename(
-    columns={'mean_all_mortality_zero':'mean_mortality_zero' ,'stdev_all_mortality_zero':'stdev_mortality_zero'})
+    columns={
+        'mean_all_mortality_zero':'mean_mortality_zero'
+        ,'stdev_all_mortality_zero':'stdev_mortality_zero'
+        ,'mean_all_mortality_zero_usd':'mean_mortality_zero_usd'
+        ,'stdev_all_mortality_zero_usd':'stdev_mortality_zero_usd'
+        }
+    )
 
 datainfo(ahle_combo_withagg_smry)
 
@@ -599,11 +694,7 @@ ahle_combo_withagg_smry.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_su
 ahle_combo_withagg_smry.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.pkl.gz'))
 
 #%% Calculate AHLE for each scenario
-'''
-Since overall gross margin is calculated in the base simulation code, and due to
-uncertainties I have about my aggregation code, this uses the basic ahle_combo
-data instead of ahle_combo_withagg.
-'''
+
 # =============================================================================
 #### Restructure
 # =============================================================================
@@ -741,5 +832,5 @@ ahle_combo_withahle_smry_checks.eval(
     '''
     ,inplace=True
 )
-print('Checking the sum AHLE for individual ideal scenarios against the overall')
+print('\n> Checking the sum AHLE for individual ideal scenarios against the overall')
 print(ahle_combo_withahle_smry_checks[['species' ,'production_system' ,'sum_ahle_individual_vs_overall']])

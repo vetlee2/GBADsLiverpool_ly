@@ -495,6 +495,7 @@ ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Co
 # Compare
 ecs_compare_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Ideal",
                                                                              "Mortality 0",
+                                                                             "Improvement"
                                                                              ]]
 
 # Factor
@@ -505,7 +506,8 @@ ecs_factor_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Mort
                                                                            ]]
 
 # Reduction
-ecs_redu_options = [{'label': i, 'value': i, 'disabled': True} for i in ['Current',
+ecs_improve_options = [{'label': i, 'value': i, 'disabled': True} for i in [
+    # 'Current',
                                                                          '25%',
                                                                          '50%',
                                                                          '75%',
@@ -2817,9 +2819,6 @@ gbadsDash.layout = html.Div([
                                           inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                           ),
                             ],
-                            # style={
-                            #          "margin-top":"10px",
-                            #          },
                         ),
 
                           # Species
@@ -3027,34 +3026,28 @@ gbadsDash.layout = html.Div([
                                   clearable = True,
                                   ),
                       ],
-                    # style={
-                    #      "margin-top":"10px",
-                    #      },
                     ),
 
                 # Reduction
                 dbc.Col([
                     html.H6("Improvement"),
-                    dcc.RadioItems(id='select-redu-ecs',
-                                  options=ecs_redu_options,
-                                  value= "Current",
+                    dcc.RadioItems(id='select-improve-ecs',
+                                  options=ecs_improve_options,
+                                  value= "25%",
                                   inputStyle={"margin-right": "2px", # This pulls the words off of the button
                                               "margin-left": "10px"},
                                   ),
                     ],width=3,
-                    # style={
-                    #     "margin-top":"10px",
-                    #     },
                 ),
 
-                # Reset to defaults button
-                dbc.Col([
-                    html.Button('Reset to Current Values', id='reset-val-ecs', n_clicks=0),
-                ], width=3,
-                    style={
-                          'textAlign':'center',
-                          'margin':'auto',}
-                ),
+                # # Reset to defaults button
+                # dbc.Col([
+                #     html.Button('Reset to Current Values', id='reset-val-ecs', n_clicks=0),
+                # ], width=3,
+                #     style={
+                #           'textAlign':'center',
+                #           'margin':'auto',}
+                # ),
 
                 ## END OF ROW ##
                 ]),
@@ -4722,13 +4715,13 @@ def update_stacked_bar_swine(input_json, country, year):
 # ------------------------------------------------------------------------------
 #### -- Controls
 # ------------------------------------------------------------------------------
-# ECS reset to defaults button
-@gbadsDash.callback(
-    Output('select-redu-ecs', 'value'),
-    Input('reset-val-ecs', 'n_clicks')
-    )
-def reset_to_default_ecs(reset):
-    return factor_ecs_default
+# # ECS reset to defaults button
+# @gbadsDash.callback(
+#     Output('select-improve-ecs', 'value'),
+#     Input('reset-val-ecs', 'n_clicks')
+#     )
+# def reset_to_default_ecs(reset):
+#     return factor_ecs_default
 
 # Update age group options based on species
 @gbadsDash.callback(
@@ -4830,6 +4823,28 @@ def update_dd4_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_
 #             else:
 #                 d['disabled']=False
 #     return options
+
+# Enable the options for factor/improvement when 'Improvement' selected
+@gbadsDash.callback(
+    Output('select-factor-ecs','options'),
+    Output('select-improve-ecs','options'),
+    Input('select-compare-ecs','value'),
+    )
+def update_improvment_factors(compare):
+    options1 = ecs_factor_options.copy()
+    options2 = ecs_improve_options.copy()
+    for d in options1:
+        if compare == 'Improvement':
+            d['disabled']=False
+        else:
+            d['disabled']=True
+    for d in options2:
+        if compare == 'Improvement':
+            d['disabled']=False
+        else:
+            d['disabled']=True
+           
+    return options1, options2
 
 # ------------------------------------------------------------------------------
 #### -- Data

@@ -1272,7 +1272,7 @@ def prep_ahle_forstackedbar_ecs(INPUT_DF):
    # Birr costs
    # Ordering here determines order in plot
    cols_birr_costs = [
-      'ahle_justfor_nm_mean'   # Adjusted based on feed price slider
+      'ahle_justfor_nm_mean'   
       ,'ahle_justfor_nf_mean'
       ,'ahle_justfor_jm_mean'
       ,'ahle_justfor_jf_mean'

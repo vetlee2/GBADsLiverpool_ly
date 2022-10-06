@@ -1127,7 +1127,7 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
                             'Feed Cost',
                             'Labour Cost',
                             'Health Cost',
-                            'Cost of Infrastructure',
+                            'Infrastructure Cost',
                             'Capital Cost',
                             'Gross Margin')
    ecs_ahle_waterfall = ecs_ahle_waterfall.loc[ecs_ahle_waterfall['item'].isin(waterfall_plot_values)]
@@ -1136,7 +1136,7 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
    costs = ('Feed Cost',
             'Labour Cost',
             'Health Cost',
-            'Cost of Infrastructure',
+            'Infrastructure Cost',
             'Capital Cost')
    ecs_ahle_waterfall['mean_current'] = np.where(ecs_ahle_waterfall.item.isin(costs), ecs_ahle_waterfall['mean_current']* -1, ecs_ahle_waterfall['mean_current'])
    ecs_ahle_waterfall['mean_ideal'] = np.where(ecs_ahle_waterfall.item.isin(costs), ecs_ahle_waterfall['mean_ideal']* -1, ecs_ahle_waterfall['mean_ideal'])
@@ -1155,7 +1155,7 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
    ecs_ahle_waterfall['item'] = ecs_ahle_waterfall['item'].replace({'Feed Cost': 'Expenditure on Feed',
                                                                     'Labour Cost': 'Expenditure on Labour',
                                                                     'Health Cost': 'Expenditure on Health',
-                                                                    'Cost of Infrastructure': 'Expenditure on Housing',
+                                                                    'Infrastructure Cost': 'Expenditure on Housing',
                                                                     'Capital Cost': 'Expenditure on Capital',
                                                                     'Value of draught': 'Value of Draught'})
 
@@ -4947,7 +4947,7 @@ def update_ecs_ahle_data(input_json ,currency):
         input_df['mean_current'] = input_df['mean_current_usd']
         input_df['stdev_current'] = input_df['stdev_current_usd']
         input_df['mean_mortality_zero'] = input_df['mean_mortality_zero_usd']
-        input_df['stdev_mortality_zero'] = input_df['stdev_all_mortality_zero_usd']
+        input_df['stdev_mortality_zero'] = input_df['stdev_mortality_zero_usd']
         input_df['mean_ideal'] = input_df['mean_ideal_usd']
         input_df['stdev_ideal'] = input_df['stdev_ideal_usd']
 

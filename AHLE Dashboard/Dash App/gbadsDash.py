@@ -1272,12 +1272,12 @@ def prep_ahle_forstackedbar_ecs(INPUT_DF):
    # Birr costs
    # Ordering here determines order in plot
    cols_birr_costs = [
-      'ahle_justfor_nm_mean'   
-      ,'ahle_justfor_nf_mean'
-      ,'ahle_justfor_jm_mean'
-      ,'ahle_justfor_jf_mean'
-       ,'ahle_justfor_am_mean'
-      ,'ahle_justfor_af_mean'
+      'ahle_when_nm_ideal_mean'   
+      ,'ahle_when_nf_ideal_mean'
+      ,'ahle_when_jm_ideal_mean'
+      ,'ahle_when_jf_ideal_mean'
+       ,'ahle_when_am_ideal_mean'
+      ,'ahle_when_af_ideal_mean'
    ]
    # USD costs
    cols_usd_costs = [
@@ -1324,22 +1324,22 @@ def prep_ahle_forstackedbar_ecs(INPUT_DF):
    # Values are cost items as you want them to appear in plot
    # Actual and Ideal costs should appear in pairs, except for bod_costs which only appears once
    pretty_ahle_cost_names = {
-      'ahle_justfor_nm_mean':'Neonatal male'
+      'ahle_when_nm_ideal_mean':'Neonatal male'
       ,'ahle_justfor_nm_usd_mean':'Neonatal male'
 
-      ,'ahle_justfor_nf_mean':'Neonatal female'
+      ,'ahle_when_nf_ideal_mean':'Neonatal female'
       ,'ahle_justfor_nf_usd_mean':'Neonatal female'
 
-      ,'ahle_justfor_jm_mean':'Juvenile male'
+      ,'ahle_when_jm_ideal_mean':'Juvenile male'
       ,'ahle_justfor_jm_usd_mean':'Juvenile male'
 
-      ,'ahle_justfor_jf_mean':'Juvenile female'
+      ,'ahle_when_jf_ideal_mean':'Juvenile female'
       ,'ahle_justfor_jf_usd_mean':'Juvenile female'
 
-       ,'ahle_justfor_am_mean':'Adult male'
+       ,'ahle_when_am_ideal_mean':'Adult male'
        ,'ahle_justfor_am_usd_mean':'Adult male'
 
-      ,'ahle_justfor_af_mean':'Adult female'
+      ,'ahle_when_af_ideal_mean':'Adult female'
       ,'ahle_justfor_af_usd_mean':'Adult female'
 
    }

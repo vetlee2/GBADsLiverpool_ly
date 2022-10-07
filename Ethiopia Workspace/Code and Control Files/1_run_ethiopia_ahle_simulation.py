@@ -106,78 +106,82 @@ timerstop()
 #### Merge scenarios
 # =============================================================================
 def combine_ahle_scenarios(
-      input_folder
-      ,input_file_prefix   # String
-      ,label_species       # String: add column 'species' with this label
-      ,label_prodsys       # String: add column 'production_system' with this label
-      ,input_file_suffixes=[        # List of strings
-         'Current'
+        input_folder
+        ,input_file_prefix   # String
+        ,label_species       # String: add column 'species' with this label
+        ,label_prodsys       # String: add column 'production_system' with this label
+        ,input_file_suffixes=[        # List of strings
+            'Current'
 
-         ,'Ideal'
-         ,'ideal_AF'
-         ,'ideal_AM'
-         ,'ideal_JF'
-         ,'ideal_JM'
-         ,'ideal_NF'
-         ,'ideal_NM'
+            ,'Ideal'
+            ,'ideal_AF'
+            ,'ideal_AM'
+            ,'ideal_JF'
+            ,'ideal_JM'
+            ,'ideal_NF'
+            ,'ideal_NM'
 
-         ,'all_mortality_zero'
-         ,'mortality_zero_AF'
-         ,'mortality_zero_AM'
-         ,'mortality_zero_J'
-         ,'mortality_zero_N'
+            ,'all_mortality_zero'
+            ,'mortality_zero_AF'
+            ,'mortality_zero_AM'
+            ,'mortality_zero_J'
+            ,'mortality_zero_N'
 
-         ,'all_mort_25_imp'
-         ,'mort_25_imp_AF'
-         ,'mort_25_imp_AM'
-         ,'mort_25_imp_J'
-         ,'mort_25_imp_N'
+            ,'all_mort_25_imp'
+            ,'mort_25_imp_AF'
+            ,'mort_25_imp_AM'
+            ,'mort_25_imp_J'
+            ,'mort_25_imp_N'
 
-         ,'all_mort_50_imp'
-         ,'mort_50_imp_AF'
-         ,'mort_50_imp_AM'
-         ,'mort_50_imp_J'
-         ,'mort_50_imp_N'
+            ,'all_mort_50_imp'
+            ,'mort_50_imp_AF'
+            ,'mort_50_imp_AM'
+            ,'mort_50_imp_J'
+            ,'mort_50_imp_N'
 
-         ,'all_mort_75_imp'
-         ,'mort_75_imp_AF'
-         ,'mort_75_imp_AM'
-         ,'mort_75_imp_J'
-         ,'mort_75_imp_N'
+            ,'all_mort_75_imp'
+            ,'mort_75_imp_AF'
+            ,'mort_75_imp_AM'
+            ,'mort_75_imp_J'
+            ,'mort_75_imp_N'
 
-         ,'Current_growth_25_imp_AF'
-         ,'Current_growth_25_imp_AM'
-         ,'Current_growth_25_imp_JF'
-         ,'Current_growth_25_imp_JM'
-         ,'Current_growth_25_imp_NF'
-         ,'Current_growth_25_imp_NM'
+            ,'Current_growth_25_imp_All'
+            ,'Current_growth_25_imp_AF'
+            ,'Current_growth_25_imp_AM'
+            ,'Current_growth_25_imp_JF'
+            ,'Current_growth_25_imp_JM'
+            ,'Current_growth_25_imp_NF'
+            ,'Current_growth_25_imp_NM'
 
-         ,'Current_growth_50_imp_AF'
-         ,'Current_growth_50_imp_AM'
-         ,'Current_growth_50_imp_JF'
-         ,'Current_growth_50_imp_JM'
-         ,'Current_growth_50_imp_NF'
-         ,'Current_growth_50_imp_NM'
+            ,'Current_growth_50_imp_All'
+            ,'Current_growth_50_imp_AF'
+            ,'Current_growth_50_imp_AM'
+            ,'Current_growth_50_imp_JF'
+            ,'Current_growth_50_imp_JM'
+            ,'Current_growth_50_imp_NF'
+            ,'Current_growth_50_imp_NM'
 
-         ,'Current_growth_75_imp_AF'
-         ,'Current_growth_75_imp_AM'
-         ,'Current_growth_75_imp_JF'
-         ,'Current_growth_75_imp_JM'
-         ,'Current_growth_75_imp_NF'
-         ,'Current_growth_75_imp_NM'
+            ,'Current_growth_75_imp_All'
+            ,'Current_growth_75_imp_AF'
+            ,'Current_growth_75_imp_AM'
+            ,'Current_growth_75_imp_JF'
+            ,'Current_growth_75_imp_JM'
+            ,'Current_growth_75_imp_NF'
+            ,'Current_growth_75_imp_NM'
 
-         ,'Current_growth_100_imp_AF'
-         ,'Current_growth_100_imp_AM'
-         ,'Current_growth_100_imp_JF'
-         ,'Current_growth_100_imp_JM'
-         ,'Current_growth_100_imp_NF'
-         ,'Current_growth_100_imp_NM'
+            ,'Current_growth_100_imp_All'
+            ,'Current_growth_100_imp_AF'
+            ,'Current_growth_100_imp_AM'
+            ,'Current_growth_100_imp_JF'
+            ,'Current_growth_100_imp_JM'
+            ,'Current_growth_100_imp_NF'
+            ,'Current_growth_100_imp_NM'
 
-         ,'Current_repro_25_imp'
-         ,'Current_repro_50_imp'
-         ,'Current_repro_75_imp'
-         ,'Current_repro_100_imp'
-         ]
+            ,'Current_repro_25_imp'
+            ,'Current_repro_50_imp'
+            ,'Current_repro_75_imp'
+            ,'Current_repro_100_imp'
+            ]
       ):
    dfcombined = pd.DataFrame()   # Initialize merged data
 
@@ -582,6 +586,7 @@ del ahle_combo_withagg_sumspec
 for i ,VARCOL in enumerate(var_cols):
    SDCOL = sd_cols[i]
    ahle_combo_withagg[SDCOL] = np.sqrt(ahle_combo_withagg[VARCOL])
+   del ahle_combo_withagg[VARCOL]
 
 datainfo(ahle_combo_withagg)
 
@@ -634,48 +639,58 @@ ahle_combo_withagg = ahle_combo_withagg.loc[~ _git_rows]
 # -----------------------------------------------------------------------------
 # Subset and rename columns
 # -----------------------------------------------------------------------------
+# In this file, keeping only scenarios that apply to all groups
 keepcols = [
-    'species',
-    'production_system',
-    'item',
-    'group',
-    'age_group',
-    'sex',
+    'species'
+    ,'production_system'
+    ,'item'
+    ,'group'
+    ,'age_group'
+    ,'sex'
 
-    # Primary scenarios in Birr
-    'mean_current',
-    'stdev_current',
-    'mean_ideal',
-    'stdev_ideal',
-    'mean_all_mortality_zero',
-    'stdev_all_mortality_zero',
+    # In Birr
+    ,'mean_current'
+    ,'stdev_current'
+    ,'mean_ideal'
+    ,'stdev_ideal'
 
-    # Marignal reduction scenarios in Birr
-    'mean_all_mort_25_imp',
-    'mean_all_mort_50_imp',
-    'mean_all_mort_75_imp',
+    ,'mean_all_mort_25_imp'
+    ,'mean_all_mort_50_imp'
+    ,'mean_all_mort_75_imp'
+    ,'mean_all_mortality_zero'
+    ,'stdev_all_mortality_zero'
 
-    'mean_current_repro_25_imp',
-    'mean_current_repro_50_imp',
-    'mean_current_repro_75_imp',
-    'mean_current_repro_100_imp',
+    ,'mean_current_repro_25_imp'
+    ,'mean_current_repro_50_imp'
+    ,'mean_current_repro_75_imp'
+    ,'mean_current_repro_100_imp'
 
-    # Primary scenarios in USD
-    'mean_current_usd',
-    'stdev_current_usd',
-    'mean_ideal_usd',
-    'stdev_ideal_usd',
-    'mean_all_mortality_zero_usd',
-    'stdev_all_mortality_zero_usd',
+    ,'mean_current_growth_25_imp_all'
+    ,'mean_current_growth_50_imp_all'
+    ,'mean_current_growth_75_imp_all'
+    ,'mean_current_growth_100_imp_all'
 
-    # Marignal reduction scenarios in USD
-    'mean_all_mort_25_imp_usd',
-    'mean_all_mort_50_imp_usd',
-    'mean_all_mort_75_imp_usd',
-    'mean_current_repro_100_imp_usd',
-    'mean_current_repro_25_imp_usd',
-    'mean_current_repro_50_imp_usd',
-    'mean_current_repro_75_imp_usd',
+    # In USD
+    ,'mean_current_usd'
+    ,'stdev_current_usd'
+    ,'mean_ideal_usd'
+    ,'stdev_ideal_usd'
+
+    ,'mean_all_mort_25_imp_usd'
+    ,'mean_all_mort_50_imp_usd'
+    ,'mean_all_mort_75_imp_usd'
+    ,'mean_all_mortality_zero_usd'
+    ,'stdev_all_mortality_zero_usd'
+
+    ,'mean_current_repro_25_imp_usd'
+    ,'mean_current_repro_50_imp_usd'
+    ,'mean_current_repro_75_imp_usd'
+    ,'mean_current_repro_100_imp_usd'
+
+    ,'mean_current_growth_25_imp_all_usd'
+    ,'mean_current_growth_50_imp_all_usd'
+    ,'mean_current_growth_75_imp_all_usd'
+    ,'mean_current_growth_100_imp_all_usd'
 ]
 
 ahle_combo_withagg_smry = ahle_combo_withagg[keepcols].copy()
@@ -751,9 +766,7 @@ ahle_combo_withahle.eval(
     ahle_when_repro_imp50_mean = mean_current_repro_50_imp_gross_margin - mean_current_gross_margin
     ahle_when_repro_imp75_mean = mean_current_repro_75_imp_gross_margin - mean_current_gross_margin
     ahle_when_repro_imp100_mean = mean_current_repro_100_imp_gross_margin - mean_current_gross_margin
-    '''
-    # Scenarios that change individual age/sex groups
-    '''
+
     ahle_when_af_ideal_mean = mean_ideal_af_gross_margin - mean_current_gross_margin
     ahle_when_am_ideal_mean = mean_ideal_am_gross_margin - mean_current_gross_margin
     ahle_when_jf_ideal_mean = mean_ideal_jf_gross_margin - mean_current_gross_margin
@@ -781,6 +794,7 @@ ahle_combo_withahle.eval(
     ahle_when_j_mort_imp100_mean = mean_mortality_zero_j_gross_margin - mean_current_gross_margin
     ahle_when_n_mort_imp100_mean = mean_mortality_zero_n_gross_margin - mean_current_gross_margin
 
+    ahle_when_all_growth_imp25_mean = mean_current_growth_25_imp_all_gross_margin - mean_current_gross_margin
     ahle_when_af_growth_imp25_mean = mean_current_growth_25_imp_af_gross_margin - mean_current_gross_margin
     ahle_when_am_growth_imp25_mean = mean_current_growth_25_imp_am_gross_margin - mean_current_gross_margin
     ahle_when_jf_growth_imp25_mean = mean_current_growth_25_imp_jf_gross_margin - mean_current_gross_margin
@@ -788,6 +802,7 @@ ahle_combo_withahle.eval(
     ahle_when_nf_growth_imp25_mean = mean_current_growth_25_imp_nf_gross_margin - mean_current_gross_margin
     ahle_when_nm_growth_imp25_mean = mean_current_growth_25_imp_nm_gross_margin - mean_current_gross_margin
 
+    ahle_when_all_growth_imp50_mean = mean_current_growth_50_imp_all_gross_margin - mean_current_gross_margin
     ahle_when_af_growth_imp50_mean = mean_current_growth_50_imp_af_gross_margin - mean_current_gross_margin
     ahle_when_am_growth_imp50_mean = mean_current_growth_50_imp_am_gross_margin - mean_current_gross_margin
     ahle_when_jf_growth_imp50_mean = mean_current_growth_50_imp_jf_gross_margin - mean_current_gross_margin
@@ -795,6 +810,7 @@ ahle_combo_withahle.eval(
     ahle_when_nf_growth_imp50_mean = mean_current_growth_50_imp_nf_gross_margin - mean_current_gross_margin
     ahle_when_nm_growth_imp50_mean = mean_current_growth_50_imp_nm_gross_margin - mean_current_gross_margin
 
+    ahle_when_all_growth_imp75_mean = mean_current_growth_75_imp_all_gross_margin - mean_current_gross_margin
     ahle_when_af_growth_imp75_mean = mean_current_growth_75_imp_af_gross_margin - mean_current_gross_margin
     ahle_when_am_growth_imp75_mean = mean_current_growth_75_imp_am_gross_margin - mean_current_gross_margin
     ahle_when_jf_growth_imp75_mean = mean_current_growth_75_imp_jf_gross_margin - mean_current_gross_margin
@@ -802,6 +818,7 @@ ahle_combo_withahle.eval(
     ahle_when_nf_growth_imp75_mean = mean_current_growth_75_imp_nf_gross_margin - mean_current_gross_margin
     ahle_when_nm_growth_imp75_mean = mean_current_growth_75_imp_nm_gross_margin - mean_current_gross_margin
 
+    ahle_when_all_growth_imp100_mean = mean_current_growth_100_imp_all_gross_margin - mean_current_gross_margin
     ahle_when_af_growth_imp100_mean = mean_current_growth_100_imp_af_gross_margin - mean_current_gross_margin
     ahle_when_am_growth_imp100_mean = mean_current_growth_100_imp_am_gross_margin - mean_current_gross_margin
     ahle_when_jf_growth_imp100_mean = mean_current_growth_100_imp_jf_gross_margin - mean_current_gross_margin
@@ -809,51 +826,42 @@ ahle_combo_withahle.eval(
     ahle_when_nf_growth_imp100_mean = mean_current_growth_100_imp_nf_gross_margin - mean_current_gross_margin
     ahle_when_nm_growth_imp100_mean = mean_current_growth_100_imp_nm_gross_margin - mean_current_gross_margin
     '''
-    # Repeat for USD
-    '''
-    ahle_total_usd_mean = mean_ideal_usd_gross_margin - mean_current_usd_gross_margin
-    ahle_dueto_mortality_usd_mean = mean_all_mortality_zero_usd_gross_margin - mean_current_usd_gross_margin
-    ahle_dueto_healthcost_usd_mean = mean_current_usd_health_cost
-    ahle_dueto_productionloss_usd_mean = ahle_total_usd_mean - ahle_dueto_mortality_usd_mean - ahle_dueto_healthcost_usd_mean
-
-    ahle_justfor_af_usd_mean = mean_ideal_af_usd_gross_margin - mean_current_usd_gross_margin
-    ahle_justfor_am_usd_mean = mean_ideal_am_usd_gross_margin - mean_current_usd_gross_margin
-    ahle_justfor_jf_usd_mean = mean_ideal_jf_usd_gross_margin - mean_current_usd_gross_margin
-    ahle_justfor_jm_usd_mean = mean_ideal_jm_usd_gross_margin - mean_current_usd_gross_margin
-    ahle_justfor_nf_usd_mean = mean_ideal_nf_usd_gross_margin - mean_current_usd_gross_margin
-    ahle_justfor_nm_usd_mean = mean_ideal_nm_usd_gross_margin - mean_current_usd_gross_margin
-    '''
     ,inplace=True
 )
 
 # Standard deviations require summing variances and taking square root
 # Must be done outside eval()
-ahle_combo_withahle['ahle_total_stdev'] = np.sqrt(ahle_combo_withahle['sqrd_stdev_ideal_gross_margin'] + ahle_combo_withahle['sqrd_stdev_current_gross_margin'])
+ahle_combo_withahle['ahle_total_stdev'] = np.sqrt(ahle_combo_withahle['stdev_ideal_gross_margin']**2 + ahle_combo_withahle['stdev_current_gross_margin']**2)
 
-ahle_combo_withahle['ahle_dueto_mortality_stdev'] = np.sqrt(ahle_combo_withahle['sqrd_stdev_all_mortality_zero_gross_margin'] + ahle_combo_withahle['sqrd_stdev_current_gross_margin'])
-ahle_combo_withahle['ahle_dueto_healthcost_stdev'] = np.sqrt(ahle_combo_withahle['sqrd_stdev_current_health_cost'])
+ahle_combo_withahle['ahle_dueto_mortality_stdev'] = np.sqrt(ahle_combo_withahle['stdev_all_mortality_zero_gross_margin']**2 + ahle_combo_withahle['stdev_current_gross_margin']**2)
+ahle_combo_withahle['ahle_dueto_healthcost_stdev'] = np.sqrt(ahle_combo_withahle['stdev_current_health_cost']**2)
 ahle_combo_withahle['ahle_dueto_productionloss_stdev'] = np.sqrt(ahle_combo_withahle['ahle_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_healthcost_stdev']**2)
 
-ahle_combo_withahle['ahle_justfor_af_stdev'] = np.sqrt(ahle_combo_withahle['sqrd_stdev_ideal_af_gross_margin'] + ahle_combo_withahle['sqrd_stdev_current_gross_margin'])
-ahle_combo_withahle['ahle_justfor_am_stdev'] = np.sqrt(ahle_combo_withahle['sqrd_stdev_ideal_am_gross_margin'] + ahle_combo_withahle['sqrd_stdev_current_gross_margin'])
-ahle_combo_withahle['ahle_justfor_jf_stdev'] = np.sqrt(ahle_combo_withahle['sqrd_stdev_ideal_jf_gross_margin'] + ahle_combo_withahle['sqrd_stdev_current_gross_margin'])
-ahle_combo_withahle['ahle_justfor_jm_stdev'] = np.sqrt(ahle_combo_withahle['sqrd_stdev_ideal_jm_gross_margin'] + ahle_combo_withahle['sqrd_stdev_current_gross_margin'])
-ahle_combo_withahle['ahle_justfor_nf_stdev'] = np.sqrt(ahle_combo_withahle['sqrd_stdev_ideal_nf_gross_margin'] + ahle_combo_withahle['sqrd_stdev_current_gross_margin'])
-ahle_combo_withahle['ahle_justfor_nm_stdev'] = np.sqrt(ahle_combo_withahle['sqrd_stdev_ideal_nm_gross_margin'] + ahle_combo_withahle['sqrd_stdev_current_gross_margin'])
+# =============================================================================
+#### Add currency conversion
+# =============================================================================
+# Merge exchange rates onto data
+ahle_combo_withahle['country_name'] = 'Ethiopia'     # Add country for joining
+ahle_combo_withahle = pd.merge(
+    left=ahle_combo_withahle
+    ,right=exchg_data_tomerge
+    ,on='country_name'
+    ,how='left'
+    )
+del ahle_combo_withahle['country_name']
 
-# Repeat for USD
-ahle_combo_withahle['ahle_total_usd_stdev'] = np.sqrt(ahle_combo_withahle['stdev_ideal_usd_gross_margin']**2 + ahle_combo_withahle['stdev_current_usd_gross_margin']**2)
+# Add columns in USD
+mean_cols_ahle = [i for i in list(ahle_combo_withahle) if 'mean' in i and 'ahle' in i]
+for MEANCOL in mean_cols_ahle:
+    MEANCOL_USD = MEANCOL + '_usd'
+    ahle_combo_withahle[MEANCOL_USD] = ahle_combo_withahle[MEANCOL] / ahle_combo_withahle['exchg_rate_lcuperusdol']
 
-ahle_combo_withahle['ahle_dueto_mortality_usd_stdev'] = np.sqrt(ahle_combo_withahle['stdev_all_mortality_zero_usd_gross_margin']**2 + ahle_combo_withahle['stdev_current_usd_gross_margin']**2)
-ahle_combo_withahle['ahle_dueto_healthcost_usd_stdev'] = np.sqrt(ahle_combo_withahle['stdev_current_usd_health_cost']**2)
-ahle_combo_withahle['ahle_dueto_productionloss_usd_stdev'] = np.sqrt(ahle_combo_withahle['ahle_total_usd_stdev']**2 + ahle_combo_withahle['ahle_dueto_mortality_usd_stdev']**2 + ahle_combo_withahle['ahle_dueto_healthcost_usd_stdev']**2)
-
-ahle_combo_withahle['ahle_justfor_af_usd_stdev'] = np.sqrt(ahle_combo_withahle['stdev_ideal_af_usd_gross_margin']**2 + ahle_combo_withahle['stdev_current_usd_gross_margin']**2)
-ahle_combo_withahle['ahle_justfor_am_usd_stdev'] = np.sqrt(ahle_combo_withahle['stdev_ideal_am_usd_gross_margin']**2 + ahle_combo_withahle['stdev_current_usd_gross_margin']**2)
-ahle_combo_withahle['ahle_justfor_jf_usd_stdev'] = np.sqrt(ahle_combo_withahle['stdev_ideal_jf_usd_gross_margin']**2 + ahle_combo_withahle['stdev_current_usd_gross_margin']**2)
-ahle_combo_withahle['ahle_justfor_jm_usd_stdev'] = np.sqrt(ahle_combo_withahle['stdev_ideal_jm_usd_gross_margin']**2 + ahle_combo_withahle['stdev_current_usd_gross_margin']**2)
-ahle_combo_withahle['ahle_justfor_nf_usd_stdev'] = np.sqrt(ahle_combo_withahle['stdev_ideal_nf_usd_gross_margin']**2 + ahle_combo_withahle['stdev_current_usd_gross_margin']**2)
-ahle_combo_withahle['ahle_justfor_nm_usd_stdev'] = np.sqrt(ahle_combo_withahle['stdev_ideal_nm_usd_gross_margin']**2 + ahle_combo_withahle['stdev_current_usd_gross_margin']**2)
+# For standard deviations, convert to variances then scale by the squared exchange rate
+# VAR(aX) = a^2 * VAR(X).  a = 1/exchange rate.
+sd_cols_ahle = [i for i in list(ahle_combo_withahle) if 'stdev' in i and 'ahle' in i]
+for SDCOL in sd_cols_ahle:
+    SDCOL_USD = SDCOL + '_usd'
+    ahle_combo_withahle[SDCOL_USD] = np.sqrt(ahle_combo_withahle[SDCOL]**2 / ahle_combo_withahle['exchg_rate_lcuperusdol']**2)
 
 # =============================================================================
 #### Cleanup and export

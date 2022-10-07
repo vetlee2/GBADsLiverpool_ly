@@ -145,13 +145,6 @@ def combine_ahle_scenarios(
          ,'mort_75_imp_J'
          ,'mort_75_imp_N'
 
-         ,'Current_growth_100_imp_AF'
-         ,'Current_growth_100_imp_AM'
-         ,'Current_growth_100_imp_JF'
-         ,'Current_growth_100_imp_JM'
-         ,'Current_growth_100_imp_NF'
-         ,'Current_growth_100_imp_NM'
-
          ,'Current_growth_25_imp_AF'
          ,'Current_growth_25_imp_AM'
          ,'Current_growth_25_imp_JF'
@@ -173,11 +166,17 @@ def combine_ahle_scenarios(
          ,'Current_growth_75_imp_NF'
          ,'Current_growth_75_imp_NM'
 
-         ,'Current_repro_100_imp'
+         ,'Current_growth_100_imp_AF'
+         ,'Current_growth_100_imp_AM'
+         ,'Current_growth_100_imp_JF'
+         ,'Current_growth_100_imp_JM'
+         ,'Current_growth_100_imp_NF'
+         ,'Current_growth_100_imp_NM'
+
          ,'Current_repro_25_imp'
          ,'Current_repro_50_imp'
          ,'Current_repro_75_imp'
-
+         ,'Current_repro_100_imp'
          ]
       ):
    dfcombined = pd.DataFrame()   # Initialize merged data
@@ -393,6 +392,9 @@ print(check_agesex_sums.groupby(['species' ,'production_system'])['check_ratio']
 '''
 Creating aggregate groups for filtering in the dashboard
 '''
+mean_cols = [i for i in list(ahle_combo) if 'mean' in i]
+sd_cols = [i for i in list(ahle_combo) if 'stdev' in i]
+
 # =============================================================================
 #### Drop aggregate groups
 # =============================================================================
@@ -414,24 +416,21 @@ sex_values = list(ahle_combo_indiv['sex'].unique())
 # =============================================================================
 #### Add placeholder items
 # =============================================================================
-mean_cols = [i for i in list(ahle_combo) if 'mean' in i]
-sd_cols = [i for i in list(ahle_combo) if 'stdev' in i]
+# # Get all combinations of key variables without item
+# item_placeholder = ahle_combo_indiv[['species' ,'production_system' ,'group' ,'age_group' ,'sex']].drop_duplicates()
+# item_placeholder['item'] = 'Cost of Infrastructure'
 
-# Get all combinations of key variables without item
-item_placeholder = ahle_combo_indiv[['species' ,'production_system' ,'group' ,'age_group' ,'sex']].drop_duplicates()
-item_placeholder['item'] = 'Cost of Infrastructure'
+# # Stack placeholder item(s) with individual data
+# ahle_combo_withplaceholders = pd.concat(
+#     [ahle_combo_indiv ,item_placeholder]
+#     ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
+#     ,join='outer'        # 'outer': keep all index values from all data frames
+#     ,ignore_index=True   # True: do not keep index values on concatenation axis
+# )
 
-# Stack placeholder item(s) with individual data
-ahle_combo_withplaceholders = pd.concat(
-    [ahle_combo_indiv ,item_placeholder]
-    ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
-    ,join='outer'        # 'outer': keep all index values from all data frames
-    ,ignore_index=True   # True: do not keep index values on concatenation axis
-)
-
-# Placeholder items get mean and SD zero
-for COL in [mean_cols + sd_cols]:
-    ahle_combo_withplaceholders[COL] = ahle_combo_withplaceholders[COL].replace(np.nan ,0)
+# # Placeholder items get mean and SD zero
+# for COL in [mean_cols + sd_cols]:
+#     ahle_combo_withplaceholders[COL] = ahle_combo_withplaceholders[COL].replace(np.nan ,0)
 
 # =============================================================================
 #### Build aggregate groups
@@ -441,7 +440,7 @@ for COL in [mean_cols + sd_cols]:
 keepcols = ['species' ,'production_system' ,'item' ,'group' ,'age_group' ,'sex'] \
     + mean_cols + sd_cols
 
-ahle_combo_withagg = ahle_combo_withplaceholders[keepcols].copy()
+ahle_combo_withagg = ahle_combo_indiv[keepcols].copy()
 datainfo(ahle_combo_withagg)
 
 # -----------------------------------------------------------------------------
@@ -651,6 +650,16 @@ keepcols = [
     'mean_all_mortality_zero',
     'stdev_all_mortality_zero',
 
+    # Marignal reduction scenarios in Birr
+    'mean_all_mort_25_imp',
+    'mean_all_mort_50_imp',
+    'mean_all_mort_75_imp',
+
+    'mean_current_repro_25_imp',
+    'mean_current_repro_50_imp',
+    'mean_current_repro_75_imp',
+    'mean_current_repro_100_imp',
+
     # Primary scenarios in USD
     'mean_current_usd',
     'stdev_current_usd',
@@ -658,15 +667,6 @@ keepcols = [
     'stdev_ideal_usd',
     'mean_all_mortality_zero_usd',
     'stdev_all_mortality_zero_usd',
-
-    # Marignal reduction scenarios in Birr
-    'mean_all_mort_25_imp',
-    'mean_all_mort_50_imp',
-    'mean_all_mort_75_imp',
-    'mean_current_repro_100_imp',
-    'mean_current_repro_25_imp',
-    'mean_current_repro_50_imp',
-    'mean_current_repro_75_imp',
 
     # Marignal reduction scenarios in USD
     'mean_all_mort_25_imp_usd',
@@ -740,18 +740,74 @@ Relying on the following properties of sums of random variables:
 ahle_combo_withahle = ahle_combo_withagg_p.copy()
 
 ahle_combo_withahle.eval(
+    # Scenarios that change all age/sex groups
     '''
     ahle_total_mean = mean_ideal_gross_margin - mean_current_gross_margin
     ahle_dueto_mortality_mean = mean_all_mortality_zero_gross_margin - mean_current_gross_margin
     ahle_dueto_healthcost_mean = mean_current_health_cost
     ahle_dueto_productionloss_mean = ahle_total_mean - ahle_dueto_mortality_mean - ahle_dueto_healthcost_mean
 
-    ahle_justfor_af_mean = mean_ideal_af_gross_margin - mean_current_gross_margin
-    ahle_justfor_am_mean = mean_ideal_am_gross_margin - mean_current_gross_margin
-    ahle_justfor_jf_mean = mean_ideal_jf_gross_margin - mean_current_gross_margin
-    ahle_justfor_jm_mean = mean_ideal_jm_gross_margin - mean_current_gross_margin
-    ahle_justfor_nf_mean = mean_ideal_nf_gross_margin - mean_current_gross_margin
-    ahle_justfor_nm_mean = mean_ideal_nm_gross_margin - mean_current_gross_margin
+    ahle_when_repro_imp25_mean = mean_current_repro_25_imp_gross_margin - mean_current_gross_margin
+    ahle_when_repro_imp50_mean = mean_current_repro_50_imp_gross_margin - mean_current_gross_margin
+    ahle_when_repro_imp75_mean = mean_current_repro_75_imp_gross_margin - mean_current_gross_margin
+    ahle_when_repro_imp100_mean = mean_current_repro_100_imp_gross_margin - mean_current_gross_margin
+    '''
+    # Scenarios that change individual age/sex groups
+    '''
+    ahle_when_af_ideal_mean = mean_ideal_af_gross_margin - mean_current_gross_margin
+    ahle_when_am_ideal_mean = mean_ideal_am_gross_margin - mean_current_gross_margin
+    ahle_when_jf_ideal_mean = mean_ideal_jf_gross_margin - mean_current_gross_margin
+    ahle_when_jm_ideal_mean = mean_ideal_jm_gross_margin - mean_current_gross_margin
+    ahle_when_nf_ideal_mean = mean_ideal_nf_gross_margin - mean_current_gross_margin
+    ahle_when_nm_ideal_mean = mean_ideal_nm_gross_margin - mean_current_gross_margin
+
+    ahle_when_af_mort_imp25_mean = mean_mort_25_imp_af_gross_margin - mean_current_gross_margin
+    ahle_when_am_mort_imp25_mean = mean_mort_25_imp_am_gross_margin - mean_current_gross_margin
+    ahle_when_j_mort_imp25_mean = mean_mort_25_imp_j_gross_margin - mean_current_gross_margin
+    ahle_when_n_mort_imp25_mean = mean_mort_25_imp_n_gross_margin - mean_current_gross_margin
+
+    ahle_when_af_mort_imp50_mean = mean_mort_50_imp_af_gross_margin - mean_current_gross_margin
+    ahle_when_am_mort_imp50_mean = mean_mort_50_imp_am_gross_margin - mean_current_gross_margin
+    ahle_when_j_mort_imp50_mean = mean_mort_50_imp_j_gross_margin - mean_current_gross_margin
+    ahle_when_n_mort_imp50_mean = mean_mort_50_imp_n_gross_margin - mean_current_gross_margin
+
+    ahle_when_af_mort_imp75_mean = mean_mort_75_imp_af_gross_margin - mean_current_gross_margin
+    ahle_when_am_mort_imp75_mean = mean_mort_75_imp_am_gross_margin - mean_current_gross_margin
+    ahle_when_j_mort_imp75_mean = mean_mort_75_imp_j_gross_margin - mean_current_gross_margin
+    ahle_when_n_mort_imp75_mean = mean_mort_75_imp_n_gross_margin - mean_current_gross_margin
+
+    ahle_when_af_mort_imp100_mean = mean_mortality_zero_af_gross_margin - mean_current_gross_margin
+    ahle_when_am_mort_imp100_mean = mean_mortality_zero_am_gross_margin - mean_current_gross_margin
+    ahle_when_j_mort_imp100_mean = mean_mortality_zero_j_gross_margin - mean_current_gross_margin
+    ahle_when_n_mort_imp100_mean = mean_mortality_zero_n_gross_margin - mean_current_gross_margin
+
+    ahle_when_af_growth_imp25_mean = mean_current_growth_25_imp_af_gross_margin - mean_current_gross_margin
+    ahle_when_am_growth_imp25_mean = mean_current_growth_25_imp_am_gross_margin - mean_current_gross_margin
+    ahle_when_jf_growth_imp25_mean = mean_current_growth_25_imp_jf_gross_margin - mean_current_gross_margin
+    ahle_when_jm_growth_imp25_mean = mean_current_growth_25_imp_jm_gross_margin - mean_current_gross_margin
+    ahle_when_nf_growth_imp25_mean = mean_current_growth_25_imp_nf_gross_margin - mean_current_gross_margin
+    ahle_when_nm_growth_imp25_mean = mean_current_growth_25_imp_nm_gross_margin - mean_current_gross_margin
+
+    ahle_when_af_growth_imp50_mean = mean_current_growth_50_imp_af_gross_margin - mean_current_gross_margin
+    ahle_when_am_growth_imp50_mean = mean_current_growth_50_imp_am_gross_margin - mean_current_gross_margin
+    ahle_when_jf_growth_imp50_mean = mean_current_growth_50_imp_jf_gross_margin - mean_current_gross_margin
+    ahle_when_jm_growth_imp50_mean = mean_current_growth_50_imp_jm_gross_margin - mean_current_gross_margin
+    ahle_when_nf_growth_imp50_mean = mean_current_growth_50_imp_nf_gross_margin - mean_current_gross_margin
+    ahle_when_nm_growth_imp50_mean = mean_current_growth_50_imp_nm_gross_margin - mean_current_gross_margin
+
+    ahle_when_af_growth_imp75_mean = mean_current_growth_75_imp_af_gross_margin - mean_current_gross_margin
+    ahle_when_am_growth_imp75_mean = mean_current_growth_75_imp_am_gross_margin - mean_current_gross_margin
+    ahle_when_jf_growth_imp75_mean = mean_current_growth_75_imp_jf_gross_margin - mean_current_gross_margin
+    ahle_when_jm_growth_imp75_mean = mean_current_growth_75_imp_jm_gross_margin - mean_current_gross_margin
+    ahle_when_nf_growth_imp75_mean = mean_current_growth_75_imp_nf_gross_margin - mean_current_gross_margin
+    ahle_when_nm_growth_imp75_mean = mean_current_growth_75_imp_nm_gross_margin - mean_current_gross_margin
+
+    ahle_when_af_growth_imp100_mean = mean_current_growth_100_imp_af_gross_margin - mean_current_gross_margin
+    ahle_when_am_growth_imp100_mean = mean_current_growth_100_imp_am_gross_margin - mean_current_gross_margin
+    ahle_when_jf_growth_imp100_mean = mean_current_growth_100_imp_jf_gross_margin - mean_current_gross_margin
+    ahle_when_jm_growth_imp100_mean = mean_current_growth_100_imp_jm_gross_margin - mean_current_gross_margin
+    ahle_when_nf_growth_imp100_mean = mean_current_growth_100_imp_nf_gross_margin - mean_current_gross_margin
+    ahle_when_nm_growth_imp100_mean = mean_current_growth_100_imp_nm_gross_margin - mean_current_gross_margin
     '''
     # Repeat for USD
     '''
@@ -802,6 +858,7 @@ ahle_combo_withahle['ahle_justfor_nm_usd_stdev'] = np.sqrt(ahle_combo_withahle['
 # =============================================================================
 #### Cleanup and export
 # =============================================================================
+datainfo(ahle_combo_withahle)
 ahle_combo_withahle.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_intermediate_calcs.pkl.gz'))
 
 # Keep only key columns and AHLE calcs
@@ -824,9 +881,9 @@ ahle_combo_withahle_smry_checks = ahle_combo_withahle_smry.copy()
 # Sum of individual age/sex AHLE compared to overall AHLE
 ahle_combo_withahle_smry_checks.eval(
     '''
-    sum_ahle_individual = ahle_justfor_af_mean + ahle_justfor_am_mean \
-        + ahle_justfor_jf_mean + ahle_justfor_jm_mean \
-        + ahle_justfor_nf_mean + ahle_justfor_nm_mean
+    sum_ahle_individual = ahle_when_af_ideal_mean + ahle_when_am_ideal_mean \
+        + ahle_when_jf_ideal_mean + ahle_when_jm_ideal_mean \
+        + ahle_when_nf_ideal_mean + ahle_when_nm_ideal_mean
 
     sum_ahle_individual_vs_overall = sum_ahle_individual / ahle_total_mean
     '''

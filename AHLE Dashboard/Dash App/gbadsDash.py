@@ -1109,13 +1109,22 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
                                     'mean_current_repro_50_imp',
                                     'mean_current_repro_75_imp',
                                     'mean_current_repro_100_imp',
+                                    'mean_current_growth_25_imp_all',
+                                    'mean_current_growth_50_imp_all',
+                                    'mean_current_growth_75_imp_all',
+                                    'mean_current_growth_100_imp_all',
                                     'mean_all_mort_25_imp_usd',
                                     'mean_all_mort_50_imp_usd',
                                     'mean_all_mort_75_imp_usd',
                                     'mean_current_repro_25_imp_usd',
                                     'mean_current_repro_50_imp_usd',
                                     'mean_current_repro_75_imp_usd',
-                                    'mean_current_repro_100_imp_usd',]]
+                                    'mean_current_repro_100_imp_usd',
+                                    'mean_current_growth_25_imp_all_usd',
+                                    'mean_current_growth_50_imp_all_usd',
+                                    'mean_current_growth_75_imp_all_usd',
+                                    'mean_current_growth_100_imp_all_usd',
+                                    ]]
 
    # Keep only items for the waterfall
    waterfall_plot_values = ('Value of Offtake',
@@ -1180,7 +1189,16 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
    ecs_ahle_waterfall['mean_all_current_repro_50_AHLE_usd'] = ecs_ahle_waterfall['mean_current_repro_50_imp_usd'] - ecs_ahle_waterfall['mean_current']
    ecs_ahle_waterfall['mean_all_current_repro_75_AHLE_usd'] = ecs_ahle_waterfall['mean_current_repro_75_imp_usd'] - ecs_ahle_waterfall['mean_current']
    ecs_ahle_waterfall['mean_all_current_repro_100_AHLE_usd'] = ecs_ahle_waterfall['mean_current_repro_100_imp_usd'] - ecs_ahle_waterfall['mean_current']
-
+   # For Live Weight
+   ecs_ahle_waterfall['mean_all_current_growth_25_AHLE'] = ecs_ahle_waterfall['mean_current_growth_25_imp_all'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['mean_all_current_growth_50_AHLE'] = ecs_ahle_waterfall['mean_current_growth_50_imp_all'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['mean_all_current_growth_75_AHLE'] = ecs_ahle_waterfall['mean_current_growth_75_imp_all'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['mean_all_current_growth_100_AHLE'] = ecs_ahle_waterfall['mean_current_growth_100_imp_all'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['mean_all_current_growth_25_AHLE_usd'] = ecs_ahle_waterfall['mean_current_growth_25_imp_all_usd'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['mean_all_current_growth_50_AHLE_usd'] = ecs_ahle_waterfall['mean_current_growth_50_imp_all_usd'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['mean_all_current_growth_75_AHLE_usd'] = ecs_ahle_waterfall['mean_current_growth_75_imp_all_usd'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['mean_all_current_growth_100_AHLE_usd'] = ecs_ahle_waterfall['mean_current_growth_100_imp_all_usd'] - ecs_ahle_waterfall['mean_current']
+  
 
    OUTPUT_DF = ecs_ahle_waterfall
 
@@ -1266,34 +1284,21 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
 
     return OUTPUT_DF
 
-def prep_ahle_forstackedbar_ecs(INPUT_DF):
+def prep_ahle_forstackedbar_ecs(INPUT_DF, cols_birr_costs, cols_usd_costs, pretty_ahle_cost_names):
    working_df = INPUT_DF.copy()
 
    # Birr costs
    # Ordering here determines order in plot
-   cols_birr_costs = [
-      'ahle_when_nm_ideal_mean'   
-      ,'ahle_when_nf_ideal_mean'
-      ,'ahle_when_jm_ideal_mean'
-      ,'ahle_when_jf_ideal_mean'
-       ,'ahle_when_am_ideal_mean'
-      ,'ahle_when_af_ideal_mean'
-   ]
+   cols_birr_costs = cols_birr_costs
+   
    # USD costs
-   cols_usd_costs = [
-      'ahle_justfor_nm_usd_mean'
-      ,'ahle_justfor_nf_usd_mean'
-      ,'ahle_justfor_jm_usd_mean'
-      ,'ahle_justfor_jf_usd_mean'
-       ,'ahle_justfor_am_usd_mean'
-      ,'ahle_justfor_af_usd_mean'
-   ]
-
-   # If any costs are missing for a given country and year, fill in zero
+   cols_usd_costs = cols_usd_costs
+   
+   # If any costs are missing, fill in zero
    for COL in cols_birr_costs + cols_usd_costs:
       working_df[COL] = working_df[COL].replace(np.nan ,0)
 
-   # Melt actual costs into rows
+   # Melt birr costs into rows
    output_birr = working_df.melt(
       id_vars=['species' ,'production_system']
       ,value_vars=cols_birr_costs
@@ -1302,7 +1307,7 @@ def prep_ahle_forstackedbar_ecs(INPUT_DF):
    )
    # output_actual['opt_or_act'] = 'Actual'  # Value here determines bar label in plot
 
-   # Melt ideal costs into rows
+   # Melt usd costs into rows
    output_usd = working_df.melt(
       id_vars=['species' ,'production_system']
       ,value_vars=cols_usd_costs
@@ -1311,7 +1316,7 @@ def prep_ahle_forstackedbar_ecs(INPUT_DF):
    )
    # output_ideal['opt_or_act'] = 'Ideal + Burden of disease'  # Value here determines bar label in plot
 
-   # Stack actual, ideal, and burden
+   # Stack
    OUTPUT_DF = pd.concat(
       [output_birr ,output_usd]
       ,axis=0
@@ -1320,33 +1325,16 @@ def prep_ahle_forstackedbar_ecs(INPUT_DF):
    )
 
    # Recode cost item names
-   # Keys are column names
-   # Values are cost items as you want them to appear in plot
-   # Actual and Ideal costs should appear in pairs, except for bod_costs which only appears once
-   pretty_ahle_cost_names = {
-      'ahle_when_nm_ideal_mean':'Neonatal male'
-      ,'ahle_justfor_nm_usd_mean':'Neonatal male'
-
-      ,'ahle_when_nf_ideal_mean':'Neonatal female'
-      ,'ahle_justfor_nf_usd_mean':'Neonatal female'
-
-      ,'ahle_when_jm_ideal_mean':'Juvenile male'
-      ,'ahle_justfor_jm_usd_mean':'Juvenile male'
-
-      ,'ahle_when_jf_ideal_mean':'Juvenile female'
-      ,'ahle_justfor_jf_usd_mean':'Juvenile female'
-
-       ,'ahle_when_am_ideal_mean':'Adult male'
-       ,'ahle_justfor_am_usd_mean':'Adult male'
-
-      ,'ahle_when_af_ideal_mean':'Adult female'
-      ,'ahle_justfor_af_usd_mean':'Adult female'
-
-   }
+   pretty_ahle_cost_names = pretty_ahle_cost_names
    OUTPUT_DF['AHLE Due To'] = OUTPUT_DF['ahle_due_to'].replace(pretty_ahle_cost_names)
    
+   # Create new string column for label
+   OUTPUT_DF['Age_group_string'] = OUTPUT_DF['ahle_due_to'].str.slice(10,12)
+   OUTPUT_DF['Age_group_string'] = OUTPUT_DF['Age_group_string'].str.upper()
+   
    # Add column with labels for each segment
-   # OUTPUT_DF['label'] = OUTPUT_DF['Cost Item'] + ' - $' + OUTPUT_DF['cost_usdperkglive'].round(2).astype(str)
+   OUTPUT_DF['label_birr'] = OUTPUT_DF['Age_group_string'] + ' - ' + OUTPUT_DF['cost_birr'].map('{:,.0f}'.format).astype(str) + ' Birr'
+   OUTPUT_DF['label_usd'] = OUTPUT_DF['Age_group_string'] + ' - ' + OUTPUT_DF['cost_usd'].map('{:,.0f}'.format).astype(str) + ' USD'
 
 
    return OUTPUT_DF
@@ -1508,13 +1496,10 @@ def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
         measure = measure,  # This needs to change with number of columns in waterfalll
         x=x,
         y=y,
-        # text=text,
-        # hoverinfo = 'none',
-        # textposition = ["outside","outside","auto","auto","outside"],
         decreasing = {'marker':{"color":'#E84C3D'}},
         increasing = {'marker':{"color":'#3598DB'}},
         totals = {'marker':{"color":'#F7931D'}},
-        connector = {"line":{"color":"darkgrey"}}#"rgb(63, 63, 63)"}},
+        connector = {"line":{"color":"darkgrey"}}
         ))
 
     waterfall_fig.update_layout(clickmode='event+select', ### EVENT SELECT ??????
@@ -1541,16 +1526,19 @@ def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
     return waterfall_fig
 
 # Define the stacked bar
-def create_stacked_bar_ecs(input_df, x, y, color, yaxis_title):
+def create_stacked_bar_ecs(input_df, x, y, text, color, yaxis_title):
     bar_fig = px.bar(
         input_df,
         x=x,
         y=y,
+        text = text,
         color=color,
         color_discrete_map={
           "Neonatal male":"#2A80B9",
+          "Neonatal":"#2A80B9",
           "Neonatal female":"#6eb1de",
           "Juvenile male":"#9B58B5",
+          "Juvenile":"#9B58B5",
           "Juvenile female":"#caa6d8",
           "Adult male":"#2DCC70",
           "Adult female":"#82e3aa",
@@ -5161,25 +5149,34 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
     if currency == 'USD':
         display_currency = 'USD'
 
-        prep_df['mean_current']                    = prep_df['mean_current_usd']
-        prep_df['mean_mortality_zero']             = prep_df['mean_mortality_zero_usd']
-        prep_df['mean_ideal']                      = prep_df['mean_ideal_usd']
-        prep_df['mean_AHLE']                       = prep_df['mean_AHLE_usd']
-        prep_df['mean_AHLE_mortality']             = prep_df['mean_AHLE_mortality_usd']
-        prep_df['mean_all_mort_25_imp']            = prep_df['mean_all_mort_25_imp_usd']
-        prep_df['mean_all_mort_50_imp']            = prep_df['mean_all_mort_50_imp_usd']
-        prep_df['mean_all_mort_75_imp']            = prep_df['mean_all_mort_75_imp_usd']
-        prep_df['mean_all_mort_25_AHLE']           = prep_df['mean_all_mort_25_AHLE_usd']
-        prep_df['mean_all_mort_50_AHLE']           = prep_df['mean_all_mort_50_AHLE_usd']
-        prep_df['mean_all_mort_75_AHLE']           = prep_df['mean_all_mort_75_AHLE_usd']
-        prep_df['mean_current_repro_25_imp']       = prep_df['mean_current_repro_25_imp_usd']
-        prep_df['mean_current_repro_50_imp']       = prep_df['mean_current_repro_50_imp_usd']
-        prep_df['mean_current_repro_75_imp']       = prep_df['mean_current_repro_75_imp_usd']
-        prep_df['mean_current_repro_100_imp']      = prep_df['mean_current_repro_100_imp_usd']
-        prep_df['mean_all_current_repro_25_AHLE']  = prep_df['mean_all_current_repro_25_AHLE_usd']
-        prep_df['mean_all_current_repro_50_AHLE']  = prep_df['mean_all_current_repro_50_AHLE_usd']
-        prep_df['mean_all_current_repro_75_AHLE']  = prep_df['mean_all_current_repro_75_AHLE_usd']
-        prep_df['mean_all_current_repro_100_AHLE'] = prep_df['mean_all_current_repro_100_AHLE_usd']
+        prep_df['mean_current']                     = prep_df['mean_current_usd']
+        prep_df['mean_mortality_zero']              = prep_df['mean_mortality_zero_usd']
+        prep_df['mean_ideal']                       = prep_df['mean_ideal_usd']
+        prep_df['mean_AHLE']                        = prep_df['mean_AHLE_usd']
+        prep_df['mean_AHLE_mortality']              = prep_df['mean_AHLE_mortality_usd']
+        prep_df['mean_all_mort_25_imp']             = prep_df['mean_all_mort_25_imp_usd']
+        prep_df['mean_all_mort_50_imp']             = prep_df['mean_all_mort_50_imp_usd']
+        prep_df['mean_all_mort_75_imp']             = prep_df['mean_all_mort_75_imp_usd']
+        prep_df['mean_all_mort_25_AHLE']            = prep_df['mean_all_mort_25_AHLE_usd']
+        prep_df['mean_all_mort_50_AHLE']            = prep_df['mean_all_mort_50_AHLE_usd']
+        prep_df['mean_all_mort_75_AHLE']            = prep_df['mean_all_mort_75_AHLE_usd']
+        prep_df['mean_current_repro_25_imp']        = prep_df['mean_current_repro_25_imp_usd']
+        prep_df['mean_current_repro_50_imp']        = prep_df['mean_current_repro_50_imp_usd']
+        prep_df['mean_current_repro_75_imp']        = prep_df['mean_current_repro_75_imp_usd']
+        prep_df['mean_current_repro_100_imp']       = prep_df['mean_current_repro_100_imp_usd']
+        prep_df['mean_all_current_repro_25_AHLE']   = prep_df['mean_all_current_repro_25_AHLE_usd']
+        prep_df['mean_all_current_repro_50_AHLE']   = prep_df['mean_all_current_repro_50_AHLE_usd']
+        prep_df['mean_all_current_repro_75_AHLE']   = prep_df['mean_all_current_repro_75_AHLE_usd']
+        prep_df['mean_all_current_repro_100_AHLE']  = prep_df['mean_all_current_repro_100_AHLE_usd']
+        prep_df['mean_current_growth_25_imp_all']   = prep_df['mean_current_growth_25_imp_all_usd']
+        prep_df['mean_current_growth_50_imp_all']   = prep_df['mean_current_growth_50_imp_all_usd']
+        prep_df['mean_current_growth_75_imp_all']   = prep_df['mean_current_growth_75_imp_all_usd']
+        prep_df['mean_current_growth_100_imp_all']  = prep_df['mean_current_growth_100_imp_all_usd']
+        prep_df['mean_all_current_growth_25_AHLE']  = prep_df['mean_all_current_growth_25_AHLE_usd']
+        prep_df['mean_all_current_growth_50_AHLE']  = prep_df['mean_all_current_growth_50_AHLE_usd']
+        prep_df['mean_all_current_growth_75_AHLE']  = prep_df['mean_all_current_growth_75_AHLE_usd']
+        prep_df['mean_all_current_growth_100_AHLE'] = prep_df['mean_all_current_growth_100_AHLE_usd']
+
 
     # Filters
     if age == "Neonatal": # Removing value of hides for neonatal
@@ -5247,6 +5244,8 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
                 y = prep_df['mean_all_mort_50_AHLE']
             elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
                 y = prep_df['mean_all_mort_75_AHLE']
+            elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
+                y = prep_df['mean_AHLE_mortality']
             elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '25%':
                 y = prep_df['mean_all_current_repro_25_AHLE']
             elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '50%':
@@ -5255,6 +5254,15 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
                 y = prep_df['mean_all_current_repro_75_AHLE']
             elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '100%':
                 y = prep_df['mean_all_current_repro_100_AHLE']
+            elif impvmnt_factor == 'Live Weight' and impvmnt_value == '25%':
+                y = prep_df['mean_all_current_growth_25_AHLE']
+            elif impvmnt_factor == 'Live Weight' and impvmnt_value == '50%':
+                y = prep_df['mean_all_current_growth_50_AHLE']
+            elif impvmnt_factor == 'Live Weight' and impvmnt_value == '75%':
+                y = prep_df['mean_all_current_growth_75_AHLE']
+            elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
+                y = prep_df['mean_all_current_growth_100_AHLE']
+                
         # Create graph
         name = 'AHLE'
         ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
@@ -5321,6 +5329,8 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
                 y = prep_df['mean_all_mort_50_imp']
             elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
                 y = prep_df['mean_all_mort_75_imp']
+            elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
+                y = prep_df['mean_mortality_zero']
             elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '25%':
                 y = prep_df['mean_current_repro_25_imp']
             elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '50%':
@@ -5329,6 +5339,14 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
                 y = prep_df['mean_current_repro_75_imp']
             elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '100%':
                 y = prep_df['mean_current_repro_100_imp']
+            elif impvmnt_factor == 'Live Weight' and impvmnt_value == '25%':
+                y = prep_df['mean_current_growth_25_imp_all']
+            elif impvmnt_factor == 'Live Weight' and impvmnt_value == '50%':
+                y = prep_df['mean_current_growth_50_imp_all']
+            elif impvmnt_factor == 'Live Weight' and impvmnt_value == '75%':
+                y = prep_df['mean_current_growth_75_imp_all']
+            elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
+                y = prep_df['mean_current_growth_100_imp_all']
                 
             name = impvmnt_factor + "- " + impvmnt_value
             # Create graph
@@ -5439,44 +5457,413 @@ def update_attr_treemap_ecs(input_json, prodsys, age, sex, currency,
     Input('select-prodsys-ecs','value'),
     Input('select-species-ecs','value'),
     Input('select-currency-ecs','value'),
+    Input('select-compare-ecs','value'),
+    Input('select-factor-ecs','value'),
+    Input('select-improve-ecs','value'),
     )
-def update_stacked_bar_ecs(prodsys, species, currency):
+def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, impvmnt_value):
 
     # AHLE Summary 2 - for stacked bar
     input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
 
-    # Remove 'all small ruminants' as an option for display of species
-    input_df = input_df[input_df.species != 'All small ruminants']
-
     # Rename values to match filters
-    # Species
-    # input_df['species'] = input_df['species'].replace({'All small ruminants': 'All Small Ruminants'})
+    input_df['species'] = input_df['species'].replace({'All small ruminants': 'All Small Ruminants'})
     input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
 
+    # Set columns for stacked bar based on selections
+    # Change y based on selected currency value
+    if compare == 'Ideal':
+       cols_birr_costs = [
+      'ahle_when_nm_ideal_mean'   
+      ,'ahle_when_nf_ideal_mean'
+      ,'ahle_when_jm_ideal_mean'
+      ,'ahle_when_jf_ideal_mean'
+      ,'ahle_when_am_ideal_mean'
+      ,'ahle_when_af_ideal_mean'
+      ]
+       cols_usd_costs = [
+      'ahle_when_nm_ideal_mean_usd'
+      ,'ahle_when_nf_ideal_mean_usd'
+      ,'ahle_when_jm_ideal_mean_usd'
+      ,'ahle_when_jf_ideal_mean_usd'
+      ,'ahle_when_am_ideal_mean_usd'
+      ,'ahle_when_af_ideal_mean_usd'
+      ]
+       pretty_ahle_cost_names = {
+          'ahle_when_nm_ideal_mean':'Neonatal male'
+          ,'ahle_when_nm_ideal_mean_usd':'Neonatal male'
+
+          ,'ahle_when_nf_ideal_mean':'Neonatal female'
+          ,'ahle_when_nf_ideal_mean_usd':'Neonatal female'
+
+          ,'ahle_when_jm_ideal_mean':'Juvenile male'
+          ,'ahle_when_jm_ideal_mean_usd':'Juvenile male'
+
+          ,'ahle_when_jf_ideal_mean':'Juvenile female'
+          ,'ahle_when_jf_ideal_mean_usd':'Juvenile female'
+
+           ,'ahle_when_am_ideal_mean':'Adult male'
+           ,'ahle_when_am_ideal_mean_usd':'Adult male'
+
+          ,'ahle_when_af_ideal_mean':'Adult female'
+          ,'ahle_when_af_ideal_mean_usd':'Adult female'
+       }
+       
+    elif compare == 'Mortality 0':
+        cols_birr_costs = [ 
+        'ahle_when_n_mort_imp100_mean'
+        ,'ahle_when_j_mort_imp100_mean'
+        ,'ahle_when_am_mort_imp100_mean'
+        ,'ahle_when_af_mort_imp100_mean'
+        ]
+        cols_usd_costs = [
+        'ahle_when_n_mort_imp100_mean_usd'
+        ,'ahle_when_j_mort_imp100_mean_usd'
+        ,'ahle_when_am_mort_imp100_mean_usd'
+        ,'ahle_when_af_mort_imp100_mean_usd'
+        ]
+        pretty_ahle_cost_names = {
+            'ahle_when_n_mort_imp100_mean':'Neonatal'
+            ,'ahle_when_n_mort_imp100_mean_usd':'Neonatal'
+
+            ,'ahle_when_j_mort_imp100_mean':'Juvenile'
+            ,'ahle_when_j_mort_imp100_mean_usd':'Juvenile'
+
+            ,'ahle_when_am_mort_imp100_mean':'Adult male'
+            ,'ahle_when_am_mort_imp100_mean_usd':'Adult male'
+
+            ,'ahle_when_af_mort_imp100_mean':'Adult female'
+            ,'ahle_when_af_mort_imp100_mean_usd':'Adult female'
+        }
+    else:
+        if impvmnt_factor == 'Mortality' and impvmnt_value == '25%':
+            cols_birr_costs = [ 
+            'ahle_when_n_mort_imp25_mean'
+            ,'ahle_when_j_mort_imp25_mean'
+            ,'ahle_when_am_mort_imp25_mean'
+            ,'ahle_when_af_mort_imp25_mean'
+            ]
+            cols_usd_costs = [
+            'ahle_when_n_mort_imp25_mean_usd'
+            ,'ahle_when_j_mort_imp25_mean_usd'
+            ,'ahle_when_am_mort_imp25_mean_usd'
+            ,'ahle_when_af_mort_imp25_mean_usd'
+            ]
+            pretty_ahle_cost_names = {
+                'ahle_when_n_mort_imp25_mean':'Neonatal'
+                ,'ahle_when_n_mort_imp25_mean_usd':'Neonatal'
+
+                ,'ahle_when_j_mort_imp25_mean':'Juvenile'
+                ,'ahle_when_j_mort_imp25_mean_usd':'Juvenile'
+
+                ,'ahle_when_am_mort_imp25_mean':'Adult male'
+                ,'ahle_when_am_mort_imp25_mean_usd':'Adult male'
+
+                ,'ahle_when_af_mort_imp25_mean':'Adult female'
+                ,'ahle_when_af_mort_imp25_mean_usd':'Adult female'
+            }
+        elif impvmnt_factor == 'Mortality' and impvmnt_value == '50%':
+            cols_birr_costs = [ 
+            'ahle_when_n_mort_imp50_mean'
+            ,'ahle_when_j_mort_imp50_mean'
+            ,'ahle_when_am_mort_imp50_mean'
+            ,'ahle_when_af_mort_imp50_mean'
+            ]
+            cols_usd_costs = [
+            'ahle_when_n_mort_imp50_mean_usd'
+            ,'ahle_when_j_mort_imp50_mean_usd'
+            ,'ahle_when_am_mort_imp50_mean_usd'
+            ,'ahle_when_af_mort_imp50_mean_usd'
+            ]
+            pretty_ahle_cost_names = {
+                'ahle_when_n_mort_imp50_mean':'Neonatal'
+                ,'ahle_when_n_mort_imp50_mean_usd':'Neonatal'
+
+                ,'ahle_when_j_mort_imp50_mean':'Juvenile'
+                ,'ahle_when_j_mort_imp50_mean_usd':'Juvenile'
+
+                ,'ahle_when_am_mort_imp50_mean':'Adult male'
+                ,'ahle_when_am_mort_imp50_mean_usd':'Adult male'
+
+                ,'ahle_when_af_mort_imp50_mean':'Adult female'
+                ,'ahle_when_af_mort_imp50_mean_usd':'Adult female'
+            }
+        elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
+            cols_birr_costs = [ 
+            'ahle_when_n_mort_imp75_mean'
+            ,'ahle_when_j_mort_imp75_mean'
+            ,'ahle_when_am_mort_imp75_mean'
+            ,'ahle_when_af_mort_imp75_mean'
+            ]
+            cols_usd_costs = [
+            'ahle_when_n_mort_imp75_mean_usd'
+            ,'ahle_when_j_mort_imp75_mean_usd'
+            ,'ahle_when_am_mort_imp75_mean_usd'
+            ,'ahle_when_af_mort_imp75_mean_usd'
+            ]
+            pretty_ahle_cost_names = {
+                'ahle_when_n_mort_imp75_mean':'Neonatal'
+                ,'ahle_when_n_mort_imp75_mean_usd':'Neonatal'
+
+                ,'ahle_when_j_mort_imp75_mean':'Juvenile'
+                ,'ahle_when_j_mort_imp75_mean_usd':'Juvenile'
+
+                ,'ahle_when_am_mort_imp75_mean':'Adult male'
+                ,'ahle_when_am_mort_imp75_mean_usd':'Adult male'
+
+                ,'ahle_when_af_mort_imp75_mean':'Adult female'
+                ,'ahle_when_af_mort_imp75_mean_usd':'Adult female'
+            }
+        elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
+            cols_birr_costs = [ 
+            'ahle_when_n_mort_imp100_mean'
+            ,'ahle_when_j_mort_imp100_mean'
+            ,'ahle_when_am_mort_imp100_mean'
+            ,'ahle_when_af_mort_imp100_mean'
+            ]
+            cols_usd_costs = [
+            'ahle_when_n_mort_imp100_mean_usd'
+            ,'ahle_when_j_mort_imp100_mean_usd'
+            ,'ahle_when_am_mort_imp100_mean_usd'
+            ,'ahle_when_af_mort_imp100_mean_usd'
+            ]
+            pretty_ahle_cost_names = {
+                'ahle_when_n_mort_imp100_mean':'Neonatal'
+                ,'ahle_when_n_mort_imp100_mean_usd':'Neonatal'
+
+                ,'ahle_when_j_mort_imp100_mean':'Juvenile'
+                ,'ahle_when_j_mort_imp100_mean_usd':'Juvenile'
+
+                ,'ahle_when_am_mort_imp100_mean':'Adult male'
+                ,'ahle_when_am_mort_imp100_mean_usd':'Adult male'
+
+                ,'ahle_when_af_mort_imp100_mean':'Adult female'
+                ,'ahle_when_af_mort_imp100_mean_usd':'Adult female'
+            }
+        elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '25%':
+            cols_birr_costs = [ 
+            'ahle_when_repro_imp25_mean'
+            ]
+            cols_usd_costs = [
+            'ahle_when_repro_imp25_mean_usd'
+            ]
+            pretty_ahle_cost_names = {
+                'ahle_when_repro_imp25_mean':'Adult female'
+                ,'ahle_when_repro_imp25_mean_usd':'Adult female'
+            }
+        elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '50%':
+            cols_birr_costs = [ 
+            'ahle_when_repro_imp50_mean'
+            ]
+            cols_usd_costs = [
+            'ahle_when_repro_imp50_mean_usd'
+            ]
+            pretty_ahle_cost_names = {
+                'ahle_when_repro_imp50_mean':'Adult female'
+                ,'ahle_when_repro_imp50_mean_usd':'Adult female'
+            }
+        elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '75%':
+            cols_birr_costs = [ 
+            'ahle_when_repro_imp75_mean'
+            ]
+            cols_usd_costs = [
+            'ahle_when_repro_imp75_mean_usd'
+            ]
+            pretty_ahle_cost_names = {
+                'ahle_when_repro_imp75_mean':'Adult female'
+                ,'ahle_when_repro_imp75_mean_usd':'Adult female'
+            }
+        elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '100%':
+            cols_birr_costs = [ 
+            'ahle_when_repro_imp100_mean'
+            ]
+            cols_usd_costs = [
+            'ahle_when_repro_imp100_mean_usd'
+            ]
+            pretty_ahle_cost_names = {
+                'ahle_when_repro_imp100_mean':'Adult female'
+                ,'ahle_when_repro_imp100_mean_usd':'Adult female'
+            }
+        elif impvmnt_factor == 'Live Weight' and impvmnt_value == '25%':
+            cols_birr_costs = [
+           'ahle_when_nm_growth_imp25_mean'   
+           ,'ahle_when_nf_growth_imp25_mean'
+           ,'ahle_when_jm_growth_imp25_mean'
+           ,'ahle_when_jf_growth_imp25_mean'
+           ,'ahle_when_am_growth_imp25_mean'
+           ,'ahle_when_af_growth_imp25_mean'
+           ]
+            cols_usd_costs = [
+           'ahle_when_nm_growth_imp25_mean_usd'
+           ,'ahle_when_nf_growth_imp25_mean_usd'
+           ,'ahle_when_jm_growth_imp25_mean_usd'
+           ,'ahle_when_jf_growth_imp25_mean_usd'
+           ,'ahle_when_am_growth_imp25_mean_usd'
+           ,'ahle_when_af_growth_imp25_mean_usd'
+           ]
+            pretty_ahle_cost_names = {
+               'ahle_when_nm_growth_imp25_mean':'Neonatal male'
+               ,'ahle_when_nm_growth_imp25_mean_usd':'Neonatal male'
+
+               ,'ahle_when_nf_growth_imp25_mean':'Neonatal female'
+               ,'ahle_when_nf_growth_imp25_mean_usd':'Neonatal female'
+
+               ,'ahle_when_jm_growth_imp25_mean':'Juvenile male'
+               ,'ahle_when_jm_growth_imp25_mean_usd':'Juvenile male'
+
+               ,'ahle_when_jf_growth_imp25_mean':'Juvenile female'
+               ,'ahle_when_jf_growth_imp25_mean_usd':'Juvenile female'
+
+                ,'ahle_when_am_growth_imp25_mean':'Adult male'
+                ,'ahle_when_am_growth_imp25_mean_usd':'Adult male'
+
+               ,'ahle_when_af_growth_imp25_mean':'Adult female'
+               ,'ahle_when_af_growth_imp25_mean_usd':'Adult female'
+            }
+            
+        elif impvmnt_factor == 'Live Weight' and impvmnt_value == '50%':
+            cols_birr_costs = [
+           'ahle_when_nm_growth_imp50_mean'   
+           ,'ahle_when_nf_growth_imp50_mean'
+           ,'ahle_when_jm_growth_imp50_mean'
+           ,'ahle_when_jf_growth_imp50_mean'
+           ,'ahle_when_am_growth_imp50_mean'
+           ,'ahle_when_af_growth_imp50_mean'
+           ]
+            cols_usd_costs = [
+           'ahle_when_nm_growth_imp50_mean_usd'
+           ,'ahle_when_nf_growth_imp50_mean_usd'
+           ,'ahle_when_jm_growth_imp50_mean_usd'
+           ,'ahle_when_jf_growth_imp50_mean_usd'
+           ,'ahle_when_am_growth_imp50_mean_usd'
+           ,'ahle_when_af_growth_imp50_mean_usd'
+           ]
+            pretty_ahle_cost_names = {
+               'ahle_when_nm_growth_imp50_mean':'Neonatal male'
+               ,'ahle_when_nm_growth_imp50_mean_usd':'Neonatal male'
+
+               ,'ahle_when_nf_growth_imp50_mean':'Neonatal female'
+               ,'ahle_when_nf_growth_imp50_mean_usd':'Neonatal female'
+
+               ,'ahle_when_jm_growth_imp50_mean':'Juvenile male'
+               ,'ahle_when_jm_growth_imp50_mean_usd':'Juvenile male'
+
+               ,'ahle_when_jf_growth_imp50_mean':'Juvenile female'
+               ,'ahle_when_jf_growth_imp50_mean_usd':'Juvenile female'
+
+                ,'ahle_when_am_growth_imp50_mean':'Adult male'
+                ,'ahle_when_am_growth_imp50_mean_usd':'Adult male'
+
+               ,'ahle_when_af_growth_imp50_mean':'Adult female'
+               ,'ahle_when_af_growth_imp50_mean_usd':'Adult female'
+            }
+        elif impvmnt_factor == 'Live Weight' and impvmnt_value == '75%':
+            cols_birr_costs = [
+           'ahle_when_nm_growth_imp75_mean'   
+           ,'ahle_when_nf_growth_imp75_mean'
+           ,'ahle_when_jm_growth_imp75_mean'
+           ,'ahle_when_jf_growth_imp75_mean'
+           ,'ahle_when_am_growth_imp75_mean'
+           ,'ahle_when_af_growth_imp75_mean'
+           ]
+            cols_usd_costs = [
+           'ahle_when_nm_growth_imp75_mean_usd'
+           ,'ahle_when_nf_growth_imp75_mean_usd'
+           ,'ahle_when_jm_growth_imp75_mean_usd'
+           ,'ahle_when_jf_growth_imp75_mean_usd'
+           ,'ahle_when_am_growth_imp75_mean_usd'
+           ,'ahle_when_af_growth_imp75_mean_usd'
+           ]
+            pretty_ahle_cost_names = {
+               'ahle_when_nm_growth_imp75_mean':'Neonatal male'
+               ,'ahle_when_nm_growth_imp75_mean_usd':'Neonatal male'
+
+               ,'ahle_when_nf_growth_imp75_mean':'Neonatal female'
+               ,'ahle_when_nf_growth_imp75_mean_usd':'Neonatal female'
+
+               ,'ahle_when_jm_growth_imp75_mean':'Juvenile male'
+               ,'ahle_when_jm_growth_imp75_mean_usd':'Juvenile male'
+
+               ,'ahle_when_jf_growth_imp75_mean':'Juvenile female'
+               ,'ahle_when_jf_growth_imp75_mean_usd':'Juvenile female'
+
+                ,'ahle_when_am_growth_imp75_mean':'Adult male'
+                ,'ahle_when_am_growth_imp75_mean_usd':'Adult male'
+
+               ,'ahle_when_af_growth_imp75_mean':'Adult female'
+               ,'ahle_when_af_growth_imp75_mean_usd':'Adult female'
+            }
+        elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
+            cols_birr_costs = [
+           'ahle_when_nm_growth_imp100_mean'   
+           ,'ahle_when_nf_growth_imp100_mean'
+           ,'ahle_when_jm_growth_imp100_mean'
+           ,'ahle_when_jf_growth_imp100_mean'
+           ,'ahle_when_am_growth_imp100_mean'
+           ,'ahle_when_af_growth_imp100_mean'
+           ]
+            cols_usd_costs = [
+           'ahle_when_nm_growth_imp100_mean_usd'
+           ,'ahle_when_nf_growth_imp100_mean_usd'
+           ,'ahle_when_jm_growth_imp100_mean_usd'
+           ,'ahle_when_jf_growth_imp100_mean_usd'
+           ,'ahle_when_am_growth_imp100_mean_usd'
+           ,'ahle_when_af_growth_imp100_mean_usd'
+           ]
+            pretty_ahle_cost_names = {
+               'ahle_when_nm_growth_imp100_mean':'Neonatal male'
+               ,'ahle_when_nm_growth_imp100_mean_usd':'Neonatal male'
+
+               ,'ahle_when_nf_growth_imp100_mean':'Neonatal female'
+               ,'ahle_when_nf_growth_imp100_mean_usd':'Neonatal female'
+
+               ,'ahle_when_jm_growth_imp100_mean':'Juvenile male'
+               ,'ahle_when_jm_growth_imp100_mean_usd':'Juvenile male'
+
+               ,'ahle_when_jf_growth_imp100_mean':'Juvenile female'
+               ,'ahle_when_jf_growth_imp100_mean_usd':'Juvenile female'
+
+                ,'ahle_when_am_growth_imp100_mean':'Adult male'
+                ,'ahle_when_am_growth_imp100_mean_usd':'Adult male'
+
+               ,'ahle_when_af_growth_imp100_mean':'Adult female'
+               ,'ahle_when_af_growth_imp100_mean_usd':'Adult female'
+            }
+    
     # -----------------------------------------------------------------------------
     # Base plot
     # -----------------------------------------------------------------------------
     # Structure for plot
-    stackedbar_df = prep_ahle_forstackedbar_ecs(input_df)
+    stackedbar_df = prep_ahle_forstackedbar_ecs(input_df, cols_birr_costs, cols_usd_costs, pretty_ahle_cost_names)
 
     # Apply production system filter
     stackedbar_df = stackedbar_df.loc[(stackedbar_df['production_system'] == prodsys)]
 
+    # Apply species filter
+    stackedbar_df = stackedbar_df.loc[(stackedbar_df['species'] == species)]
     x = stackedbar_df['species']
-    color = stackedbar_df['AHLE Due To']
+    
     # Change y based on selected currency value
-    if currency == 'Birr':
-        y = stackedbar_df['cost_birr']
-        yaxis_title = 'Ethiopian Birr'
-    else:
-        y = stackedbar_df['cost_usd']
+    yaxis_title = 'Ethiopian Birr'
+    y = stackedbar_df['cost_birr']
+    text = stackedbar_df['label_birr']
+    if currency == 'USD':
         yaxis_title = 'USD'
+        y = stackedbar_df['cost_usd']
+        text = stackedbar_df['label_usd']
+    
+    # Color
+    color = stackedbar_df['AHLE Due To']        
     
     # Create Stacked Bar 
-    ahle_bar_ecs_fig = create_stacked_bar_ecs(stackedbar_df, x, y, color, yaxis_title)
+    ahle_bar_ecs_fig = create_stacked_bar_ecs(stackedbar_df, x, y, text, color, yaxis_title)
 
-    ahle_bar_ecs_fig.update_layout(title_text=f'AHLE Costs by Age Group | {prodsys}',
-                                font_size=15)
+    if compare == 'Ideal' or compare == 'Mortality 0':
+        ahle_bar_ecs_fig.update_layout(title_text=f'{compare} AHLE Costs by Age Group | {prodsys}',
+                                    font_size=15)
+    else:
+        ahle_bar_ecs_fig.update_layout(title_text=f'{impvmnt_factor} {impvmnt_value} AHLE Costs by Age Group | {prodsys}',
+                                    font_size=15)
     
     # !!! - STILL WORKING ON THIS
     # # Add tooltip

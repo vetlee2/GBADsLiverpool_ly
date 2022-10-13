@@ -355,8 +355,11 @@ ahle_combo_scensmry = pd.merge(
    )
 
 # =============================================================================
-#### Assign results from correct scenario to each row
+#### Assign results from correct scenario column to each row
 # =============================================================================
+'''
+Note that current scenario column applies to every row.
+'''
 def fill_column_where(
         DATAFRAME           # Dataframe
         ,LOC                # Dataframe mask e.g. _loc = (df['col'] == 'Value')
@@ -394,7 +397,7 @@ ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'stdev_cu
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_af')
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_af')
 
-# Reproduction scenario only applies to adult females
+# Reproduction scenario already applies to adult females
 # 'mean_current_repro_25_imp'
 # 'mean_current_repro_50_imp'
 # 'mean_current_repro_75_imp'
@@ -517,6 +520,10 @@ ahle_combo_scensmry.loc[_scen_jm ,'mean_current_repro_100_imp'] = np.nan
 _scen_cols = [i for i in list(ahle_combo_scensmry) if '_jm' in i]
 ahle_combo_scensmry = ahle_combo_scensmry.drop(columns=_scen_cols)
 
+# Further: drop columns for juveniles that are not sex-specific
+_scen_cols = [i for i in list(ahle_combo_scensmry) if '_j' in i]
+ahle_combo_scensmry = ahle_combo_scensmry.drop(columns=_scen_cols)
+
 # -----------------------------------------------------------------------------
 # Neonatal Female
 # -----------------------------------------------------------------------------
@@ -593,19 +600,72 @@ ahle_combo_scensmry.loc[_scen_nm ,'mean_current_repro_100_imp'] = np.nan
 _scen_cols = [i for i in list(ahle_combo_scensmry) if '_nm' in i]
 ahle_combo_scensmry = ahle_combo_scensmry.drop(columns=_scen_cols)
 
+# Further: drop columns for neonates that are not sex-specific
+_scen_cols = [i for i in list(ahle_combo_scensmry) if '_n' in i]
+ahle_combo_scensmry = ahle_combo_scensmry.drop(columns=_scen_cols)
+
 # =============================================================================
-#### Cleanup
+#### Add currency conversion
 # =============================================================================
-# Drop columns
+# Merge exchange rates onto data
+ahle_combo_scensmry['country_name'] = 'Ethiopia'     # Add country for joining
+ahle_combo_scensmry = pd.merge(
+    left=ahle_combo_scensmry
+    ,right=exchg_data_tomerge
+    ,on='country_name'
+    ,how='left'
+    )
+del ahle_combo_scensmry['country_name']
+
+# Add columns in USD for appropriate items
+currency_items_containing = ['cost' ,'value' ,'margin' ,'expenditure']
+currency_items = []
+for STR in currency_items_containing:
+   currency_items = currency_items + [item for item in ahle_combo_scensmry['item'].unique() if STR.upper() in item.upper()]
+
+mean_cols = [i for i in list(ahle_combo_scensmry) if 'mean' in i]
+sd_cols = [i for i in list(ahle_combo_scensmry) if 'stdev' in i]
+
+for MEANCOL in mean_cols:
+   MEANCOL_USD = MEANCOL + '_usd'
+   ahle_combo_scensmry.loc[ahle_combo_scensmry['item'].isin(currency_items) ,MEANCOL_USD] = \
+      ahle_combo_scensmry[MEANCOL] / ahle_combo_scensmry['exchg_rate_lcuperusdol']
+
+# For standard deviations, convert to variances then scale by the squared exchange rate
+# VAR(aX) = a^2 * VAR(X).  a = 1/exchange rate.
+for SDCOL in sd_cols:
+   SDCOL_USD = SDCOL + '_usd'
+   ahle_combo_scensmry.loc[ahle_combo_scensmry['item'].isin(currency_items) ,SDCOL_USD] = \
+      np.sqrt(ahle_combo_scensmry[SDCOL]**2 / ahle_combo_scensmry['exchg_rate_lcuperusdol']**2)
+
+# =============================================================================
+#### Cleanup and export
+# =============================================================================
+# Drop columns with unused distributional attributes
 drop_distr_containing = ['min_' ,'q1_' ,'median_' ,'q3_' ,'max_']
 drop_distr_cols = []
 for STR in drop_distr_containing:
    drop_distr_cols = drop_distr_cols + [item for item in list(ahle_combo_scensmry) if STR.upper() in item.upper()]
 
+# Drop columns with original age/sex groups (this file uses only the Overall group)
 dropcols = ['group' ,'age_group' ,'sex'] + drop_distr_cols
 ahle_combo_scensmry = ahle_combo_scensmry.drop(columns=dropcols)
 
+# Rename columns to match previous file
+ahle_combo_scensmry = ahle_combo_scensmry.rename(
+    columns={
+        'mean_all_mortality_zero':'mean_mortality_zero'
+        ,'stdev_all_mortality_zero':'stdev_mortality_zero'
+
+        ,'mean_all_mortality_zero_usd':'mean_mortality_zero_usd'
+        ,'stdev_all_mortality_zero_usd':'stdev_mortality_zero_usd'
+        }
+    )
+
 datainfo(ahle_combo_scensmry)
+
+ahle_combo_scensmry.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_scensmry.csv') ,index=False)
+ahle_combo_scensmry.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_scensmry.pkl.gz'))
 
 #%% === BREAK ===
 '''

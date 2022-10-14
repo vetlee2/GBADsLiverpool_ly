@@ -21,19 +21,23 @@ for AHLE.
 
 #%% Prep for Attribution using latest AHLE inputs
 
-# Read data
-ahle_combo_withahle = pd.read_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_intermediate_calcs.pkl.gz'))
+# =============================================================================
+#### Read data
+# =============================================================================
+ahle_combo_withahle = pd.read_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_scensmry_ahle.pkl.gz'))
 datainfo(ahle_combo_withahle)
 
-# Restructure to use as input to Attribution function
+# =============================================================================
+#### Restructure to use as input to Attribution function
+# =============================================================================
 ahle_combo_forattr_means = ahle_combo_withahle.melt(
-   id_vars=['species' ,'production_system' ,'group']
+   id_vars=['species' ,'production_system' ,'agesex_scenario']
    ,value_vars=['ahle_dueto_mortality_mean' ,'ahle_dueto_healthcost_mean' ,'ahle_dueto_productionloss_mean']
    ,var_name='ahle_component'
    ,value_name='mean'
 )
 ahle_combo_forattr_stdev = ahle_combo_withahle.melt(
-   id_vars=['species' ,'production_system' ,'group']
+   id_vars=['species' ,'production_system' ,'agesex_scenario']
    ,value_vars=['ahle_dueto_mortality_stdev' ,'ahle_dueto_healthcost_stdev' ,'ahle_dueto_productionloss_stdev']
    ,var_name='ahle_component'
    ,value_name='stdev'
@@ -56,11 +60,77 @@ ahle_combo_forattr_stdev['ahle_component'] = ahle_combo_forattr_stdev['ahle_comp
 ahle_combo_forattr = pd.merge(
    left=ahle_combo_forattr_means
    ,right=ahle_combo_forattr_stdev
-   ,on=['species' ,'production_system' ,'group' ,'ahle_component']
+   ,on=['species' ,'production_system' ,'agesex_scenario' ,'ahle_component']
    ,how='outer'
 )
+del ahle_combo_forattr_means ,ahle_combo_forattr_stdev
 
-# Filter age/sex groups and rename to match attribution code
+# =============================================================================
+#### Create aggregate groups
+# =============================================================================
+'''
+Attribution function uses non-sex-specific Juvenile and Neonatal groups
+'''
+# Add variance column for summing
+ahle_combo_forattr['variance'] = ahle_combo_forattr['stdev']**2
+
+# -----------------------------------------------------------------------------
+# Mortality scenarios are already non-sex-specific for Juveniles and Neonates
+# -----------------------------------------------------------------------------
+# Keep only one sex
+_droprows = (ahle_combo_forattr['ahle_component'] == 'Mortality') \
+    & (ahle_combo_forattr['agesex_scenario'].isin(['Juvenile Male' ,'Neonatal Male']))
+print(f"> Dropping {_droprows.sum() :,} rows.")
+ahle_combo_forattr = ahle_combo_forattr.drop(ahle_combo_forattr.loc[_droprows].index).reset_index(drop=True)
+
+# For mortality rows, change group label
+relabel_mort = {
+    "Juvenile Female":"Juvenile Combined"
+    ,"Neonatal Female":"Neonatal Combined"
+    }
+_mortrows = (ahle_combo_forattr['ahle_component'] == 'Mortality')
+ahle_combo_forattr.loc[_mortrows] = ahle_combo_forattr.loc[_mortrows].replace(relabel_mort)
+
+# -----------------------------------------------------------------------------
+# Health Cost and Production Loss figures are sex-specific
+# -----------------------------------------------------------------------------
+# Sum means and variances
+_agg_juv = (ahle_combo_forattr['agesex_scenario'].str.contains('Juvenile')) \
+    & (ahle_combo_forattr['ahle_component'].isin(['Health cost' ,'Production loss']))
+ahle_combo_forattr_aggjuv = ahle_combo_forattr.loc[_agg_juv].pivot_table(
+	index=['species' ,'production_system' ,'ahle_component']
+	,values=['mean' ,'variance']
+	,aggfunc='sum'
+)
+ahle_combo_forattr_aggjuv = ahle_combo_forattr_aggjuv.reset_index()         # Pivoting will change columns to indexes. Change them back.
+ahle_combo_forattr_aggjuv['agesex_scenario'] = 'Juvenile Combined'
+ahle_combo_forattr_aggjuv['stdev'] = np.sqrt(ahle_combo_forattr_aggjuv['variance'])
+
+_agg_neo = (ahle_combo_forattr['agesex_scenario'].str.contains('Neonatal')) \
+    & (ahle_combo_forattr['ahle_component'].isin(['Health cost' ,'Production loss']))
+ahle_combo_forattr_aggneo = ahle_combo_forattr.loc[_agg_neo].pivot_table(
+	index=['species' ,'production_system' ,'ahle_component']
+	,values=['mean' ,'variance']
+	,aggfunc='sum'
+)
+ahle_combo_forattr_aggneo = ahle_combo_forattr_aggneo.reset_index()         # Pivoting will change columns to indexes. Change them back.
+ahle_combo_forattr_aggneo['agesex_scenario'] = 'Neonatal Combined'
+ahle_combo_forattr_aggneo['stdev'] = np.sqrt(ahle_combo_forattr_aggneo['variance'])
+
+# -----------------------------------------------------------------------------
+# Concatenate with original
+# -----------------------------------------------------------------------------
+ahle_combo_forattr = pd.concat(
+    [ahle_combo_forattr ,ahle_combo_forattr_aggjuv ,ahle_combo_forattr_aggneo]
+	,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
+	,join='outer'        # 'outer': keep all index values from all data frames
+	,ignore_index=True   # True: do not keep index values on concatenation axis
+)
+del ahle_combo_forattr_aggjuv ,ahle_combo_forattr_aggneo
+
+# =============================================================================
+#### Filter age/sex groups and rename to match attribution code
+# =============================================================================
 groups_for_attribution = {
    'Adult Female':'Adult female'
    ,'Adult Male':'Adult male'
@@ -69,28 +139,34 @@ groups_for_attribution = {
 }
 groups_for_attribution_upper = [i.upper() for i in list(groups_for_attribution)]
 
-_row_selection = (ahle_combo_forattr['group'].str.upper().isin(groups_for_attribution_upper)) \
+_row_selection = (ahle_combo_forattr['agesex_scenario'].str.upper().isin(groups_for_attribution_upper)) \
    & (ahle_combo_forattr['species'].str.upper().isin(['SHEEP' ,'GOAT'])) \
       & (ahle_combo_forattr['production_system'].str.upper().isin(['CROP LIVESTOCK MIXED' ,'PASTORAL']))
 print(f"> Selected {_row_selection.sum() :,} rows.")
 ahle_combo_forattr = ahle_combo_forattr.loc[_row_selection].reset_index(drop=True)
 
 # Rename groups to match attribution code
-ahle_combo_forattr['group'] = ahle_combo_forattr['group'].replace(groups_for_attribution)
+ahle_combo_forattr['agesex_scenario'] = ahle_combo_forattr['agesex_scenario'].replace(groups_for_attribution)
 
-# Rename columns to names Attribution code looks for
+# Rename columns to match attribution code
 colnames = {
    "species":"Species"
    ,"production_system":"Production system"
-   ,"group":"Age class"
+   ,"agesex_scenario":"Age class"
    ,"ahle_component":"AHLE"
    ,"mean":"mean"
    ,"stdev":"sd"
 }
 ahle_combo_forattr = ahle_combo_forattr.rename(columns=colnames)
 
+# =============================================================================
+#### Cleanup and export
+# =============================================================================
 # Fill in missing standard deviations with zero
 ahle_combo_forattr['sd'] = ahle_combo_forattr['sd'].replace(np.nan ,0)
+
+# Drop variance column
+ahle_combo_forattr = ahle_combo_forattr.drop(columns=['variance'])
 
 # Write CSV
 ahle_combo_forattr.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_forattr.csv') ,index=False)
@@ -113,8 +189,7 @@ timerstop()
 
 #%% Process attribution results
 
-attribution_summary = pd.read_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary.csv'))
-ahle_combo_withattr = attribution_summary.copy()
+ahle_combo_withattr = pd.read_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary.csv'))
 cleancolnames(ahle_combo_withattr)
 datainfo(ahle_combo_withattr)
 

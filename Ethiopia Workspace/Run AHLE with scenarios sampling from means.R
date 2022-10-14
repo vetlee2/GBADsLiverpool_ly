@@ -17,7 +17,7 @@
 # -----------------------------------------------------------------
 # Number of simulation iterations
 
-cmd_nruns <- 10000
+cmd_nruns <- 10
 
 # Folder location to save outputs
 #cmd_output_directory <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Program outputs'
@@ -107,8 +107,6 @@ compartmental_model <- function(
     ,lac_duration #(days)
     ,avg_daily_yield_ltr
     ,milk_value_ltr
-    
-    
     
     # Offtake
     ## Currently fixed, but, should this be dependant on new pop size, to keep pop size as it was at t0

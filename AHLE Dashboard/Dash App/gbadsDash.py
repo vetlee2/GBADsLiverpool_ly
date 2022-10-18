@@ -5437,7 +5437,12 @@ def update_ahle_waterfall_ecs(input_json, agesex, species, display, compare, pro
                 title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
                 yaxis_title=display_currency,
                 font_size=15,
-                margin=dict(t=100)
+                margin=dict(t=100),
+                legend=dict(orientation="h",
+                            xanchor="right",
+                            x=1,
+                            yanchor="bottom",
+                            y=1.02,)
                 )
 
         elif compare == 'Zero Mortality':
@@ -5465,7 +5470,12 @@ def update_ahle_waterfall_ecs(input_json, agesex, species, display, compare, pro
                 title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
                 yaxis_title=display_currency,
                 font_size=15,
-                margin=dict(t=100)
+                margin=dict(t=100),
+                legend=dict(orientation="h",
+                            xanchor="right",
+                            x=1,
+                            yanchor="bottom",
+                            y=1.02,)
                 )
 
         else:
@@ -5517,7 +5527,12 @@ def update_ahle_waterfall_ecs(input_json, agesex, species, display, compare, pro
                 title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
                 yaxis_title=display_currency,
                 font_size=15,
-                margin=dict(t=100)
+                margin=dict(t=100),
+                legend=dict(orientation="h",
+                            xanchor="right",
+                            x=1,
+                            yanchor="bottom",
+                            y=1.02,)
                 )
 
     # Add tooltip
@@ -5553,9 +5568,7 @@ def update_attr_treemap_ecs(input_json, prodsys, currency,
     input_df = pd.read_json(input_json, orient='split')
 
     # If currency is USD, use USD columns
-    display_currency = 'Birr'
     if currency == 'USD':
-        display_currency = 'USD'
         input_df['median'] = input_df['median_usd']
         input_df['mean'] = input_df['mean_usd']
         input_df['sd'] = input_df['sd_usd']

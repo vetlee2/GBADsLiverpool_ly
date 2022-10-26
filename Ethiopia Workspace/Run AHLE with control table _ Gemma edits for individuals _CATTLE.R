@@ -16,7 +16,7 @@
 # Set manually
 # -----------------------------------------------------------------
 # Number of simulation iterations
-cmd_nruns <- 1000
+cmd_nruns <- 10000
 
 # Folder location to save outputs
 cmd_output_directory <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Program outputs'
@@ -105,8 +105,6 @@ compartmental_model <- function(
 	,Beta_N
 	,Beta_J
 	
-	# Castration rate
-	
 	# Fertility
 	,part
 	,prolif
@@ -125,8 +123,12 @@ compartmental_model <- function(
 	# Offtake
 	## Currently fixed, but, should this be dependant on new pop size, to keep pop size as it was at t0
 	## offtake must = offtake + dif between NNFt0 etc and NJF current
-	,GammaF 		# offtake rate female (juv and adult only) 
-	,GammaM 		# offtake rate male
+	,GammaNF 		# offtake rate female (juv and adult only) 
+	,GammaNM 		# offtake rate female (juv and adult only) 
+	,GammaJF 		# offtake rate female (juv and adult only) 
+	,GammaJM
+	,GammaAF # offtake rate female (juv and adult only) 
+	,GammaAM # offtake rate male
 	,GammaO     # offtake rate oxen
 	
 	# Mortality ## informed from META analysis
@@ -320,6 +322,8 @@ compartmental_model <- function(
 	Cumulative_culls_AM <- rep(0, Num_months)
 	
 	# offtake
+	offtake_NF <- rep(0, Num_months)
+	offtake_NM <- rep(0, Num_months)
 	offtake_JF <- rep(0, Num_months)
 	offtake_JM <- rep(0, Num_months)
 	offtake_AF <- rep(0, Num_months)
@@ -429,7 +433,6 @@ compartmental_model <- function(
 
 	## Value of offtake
 	Value_Offtake <- rep(0, Num_months)
-
 	Value_Offtake_NF <- rep(0, Num_months)
 	Value_Offtake_NM <- rep(0, Num_months)
 	Value_Offtake_JF <- rep(0, Num_months)
@@ -672,7 +675,6 @@ compartmental_model <- function(
 
 	## Value of offtake
 	Value_Offtake_M <- matrix(, nrow = nruns, ncol = Num_months)
-
 	Value_Offtake_NF_M <- matrix(, nrow = nruns, ncol = Num_months)
 	Value_Offtake_NM_M <- matrix(, nrow = nruns, ncol = Num_months)
 	Value_Offtake_JF_M <- matrix(, nrow = nruns, ncol = Num_months)
@@ -851,7 +853,8 @@ compartmental_model <- function(
 		##
 		
 		Offtake <- 0
-
+		Offtake_NF <- 0
+		Offtake_NM <- 0
 		Offtake_JF <- 0
 		Offtake_JM <- 0
 		Offtake_AF <- 0
@@ -1002,14 +1005,16 @@ compartmental_model <- function(
 			deaths_O[month] <- (sample(AlphaO, 1) * O)
 			
 		# removing offtake from juveniles in cattle for now as I think they stay in national herd	
-		#	offtake_JF[month] <- (sample(GammaF, 1) * JF)
-			offtake_AF[month] <- (sample(GammaF, 1) * AF)
-		#	offtake_JM[month] <- (sample(GammaM, 1) * JM)
-			offtake_AM[month] <- (sample(GammaM, 1) * AM)
+			offtake_NF[month] <- (sample(GammaNF, 1) * NF) # v low numbers
+			offtake_NM[month] <- (sample(GammaNM, 1) * NM)
+			
+			offtake_JF[month] <- (sample(GammaJF, 1) * JF) # v low numbers
+			offtake_AF[month] <- (sample(GammaAF, 1) * AF)
+			offtake_JM[month] <- (sample(GammaJM, 1) * JM) # v low numbers (0)
+			offtake_AM[month] <- (sample(GammaAM, 1) * AM)
 			offtake_O[month] <- (sample(GammaO, 1) * O)
 			
-			oxen_J[month] <- ((sample(castration_rate, 1)) * (round(sum(0.33*JM))))
-			oxen_A[month] <- ((sample(castration_rate, 1)) * (round(sum(0.1*AM))))
+			oxen_A[month] <- ((sample(castration_rate, 1)) * AM)
 
 			growth_NF[month] <- (sample(Beta_N, 1) * NF)
 			growth_JF[month] <- (sample(Beta_J, 1) * JF)
@@ -1023,14 +1028,14 @@ compartmental_model <- function(
 			### >> to here...
 			
 			# now the population model uses numbers calculated in stochastic equations above
-		  numNF[month] = NF + (births[month] * 0.5) - deaths_NF[month] - growth_NF[month]
+		  numNF[month] = NF + (births[month] * 0.5) - deaths_NF[month] - growth_NF[month] - offtake_NF[month]
 			numJF[month] = JF + growth_NF[month] - growth_JF[month] - offtake_JF[month] - deaths_JF[month]
 			numAF[month] = AF + growth_JF[month] - offtake_AF[month] - deaths_AF[month] - culls_AF[month]
 
-			numNM[month] = NM + (births[month] * 0.5) - growth_NM[month] - deaths_NM[month]
-			numJM[month] = JM + growth_NM[month] - growth_JM[month] - offtake_JM[month] - deaths_JM[month] - oxen_J[month]
+			numNM[month] = NM + (births[month] * 0.5) - growth_NM[month] - deaths_NM[month] - offtake_NM[month]
+			numJM[month] = JM + growth_NM[month] - growth_JM[month] - offtake_JM[month] - deaths_JM[month] 
 			numAM[month] = AM + growth_JM[month] - offtake_AM[month] - deaths_AM[month] - culls_AM[month] - oxen_A[month]
-			numO[month] = O + oxen_J[month] + oxen_A[month] - offtake_O[month] - deaths_O[month] - culls_O[month]
+			numO[month] = O + oxen_A[month] - offtake_O[month] - deaths_O[month] - culls_O[month]
 			
 			numN[month] = numNF[month] + numJF[month] + numAF[month] + numNM[month] + numJM[month] + numAM[month] + numO[month]
 
@@ -1107,6 +1112,8 @@ compartmental_model <- function(
 			# Offtake (all offtake added + culled adult males)
 
 			## offtake from different age cats (offtake... is from original calculation, Offtake... is cum.sum, Num_Offtake is monthly cumilative)
+			Num_Offtake_NF[month] <- Offtake_NF + offtake_NF[month]
+			Num_Offtake_NM[month] <- Offtake_NM + offtake_NM[month]
 			Num_Offtake_JF[month] <- Offtake_JF + offtake_JF[month]
 			Num_Offtake_JM[month] <- Offtake_JM + offtake_JM[month]
 			Num_Offtake_AF[month] <- Offtake_AF + offtake_AF[month]
@@ -1114,13 +1121,15 @@ compartmental_model <- function(
 			Num_Offtake_O[month] <- Offtake_O + offtake_O[month] + culls_O[month]
 			
 			##
+			Offtake_NF = Num_Offtake_NF[month]
+			Offtake_NM = Num_Offtake_NM[month]
 			Offtake_JF = Num_Offtake_JF[month]
 			Offtake_JM = Num_Offtake_JM[month]
 			Offtake_AF = Num_Offtake_AF[month]
 			Offtake_AM = Num_Offtake_AM[month]
 			Offtake_O = Num_Offtake_O[month]
 			
-			Num_Offtake[month] = Num_Offtake_JF[month] + Num_Offtake_JM[month] + Num_Offtake_AF[month] + Num_Offtake_AM[month] + Num_Offtake_O[month]
+			Num_Offtake[month] = Num_Offtake_NF[month] + Num_Offtake_NM[month] + Num_Offtake_JF[month] + Num_Offtake_JM[month] + Num_Offtake_AF[month] + Num_Offtake_AM[month] + Num_Offtake_O[month]
 			Offtake = Num_Offtake[month]
 			
 			## Offtake Liveweight
@@ -1171,7 +1180,7 @@ compartmental_model <- function(
 			## Milk
 			# number of females giving birth in month x, multiplied by number that would be milked
 			## multiplied by lactation duration and daily yield)
-			Quant_Milk[month] = Milk + (AF * (sample(part, 1)) * prop_F_milked * lac_duration * avg_daily_yield_ltr) 
+			Quant_Milk[month] = Milk + (AF * (sample(part, 1)) * prop_F_milked * (sample(lac_duration, 1)) * (sample(avg_daily_yield_ltr,1))) 
 			  
 			Milk = Quant_Milk[month]
 			
@@ -1328,7 +1337,7 @@ compartmental_model <- function(
 			Labour_cost_NM[month] = Labour_NM + (NM * (sample(Labour_cattle, 1)) * lab_non_health)  
 			Labour_cost_JF[month] = Labour_JF + (JF * (sample(Labour_cattle, 1)) * lab_non_health)  
 			Labour_cost_JM[month] = Labour_JM + (JM * (sample(Labour_cattle, 1)) * lab_non_health)  
-			Labour_cost_AF[month] = Labour_AF + (AF * (sample(Labour_cattle, 1)) * lab_non_health)  
+			Labour_cost_AF[month] = Labour_AF + (AF * (sample(Labour_cattle, 1)) * lab_non_health) + (AF * prop_F_milked * sample(Labour_dairy, 1))  
 			Labour_cost_AM[month] = Labour_AM + (AM * (sample(Labour_cattle, 1)) * lab_non_health)  
 			Labour_cost_O[month] = Labour_O + (O * (sample(Labour_cattle, 1)) * lab_non_health) + (O * (sample(Labour_Oxen, 1)))
 			
@@ -1540,9 +1549,9 @@ compartmental_model <- function(
 
 		## Value of offtake
 		Value_Offtake_M[i, ] <- Value_Offtake
-
 		Value_Offtake_NF_M[i, ] <- Value_Offtake_NF
 		Value_Offtake_NM_M[i, ] <- Value_Offtake_NM
+		
 		Value_Offtake_JF_M[i, ] <- Value_Offtake_JF
 		Value_Offtake_JM_M[i, ] <- Value_Offtake_JM
 		Value_Offtake_AF_M[i, ] <- Value_Offtake_AF
@@ -1674,15 +1683,20 @@ compartmental_model <- function(
 	  Total_number_change_JM_M + Total_number_change_AF_M + Total_number_change_AM_M + Total_number_change_O_M
 	
 	## values
-	Value_Hides_M <- Quant_Hides_M * hides_value
+	
+	# value of milk matrices
 	Value_Milk_M <- Quant_Milk_M * milk_value_ltr
 
-	Value_Hides_JF_M <- Quant_Hides_JF_M * hides_value
-	Value_Hides_JM_M <- Quant_Hides_JM_M * hides_value
-	Value_Hides_AF_M <- Quant_Hides_AF_M * hides_value
-	Value_Hides_AM_M <- Quant_Hides_AM_M * hides_value
-	Value_Hides_O_M <- Quant_Hides_AM_M * hides_value
+	# value of hides matrices
+	Value_Hides_JF_M <- Quant_Hides_JF_M * sample(hides_value, 1)
+	Value_Hides_JM_M <- Quant_Hides_JM_M * sample(hides_value, 1)
+	Value_Hides_AF_M <- Quant_Hides_AF_M * sample(hides_value, 1)
+	Value_Hides_AM_M <- Quant_Hides_AM_M * sample(hides_value, 1)
+	Value_Hides_O_M <- Quant_Hides_AM_M * sample(hides_value, 1)
 	
+	Value_Hides_M <- Value_Hides_JF_M + Value_Hides_JM_M + Value_Hides_AF_M + Value_Hides_AM_M + Value_Hides_O_M
+	
+	# value of manure matrices
 	Value_Manure_M <- Quant_Manure_M * Man_value
 	Value_Manure_NF_M <- Quant_Manure_NF_M * Man_value
 	Value_Manure_NM_M <- Quant_Manure_NM_M * Man_value

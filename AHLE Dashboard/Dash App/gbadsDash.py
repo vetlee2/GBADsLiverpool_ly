@@ -2486,7 +2486,7 @@ gbadsDash.layout = html.Div([
             dbc.Col([
               # Cost Assumptions
               html.P("Ideal costs are those required to achieve realised production if there were no mortality or morbidity."),
-            ]),
+              ]),
         ], style={'margin-left':"40px", 'font-style': 'italic'}
         ),
         html.Br(),
@@ -3250,7 +3250,9 @@ gbadsDash.layout = html.Div([
                 ]),
                 dbc.Col([
                   # Cost Assumptions
-                  html.P("*AHLE Components are production loss, mortality loss, and health costs. Health costs make up the smallest proportion.")
+                  html.P("*AHLE Components are production loss, mortality loss, and health costs. Health costs make up the smallest proportion."),
+                  # Health Cost temporary distribution
+                  html.P("**Health costs attribution is currently a placeholder that is divided evenly among the AHLE causes.")
                 ]),
             ], style={'margin-left':"40px", 'font-style': 'italic'}
             ),
@@ -5414,12 +5416,12 @@ def update_ahle_waterfall_ecs(input_json, agesex, species, display, compare, pro
     else:
         if compare == 'Ideal':
             y = prep_df['mean_ideal']
-            name = "Ideal"
+            name = "Ideal (solid)"
             # Create graph
             ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
             # Add current with lag
             ecs_waterfall_fig.add_trace(go.Waterfall(
-                name = 'Current',
+                name = 'Current (outline)',
                 measure = measure,
                 x = x,
                 y = prep_df['mean_current'],
@@ -5447,12 +5449,12 @@ def update_ahle_waterfall_ecs(input_json, agesex, species, display, compare, pro
 
         elif compare == 'Zero Mortality':
             y = prep_df['mean_mortality_zero']
-            name = 'Zero Mortality'
+            name = 'Zero Mortality (solid)'
             # Create graph
             ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
             # Add current with lag
             ecs_waterfall_fig.add_trace(go.Waterfall(
-                name = 'Current',
+                name = 'Current (outline)',
                 measure = measure,
                 x = x,
                 y = prep_df['mean_current'],
@@ -5504,12 +5506,12 @@ def update_ahle_waterfall_ecs(input_json, agesex, species, display, compare, pro
             elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
                 y = prep_df['mean_current_growth_100_imp_all']
 
-            name = impvmnt_factor + "- " + impvmnt_value
+            name = impvmnt_factor + "- " + impvmnt_value + " (solid)"
             # Create graph
             ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
             # Add current with lag
             ecs_waterfall_fig.add_trace(go.Waterfall(
-                name = 'Current',
+                name = 'Current (outline)',
                 measure = measure,
                 x = x,
                 y = prep_df['mean_current'],

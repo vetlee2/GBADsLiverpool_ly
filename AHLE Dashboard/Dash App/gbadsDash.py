@@ -187,7 +187,9 @@ swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'
 # Ethiopia Case Study
 # -----------------------------------------------------------------------------
 # AHLE Summary
-ecs_ahle_summary = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary.csv'))
+# ecs_ahle_summary = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary.csv'))
+# Using alternative data which summarizes results from age/sex specific scenarios
+ecs_ahle_summary = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_scensmry.csv'))
 
 # AHLE Summary 2 - for stacked bar
 ecs_ahle_summary2 = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
@@ -439,20 +441,24 @@ for i in np.sort(ecs_ahle_all_withattr['production_system'].unique()):
 
 # Age
 # Rename Overall to more descriptive
-ecs_ahle_summary['age_group'] = ecs_ahle_summary['age_group'].replace({'Overall': 'Overall Age'})
+# ecs_ahle_summary['age_group'] = ecs_ahle_summary['age_group'].replace({'Overall': 'Overall Age'})
 # ecs_age_options = [{'label': "Overall Age", 'value': "Overall Age", 'disabled': False}]
 
-ecs_age_options=[]
-for i in np.sort(ecs_ahle_summary['age_group'].unique()):
-   str(ecs_age_options.append({'label':i,'value':(i)}))
+# ecs_age_options=[]
+# for i in np.sort(ecs_ahle_summary['age_group'].unique()):
+#    str(ecs_age_options.append({'label':i,'value':(i)}))
 
 # Sex
 # Rename Overall to more descriptive
-ecs_ahle_summary['sex'] = ecs_ahle_summary['sex'].replace({'Overall': 'Overall Sex'})
+# ecs_ahle_summary['sex'] = ecs_ahle_summary['sex'].replace({'Overall': 'Overall Sex'})
 
-ecs_sex_options_all = []
-for i in np.sort(ecs_ahle_summary['sex'].unique()):
-   str(ecs_sex_options_all.append({'label':i,'value':(i)}))
+# ecs_sex_options_all = []
+# for i in np.sort(ecs_ahle_summary['sex'].unique()):
+#    str(ecs_sex_options_all.append({'label':i,'value':(i)}))
+
+ecs_agesex_options=[]
+for i in np.sort(ecs_ahle_summary['agesex_scenario'].unique()):
+   str(ecs_agesex_options.append({'label':i,'value':(i)}))
 
 # Filter for juvenile and neonates
 ecs_sex_options_filter = [{'label': "Overall Sex", 'value': "Overall Sex", 'disabled': False}]
@@ -466,8 +472,8 @@ ecs_attr_options = [{'label': "All Causes", 'value': "All Causes", 'disabled': F
 
 for i in np.sort(ecs_ahle_all_withattr['cause'].unique()):
    str(ecs_attr_options.append({'label':i,'value':(i)}))
-   
-# Hierarchy 
+
+# Hierarchy
 ecs_hierarchy_attr_options = [{'label': "Cause", 'value': "cause", 'disabled': False},
                               {'label': "Production System", 'value': "production_system", 'disabled': False},
                               {'label': "Age Group", 'value': "age_group", 'disabled': False},
@@ -488,13 +494,13 @@ for i in np.sort(ecs_ahle_summary['species'].unique()):
 
 
 # Display
-ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Compare Current",
+ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Side by Side",
                                                                              "Difference (AHLE)",
                                                                             ]]
 
 # Compare
 ecs_compare_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Ideal",
-                                                                             "Mortality 0",
+                                                                             "Zero Mortality",
                                                                              "Improvement"
                                                                              ]]
 
@@ -1086,15 +1092,16 @@ def prep_ahle_fortreemap_ecs(INPUT_DF):
 
 def prep_ahle_forwaterfall_ecs(INPUT_DF):
    working_df = INPUT_DF.copy()
-   
+
    # Fill missing values with 0
    working_df.fillna(0)
 
    # Trim the data to keep things needed for the waterfall
    ecs_ahle_waterfall = working_df[['species',
                                     'production_system',
-                                    'age_group',
-                                    'sex',
+                                    # 'age_group',
+                                    # 'sex',
+                                    'agesex_scenario',
                                     'item',
                                     'mean_current',
                                     'mean_ideal',
@@ -1140,7 +1147,7 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
                             'Capital Cost',
                             'Gross Margin')
    ecs_ahle_waterfall = ecs_ahle_waterfall.loc[ecs_ahle_waterfall['item'].isin(waterfall_plot_values)]
-   
+
    # Make costs negative
    costs = ('Feed Cost',
             'Labour Cost',
@@ -1181,8 +1188,8 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
    ecs_ahle_waterfall['item'] = ecs_ahle_waterfall['item'].astype('category')
    ecs_ahle_waterfall.item.cat.set_categories(waterfall_plot_values, inplace=True)
    ecs_ahle_waterfall = ecs_ahle_waterfall.sort_values(["item"])
-   
-   # Rename costs values to be more descriptive 
+
+   # Rename costs values to be more descriptive
    ecs_ahle_waterfall['item'] = ecs_ahle_waterfall['item'].replace({'Feed Cost': 'Expenditure on Feed',
                                                                     'Labour Cost': 'Expenditure on Labour',
                                                                     'Health Cost': 'Expenditure on Health',
@@ -1220,7 +1227,7 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
    ecs_ahle_waterfall['mean_all_current_growth_50_AHLE_usd'] = ecs_ahle_waterfall['mean_current_growth_50_imp_all_usd'] - ecs_ahle_waterfall['mean_current']
    ecs_ahle_waterfall['mean_all_current_growth_75_AHLE_usd'] = ecs_ahle_waterfall['mean_current_growth_75_imp_all_usd'] - ecs_ahle_waterfall['mean_current']
    ecs_ahle_waterfall['mean_all_current_growth_100_AHLE_usd'] = ecs_ahle_waterfall['mean_current_growth_100_imp_all_usd'] - ecs_ahle_waterfall['mean_current']
-  
+
 
    OUTPUT_DF = ecs_ahle_waterfall
 
@@ -1312,10 +1319,10 @@ def prep_ahle_forstackedbar_ecs(INPUT_DF, cols_birr_costs, cols_usd_costs, prett
    # Birr costs
    # Ordering here determines order in plot
    cols_birr_costs = cols_birr_costs
-   
+
    # USD costs
    cols_usd_costs = cols_usd_costs
-   
+
    # If any costs are missing, fill in zero
    for COL in cols_birr_costs + cols_usd_costs:
       working_df[COL] = working_df[COL].replace(np.nan ,0)
@@ -1349,11 +1356,11 @@ def prep_ahle_forstackedbar_ecs(INPUT_DF, cols_birr_costs, cols_usd_costs, prett
    # Recode cost item names
    pretty_ahle_cost_names = pretty_ahle_cost_names
    OUTPUT_DF['AHLE Due To'] = OUTPUT_DF['ahle_due_to'].replace(pretty_ahle_cost_names)
-   
+
    # Create new string column for label
    OUTPUT_DF['Age_group_string'] = OUTPUT_DF['ahle_due_to'].str.slice(10,12)
    OUTPUT_DF['Age_group_string'] = OUTPUT_DF['Age_group_string'].str.upper()
-   
+
    # Add column with labels for each segment
    OUTPUT_DF['label_birr'] = OUTPUT_DF['Age_group_string'] + ' - ' + OUTPUT_DF['cost_birr'].map('{:,.0f}'.format).astype(str) + ' Birr'
    OUTPUT_DF['label_usd'] = OUTPUT_DF['Age_group_string'] + ' - ' + OUTPUT_DF['cost_usd'].map('{:,.0f}'.format).astype(str) + ' USD'
@@ -2831,91 +2838,77 @@ gbadsDash.layout = html.Div([
 
             #### -- DROPDOWNS CONTROLS
             dbc.Row([
+                dbc.Col([
+                    html.H4("Species"),
+                    dcc.Dropdown(id='select-species-ecs',
+                                options=ecs_species_options,
+                                value='All Small Ruminants',
+                                clearable = False,
+                                ),
+                    # Text underneath slider
+                    html.P('* Does not apply to Attribution graph'),
+                    ]),
+                dbc.Col([
+                    html.H4("Production System"),
+                    dcc.Dropdown(id='select-prodsys-ecs',
+                                options=ecs_prodsys_options,
+                                value='All Production Systems',
+                                clearable = False,
+                                ),
+                    ],style={
+                            # "margin-top":"10px",
+                            "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                            }
+                    ),
+                dbc.Col([
+                    html.H4("Currency"),
+                    dcc.Dropdown(id='select-currency-ecs',
+                                options=ecs_currency_options,
+                                value='Birr',
+                                clearable = False,
+                                ),
+                    ]),
+                ]),
+            dbc.Row([
 
                 # AHLE Specific Controls
                 dbc.Col([
                 dbc.Card([
                     dbc.CardBody([
-                        html.H5("Animal Health Loss Envelope Graph Controls",
+                        html.H5("Value and Cost Graph Controls",
                                 className="card-title",
                                 style={"font-weight": "bold"}),
                         dbc.Row([
-                        # display
-                        dbc.Col([
-                            html.H6("Display"),
-                            dcc.RadioItems(id='select-display-ecs',
-                                          options=ecs_display_options,
-                                          value='Compare Current',
-                                          labelStyle={'display': 'block'},
-                                          inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
-                                          ),
-                            ],
-                        ),
-
-                        # Compare
-                        dbc.Col([
-                            html.H6("Compare (Current)"),
-                            dcc.RadioItems(id='select-compare-ecs',
-                                          options=ecs_compare_options,
-                                          value='Ideal',
-                                          labelStyle={'display': 'block'},
-                                          inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
-                                          ),
-                            ],
-                        ),
-
-                          # Species
-                          dbc.Col([
-                              html.H6("Species"),
-                              dcc.Dropdown(id='select-species-ecs',
-                                          options=ecs_species_options,
-                                          value='All Small Ruminants',
-                                          clearable = False,
-                                          ),
-                              ],
-                              # style={
-                              #          "margin-top":"10px"
-                              #          },
-                              ),
-                        ]), # END OF ROW
-
-                # END OF CARD BODY
-                ],),
-
-                # END OF CARD
-                ], color='#F2F2F2'),
-                ]),
-
-                # Controls for Both Graphs
-                dbc.Col([
-                dbc.Card([
-                    dbc.CardBody([
-                        html.H5("Controls for Both Graphs",
-                                className="card-title",
-                                style={"font-weight": "bold"}
-                                ),
-                        dbc.Row([
-
-                            # Production System
+                            # Display
                             dbc.Col([
-                                html.H6("Production System"),
-                                dcc.Dropdown(id='select-prodsys-ecs',
-                                            options=ecs_prodsys_options,
-                                            value='All Production Systems',
-                                            clearable = False,
-                                            ),
-                                ],style={
-                                        # "margin-top":"10px",
-                                        "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
-                                        }
-                                ),
+                                html.H6("Display"),
+                                dcc.RadioItems(id='select-display-ecs',
+                                              options=ecs_display_options,
+                                              value='Side by Side',
+                                              labelStyle={'display': 'block'},
+                                              inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
+                                              ),
+                                ],
+                            ),
 
-                            # Age
+                            # Compare
                             dbc.Col([
-                                html.H6("Age"),
-                                dcc.Dropdown(id='select-age-ecs',
-                                              options=ecs_age_options,
-                                              value='Overall Age',
+                                html.H6("Compare current scenario to..."),
+                                dcc.RadioItems(id='select-compare-ecs',
+                                              options=ecs_compare_options,
+                                              value='Ideal',
+                                              labelStyle={'display': 'block'},
+                                              inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
+                                              ),
+                                ],
+                            ),
+
+                            # Age/Sex combination
+                            dbc.Col([
+                                html.H6("Scenario applies to group..."),
+                                dcc.Dropdown(id='select-agesex-ecs',
+                                              options=ecs_agesex_options,
+                                              value='Overall',
                                               clearable = False,
                                               )
                                 ],style={
@@ -2924,37 +2917,121 @@ gbadsDash.layout = html.Div([
                                           },
                                 ),
 
-                            # Sex
+                            # Species
+                            # dbc.Col([
+                            #     html.H6("Species"),
+                            #     dcc.Dropdown(id='select-species-ecs',
+                            #                 options=ecs_species_options,
+                            #                 value='All Small Ruminants',
+                            #                 clearable = False,
+                            #                 ),
+                            #     ],
+                            #     ),
+                        ]), # END OF ROW
+                        dbc.Row([  # Improvement scenarios
+
+                            # Factor dropdown
                             dbc.Col([
-                                html.H6("Sex"),
-                                dcc.Dropdown(id='select-sex-ecs',
-                                            options=ecs_sex_options_all,
-                                            value="Overall Sex",
-                                            clearable = False,
-                                            )
-                                ],style={
-                                        # "margin-top":"10px",
-                                        "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
-                                        },
+                                html.H6("Improvement Factor"),
+                                dcc.Dropdown(id='select-factor-ecs',
+                                              options=ecs_factor_options,
+                                              value='Mortality',
+                                              clearable = True,
+                                              ),
+                                  ],width=6,
                                 ),
 
+                            # Reduction
+                            dbc.Col([
+                                html.H6("Improvement Amount"),
+                                dcc.RadioItems(id='select-improve-ecs',
+                                              options=ecs_improve_options,
+                                              value= "25%",
+                                              inputStyle={"margin-right": "2px", # This pulls the words off of the button
+                                                          "margin-left": "10px"},
+                                              ),
+                                ],
+                            ),
 
-                            ]), # END OF ROW
-                        dbc.Row([
-                            # Currency selector
-                            html.H6("Currency"),
-                            dcc.Dropdown(id='select-currency-ecs',
-                                        options=ecs_currency_options,
-                                        value='Birr',
-                                        clearable = False,
-                                        ),
-                            ]), # END OF ROW
+                            ## END OF ROW ##
+                            ]),
+
                     # END OF CARD BODY
                     ],),
 
-                  # END OF CARD
-                  ], color='#F2F2F2'),
-                  ]),
+                # END OF CARD
+                ], color='#F2F2F2'),
+                ],width=6),
+
+                # Controls for Both Graphs
+                # dbc.Col([
+                # dbc.Card([
+                #     dbc.CardBody([
+                #         html.H5("Controls for Both Graphs",
+                #                 className="card-title",
+                #                 style={"font-weight": "bold"}
+                #                 ),
+                #         dbc.Row([
+
+                #             # Production System
+                #             dbc.Col([
+                #                 html.H6("Production System"),
+                #                 dcc.Dropdown(id='select-prodsys-ecs',
+                #                             options=ecs_prodsys_options,
+                #                             value='All Production Systems',
+                #                             clearable = False,
+                #                             ),
+                #                 ],style={
+                #                         # "margin-top":"10px",
+                #                         "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                #                         }
+                #                 ),
+
+                #             # UPDATE: Using combined agesex filter instead of individuals
+                #             # Age
+                #             # dbc.Col([
+                #             #     html.H6("Age"),
+                #             #     dcc.Dropdown(id='select-age-ecs',
+                #             #                   options=ecs_age_options,
+                #             #                   value='Overall Age',
+                #             #                   clearable = False,
+                #             #                   )
+                #             #     ],style={
+                #             #               # "margin-top":"10px",
+                #             #               "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                #             #               },
+                #             #     ),
+
+                #             # Sex
+                #             # dbc.Col([
+                #             #     html.H6("Sex"),
+                #             #     dcc.Dropdown(id='select-sex-ecs',
+                #             #                 options=ecs_sex_options_all,
+                #             #                 value="Overall Sex",
+                #             #                 clearable = False,
+                #             #                 )
+                #             #     ],style={
+                #             #             # "margin-top":"10px",
+                #             #             "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                #             #             },
+                #             #     ),
+
+                #             ]), # END OF ROW
+                #         dbc.Row([
+                #             # Currency selector
+                #             html.H6("Currency"),
+                #             dcc.Dropdown(id='select-currency-ecs',
+                #                         options=ecs_currency_options,
+                #                         value='Birr',
+                #                         clearable = False,
+                #                         ),
+                #             ]), # END OF ROW
+                #     # END OF CARD BODY
+                #     ],),
+
+                #   # END OF CARD
+                #   ], color='#F2F2F2'),
+                #   ]),
 
             # Attribution Specific Controls
             dbc.Col([
@@ -2963,12 +3040,12 @@ gbadsDash.layout = html.Div([
                     html.H5("Attribution Graph Controls - Hierarchy",
                             className="card-title",
                             style={"font-weight": "bold"}),
-                    
+
                     dbc.Row([
                         # # Hierarchy
                         # html.H5("Hierarchy",
                         #               style={"font-weight": "bold"}),
-                             
+
                     # Top Level
                     dbc.Col([
                         html.H6("Top Level"),
@@ -3005,9 +3082,9 @@ gbadsDash.layout = html.Div([
                             "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
                             },
                         ),
-                    
+
                 ]), # END OF ROW
-                    
+
                 dbc.Row([
                 # Drill Down 3
                 dbc.Col([
@@ -3053,63 +3130,63 @@ gbadsDash.layout = html.Div([
             # html.Hr(style={'margin-right':'10px'}),
 
             #### -- CALCULATION CONTROLS
-            dbc.Card([
-                dbc.CardBody([
-                    html.H5("Exploring Relative Contribution to Gross Margin and AHLE",
-                            className="card-title",
-                            style={"font-weight": "bold"}),
-            dbc.Row([  # Line up all the controls in the same row.
+            # dbc.Card([
+            #     dbc.CardBody([
+            #         html.H5("Exploring Relative Contribution to Gross Margin and AHLE",
+            #                 className="card-title",
+            #                 style={"font-weight": "bold"}),
+            # dbc.Row([  # Line up all the controls in the same row.
 
-                # Factor dropdown
-                dbc.Col([
-                    html.H6("Factor"),
-                    dcc.Dropdown(id='select-factor-ecs',
-                                  options=ecs_factor_options,
-                                  value='Mortality',
-                                  clearable = True,
-                                  ),
-                      ],
-                    ),
+            #     # Factor dropdown
+            #     dbc.Col([
+            #         html.H6("Factor"),
+            #         dcc.Dropdown(id='select-factor-ecs',
+            #                       options=ecs_factor_options,
+            #                       value='Mortality',
+            #                       clearable = True,
+            #                       ),
+            #           ],
+            #         ),
 
-                # Reduction
-                dbc.Col([
-                    html.H6("Improvement"),
-                    dcc.RadioItems(id='select-improve-ecs',
-                                  options=ecs_improve_options,
-                                  value= "25%",
-                                  inputStyle={"margin-right": "2px", # This pulls the words off of the button
-                                              "margin-left": "10px"},
-                                  ),
-                    ],width=3,
-                ),
+            #     # Reduction
+            #     dbc.Col([
+            #         html.H6("Improvement"),
+            #         dcc.RadioItems(id='select-improve-ecs',
+            #                       options=ecs_improve_options,
+            #                       value= "25%",
+            #                       inputStyle={"margin-right": "2px", # This pulls the words off of the button
+            #                                   "margin-left": "10px"},
+            #                       ),
+            #         ],width=3,
+            #     ),
 
-                # # Reset to defaults button
-                # dbc.Col([
-                #     html.Button('Reset to Current Values', id='reset-val-ecs', n_clicks=0),
-                # ], width=3,
-                #     style={
-                #           'textAlign':'center',
-                #           'margin':'auto',}
-                # ),
+            #     # # Reset to defaults button
+            #     # dbc.Col([
+            #     #     html.Button('Reset to Current Values', id='reset-val-ecs', n_clicks=0),
+            #     # ], width=3,
+            #     #     style={
+            #     #           'textAlign':'center',
+            #     #           'margin':'auto',}
+            #     # ),
 
-                ## END OF ROW ##
-                ]),
+            #     ## END OF ROW ##
+            #     ]),
 
-            # END OF CARD BODY
-            ],),
+            # # END OF CARD BODY
+            # ],),
 
-            # END OF CARD
-            ], color='#F2F2F2'),
+            # # END OF CARD
+            # ], color='#F2F2F2'),
 
             html.Br(),
 
             #### -- GRAPHICS
                 dbc.Row([  # Row with GRAPHICS
 
-                    # AHLE Sunburst
+                    # Values and Costs Waterfall
                     dbc.Col([
                         dbc.Spinner(children=[
-                        dcc.Graph(id='ecs-ahle-sunburst',
+                        dcc.Graph(id='ecs-ahle-waterfall',
                                     style = {"height":"650px"},
                                   config = {
                                       "displayModeBar" : True,
@@ -3173,15 +3250,14 @@ gbadsDash.layout = html.Div([
                 ]),
                 dbc.Col([
                   # Cost Assumptions
-                  html.P("*Ideal assumes there were no mortality or morbidity."),
                   html.P("*AHLE Components are production loss, mortality loss, and health costs. Health costs make up the smallest proportion.")
                 ]),
             ], style={'margin-left':"40px", 'font-style': 'italic'}
             ),
             html.Br(),
             ### END OF FOOTNOTES
-            
-            
+
+
             #### -- ADDITIONAL VISUALS
             dbc.Row([
                 dbc.Col([ # AHLE Stacked Bar
@@ -3210,7 +3286,7 @@ gbadsDash.layout = html.Div([
                         # End of Stacked Bar
                         ],style={"width":5}
                         ),
-                
+
                 # Sankey
                 dbc.Col([
                 dbc.Spinner(children=[
@@ -3226,7 +3302,7 @@ gbadsDash.layout = html.Div([
                         # End of Spinner
                         ],size="md", color="#393375", fullscreen=False),
                     ]),
-                
+
             ]), # END OF ROW
             html.Br(),
             ### END OF ADDITIONAL VISUALS
@@ -4767,19 +4843,19 @@ def update_stacked_bar_swine(input_json, country, year):
 #     return factor_ecs_default
 
 # Update age group options based on species
-@gbadsDash.callback(
-    Output('select-age-ecs', 'options'),
-    Input('select-species-ecs', 'value'),
-    )
-def update_age_options_ecs(species):
-    if species == "Cattle":
-        options = ecs_age_options
-    else:
-        options = ecs_age_options.copy()
-        for d in options:
-            if d['value'] == 'Oxen':
-                options.remove(d)
-    return options
+# @gbadsDash.callback(
+#     Output('select-age-ecs', 'options'),
+#     Input('select-species-ecs', 'value'),
+#     )
+# def update_age_options_ecs(species):
+#     if species == "Cattle":
+#         options = ecs_age_options
+#     else:
+#         options = ecs_age_options.copy()
+#         for d in options:
+#             if d['value'] == 'Oxen':
+#                 options.remove(d)
+#     return options
 
 
 # Update hierarchy dropdown filters to remove higher level selections from the options
@@ -4795,9 +4871,9 @@ def update_dd1_options_ecs(top_lvl_hierarchy):
             d['disabled']=True
         else:
             d['disabled']=False
-            
+
     value='production_system'
-    
+
     return options, value
 
 
@@ -4848,7 +4924,7 @@ def update_dd4_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_
             else:
                 d['disabled']=False
     return options
-            
+
 # @gbadsDash.callback(
 #     Output('select-dd-5-attr-ecs','options'),
 #     Input('select-top-lvl-attr-ecs','value'),
@@ -4887,7 +4963,7 @@ def update_improvment_factors(compare):
             d['disabled']=False
         else:
             d['disabled']=True
-           
+
     return options1, options2
 
 # ------------------------------------------------------------------------------
@@ -4898,12 +4974,14 @@ def update_improvment_factors(compare):
     Output('core-data-ahle-ecs','data'),
     Input('select-species-ecs','value'),
     Input('select-prodsys-ecs','value'),
-    Input('select-age-ecs','value'),
-    Input('select-sex-ecs','value'),
-
+    # Input('select-age-ecs','value'),
+    # Input('select-sex-ecs','value'),
+    Input('select-agesex-ecs', 'value'),
     )
-def update_core_data_ahle_ecs(species, prodsys, age, sex):
-    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary.csv'))
+# def update_core_data_ahle_ecs(species, prodsys, age, sex):
+def update_core_data_ahle_ecs(species, prodsys, agesex):
+    # input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary.csv'))
+    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_scensmry.csv'))
 
     # Species filter
     if species == 'Goat' or species == "Sheep" or species == "Cattle":
@@ -4922,20 +5000,23 @@ def update_core_data_ahle_ecs(species, prodsys, age, sex):
         input_df=input_df
 
     # Age filter
-    if age == 'Adult' or age == "Juvenile" or age == "Neonatal" or age == "Oxen":
-        input_df=input_df.loc[(input_df['age_group'] == age)]
-    elif age == "Overall Age":
-        input_df=input_df.loc[(input_df['age_group'] == 'Overall')]
-    else:
-        input_df=input_df
+    # if age == 'Adult' or age == "Juvenile" or age == "Neonatal" or age == "Oxen":
+    #     input_df=input_df.loc[(input_df['age_group'] == age)]
+    # elif age == "Overall Age":
+    #     input_df=input_df.loc[(input_df['age_group'] == 'Overall')]
+    # else:
+    #     input_df=input_df
 
     # Sex filter
-    if sex == 'Male' or sex == "Female":
-        input_df=input_df.loc[(input_df['sex'] == sex)]
-    elif sex == "Overall Sex":
-        input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-    else:
-        input_df=input_df
+    # if sex == 'Male' or sex == "Female":
+    #     input_df=input_df.loc[(input_df['sex'] == sex)]
+    # elif sex == "Overall Sex":
+    #     input_df=input_df.loc[(input_df['sex'] == 'Overall')]
+    # else:
+    #     input_df=input_df
+
+    # Age/sex filter
+    input_df=input_df.loc[(input_df['agesex_scenario'] == agesex)]
 
     return input_df.to_json(date_format='iso', orient='split')
 
@@ -4976,8 +5057,9 @@ def update_ecs_ahle_data(input_json ,currency):
       'species':'Species'
       ,'production_system':'Production System'
       ,'item':'Value or Cost'
-      ,'age_group':'Age'
-      ,'sex':'Sex'
+      # ,'age_group':'Age'
+      # ,'sex':'Sex'
+      ,'agesex_scenario':'Group'
       ,'mean_current':f'Current Mean ({display_currency})'
       ,'mean_ideal':f'Ideal Mean ({display_currency})'
       ,'mean_mortality_zero':f'Mortality Zero Mean ({display_currency})'
@@ -5020,11 +5102,12 @@ def update_ecs_ahle_data(input_json ,currency):
 @gbadsDash.callback(
     Output('core-data-attr-ecs','data'),
     Input('select-prodsys-ecs','value'),
-    Input('select-age-ecs','value'),
-    Input('select-sex-ecs','value'),
+    # Input('select-age-ecs','value'),
+    # Input('select-sex-ecs','value'),
     # Input('select-attr-ecs','value'),
     )
-def update_core_data_attr_ecs(prodsys, age, sex):
+# def update_core_data_attr_ecs(prodsys, age, sex):
+def update_core_data_attr_ecs(prodsys):
     input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
 
     # Prodicton System filter
@@ -5036,43 +5119,43 @@ def update_core_data_attr_ecs(prodsys, age, sex):
         input_df=input_df
 
     # Age filter
-    if age == 'Adult':
-        if sex == 'Male':
-            input_df=input_df.loc[(input_df['age_group'] == age)]
-            input_df=input_df.loc[(input_df['sex'] == sex)]
-        elif sex == "Female":
-            input_df=input_df.loc[(input_df['age_group'] == age)]
-            input_df=input_df.loc[(input_df['sex'] == sex)]
-        else:
-            input_df=input_df.loc[(input_df['age_group'] == age)]
-            input_df=input_df
-    elif age == "Juvenile":
-        if sex == 'Male':
-            input_df=input_df.loc[(input_df['age_group'] == age)]
-            input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-        elif sex == "Female":
-            input_df=input_df.loc[(input_df['age_group'] == age)]
-            input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-        else:
-            input_df=input_df.loc[(input_df['age_group'] == age)]
-            input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-    elif age == "Neonatal":
-        if sex == 'Male':
-            input_df=input_df.loc[(input_df['age_group'] == age)]
-            input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-        elif sex == "Female":
-            input_df=input_df.loc[(input_df['age_group'] == age)]
-            input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-        else:
-            input_df=input_df.loc[(input_df['age_group'] == age)]
-            input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-    else:
-        if sex == 'Male':
-            input_df=input_df.loc[(input_df['sex'] == sex)]
-        elif sex == "Female":
-            input_df=input_df.loc[(input_df['sex'] == sex)]
-        else:
-            input_df=input_df
+    # if age == 'Adult':
+    #     if sex == 'Male':
+    #         input_df=input_df.loc[(input_df['age_group'] == age)]
+    #         input_df=input_df.loc[(input_df['sex'] == sex)]
+    #     elif sex == "Female":
+    #         input_df=input_df.loc[(input_df['age_group'] == age)]
+    #         input_df=input_df.loc[(input_df['sex'] == sex)]
+    #     else:
+    #         input_df=input_df.loc[(input_df['age_group'] == age)]
+    #         input_df=input_df
+    # elif age == "Juvenile":
+    #     if sex == 'Male':
+    #         input_df=input_df.loc[(input_df['age_group'] == age)]
+    #         input_df=input_df.loc[(input_df['sex'] == 'Overall')]
+    #     elif sex == "Female":
+    #         input_df=input_df.loc[(input_df['age_group'] == age)]
+    #         input_df=input_df.loc[(input_df['sex'] == 'Overall')]
+    #     else:
+    #         input_df=input_df.loc[(input_df['age_group'] == age)]
+    #         input_df=input_df.loc[(input_df['sex'] == 'Overall')]
+    # elif age == "Neonatal":
+    #     if sex == 'Male':
+    #         input_df=input_df.loc[(input_df['age_group'] == age)]
+    #         input_df=input_df.loc[(input_df['sex'] == 'Overall')]
+    #     elif sex == "Female":
+    #         input_df=input_df.loc[(input_df['age_group'] == age)]
+    #         input_df=input_df.loc[(input_df['sex'] == 'Overall')]
+    #     else:
+    #         input_df=input_df.loc[(input_df['age_group'] == age)]
+    #         input_df=input_df.loc[(input_df['sex'] == 'Overall')]
+    # else:
+    #     if sex == 'Male':
+    #         input_df=input_df.loc[(input_df['sex'] == sex)]
+    #     elif sex == "Female":
+    #         input_df=input_df.loc[(input_df['sex'] == sex)]
+    #     else:
+    #         input_df=input_df
 
     # # Attribution filter
     # if attr == 'External':
@@ -5147,22 +5230,24 @@ def update_ecs_attr_data(input_json, currency):
 # ------------------------------------------------------------------------------
 # AHLE Waterfall
 @gbadsDash.callback(
-    Output('ecs-ahle-sunburst','figure'),
+    Output('ecs-ahle-waterfall','figure'),
     Input('core-data-ahle-ecs','data'),
-    Input('select-age-ecs','value'),
+    # Input('select-age-ecs','value'),
+    Input('select-agesex-ecs', 'value'),
     Input('select-species-ecs','value'),
     Input('select-display-ecs','value'),
     Input('select-compare-ecs','value'),
     Input('select-prodsys-ecs','value'),
-    Input('select-sex-ecs','value'),
+    # Input('select-sex-ecs','value'),
     Input('select-currency-ecs','value'),
     Input('select-factor-ecs','value'),
     Input('select-improve-ecs','value'),
     )
-def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsys, sex, currency, impvmnt_factor, impvmnt_value):
+# def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsys, sex, currency, impvmnt_factor, impvmnt_value):
+def update_ahle_waterfall_ecs(input_json, agesex, species, display, compare, prodsys, currency, impvmnt_factor, impvmnt_value):
     # Data
     input_df = pd.read_json(input_json, orient='split')
-    
+
     # Prep the data
     prep_df = prep_ahle_forwaterfall_ecs(input_df)
 
@@ -5201,62 +5286,92 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
 
 
     # Filters
-    if age == "Neonatal": # Removing value of hides for neonatal
+    # if age == "Neonatal": # Removing value of hides for neonatal
+    #     waterfall_plot_values = ('Value of Offtake',
+    #                               'Value of Herd Increase',
+    #                               'Value of Manure',
+    #                               'Expenditure on Feed',
+    #                               'Expenditure on Labour',
+    #                               'Expenditure on Health',
+    #                               'Expenditure on Housing',
+    #                               'Expenditure on Capital',
+    #                               'Gross Margin')
+    #     prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
+    #     measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+    # elif age == 'Overall Age' and sex == 'Overall Sex':
+    #     if species == "Cattle": # Cattle have draught and milk added for overall groups
+    #         waterfall_plot_values = ('Value of Offtake',
+    #                                  'Value of Herd Increase',
+    #                                  'Value of Draught',
+    #                                  'Value of Milk',
+    #                                  'Value of Manure',
+    #                                  'Value of Hides',
+    #                                  'Expenditure on Feed',
+    #                                  'Expenditure on Labour',
+    #                                  'Expenditure on Health',
+    #                                  'Expenditure on Housing',
+    #                                  'Expenditure on Capital',
+    #                                  'Gross Margin')
+    #         prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
+    #         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+    #     else: # all species have milk added for overall groups
+    #         waterfall_plot_values = ('Value of Offtake',
+    #                                  'Value of Herd Increase',
+    #                                  'Value of Milk',
+    #                                  'Value of Manure',
+    #                                  'Value of Hides',
+    #                                  'Expenditure on Feed',
+    #                                  'Expenditure on Labour',
+    #                                  'Expenditure on Health',
+    #                                  'Expenditure on Housing',
+    #                                  'Expenditure on Capital',
+    #                                  'Gross Margin')
+    #         prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
+    #         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+    # else:
+    #     measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+
+    if species == "Cattle": # Cattle have draught and milk added for overall groups
         waterfall_plot_values = ('Value of Offtake',
-                                  'Value of Herd Increase',
-                                  'Value of Manure',
-                                  'Expenditure on Feed',
-                                  'Expenditure on Labour',
-                                  'Expenditure on Health',
-                                  'Expenditure on Housing',
-                                  'Expenditure on Capital',
-                                  'Gross Margin')
+                                 'Value of Herd Increase',
+                                 'Value of Draught',
+                                 'Value of Milk',
+                                 'Value of Manure',
+                                 'Value of Hides',
+                                 'Expenditure on Feed',
+                                 'Expenditure on Labour',
+                                 'Expenditure on Health',
+                                 'Expenditure on Housing',
+                                 'Expenditure on Capital',
+                                 'Gross Margin')
         prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
-        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
-    elif age == 'Overall Age' and sex == 'Overall Sex':
-        if species == "Cattle": # Cattle have draught and milk added for overall groups
-            waterfall_plot_values = ('Value of Offtake',
-                                     'Value of Herd Increase',
-                                     'Value of Draught',
-                                     'Value of Milk',
-                                     'Value of Manure',
-                                     'Value of Hides',
-                                     'Expenditure on Feed',
-                                     'Expenditure on Labour',
-                                     'Expenditure on Health',
-                                     'Expenditure on Housing',
-                                     'Expenditure on Capital',
-                                     'Gross Margin')
-            prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
-            measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
-        else: # all species have milk added for overall groups
-            waterfall_plot_values = ('Value of Offtake',
-                                     'Value of Herd Increase',
-                                     'Value of Milk',
-                                     'Value of Manure',
-                                     'Value of Hides',
-                                     'Expenditure on Feed',
-                                     'Expenditure on Labour',
-                                     'Expenditure on Health',
-                                     'Expenditure on Housing',
-                                     'Expenditure on Capital',
-                                     'Gross Margin')
-            prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
-            measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]            
-    else:
-        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
-        
+        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+    else: # all species have milk added for overall groups
+        waterfall_plot_values = ('Value of Offtake',
+                                 'Value of Herd Increase',
+                                 'Value of Milk',
+                                 'Value of Manure',
+                                 'Value of Hides',
+                                 'Expenditure on Feed',
+                                 'Expenditure on Labour',
+                                 'Expenditure on Health',
+                                 'Expenditure on Housing',
+                                 'Expenditure on Capital',
+                                 'Gross Margin')
+        prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
+        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+
 
     x = prep_df['item']
-    
+
     # display and Compare filters
     if display == "Difference (AHLE)":
         # Applying the condition
-        prep_df["item"] = np.where(prep_df["item"] == "Gross Margin", "AHLE", prep_df["item"])
+        prep_df["item"] = np.where(prep_df["item"] == "Gross Margin", "Gross Margin (AHLE)", prep_df["item"])
         x = prep_df['item']
         if compare == 'Ideal':
             y = prep_df['mean_AHLE']
-        elif compare == 'Mortality 0':
+        elif compare == 'Zero Mortality':
             y = prep_df['mean_AHLE_mortality']
         else:
             compare = impvmnt_factor + "- " + impvmnt_value
@@ -5284,15 +5399,18 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
                 y = prep_df['mean_all_current_growth_75_AHLE']
             elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
                 y = prep_df['mean_all_current_growth_100_AHLE']
-                
+
         # Create graph
         name = 'AHLE'
         ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
         # Add title
-        ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope (AHLE) | {species} <br><sup>Difference between {compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
-                                        yaxis_title=display_currency,
-                                        font_size=15,
-                                        margin=dict(t=100))
+        ecs_waterfall_fig.update_layout(
+            # title_text=f'Animal Health Loss Envelope (AHLE) | {species} <br><sup>Difference between {compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
+            title_text=f'Values and Costs (Difference) | {species}, {prodsys} <br><sup>Difference between Current and {compare} scenario applied to {agesex}</sup><br>',
+            yaxis_title=display_currency,
+            font_size=15,
+            margin=dict(t=100)
+            )
     else:
         if compare == 'Ideal':
             y = prep_df['mean_ideal']
@@ -5314,14 +5432,22 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
                 waterfallgroupgap = 0.5,
                 )
             # Add title
-            ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
-                                            yaxis_title=display_currency,
-                                            font_size=15,
-                                            margin=dict(t=100))
-           
-        elif compare == 'Mortality 0':
+            ecs_waterfall_fig.update_layout(
+                # title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
+                title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
+                yaxis_title=display_currency,
+                font_size=15,
+                margin=dict(t=100),
+                legend=dict(orientation="h",
+                            xanchor="right",
+                            x=1,
+                            yanchor="bottom",
+                            y=1.02,)
+                )
+
+        elif compare == 'Zero Mortality':
             y = prep_df['mean_mortality_zero']
-            name = 'Mortality 0'
+            name = 'Zero Mortality'
             # Create graph
             ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
             # Add current with lag
@@ -5339,11 +5465,19 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
                 waterfallgroupgap = 0.5,
                 )
             # Add title
-            ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
-                                            yaxis_title=display_currency,
-                                            font_size=15,
-                                            margin=dict(t=100))
-        
+            ecs_waterfall_fig.update_layout(
+                # title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
+                title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
+                yaxis_title=display_currency,
+                font_size=15,
+                margin=dict(t=100),
+                legend=dict(orientation="h",
+                            xanchor="right",
+                            x=1,
+                            yanchor="bottom",
+                            y=1.02,)
+                )
+
         else:
             if impvmnt_factor == 'Mortality' and impvmnt_value == '25%':
                 y = prep_df['mean_all_mort_25_imp']
@@ -5369,7 +5503,7 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
                 y = prep_df['mean_current_growth_75_imp_all']
             elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
                 y = prep_df['mean_current_growth_100_imp_all']
-                
+
             name = impvmnt_factor + "- " + impvmnt_value
             # Create graph
             ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
@@ -5388,11 +5522,19 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
                 waterfallgroupgap = 0.5,
                 )
             # Add title
-            ecs_waterfall_fig.update_layout(title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
-                                            yaxis_title=display_currency,
-                                            font_size=15,
-                                            margin=dict(t=100))
-            
+            ecs_waterfall_fig.update_layout(
+                # title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
+                title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
+                yaxis_title=display_currency,
+                font_size=15,
+                margin=dict(t=100),
+                legend=dict(orientation="h",
+                            xanchor="right",
+                            x=1,
+                            yanchor="bottom",
+                            y=1.02,)
+                )
+
     # Add tooltip
     if currency == 'Birr':
         ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} Birr<extra></extra>')
@@ -5409,8 +5551,8 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
     Output('ecs-attr-treemap','figure'),
     Input('core-data-attr-ecs','data'),
     Input('select-prodsys-ecs','value'),
-    Input('select-age-ecs','value'),
-    Input('select-sex-ecs','value'),
+    # Input('select-age-ecs','value'),
+    # Input('select-sex-ecs','value'),
     Input('select-currency-ecs','value'),
     Input('select-top-lvl-attr-ecs','value'),
     Input('select-dd-1-attr-ecs','value'),
@@ -5418,15 +5560,15 @@ def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsy
     Input('select-dd-3-attr-ecs','value'),
     Input('select-dd-4-attr-ecs','value'),
     )
-def update_attr_treemap_ecs(input_json, prodsys, age, sex, currency, 
+# def update_attr_treemap_ecs(input_json, prodsys, age, sex, currency,
+#                             top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_hierarchy, dd4_hierarchy):
+def update_attr_treemap_ecs(input_json, prodsys, currency,
                             top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_hierarchy, dd4_hierarchy):
     # Data
     input_df = pd.read_json(input_json, orient='split')
 
     # If currency is USD, use USD columns
-    display_currency = 'Birr'
     if currency == 'USD':
-        display_currency = 'USD'
         input_df['median'] = input_df['median_usd']
         input_df['mean'] = input_df['mean_usd']
         input_df['sd'] = input_df['sd_usd']
@@ -5435,10 +5577,10 @@ def update_attr_treemap_ecs(input_json, prodsys, age, sex, currency,
 
     # Prep data
     input_df = prep_ahle_fortreemap_ecs(input_df)
-    
+
     # Hiararchy structure
     path = [top_lvl_hierarchy]
-    
+
     if dd1_hierarchy != 'None':
         path +=[dd1_hierarchy]
     if dd2_hierarchy != 'None':
@@ -5452,9 +5594,12 @@ def update_attr_treemap_ecs(input_json, prodsys, age, sex, currency,
     ecs_treemap_fig = create_attr_treemap_ecs(input_df, path)
 
     # Add title
-    ecs_treemap_fig.update_layout(title_text=f'Attribution | All Small Ruminants <br><sup> Using {prodsys} for {age} and {sex}</sup><br>',
-                                  font_size=15,
-                                  margin=dict(t=100))
+    ecs_treemap_fig.update_layout(
+        # title_text=f'Attribution | All Small Ruminants <br><sup> Using {prodsys} for {age} and {sex}</sup><br>',
+        title_text=f'Attribution | All Small Ruminants, {prodsys}',
+        font_size=15,
+        margin=dict(t=100)
+        )
 
     # Add % of total AHLE
     # ecs_treemap_fig.data[0].texttemplate = "%{label}<br>% of Total AHLE=%{customdata[0]:,.2f}%"
@@ -5496,7 +5641,7 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
     # Change y based on selected currency value
     if compare == 'Ideal':
        cols_birr_costs = [
-      'ahle_when_nm_ideal_mean'   
+      'ahle_when_nm_ideal_mean'
       ,'ahle_when_nf_ideal_mean'
       ,'ahle_when_jm_ideal_mean'
       ,'ahle_when_jf_ideal_mean'
@@ -5530,9 +5675,9 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
           ,'ahle_when_af_ideal_mean':'Adult female'
           ,'ahle_when_af_ideal_mean_usd':'Adult female'
        }
-       
-    elif compare == 'Mortality 0':
-        cols_birr_costs = [ 
+
+    elif compare == 'Zero Mortality':
+        cols_birr_costs = [
         'ahle_when_n_mort_imp100_mean'
         ,'ahle_when_j_mort_imp100_mean'
         ,'ahle_when_am_mort_imp100_mean'
@@ -5559,7 +5704,7 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
         }
     else:
         if impvmnt_factor == 'Mortality' and impvmnt_value == '25%':
-            cols_birr_costs = [ 
+            cols_birr_costs = [
             'ahle_when_n_mort_imp25_mean'
             ,'ahle_when_j_mort_imp25_mean'
             ,'ahle_when_am_mort_imp25_mean'
@@ -5585,7 +5730,7 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
                 ,'ahle_when_af_mort_imp25_mean_usd':'Adult female'
             }
         elif impvmnt_factor == 'Mortality' and impvmnt_value == '50%':
-            cols_birr_costs = [ 
+            cols_birr_costs = [
             'ahle_when_n_mort_imp50_mean'
             ,'ahle_when_j_mort_imp50_mean'
             ,'ahle_when_am_mort_imp50_mean'
@@ -5611,7 +5756,7 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
                 ,'ahle_when_af_mort_imp50_mean_usd':'Adult female'
             }
         elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
-            cols_birr_costs = [ 
+            cols_birr_costs = [
             'ahle_when_n_mort_imp75_mean'
             ,'ahle_when_j_mort_imp75_mean'
             ,'ahle_when_am_mort_imp75_mean'
@@ -5637,7 +5782,7 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
                 ,'ahle_when_af_mort_imp75_mean_usd':'Adult female'
             }
         elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
-            cols_birr_costs = [ 
+            cols_birr_costs = [
             'ahle_when_n_mort_imp100_mean'
             ,'ahle_when_j_mort_imp100_mean'
             ,'ahle_when_am_mort_imp100_mean'
@@ -5663,52 +5808,52 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
                 ,'ahle_when_af_mort_imp100_mean_usd':'Adult female'
             }
         elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '25%':
-            cols_birr_costs = [ 
-            'ahle_when_repro_imp25_mean'
+            cols_birr_costs = [
+            'ahle_when_af_repro_imp25_mean'
             ]
             cols_usd_costs = [
-            'ahle_when_repro_imp25_mean_usd'
+            'ahle_when_af_repro_imp25_mean_usd'
             ]
             pretty_ahle_cost_names = {
-                'ahle_when_repro_imp25_mean':'Adult female'
-                ,'ahle_when_repro_imp25_mean_usd':'Adult female'
+                'ahle_when_af_repro_imp25_mean':'Adult female'
+                ,'ahle_when_af_repro_imp25_mean_usd':'Adult female'
             }
         elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '50%':
-            cols_birr_costs = [ 
-            'ahle_when_repro_imp50_mean'
+            cols_birr_costs = [
+            'ahle_when_af_repro_imp50_mean'
             ]
             cols_usd_costs = [
-            'ahle_when_repro_imp50_mean_usd'
+            'ahle_when_af_repro_imp50_mean_usd'
             ]
             pretty_ahle_cost_names = {
-                'ahle_when_repro_imp50_mean':'Adult female'
-                ,'ahle_when_repro_imp50_mean_usd':'Adult female'
+                'ahle_when_af_repro_imp50_mean':'Adult female'
+                ,'ahle_when_af_repro_imp50_mean_usd':'Adult female'
             }
         elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '75%':
-            cols_birr_costs = [ 
-            'ahle_when_repro_imp75_mean'
+            cols_birr_costs = [
+            'ahle_when_af_repro_imp75_mean'
             ]
             cols_usd_costs = [
-            'ahle_when_repro_imp75_mean_usd'
+            'ahle_when_af_repro_imp75_mean_usd'
             ]
             pretty_ahle_cost_names = {
-                'ahle_when_repro_imp75_mean':'Adult female'
-                ,'ahle_when_repro_imp75_mean_usd':'Adult female'
+                'ahle_when_af_repro_imp75_mean':'Adult female'
+                ,'ahle_when_af_repro_imp75_mean_usd':'Adult female'
             }
         elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '100%':
-            cols_birr_costs = [ 
-            'ahle_when_repro_imp100_mean'
+            cols_birr_costs = [
+            'ahle_when_af_repro_imp100_mean'
             ]
             cols_usd_costs = [
-            'ahle_when_repro_imp100_mean_usd'
+            'ahle_when_af_repro_imp100_mean_usd'
             ]
             pretty_ahle_cost_names = {
-                'ahle_when_repro_imp100_mean':'Adult female'
-                ,'ahle_when_repro_imp100_mean_usd':'Adult female'
+                'ahle_when_af_repro_imp100_mean':'Adult female'
+                ,'ahle_when_af_repro_imp100_mean_usd':'Adult female'
             }
         elif impvmnt_factor == 'Live Weight' and impvmnt_value == '25%':
             cols_birr_costs = [
-           'ahle_when_nm_growth_imp25_mean'   
+           'ahle_when_nm_growth_imp25_mean'
            ,'ahle_when_nf_growth_imp25_mean'
            ,'ahle_when_jm_growth_imp25_mean'
            ,'ahle_when_jf_growth_imp25_mean'
@@ -5742,10 +5887,10 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
                ,'ahle_when_af_growth_imp25_mean':'Adult female'
                ,'ahle_when_af_growth_imp25_mean_usd':'Adult female'
             }
-            
+
         elif impvmnt_factor == 'Live Weight' and impvmnt_value == '50%':
             cols_birr_costs = [
-           'ahle_when_nm_growth_imp50_mean'   
+           'ahle_when_nm_growth_imp50_mean'
            ,'ahle_when_nf_growth_imp50_mean'
            ,'ahle_when_jm_growth_imp50_mean'
            ,'ahle_when_jf_growth_imp50_mean'
@@ -5781,7 +5926,7 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
             }
         elif impvmnt_factor == 'Live Weight' and impvmnt_value == '75%':
             cols_birr_costs = [
-           'ahle_when_nm_growth_imp75_mean'   
+           'ahle_when_nm_growth_imp75_mean'
            ,'ahle_when_nf_growth_imp75_mean'
            ,'ahle_when_jm_growth_imp75_mean'
            ,'ahle_when_jf_growth_imp75_mean'
@@ -5817,7 +5962,7 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
             }
         elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
             cols_birr_costs = [
-           'ahle_when_nm_growth_imp100_mean'   
+           'ahle_when_nm_growth_imp100_mean'
            ,'ahle_when_nf_growth_imp100_mean'
            ,'ahle_when_jm_growth_imp100_mean'
            ,'ahle_when_jf_growth_imp100_mean'
@@ -5851,7 +5996,7 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
                ,'ahle_when_af_growth_imp100_mean':'Adult female'
                ,'ahle_when_af_growth_imp100_mean_usd':'Adult female'
             }
-    
+
     # -----------------------------------------------------------------------------
     # Base plot
     # -----------------------------------------------------------------------------
@@ -5864,7 +6009,7 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
     # Apply species filter
     stackedbar_df = stackedbar_df.loc[(stackedbar_df['species'] == species)]
     x = stackedbar_df['species']
-    
+
     # Change y based on selected currency value
     yaxis_title = 'Ethiopian Birr'
     y = stackedbar_df['cost_birr']
@@ -5873,20 +6018,20 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
         yaxis_title = 'USD'
         y = stackedbar_df['cost_usd']
         text = stackedbar_df['label_usd']
-    
+
     # Color
-    color = stackedbar_df['AHLE Due To']        
-    
-    # Create Stacked Bar 
+    color = stackedbar_df['AHLE Due To']
+
+    # Create Stacked Bar
     ahle_bar_ecs_fig = create_stacked_bar_ecs(stackedbar_df, x, y, text, color, yaxis_title)
 
-    if compare == 'Ideal' or compare == 'Mortality 0':
-        ahle_bar_ecs_fig.update_layout(title_text=f'{compare} AHLE Costs by Age Group | {prodsys}',
+    if compare == 'Ideal' or compare == 'Zero Mortality':
+        ahle_bar_ecs_fig.update_layout(title_text=f'AHLE contributions by Age Group | {species}, {prodsys} <br><sup>{compare} scenario</sup><br>',
                                     font_size=15)
     else:
-        ahle_bar_ecs_fig.update_layout(title_text=f'{impvmnt_factor} {impvmnt_value} AHLE Costs by Age Group | {prodsys}',
+        ahle_bar_ecs_fig.update_layout(title_text=f'AHLE contributions by Age Group | {species}, {prodsys} <br><sup>{impvmnt_factor} {impvmnt_value} improvement scenario</sup><br>',
                                     font_size=15)
-    
+
     # !!! - STILL WORKING ON THIS
     # # Add tooltip
     # if currency == 'Birr':
@@ -6530,13 +6675,13 @@ def update_display_table_ga(input_json ,selected_region ,selected_incgrp ,select
         ,'ahle_dueto_vetandmedcost_2010usd':'Constant 2010 US dollars'
         ,'ahle_total_2010usd':'Constant 2010 US dollars'
     }
-    
+
     # !!!- Adjust header size based on the column name length
-    # # custom width for each column as a workaround for this issue: 
+    # # custom width for each column as a workaround for this issue:
     # long_column_names = [{"if": {"column_id": column}, "min-width": "300px"} for column in df.columns if len(column) >= 30]
     # med_column_names = [{"if": {"column_id": column}, "min-width": "225px"} for column in df.columns if (len(column) > 15 and len(column)) < 30]
     # small_column_names = [{"if": {"column_id": column}, "min-width": "100px"} for column in df.columns if len(column) <= 15]
-    
+
     # adjusted_columns = long_column_names + med_column_names + small_column_names
     return [
         html.H4(f"Detailed data for {print_selected_country}{print_selected_incgrp}"),
@@ -6739,7 +6884,7 @@ def update_ahle_waterfall_ga(input_json ,selected_region ,selected_incgrp ,selec
     total_ahle = prep_df_sums[prep_df_sums['item']=='Net value']['value_usd_ahle_diff'].values[0]
     # total_ahle = total_ahle + prod_vetspend + pub_vetspend
 
-    if display =='Compare Current':
+    if display =='Side by Side':
         # Create graph with current values
         name = 'Current'
         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
@@ -6847,7 +6992,7 @@ def update_ahle_lineplot_ga(input_json ,selected_region ,selected_incgrp ,select
     prep_df_sums = prep_df_sums.reset_index()
 
 
-    if display == "Compare Current":
+    if display == "Side by Side":
         # Plot current value
         plot_current_value = go.Scatter(
             x=prep_df_sums['year']

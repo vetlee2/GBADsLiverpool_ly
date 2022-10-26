@@ -23,81 +23,10 @@ exchg_data_tomerge = exchg_data_tomerge[['country_name' ,'exchg_rate_lcuperusdol
 # =============================================================================
 def combine_ahle_scenarios(
         input_folder
-        ,input_file_prefix   # String
-        ,label_species       # String: add column 'species' with this label
-        ,label_prodsys       # String: add column 'production_system' with this label
-        ,input_file_suffixes=[        # List of strings
-            'Current'
-
-            ,'Ideal'
-            ,'ideal_AF'
-            ,'ideal_AM'
-            ,'ideal_JF'
-            ,'ideal_JM'
-            ,'ideal_NF'
-            ,'ideal_NM'
-
-            ,'all_mortality_zero'
-            ,'mortality_zero_AF'
-            ,'mortality_zero_AM'
-            ,'mortality_zero_J'
-            ,'mortality_zero_N'
-
-            ,'all_mort_25_imp'
-            ,'mort_25_imp_AF'
-            ,'mort_25_imp_AM'
-            ,'mort_25_imp_J'
-            ,'mort_25_imp_N'
-
-            ,'all_mort_50_imp'
-            ,'mort_50_imp_AF'
-            ,'mort_50_imp_AM'
-            ,'mort_50_imp_J'
-            ,'mort_50_imp_N'
-
-            ,'all_mort_75_imp'
-            ,'mort_75_imp_AF'
-            ,'mort_75_imp_AM'
-            ,'mort_75_imp_J'
-            ,'mort_75_imp_N'
-
-            ,'Current_growth_25_imp_All'
-            ,'Current_growth_25_imp_AF'
-            ,'Current_growth_25_imp_AM'
-            ,'Current_growth_25_imp_JF'
-            ,'Current_growth_25_imp_JM'
-            ,'Current_growth_25_imp_NF'
-            ,'Current_growth_25_imp_NM'
-
-            ,'Current_growth_50_imp_All'
-            ,'Current_growth_50_imp_AF'
-            ,'Current_growth_50_imp_AM'
-            ,'Current_growth_50_imp_JF'
-            ,'Current_growth_50_imp_JM'
-            ,'Current_growth_50_imp_NF'
-            ,'Current_growth_50_imp_NM'
-
-            ,'Current_growth_75_imp_All'
-            ,'Current_growth_75_imp_AF'
-            ,'Current_growth_75_imp_AM'
-            ,'Current_growth_75_imp_JF'
-            ,'Current_growth_75_imp_JM'
-            ,'Current_growth_75_imp_NF'
-            ,'Current_growth_75_imp_NM'
-
-            ,'Current_growth_100_imp_All'
-            ,'Current_growth_100_imp_AF'
-            ,'Current_growth_100_imp_AM'
-            ,'Current_growth_100_imp_JF'
-            ,'Current_growth_100_imp_JM'
-            ,'Current_growth_100_imp_NF'
-            ,'Current_growth_100_imp_NM'
-
-            ,'Current_repro_25_imp'
-            ,'Current_repro_50_imp'
-            ,'Current_repro_75_imp'
-            ,'Current_repro_100_imp'
-            ]
+        ,input_file_prefix      # String
+        ,input_file_suffixes    # List of strings
+        ,label_species          # String: add column 'species' with this label
+        ,label_prodsys          # String: add column 'production_system' with this label
       ):
    dfcombined = pd.DataFrame()   # Initialize merged data
 
@@ -132,9 +61,83 @@ def combine_ahle_scenarios(
 # -----------------------------------------------------------------------------
 # Small ruminants
 # -----------------------------------------------------------------------------
+small_rum_suffixes=[
+    'Current'
+
+    ,'Ideal'
+    ,'ideal_AF'
+    ,'ideal_AM'
+    ,'ideal_JF'
+    ,'ideal_JM'
+    ,'ideal_NF'
+    ,'ideal_NM'
+
+    ,'all_mortality_zero'
+    ,'mortality_zero_AF'
+    ,'mortality_zero_AM'
+    ,'mortality_zero_J'
+    ,'mortality_zero_N'
+
+    ,'all_mort_25_imp'
+    ,'mort_25_imp_AF'
+    ,'mort_25_imp_AM'
+    ,'mort_25_imp_J'
+    ,'mort_25_imp_N'
+
+    ,'all_mort_50_imp'
+    ,'mort_50_imp_AF'
+    ,'mort_50_imp_AM'
+    ,'mort_50_imp_J'
+    ,'mort_50_imp_N'
+
+    ,'all_mort_75_imp'
+    ,'mort_75_imp_AF'
+    ,'mort_75_imp_AM'
+    ,'mort_75_imp_J'
+    ,'mort_75_imp_N'
+
+    ,'Current_growth_25_imp_All'
+    ,'Current_growth_25_imp_AF'
+    ,'Current_growth_25_imp_AM'
+    ,'Current_growth_25_imp_JF'
+    ,'Current_growth_25_imp_JM'
+    ,'Current_growth_25_imp_NF'
+    ,'Current_growth_25_imp_NM'
+
+    ,'Current_growth_50_imp_All'
+    ,'Current_growth_50_imp_AF'
+    ,'Current_growth_50_imp_AM'
+    ,'Current_growth_50_imp_JF'
+    ,'Current_growth_50_imp_JM'
+    ,'Current_growth_50_imp_NF'
+    ,'Current_growth_50_imp_NM'
+
+    ,'Current_growth_75_imp_All'
+    ,'Current_growth_75_imp_AF'
+    ,'Current_growth_75_imp_AM'
+    ,'Current_growth_75_imp_JF'
+    ,'Current_growth_75_imp_JM'
+    ,'Current_growth_75_imp_NF'
+    ,'Current_growth_75_imp_NM'
+
+    ,'Current_growth_100_imp_All'
+    ,'Current_growth_100_imp_AF'
+    ,'Current_growth_100_imp_AM'
+    ,'Current_growth_100_imp_JF'
+    ,'Current_growth_100_imp_JM'
+    ,'Current_growth_100_imp_NF'
+    ,'Current_growth_100_imp_NM'
+
+    ,'Current_repro_25_imp'
+    ,'Current_repro_50_imp'
+    ,'Current_repro_75_imp'
+    ,'Current_repro_100_imp'
+]
+
 ahle_sheep_clm = combine_ahle_scenarios(
    input_folder=ETHIOPIA_OUTPUT_FOLDER
    ,input_file_prefix='ahle_CLM_S'
+   ,input_file_suffixes=small_rum_suffixes
    ,label_species='Sheep'
    ,label_prodsys='Crop livestock mixed'
 )
@@ -143,6 +146,7 @@ datainfo(ahle_sheep_clm)
 ahle_sheep_past = combine_ahle_scenarios(
    input_folder=ETHIOPIA_OUTPUT_FOLDER
    ,input_file_prefix='ahle_Past_S'
+   ,input_file_suffixes=small_rum_suffixes
    ,label_species='Sheep'
    ,label_prodsys='Pastoral'
 )
@@ -151,6 +155,7 @@ datainfo(ahle_sheep_past)
 ahle_goat_clm = combine_ahle_scenarios(
    input_folder=ETHIOPIA_OUTPUT_FOLDER
    ,input_file_prefix='ahle_CLM_G'
+   ,input_file_suffixes=small_rum_suffixes
    ,label_species='Goat'
    ,label_prodsys='Crop livestock mixed'
 )
@@ -159,6 +164,7 @@ datainfo(ahle_goat_clm)
 ahle_goat_past = combine_ahle_scenarios(
    input_folder=ETHIOPIA_OUTPUT_FOLDER
    ,input_file_prefix='ahle_Past_G'
+   ,input_file_suffixes=small_rum_suffixes
    ,label_species='Goat'
    ,label_prodsys='Pastoral'
 )
@@ -167,30 +173,56 @@ datainfo(ahle_goat_past)
 # -----------------------------------------------------------------------------
 # Cattle
 # -----------------------------------------------------------------------------
-# These have a different naming pattern
+cattle_suffixes = [
+    'current'
+    ,'ideal'
+    ,'ideal_AF'
+    ,'ideal_AM'
+    ,'ideal_JF'
+    ,'ideal_JM'
+    ,'ideal_NF'
+    ,'ideal_NM'
+    ,'ideal_O'
+    ,'mortality_zero'
+    ,'mortality_zero_AF'
+    ,'mortality_zero_AM'
+    ,'mortality_zero_J'
+    ,'mortality_zero_N'
+    ,'mortality_zero_O'
+]
+
 ahle_cattle_clm = combine_ahle_scenarios(
     input_folder=ETHIOPIA_OUTPUT_FOLDER
-    ,input_file_prefix='ahle_cattle_trial'
-    ,input_file_suffixes=['CLM_current' ,'CLM_mortality_zero']
+    ,input_file_prefix='ahle_cattle_trial_CLM'
+    ,input_file_suffixes=cattle_suffixes
     ,label_species='Cattle'
     ,label_prodsys='Crop livestock mixed'
 )
 # Adjust column names to match small ruminants
-ahle_cattle_clm.columns = ahle_cattle_clm.columns.str.replace('_clm' ,'')   # Remove _clm from names
 ahle_cattle_clm.columns = ahle_cattle_clm.columns.str.replace('_mortality_zero' ,'_all_mortality_zero')
 datainfo(ahle_cattle_clm)
 
 ahle_cattle_past = combine_ahle_scenarios(
     input_folder=ETHIOPIA_OUTPUT_FOLDER
-    ,input_file_prefix='ahle_cattle_trial'
-    ,input_file_suffixes=['past_current' ,'past_mortality_zero']
+    ,input_file_prefix='ahle_cattle_trial_past'
+    ,input_file_suffixes=cattle_suffixes
     ,label_species='Cattle'
     ,label_prodsys='Pastoral'
 )
 # Adjust column names to match small ruminants
-ahle_cattle_past.columns = ahle_cattle_past.columns.str.replace('_past' ,'')  # Remove _past from names
 ahle_cattle_past.columns = ahle_cattle_past.columns.str.replace('_mortality_zero' ,'_all_mortality_zero')
 datainfo(ahle_cattle_past)
+
+ahle_cattle_peri = combine_ahle_scenarios(
+    input_folder=ETHIOPIA_OUTPUT_FOLDER
+    ,input_file_prefix='ahle_cattle_trial_periurban_dairy'
+    ,input_file_suffixes=cattle_suffixes
+    ,label_species='Cattle'
+    ,label_prodsys='Periurban dairy'
+)
+# Adjust column names to match small ruminants
+ahle_cattle_peri.columns = ahle_cattle_peri.columns.str.replace('_mortality_zero' ,'_all_mortality_zero')
+datainfo(ahle_cattle_peri)
 
 # -----------------------------------------------------------------------------
 # Stack species and production systems
@@ -200,8 +232,10 @@ concat_list = [
     ,ahle_sheep_past
     ,ahle_goat_clm
     ,ahle_goat_past
+
     ,ahle_cattle_clm
     ,ahle_cattle_past
+    ,ahle_cattle_peri
 ]
 ahle_combo = pd.concat(
    concat_list      # List of dataframes to concatenate
@@ -274,14 +308,6 @@ print(check_grossmargin_overall[['species' ,'production_system' ,'gmchange_dueto
 # =============================================================================
 #### Sum of agesex groups compared to system total for each item
 # =============================================================================
-#!!! The overall sum Gross Margin produced here is not equal to the overall
-# Gross Margin coming out of the AHLE simulation!
-# I have checked the simulation code, and the elements of gross margin - production
-# value and total expenditure - are equal to the sum of the individual agesex groups
-# by definition. So, I believe the discrepancy is because we have only done a single
-# run of the simulation, and some elements are far from their means by random chance.
-# Check this again after running the simulation with several samples.
-
 # Sum individual agesex groups for each item
 check_agesex_sums = pd.DataFrame(check_ahle_combo.loc[~ _sex_combined]\
     .groupby(['species' ,'production_system' ,'item'] ,observed=True)['mean_current'].sum())
@@ -303,11 +329,10 @@ check_agesex_sums.eval(
     ,inplace=True
 )
 print('\n> Checking the sum of individual age/sex compared to the overall for each item')
-print('Maximum ratio')
+print('\nMaximum ratio')
 print(check_agesex_sums.groupby(['species' ,'production_system'])['check_ratio'].max())
-print('Minimum ratio')
+print('\nMinimum ratio')
 print(check_agesex_sums.groupby(['species' ,'production_system'])['check_ratio'].min())
-
 
 #%% Add group summaries
 '''

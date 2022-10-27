@@ -1205,7 +1205,7 @@ for i ,VARCOL in enumerate(var_cols):
 ahle_combo_scensmry_sumprod = ahle_combo_scensmry.pivot_table(
    index=['species' ,'item' ,'agesex_scenario']
    ,values=mean_cols + var_cols
-   ,aggfunc='sum'
+   ,aggfunc=lambda x: x.mean() * x.count()  # Hack: aggfunc sum is equal to zero if all values are missing. Do it this way to respect missings.
 ).reset_index()
 ahle_combo_scensmry_sumprod['production_system'] = 'Overall'
 
@@ -1224,9 +1224,10 @@ del ahle_combo_scensmry_sumprod
 ahle_combo_scensmry_sumspec = ahle_combo_scensmry.query("species.str.upper().isin(['SHEEP' ,'GOAT'])").pivot_table(
    index=['production_system' ,'item' ,'agesex_scenario']
    ,values=mean_cols + var_cols
-   ,aggfunc='sum'
+   ,aggfunc=lambda x: x.mean() * x.count()  # Hack: aggfunc sum is equal to zero if all values are missing. Do it this way to respect missings.
 ).reset_index()
 ahle_combo_scensmry_sumspec['species'] = 'All small ruminants'
+
 
 ahle_combo_scensmry = pd.concat(
    [ahle_combo_scensmry ,ahle_combo_scensmry_sumspec]

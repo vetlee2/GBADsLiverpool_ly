@@ -16,7 +16,7 @@
 # Set manually
 # -----------------------------------------------------------------
 # Number of simulation iterations
-cmd_nruns <- 10000
+cmd_nruns <- 1000
 
 # Folder location to save outputs
 cmd_output_directory <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Program outputs'
@@ -1105,9 +1105,7 @@ compartmental_model <- function(
 			Quant_Liveweight_kg_AM[month] = (AM * sample(lwAM, 1))
 			Quant_Liveweight_kg_O[month] = (O * sample(lwO, 1))
 			
-			
-			
-			Quant_Liveweight_kg[month] = Quant_Liveweight_kg_NF[month] + Quant_Liveweight_kg_NM[month] + Quant_Liveweight_kg_JF[month] + Quant_Liveweight_kg_JM[month] + Quant_Liveweight_kg_AF[month] + Quant_Liveweight_kg_AM[month] + Quant_Liveweight_kg_AM[month]
+			Quant_Liveweight_kg[month] = Quant_Liveweight_kg_NF[month] + Quant_Liveweight_kg_NM[month] + Quant_Liveweight_kg_JF[month] + Quant_Liveweight_kg_JM[month] + Quant_Liveweight_kg_AF[month] + Quant_Liveweight_kg_AM[month] + Quant_Liveweight_kg_O[month]
 			
 			# Offtake (all offtake added + culled adult males)
 
@@ -1707,7 +1705,7 @@ compartmental_model <- function(
 	Value_Manure_O_M <- Quant_Manure_O_M * Man_value
 	
 	## VALUE of herd increase and offtake and produce in ETH BIRR
-	Production_value_herd_offteake_hide_man_M <- Total_Value_increase_M + Value_Manure_M + Value_Hides_M + Value_Milk_M
+	 
 	Production_value_herd_offteake_hide_man_NF_M <- Total_Value_increase_NF_M + Value_Manure_NF_M
 	Production_value_herd_offteake_hide_man_NM_M <- Total_Value_increase_NM_M + Value_Manure_NM_M
 	Production_value_herd_offteake_hide_man_JF_M <- Total_Value_increase_JF_M + Value_Manure_JF_M + Value_Hides_JF_M
@@ -1715,6 +1713,10 @@ compartmental_model <- function(
 	Production_value_herd_offteake_hide_man_AF_M <- Total_Value_increase_AF_M + Value_Manure_AF_M + Value_Hides_AF_M + Value_Milk_M
 	Production_value_herd_offteake_hide_man_AM_M <- Total_Value_increase_AM_M + Value_Manure_AM_M + Value_Hides_AM_M
 	Production_value_herd_offteake_hide_man_O_M <- Total_Value_increase_O_M + Value_Manure_O_M + Value_Hides_O_M + cumilative_draught_income_M
+	
+	Production_value_herd_offteake_hide_man_M <- Production_value_herd_offteake_hide_man_NF_M + Production_value_herd_offteake_hide_man_NM_M + 
+	  Production_value_herd_offteake_hide_man_JF_M + Production_value_herd_offteake_hide_man_JM_M + 
+	  Production_value_herd_offteake_hide_man_AF_M + Production_value_herd_offteake_hide_man_AM_M + Production_value_herd_offteake_hide_man_O_M
 	
 	## Gross margin
 	Gross_margin_M <- Production_value_herd_offteake_hide_man_M - Total_expenditure_M
@@ -1872,9 +1874,9 @@ build_summary_df <- function(
 				item_mean <- mean(vector_to_summarize)
 				item_sd <- sd(vector_to_summarize)
 				item_min <- min(vector_to_summarize)
-				item_q1 <- quantile(vector_to_summarize ,0.25)
+				item_q1 <- quantile(vector_to_summarize, 0.25, na.rm = T)
 				item_median <- median(vector_to_summarize)
-				item_q3 <- quantile(vector_to_summarize ,0.75)
+				item_q3 <- quantile(vector_to_summarize, 0.75, na.rm = T)
 				item_max <- max(vector_to_summarize)
 				
 				onerow_df <- data.frame(Item=base_label ,Group=group ,Mean=item_mean ,StDev=item_sd ,Min=item_min ,Q1=item_q1 ,Median=item_median ,Q3=item_q3 ,Max=item_max)

@@ -16,7 +16,7 @@
 # Set manually
 # -----------------------------------------------------------------
 # Number of simulation iterations
-cmd_nruns <- 1000
+cmd_nruns <- 10
 
 # Folder location to save outputs
 cmd_output_directory <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Program outputs'
@@ -1874,9 +1874,9 @@ build_summary_df <- function(
 				item_mean <- mean(vector_to_summarize)
 				item_sd <- sd(vector_to_summarize)
 				item_min <- min(vector_to_summarize)
-				item_q1 <- quantile(vector_to_summarize, 0.25, na.rm = T)
+				item_q1 <- quantile(vector_to_summarize, 0.25)
 				item_median <- median(vector_to_summarize)
-				item_q3 <- quantile(vector_to_summarize, 0.75, na.rm = T)
+				item_q3 <- quantile(vector_to_summarize, 0.75)
 				item_max <- max(vector_to_summarize)
 				
 				onerow_df <- data.frame(Item=base_label ,Group=group ,Mean=item_mean ,StDev=item_sd ,Min=item_min ,Q1=item_q1 ,Median=item_median ,Q3=item_q3 ,Max=item_max)

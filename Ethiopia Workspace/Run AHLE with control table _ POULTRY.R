@@ -1535,15 +1535,25 @@ build_summary_df <- function(
 				#print('matrix to summarize:')
 				#print(paste(base_matrix, suffix, sep=''))
 				
-				item_mean <- mean(vector_to_summarize)
-				item_sd <- sd(vector_to_summarize)
-				item_min <- min(vector_to_summarize)
-				item_q1 <- quantile(vector_to_summarize, 0.25)
-				item_median <- median(vector_to_summarize)
-				item_q3 <- quantile(vector_to_summarize, 0.75)
-				item_max <- max(vector_to_summarize)
+				item_mean <- mean(vector_to_summarize, na.rm=TRUE)
+				item_sd <- sd(vector_to_summarize, na.rm=TRUE)
+				item_min <- min(vector_to_summarize, na.rm=TRUE)
+				item_q1 <- quantile(vector_to_summarize, 0.25, na.rm=TRUE)
+				item_median <- median(vector_to_summarize, na.rm=TRUE)
+				item_q3 <- quantile(vector_to_summarize, 0.75, na.rm=TRUE)
+				item_max <- max(vector_to_summarize, na.rm=TRUE)
 				
-				onerow_df <- data.frame(Item=base_label ,Group=group ,Mean=item_mean ,StDev=item_sd ,Min=item_min ,Q1=item_q1 ,Median=item_median ,Q3=item_q3 ,Max=item_max)
+				onerow_df <- data.frame(
+					Item=base_label
+					,Group=group
+					,Mean=item_mean
+					,StDev=item_sd
+					,Min=item_min
+					,Q1=item_q1
+					,Median=item_median
+					,Q3=item_q3
+					,Max=item_max
+				)
 				summary_df_updated <- rbind(summary_df_updated ,onerow_df)
 			}
 		}
@@ -1568,8 +1578,9 @@ remove_cols <- c('AHLE Parameter' ,'Notes')
 ahle_scenarios_cln <- subset(ahle_scenarios, select = !(names(ahle_scenarios) %in% remove_cols)) 
 
 # If specified, limit number of scenarios (columns) used
-#if (cmd_run_first_n_scenarios > 0){
-#	ahle_scenarios_cln <- ahle_scenarios_cln[ ,0:cmd_run_first_n_scenarios]
+if (cmd_run_first_n_scenarios > 0){
+	ahle_scenarios_cln <- ahle_scenarios_cln[ ,0:cmd_run_first_n_scenarios]
+}
 
 
 # Loop through scenario columns, calling the function for each

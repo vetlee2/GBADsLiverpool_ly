@@ -237,12 +237,16 @@ concat_list = [
     ,ahle_cattle_past
     ,ahle_cattle_peri
 ]
-ahle_combo = pd.concat(
+ahle_combo_cat = pd.concat(
    concat_list      # List of dataframes to concatenate
    ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
    ,join='outer'        # 'outer': keep all index values from all data frames
    ,ignore_index=True   # True: do not keep index values on concatenation axis
 )
+
+# Reset dataframe with a copy due to warning about fragmented data
+ahle_combo = ahle_combo_cat.copy()
+del ahle_combo_cat
 
 # Split age and sex groups into their own columns
 ahle_combo[['age_group' ,'sex']] = ahle_combo['group'].str.split(' ' ,expand=True)

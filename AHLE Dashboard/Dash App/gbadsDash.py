@@ -4854,7 +4854,7 @@ def update_age_options_ecs(species):
                 options.remove(d)
     return options
 
-# Update agesex group options based on species
+# Update production system options based on species
 @gbadsDash.callback(
     Output('select-prodsys-ecs', 'options'),
     Input('select-species-ecs', 'value'),
@@ -5117,11 +5117,10 @@ def update_ecs_ahle_data(input_json ,currency):
     Input('select-species-ecs','value'),
     # Input('select-age-ecs','value'),
     # Input('select-sex-ecs','value'),
-    # Input('select-attr-ecs','value'),
     )
 # def update_core_data_attr_ecs(prodsys, age, sex):
 def update_core_data_attr_ecs(prodsys, species):
-    input_df = ecs_ahle_all_withattr
+    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
 
     # Production System filter
     if prodsys == 'Crop livestock mixed' or prodsys == "Pastoral" or prodsys == 'Periurban dairy':
@@ -5571,6 +5570,7 @@ def update_ahle_waterfall_ecs(input_json, agesex, species, display, compare, pro
     Output('ecs-attr-treemap','figure'),
     Input('core-data-attr-ecs','data'),
     Input('select-prodsys-ecs','value'),
+    Input('select-species-ecs','value'),
     # Input('select-age-ecs','value'),
     # Input('select-sex-ecs','value'),
     Input('select-currency-ecs','value'),
@@ -5582,7 +5582,7 @@ def update_ahle_waterfall_ecs(input_json, agesex, species, display, compare, pro
     )
 # def update_attr_treemap_ecs(input_json, prodsys, age, sex, currency,
 #                             top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_hierarchy, dd4_hierarchy):
-def update_attr_treemap_ecs(input_json, prodsys, currency,
+def update_attr_treemap_ecs(input_json, prodsys, species, currency,
                             top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_hierarchy, dd4_hierarchy):
     # Data
     input_df = pd.read_json(input_json, orient='split')
@@ -5595,46 +5595,55 @@ def update_attr_treemap_ecs(input_json, prodsys, currency,
         input_df['lower95'] = input_df['lower95_usd']
         input_df['upper95'] = input_df['upper95_usd']
 
-    # Prep data
-    input_df = prep_ahle_fortreemap_ecs(input_df)
+    # Check for realistic combination of filters
+    if (prodsys == 'Periurban dairy') & (species != 'Cattle'):
+        ecs_treemap_fig = px.treemap()      # Empty chart
+        ecs_treemap_fig.update_layout(      # Add title
+            title_text=f'Attribution | {species}, {prodsys}',
+            font_size=15,
+            margin=dict(t=100)
+            )
 
-    # Hiararchy structure
-    path = [top_lvl_hierarchy]
-
-    if dd1_hierarchy != 'None':
-        path +=[dd1_hierarchy]
-    if dd2_hierarchy != 'None':
-        path +=[dd2_hierarchy]
-    if dd3_hierarchy != 'None':
-        path +=[dd3_hierarchy]
-    if dd4_hierarchy != 'None':
-        path +=[dd4_hierarchy]
-
-    # Set up treemap structure
-    ecs_treemap_fig = create_attr_treemap_ecs(input_df, path)
-
-    # Add title
-    species_label = input_df.iloc[0]['species']     # Input DF is already filtered to species. Get from first row.
-    ecs_treemap_fig.update_layout(
-        title_text=f'Attribution | {species_label}, {prodsys}',
-        font_size=15,
-        margin=dict(t=100)
-        )
-
-    # Add % of total AHLE
-    # ecs_treemap_fig.data[0].texttemplate = "%{label}<br>% of Total AHLE=%{customdata[0]:,.2f}%"
-
-    # Add tooltip
-    if currency == 'Birr':
-        ecs_treemap_fig.update_traces(root_color="white",
-                                      hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} Birr<extra></extra>')
-
-    elif currency == 'USD':
-        ecs_treemap_fig.update_traces(root_color="white",
-                                      hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} USD<extra></extra>')
     else:
-        ecs_treemap_fig.update_traces(root_color="white",
-                                      hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f}<br><extra></extra>')
+        # Prep data
+        input_df = prep_ahle_fortreemap_ecs(input_df)
+
+        # Hiararchy structure
+        path = [top_lvl_hierarchy]
+
+        if dd1_hierarchy != 'None':
+            path +=[dd1_hierarchy]
+        if dd2_hierarchy != 'None':
+            path +=[dd2_hierarchy]
+        if dd3_hierarchy != 'None':
+            path +=[dd3_hierarchy]
+        if dd4_hierarchy != 'None':
+            path +=[dd4_hierarchy]
+
+        # Set up treemap structure
+        ecs_treemap_fig = create_attr_treemap_ecs(input_df, path)
+
+        # Add title
+        ecs_treemap_fig.update_layout(
+            title_text=f'Attribution | {species}, {prodsys}',
+            font_size=15,
+            margin=dict(t=100)
+            )
+
+        # Add % of total AHLE
+        # ecs_treemap_fig.data[0].texttemplate = "%{label}<br>% of Total AHLE=%{customdata[0]:,.2f}%"
+
+        # Add tooltip
+        if currency == 'Birr':
+            ecs_treemap_fig.update_traces(root_color="white",
+                                          hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} Birr<extra></extra>')
+
+        elif currency == 'USD':
+            ecs_treemap_fig.update_traces(root_color="white",
+                                          hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} USD<extra></extra>')
+        else:
+            ecs_treemap_fig.update_traces(root_color="white",
+                                          hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f}<br><extra></extra>')
 
     return ecs_treemap_fig
 
@@ -6020,44 +6029,57 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
     # -----------------------------------------------------------------------------
     # Base plot
     # -----------------------------------------------------------------------------
-    # Structure for plot
-    stackedbar_df = prep_ahle_forstackedbar_ecs(input_df, cols_birr_costs, cols_usd_costs, pretty_ahle_cost_names)
+    # Check for realistic combination of filters
+    if (prodsys == 'Periurban dairy') & (species != 'Cattle'):
+        ahle_bar_ecs_fig = px.bar()         # Empty chart
+        ahle_bar_ecs_fig.update_layout(     # Add title
+            title_text=f'AHLE contributions by Age Group | {species}, {prodsys}',
+            font_size=15
+            )
 
-    # Apply production system filter
-    stackedbar_df = stackedbar_df.loc[(stackedbar_df['production_system'] == prodsys)]
-
-    # Apply species filter
-    stackedbar_df = stackedbar_df.loc[(stackedbar_df['species'] == species)]
-    x = stackedbar_df['species']
-
-    # Change y based on selected currency value
-    yaxis_title = 'Ethiopian Birr'
-    y = stackedbar_df['cost_birr']
-    text = stackedbar_df['label_birr']
-    if currency == 'USD':
-        yaxis_title = 'USD'
-        y = stackedbar_df['cost_usd']
-        text = stackedbar_df['label_usd']
-
-    # Color
-    color = stackedbar_df['AHLE Due To']
-
-    # Create Stacked Bar
-    ahle_bar_ecs_fig = create_stacked_bar_ecs(stackedbar_df, x, y, text, color, yaxis_title)
-
-    if compare == 'Ideal' or compare == 'Zero Mortality':
-        ahle_bar_ecs_fig.update_layout(title_text=f'AHLE contributions by Age Group | {species}, {prodsys} <br><sup>{compare} scenario</sup><br>',
-                                    font_size=15)
     else:
-        ahle_bar_ecs_fig.update_layout(title_text=f'AHLE contributions by Age Group | {species}, {prodsys} <br><sup>{impvmnt_factor} {impvmnt_value} improvement scenario</sup><br>',
-                                    font_size=15)
+        # Structure for plot
+        stackedbar_df = prep_ahle_forstackedbar_ecs(input_df, cols_birr_costs, cols_usd_costs, pretty_ahle_cost_names)
 
-    # !!! - STILL WORKING ON THIS
-    # # Add tooltip
-    # if currency == 'Birr':
-    #     ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} Birr<extra></extra>')
-    # elif currency == 'USD':
-    #     ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} USD<extra></extra>')
+        # Apply production system filter
+        stackedbar_df = stackedbar_df.loc[(stackedbar_df['production_system'] == prodsys)]
+
+        # Apply species filter
+        stackedbar_df = stackedbar_df.loc[(stackedbar_df['species'] == species)]
+        x = stackedbar_df['species']
+
+        # Change y based on selected currency value
+        yaxis_title = 'Ethiopian Birr'
+        y = stackedbar_df['cost_birr']
+        text = stackedbar_df['label_birr']
+        if currency == 'USD':
+            yaxis_title = 'USD'
+            y = stackedbar_df['cost_usd']
+            text = stackedbar_df['label_usd']
+
+        # Color
+        color = stackedbar_df['AHLE Due To']
+
+        # Create Stacked Bar
+        ahle_bar_ecs_fig = create_stacked_bar_ecs(stackedbar_df, x, y, text, color, yaxis_title)
+
+        if compare == 'Ideal' or compare == 'Zero Mortality':
+            ahle_bar_ecs_fig.update_layout(
+                title_text=f'AHLE contributions by Age Group | {species}, {prodsys} <br><sup>{compare} scenario</sup><br>',
+                font_size=15
+                )
+        else:
+            ahle_bar_ecs_fig.update_layout(
+                title_text=f'AHLE contributions by Age Group | {species}, {prodsys} <br><sup>{impvmnt_factor} {impvmnt_value} improvement scenario</sup><br>',
+                font_size=15
+                )
+
+        # !!! - STILL WORKING ON THIS
+        # # Add tooltip
+        # if currency == 'Birr':
+        #     ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} Birr<extra></extra>')
+        # elif currency == 'USD':
+        #     ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} USD<extra></extra>')
 
     return ahle_bar_ecs_fig
 

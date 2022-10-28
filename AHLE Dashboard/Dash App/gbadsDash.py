@@ -5082,14 +5082,16 @@ def update_ecs_ahle_data(input_json ,currency):
 
     # Keep only items for the waterfall
     waterfall_plot_values = ('Value of Offtake',
-                              'Value of Herd Increase',
-                              'Value of Manure',
-                              'Value of Hides',
-                              'Feed Cost',
-                              'Labour Cost',
-                              'Health Cost',
-                              'Capital Cost',
-                              'Gross Margin')
+                             'Value of Herd Increase',
+                             'Value of draught',
+                             'Value of Milk'
+                             'Value of Manure',
+                             'Value of Hides',
+                             'Feed Cost',
+                             'Labour Cost',
+                             'Health Cost',
+                             'Capital Cost',
+                             'Gross Margin')
     input_df = input_df.loc[input_df['item'].isin(waterfall_plot_values)]
 
 

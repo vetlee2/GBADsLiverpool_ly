@@ -1409,7 +1409,7 @@ compartmental_model <- function(
 			Infrastructure_cost[month] <- Infrastructure_cost_NF[month] + Infrastructure_cost_NM[month] + Infrastructure_cost_JF[month] + Infrastructure_cost_JM[month] + Infrastructure_cost_AF[month] + Infrastructure_cost_AM[month] + Infrastructure_cost_O[month]
 			
 			##
-			Total_expenditure[month] =  Feed + Health + Labour + Capital + Infrastructure_cost[month]
+			Total_expenditure[month] =  Feed_cost[month] + Health + Labour + Capital + Infrastructure_cost[month]
 
 			Total_expenditure_NF[month] =  Feed_NF + Health_NF + Labour_NF + Capital_NF + Infrastructure_cost_NF[month]
 			Total_expenditure_NM[month] =  Feed_NM + Health_NM + Labour_NM + Capital_NM + Infrastructure_cost_NM[month]

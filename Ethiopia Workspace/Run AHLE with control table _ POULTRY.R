@@ -16,7 +16,7 @@
 # Set manually
 # -----------------------------------------------------------------
 # Number of simulation iterations
-cmd_nruns <- 100
+cmd_nruns <- 10000
 
 # Folder location to save outputs
 cmd_output_directory <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Program outputs'
@@ -187,13 +187,12 @@ compartmental_model <- function(
 	,Man_value
 	  
 	## dry matter requirements as proportion of Liveweight
-	,DM_req_prpn_NF		# Dry matter required by neonates
-	,DM_req_prpn_NM		# Dry matter required by neonates
-	,DM_req_prpn_JF		# Dry matter required by juvenile
-	,DM_req_prpn_JM		# Dry matter required by juvenile
-	,DM_req_prpn_AF		# Dry matter required by adults
-	,DM_req_prpn_AM		# Dry matter required by adults
-	,DM_req_prpn_O
+	,feed_req_prpn_NF		# Dry matter required by neonates
+	,feed_req_prpn_NM		# Dry matter required by neonates
+	,feed_req_prpn_JF		# Dry matter required by juvenile
+	,feed_req_prpn_JM		# Dry matter required by juvenile
+	,feed_req_prpn_AF		# Dry matter required by adults
+	,feed_req_prpn_AM		# Dry matter required by adults
 	## Proportion of livestock keepers that spend any money on feed
 	## NOTE Currently the same for all age*sex groups
 	,prpn_lskeepers_purch_feed
@@ -240,14 +239,13 @@ compartmental_model <- function(
 # dont need to adjust for this anymore
 #	DM_req_prpn_AF <- 0.026
 	## dry matter requirements (measured in kg and calculated as a % of Liveweight)
-	kg_DM_req_NF = DM_req_prpn_NF * lwNF  	# Dry matter required by neonates
-	kg_DM_req_NM = DM_req_prpn_NM * lwNM  	# Dry matter required by neonates
-	kg_DM_req_JF = DM_req_prpn_JF * lwJF  	# Dry matter required by juvenile
-	kg_DM_req_JM = DM_req_prpn_JM * lwJM  	# Dry matter required by juvenile
-	kg_DM_req_AF = DM_req_prpn_AF * lwAF  	# Dry matter required by adults
-	kg_DM_req_AM = DM_req_prpn_AM * lwAM  	# Dry matter required by adults
-	kg_DM_req_O = DM_req_prpn_O * lwO  	# Dry matter required by adults
-	
+	kg_DM_req_NF = feed_req_prpn_NF   	# Dry matter required by neonates
+	kg_DM_req_NM = feed_req_prpn_NM 	# Dry matter required by neonates
+	kg_DM_req_JF = feed_req_prpn_JF   	# Dry matter required by juvenile
+	kg_DM_req_JM = feed_req_prpn_JM 	# Dry matter required by juvenile
+	kg_DM_req_AF = feed_req_prpn_AF  	# Dry matter required by adults
+	kg_DM_req_AM = feed_req_prpn_AM  	# Dry matter required by adults
+
 	## NOTE in the pastoral system this purchased feed will be 0
 	DM_purch_NF <- (kg_DM_req_NF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
 	DM_purch_NM <- (kg_DM_req_NM * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
@@ -255,20 +253,18 @@ compartmental_model <- function(
 	DM_purch_JM <- (kg_DM_req_JM * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
 	DM_purch_AF <- (kg_DM_req_AF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
 	DM_purch_AM <- (kg_DM_req_AM * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
-	DM_purch_O <- (kg_DM_req_O * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
-	
+
 #prpn_lskeepers_purch_feed <- 0.25
 #prpn_feed_paid_for <- rpert(10000, 0, 1, 0.5)
 	#DM_in_feed <- rpert(10000, 0.8, 0.95, 0.9)
 	  
-	KG_Feed_purchased_NF <- DM_purch_NF / DM_in_feed
-	KG_Feed_purchased_NM <- DM_purch_NM / DM_in_feed
-	KG_Feed_purchased_JF <- DM_purch_JF / DM_in_feed
-	KG_Feed_purchased_JM <- DM_purch_JM / DM_in_feed
-	KG_Feed_purchased_AF <- DM_purch_AF / DM_in_feed
-	KG_Feed_purchased_AM <- DM_purch_AM / DM_in_feed
-	KG_Feed_purchased_O <- DM_purch_O / DM_in_feed
-	
+	KG_Feed_purchased_NF <- DM_purch_NF 
+	KG_Feed_purchased_NM <- DM_purch_NM
+	KG_Feed_purchased_JF <- DM_purch_JF 
+	KG_Feed_purchased_JM <- DM_purch_JM 
+	KG_Feed_purchased_AF <- DM_purch_AF 
+	KG_Feed_purchased_AM <- DM_purch_AM 
+
 	## Expenditure on feed per animal
 #	Feed_cost_kg <- rpert(10000, 2.5, 6.5, 3.46)
 	Expenditure_on_feed_NF <- KG_Feed_purchased_NF * Feed_cost_kg
@@ -1173,7 +1169,7 @@ compartmental_model <- function(
 			## Milk
 			# number of females giving birth in month x, multiplied by number that would be milked
 			## multiplied by lactation duration and daily yield)
-			Quant_Milk[month] = Milk + ((AF * ((sample(part, 1)/12)) * prop_F_milked) * ((sample(lac_duration, 1)) * (sample(avg_daily_yield_ltr,1)))) 
+			Quant_Milk[month] = Milk + (AF * (sample(part, 1)) * prop_F_milked * (sample(lac_duration, 1)) * (sample(avg_daily_yield_ltr,1))) 
 			  
 			Milk = Quant_Milk[month]
 			
@@ -1206,11 +1202,11 @@ compartmental_model <- function(
 				## NOTE does this need to be multiplied by 30 to get a monthly dry matter requirement?
 			
 			Cumilative_Dry_Matter_NF[month] = Cumulitive_DM_NF + (NF * (sample(kg_DM_req_NF, 1) * 30)) 
-			Cumilative_Dry_Matter_NM[month] = Cumulitive_DM_NM + (NM * (sample(kg_DM_req_NM, 1) * 30)) 
-			Cumilative_Dry_Matter_JF[month] = Cumulitive_DM_JF + (JF * (sample(kg_DM_req_JF, 1) * 30)) 
-			Cumilative_Dry_Matter_JM[month] = Cumulitive_DM_JM + (JM * (sample(kg_DM_req_JM, 1) * 30)) 
-			Cumilative_Dry_Matter_AF[month] = Cumulitive_DM_AF + (AF * (sample(kg_DM_req_AF, 1) * 30)) 
-			Cumilative_Dry_Matter_AM[month] = Cumulitive_DM_AM + (AM * (sample(kg_DM_req_AM, 1) * 30)) 
+			Cumilative_Dry_Matter_NM[month] = Cumulitive_DM_NM + (NM * (sample(kg_DM_req_NF, 1) * 30)) 
+			Cumilative_Dry_Matter_JF[month] = Cumulitive_DM_JF + (JF * (sample(kg_DM_req_NF, 1) * 30)) 
+			Cumilative_Dry_Matter_JM[month] = Cumulitive_DM_JM + (JM * (sample(kg_DM_req_NF, 1) * 30)) 
+			Cumilative_Dry_Matter_AF[month] = Cumulitive_DM_AF + (AF * (sample(kg_DM_req_NF, 1) * 30)) 
+			Cumilative_Dry_Matter_AM[month] = Cumulitive_DM_AM + (AM * (sample(kg_DM_req_NF, 1) * 30)) 
 			Cumilative_Dry_Matter_O[month] = Cumulitive_DM_O + (O * (sample(kg_DM_req_O, 1) * 30))
 			
 			Cumulitive_DM_NF = Cumilative_Dry_Matter_NF[month]
@@ -1303,23 +1299,22 @@ compartmental_model <- function(
 			## Expenditure in system
 			# Feed cost
 		  
-			Feed_cost_NF[month] = Feed_NF + (NF * (sample(Expenditure_on_feed_NF, 1)) * 30) 
+			Feed_cost_NF[month] = Feed_NF + (NF * (sample(Expenditure_on_feed_NF, 1))) 
 			Feed_NF = Feed_cost_NF[month]
-			Feed_cost_NM[month] = Feed_NM + (NM * (sample(Expenditure_on_feed_NM, 1)) * 30) 
+			Feed_cost_NM[month] = Feed_NM + (NM * (sample(Expenditure_on_feed_NM, 1))) 
 			Feed_NM = Feed_cost_NM[month]
-			Feed_cost_JF[month] = Feed_JF + (JF * (sample(Expenditure_on_feed_JF, 1)) * 30)
+			Feed_cost_JF[month] = Feed_JF + (JF * (sample(Expenditure_on_feed_JF, 1)))
 			Feed_JF = Feed_cost_JF[month]
-			Feed_cost_JM[month] = Feed_JM + (JM * (sample(Expenditure_on_feed_JM, 1)) * 30)
+			Feed_cost_JM[month] = Feed_JM + (JM * (sample(Expenditure_on_feed_JM, 1)))
 			Feed_JM = Feed_cost_JM[month]
-			Feed_cost_AF[month] = Feed_AF + (AF * (sample(Expenditure_on_feed_AF, 1)) * 30)
+			Feed_cost_AF[month] = Feed_AF + (AF * (sample(Expenditure_on_feed_AF, 1)))
 			Feed_AF = Feed_cost_AF[month]
-			Feed_cost_AM[month] = Feed_AM + (AM * (sample(Expenditure_on_feed_AM, 1)) * 30) 
+			Feed_cost_AM[month] = Feed_AM + (AM * (sample(Expenditure_on_feed_AM, 1))) 
 			Feed_AM = Feed_cost_AM[month]
-			Feed_cost_O[month] = Feed_O + (O * (sample(Expenditure_on_feed_O, 1)) * 30) 
-			Feed_O = Feed_cost_O[month]
+		
 			
 			# total feed cost
-			Feed_cost[month] = Feed_cost_NF[month] + Feed_cost_NM[month] + Feed_cost_JF[month] + Feed_cost_JM[month] + Feed_cost_AF[month] + Feed_cost_AM[month] + Feed_cost_O[month]
+			Feed_cost[month] = Feed_cost_NF[month] + Feed_cost_NM[month] + Feed_cost_JF[month] + Feed_cost_JM[month] + Feed_cost_AF[month] + Feed_cost_AM[month] 
 			                               
 			Feed = Feed_cost[month]
 			
@@ -1332,17 +1327,15 @@ compartmental_model <- function(
 			Labour_cost_JM[month] = Labour_JM + (JM * (sample(Labour_cattle, 1)) * lab_non_health)  
 			Labour_cost_AF[month] = Labour_AF + (AF * (sample(Labour_cattle, 1)) * lab_non_health) + (AF * prop_F_milked * sample(Labour_dairy, 1))  
 			Labour_cost_AM[month] = Labour_AM + (AM * (sample(Labour_cattle, 1)) * lab_non_health)  
-			Labour_cost_O[month] = Labour_O + (O * (sample(Labour_cattle, 1)) * lab_non_health) + (O * (sample(Labour_Oxen, 1)))
-			
+
 			Labour_NF = Labour_cost_NF[month]
 			Labour_NM = Labour_cost_NM[month]
 			Labour_JF = Labour_cost_JF[month]
 			Labour_JM = Labour_cost_JM[month]
 			Labour_AF = Labour_cost_AF[month]
 			Labour_AM = Labour_cost_AM[month]
-			Labour_O = Labour_cost_O[month]
-			
-			Labour_cost[month] = Labour_cost_NF[month] + Labour_cost_NM[month] + Labour_cost_JF[month] + Labour_cost_JM[month] + Labour_cost_AF[month] + Labour_cost_AM[month] + Labour_cost_O[month]
+
+			Labour_cost[month] = Labour_cost_NF[month] + Labour_cost_NM[month] + Labour_cost_JF[month] + Labour_cost_JM[month] + Labour_cost_AF[month] + Labour_cost_AM[month] 
 			Labour =  Labour_cost[month]
 
 			# Medicines and veterinary expenditure
@@ -1353,18 +1346,16 @@ compartmental_model <- function(
 			Health_cost_JM[month] = Health_JM + (JM * (sample(Health_exp_prev, 1))) + (JM * (sample(Health_exp_treatment, 1)))
 			Health_cost_AF[month] = Health_AF + (AF * (sample(Health_exp_prev, 1))) + (AF * (sample(Health_exp_treatment, 1)))
 			Health_cost_AM[month] = Health_AM + (AM * (sample(Health_exp_prev, 1))) + (AM * (sample(Health_exp_treatment, 1))) 
-			Health_cost_O[month] = Health_O + (O * (sample(Health_exp_prev, 1))) + (O * (sample(Health_exp_treatment, 1))) 
-			
+
 			Health_NF = Health_cost_NF[month]
 			Health_NM = Health_cost_NM[month]
 			Health_JF = Health_cost_JF[month]
 			Health_JM = Health_cost_JM[month]
 			Health_AF = Health_cost_AF[month]
 			Health_AM = Health_cost_AM[month]
-			Health_O = Health_cost_O[month]
-			
+
 			Health_cost[month] = Health_cost_NF[month] + Health_cost_NM[month] + Health_cost_JF[month] + Health_cost_JM[month] +
-			                             Health_cost_AF[month] + Health_cost_AM[month] + Health_cost_O[month]
+			                             Health_cost_AF[month] + Health_cost_AM[month]
 			Health = Health_cost[month]
 
 			# Capital costs
@@ -1387,12 +1378,10 @@ compartmental_model <- function(
 			Capital_cost_AM[month] = numAM[1] * (sample(fvAM, 1)) * Interest_rate  
 			Capital_AM = Capital_cost_AM[month]
 			
-			Capital_cost_O[month] = numO[1] * (sample(fvO, 1)) * Interest_rate
-			Capital_O = Capital_cost_O[month]
 			
 			# total pop capital cost
 			Capital_cost[month] = Capital_cost_NF[month] + Capital_cost_NM[month] + Capital_cost_JF[month] + Capital_cost_JM[month] +
-			                      Capital_cost_AF[month] + Capital_cost_AM[month] + Capital_cost_O[month]
+			                      Capital_cost_AF[month] + Capital_cost_AM[month]
 			  
 			Capital = Capital_cost[month]
 			

@@ -1,1 +1,0 @@
-# Saving background data

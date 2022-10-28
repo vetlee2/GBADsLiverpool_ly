@@ -17,7 +17,7 @@ So, I will separate the AHLE data by species and process each one individually.
 I will call the attribution function separately, once for each species or group,
 before concatenating the results into a single file for export.
 '''
-#%% Setup
+#%% Preliminaries
 
 # =============================================================================
 #### Rscript executable
@@ -390,16 +390,10 @@ timerstart()
 run_cmd([r_executable ,r_script] + r_args)
 timerstop()
 
-#%% === Revisit ===
-'''
-Plan: instead of taking health cost from ahle_combo_forattr_1, take it from
-ahle_combo_forattr_cattle and ahle_combo_forattr_smallrum because those are
-summed to the correct level.
-'''
 #%% Process attribution results
 
 # =============================================================================
-#### Import and combine
+#### Import and combine attribution results
 # =============================================================================
 attribution_summary_smallruminants = pd.read_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_smallruminants.csv'))
 attribution_summary_smallruminants['species'] = 'All small ruminants'
@@ -417,51 +411,84 @@ cleancolnames(ahle_combo_withattr)
 datainfo(ahle_combo_withattr)
 
 # =============================================================================
-#### Add placeholder for health cost attribution
+#### Add health cost placeholder
 # =============================================================================
+# -----------------------------------------------------------------------------
+# Define placeholder attribution categories
+# -----------------------------------------------------------------------------
+# healthcost_category_list = ['Treatment' ,'Prevention' ,'Professional time' ,'Other']
+healthcost_category_list = ['Infectious' ,'Non-infectious' ,'External']
+healthcost_category_df = pd.DataFrame({'cause':healthcost_category_list
+                                       ,'ahle':'Health cost'}
+                                      )
+
+# -----------------------------------------------------------------------------
+# Small Ruminants
+# -----------------------------------------------------------------------------
 # Get health cost AHLE rows
-_row_selection = (ahle_combo_forattr_1['ahle_component'].str.upper() == 'HEALTH COST')
+_row_selection = (ahle_combo_forattr_smallrum['AHLE'].str.upper() == 'HEALTH COST')
 print(f"> Selected {_row_selection.sum() :,} rows.")
-healthcost_attr = ahle_combo_forattr_1.loc[_row_selection].reset_index(drop=True).copy()
+healthcost_smallrum = ahle_combo_forattr_smallrum.loc[_row_selection].reset_index(drop=True).copy()
+cleancolnames(healthcost_smallrum)
 
-
-
-
-
-
-
-# Add variance for summing
-healthcost_attr['sqrd_sd'] = healthcost_attr['sd']**2
-
-# Sum to same level as ahle_combo_withattr
-healthcost_attr = healthcost_attr.pivot_table(
+# Sum sheep and goats
+healthcost_smallrum['sqrd_sd'] = healthcost_smallrum['sd']**2       # Calculate variance for summing
+healthcost_smallrum = healthcost_smallrum.pivot_table(
    index=['production_system' ,'age_class' ,'ahle']
    ,values=['mean' ,'sqrd_sd']
    ,aggfunc='sum'
 ).reset_index()
+healthcost_smallrum['species'] = 'All small ruminants'
 
 # Add placeholder attribution categories
-# healthcost_attr_category_list = ['Treatment' ,'Prevention' ,'Professional time' ,'Other']
-healthcost_attr_category_list = ['Infectious' ,'Non-infectious' ,'External']
-healthcost_attr_category_df = pd.DataFrame({'cause':healthcost_attr_category_list
-                                           ,'ahle':'Health cost'}
-                                          )
-healthcost_attr = pd.merge(left=healthcost_attr ,right=healthcost_attr_category_df ,on='ahle' ,how='outer')
+healthcost_smallrum = pd.merge(left=healthcost_smallrum ,right=healthcost_category_df ,on='ahle' ,how='outer')
 
 # Allocate health cost AHLE equally to categories
-healthcost_attr['mean'] = healthcost_attr['mean'] / len(healthcost_attr_category_list)
-healthcost_attr['sqrd_sd'] = healthcost_attr['sqrd_sd'] / len(healthcost_attr_category_list)
+healthcost_smallrum['mean'] = healthcost_smallrum['mean'] / len(healthcost_category_list)               # Mean(1/3 X) = 1/3 Mean(X)
+healthcost_smallrum['sqrd_sd'] = healthcost_smallrum['sqrd_sd'] / (len(healthcost_category_list)**2)      # Var(1/3 X) = 1/9 Var(X)
 
 # Calc standard deviation and upper and lower 95% CI
-healthcost_attr['sd'] = np.sqrt(healthcost_attr['sqrd_sd'])
-del healthcost_attr['sqrd_sd']
+healthcost_smallrum['sd'] = np.sqrt(healthcost_smallrum['sqrd_sd'])
+del healthcost_smallrum['sqrd_sd']
 
-healthcost_attr['lower95'] = healthcost_attr['mean'] - 1.96 * healthcost_attr['sd']
-healthcost_attr['upper95'] = healthcost_attr['mean'] + 1.96 * healthcost_attr['sd']
+healthcost_smallrum['lower95'] = healthcost_smallrum['mean'] - 1.96 * healthcost_smallrum['sd']
+healthcost_smallrum['upper95'] = healthcost_smallrum['mean'] + 1.96 * healthcost_smallrum['sd']
 
 # Add to attribution data
 ahle_combo_withattr = pd.concat(
-    [ahle_combo_withattr ,healthcost_attr]
+    [ahle_combo_withattr ,healthcost_smallrum]
+    ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
+    ,join='outer'        # 'outer': keep all index values from all data frames
+    ,ignore_index=True   # True: do not keep index values on concatenation axis
+)
+
+# -----------------------------------------------------------------------------
+# Cattle
+# -----------------------------------------------------------------------------
+# Get health cost AHLE rows
+_row_selection = (ahle_combo_forattr_cattle['AHLE'].str.upper() == 'HEALTH COST')
+print(f"> Selected {_row_selection.sum() :,} rows.")
+healthcost_cattle = ahle_combo_forattr_cattle.loc[_row_selection].reset_index(drop=True).copy()
+cleancolnames(healthcost_cattle)
+
+# Add placeholder attribution categories
+healthcost_cattle = pd.merge(left=healthcost_cattle ,right=healthcost_category_df ,on='ahle' ,how='outer')
+
+# Allocate health cost AHLE equally to categories
+healthcost_cattle['sqrd_sd'] = healthcost_cattle['sd']**2       # Calculate variance for summing
+healthcost_cattle['mean'] = healthcost_cattle['mean'] / len(healthcost_category_list)               # Mean(1/3 X) = 1/3 Mean(X)
+healthcost_cattle['sqrd_sd'] = healthcost_cattle['sqrd_sd'] / (len(healthcost_category_list)**2)    # Var(1/3 X) = 1/9 Var(X)
+
+# Calc standard deviation and upper and lower 95% CI
+healthcost_cattle['sd'] = np.sqrt(healthcost_cattle['sqrd_sd'])
+del healthcost_cattle['sqrd_sd']
+
+healthcost_cattle['lower95'] = healthcost_cattle['mean'] - 1.96 * healthcost_cattle['sd']
+healthcost_cattle['upper95'] = healthcost_cattle['mean'] + 1.96 * healthcost_cattle['sd']
+
+# Add to attribution data
+ahle_combo_withattr = pd.concat(
+    [ahle_combo_withattr ,healthcost_cattle]
     ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
     ,join='outer'        # 'outer': keep all index values from all data frames
     ,ignore_index=True   # True: do not keep index values on concatenation axis
@@ -470,6 +497,7 @@ ahle_combo_withattr = pd.concat(
 # =============================================================================
 #### Add placeholder for attribution to specific diseases
 # =============================================================================
+# REVISIT: this must be BY SPECIES if you want to use it
 # # Create placeholders
 # diseases_ext = pd.DataFrame({
 #     "cause":'External'
@@ -506,8 +534,9 @@ ahle_combo_withattr = pd.concat(
 # =============================================================================
 #### Calculate as percent of total
 # =============================================================================
-total_ahle = ahle_combo_withattr['mean'].sum()
-ahle_combo_withattr['pct_of_total'] = (ahle_combo_withattr['mean'] / total_ahle) * 100
+# REVISIT: this must be BY SPECIES if you want to use it
+# total_ahle = ahle_combo_withattr['mean'].sum()
+# ahle_combo_withattr['pct_of_total'] = (ahle_combo_withattr['mean'] / total_ahle) * 100
 
 # =============================================================================
 #### Add currency conversion
@@ -535,6 +564,7 @@ ahle_combo_withattr['sd_usd'] = np.sqrt(ahle_combo_withattr['sd']**2 / ahle_comb
 # =============================================================================
 #### Cleanup and export
 # =============================================================================
+# Rename columns to those Dash will look for
 rename_cols = {
     "ahle":"ahle_component"
     ,"age_class":"group"
@@ -543,6 +573,8 @@ ahle_combo_withattr = ahle_combo_withattr.rename(columns=rename_cols)
 
 # Split age and sex groups into their own columns
 ahle_combo_withattr[['age_group' ,'sex']] = ahle_combo_withattr['group'].str.split(' ' ,expand=True)
+
+# Recode columns to values Dash will look for
 recode_sex = {
    None:'Overall'
    ,'female':'Female'
@@ -555,10 +587,16 @@ recode_age = {
 }
 ahle_combo_withattr['age_group'] = ahle_combo_withattr['age_group'].replace(recode_age)
 
+recode_prodsys = {
+    "Dairy":"Periurban dairy"
+}
+ahle_combo_withattr['production_system'] = ahle_combo_withattr['production_system'].replace(recode_prodsys)
+
 # Reorder columns
-cols_first = ['production_system' ,'group' ,'age_group' ,'sex' ,'ahle_component' ,'cause']
+cols_first = ['species' ,'production_system' ,'group' ,'age_group' ,'sex' ,'ahle_component' ,'cause']
 cols_other = [i for i in list(ahle_combo_withattr) if i not in cols_first]
 ahle_combo_withattr = ahle_combo_withattr.reindex(columns=cols_first + cols_other)
+ahle_combo_withattr = ahle_combo_withattr.sort_values(by=cols_first ,ignore_index=True)
 datainfo(ahle_combo_withattr)
 
 # Write CSV

@@ -434,9 +434,12 @@ swine_lookup_breed_df = {
 #### Ethiopia case study options
 # =============================================================================
 # Production system
-ecs_prodsys_options = [{'label': "All Production Systems", 'value': "All Production Systems", 'disabled': False}]
+# ecs_prodsys_options = [{'label': "All Production Systems", 'value': "All Production Systems", 'disabled': False}]
+# Rename Overall to more descriptive
+ecs_ahle_summary['production_system'] = ecs_ahle_summary['production_system'].replace({'Overall': 'All Production Systems'})
 
-for i in np.sort(ecs_ahle_all_withattr['production_system'].unique()):
+ecs_prodsys_options = []
+for i in np.sort(ecs_ahle_summary['production_system'].unique()):
    str(ecs_prodsys_options.append({'label':i,'value':(i)}))
 
 # Age
@@ -512,13 +515,11 @@ ecs_factor_options = [{'label': i, 'value': i, 'disabled': True} for i in ["Mort
                                                                            ]]
 
 # Reduction
-ecs_improve_options = [{'label': i, 'value': i, 'disabled': True} for i in [
-    # 'Current',
-                                                                         '25%',
-                                                                         '50%',
-                                                                         '75%',
-                                                                         '100%',
-                                                                         ]]
+ecs_improve_options = [{'label': i, 'value': i, 'disabled': True} for i in ['25%',
+                                                                            '50%',
+                                                                            '75%',
+                                                                            '100%',
+                                                                            ]]
 
 # Defaults for sliders
 factor_ecs_default = 'Current'
@@ -4836,28 +4837,35 @@ def update_stacked_bar_swine(input_json, country, year):
 # ------------------------------------------------------------------------------
 #### -- Controls
 # ------------------------------------------------------------------------------
-# # ECS reset to defaults button
-# @gbadsDash.callback(
-#     Output('select-improve-ecs', 'value'),
-#     Input('reset-val-ecs', 'n_clicks')
-#     )
-# def reset_to_default_ecs(reset):
-#     return factor_ecs_default
+# Update agesex group options based on species
+@gbadsDash.callback(
+    Output('select-agesex-ecs', 'options'),
+    Input('select-species-ecs', 'value'),
+    )
+def update_age_options_ecs(species):
+    if species == "Cattle":
+        options = ecs_agesex_options
+    else:
+        options = ecs_agesex_options.copy()
+        for d in options:
+            if d['value'] == 'Oxen':
+                options.remove(d)
+    return options
 
-# Update age group options based on species
-# @gbadsDash.callback(
-#     Output('select-age-ecs', 'options'),
-#     Input('select-species-ecs', 'value'),
-#     )
-# def update_age_options_ecs(species):
-#     if species == "Cattle":
-#         options = ecs_age_options
-#     else:
-#         options = ecs_age_options.copy()
-#         for d in options:
-#             if d['value'] == 'Oxen':
-#                 options.remove(d)
-#     return options
+# Update agesex group options based on species
+@gbadsDash.callback(
+    Output('select-prodsys-ecs', 'options'),
+    Input('select-species-ecs', 'value'),
+    )
+def update_prodsys_options_ecs(species):
+    if species == "Cattle":
+        options = ecs_prodsys_options
+    else:
+        options = ecs_prodsys_options.copy()
+        for d in options:
+            if d['value'] == 'Periurban dairy':
+                options.remove(d)
+    return options
 
 
 # Update hierarchy dropdown filters to remove higher level selections from the options
@@ -4994,7 +5002,7 @@ def update_core_data_ahle_ecs(species, prodsys, agesex):
         input_df=input_df
 
     # Prodicton System filter
-    if prodsys == 'Crop livestock mixed' or prodsys == "Pastoral":
+    if prodsys == 'Crop livestock mixed' or prodsys == "Pastoral" or prodsys == 'Periurban dairy':
         input_df=input_df.loc[(input_df['production_system'] == prodsys)]
     elif prodsys == "All Production Systems":
         input_df=input_df.loc[(input_df['production_system'] == 'Overall')]

@@ -1,1 +1,0 @@
-# Effects of Feed and Practices (dollars)

@@ -1,1 +1,0 @@
-# Saving graph images

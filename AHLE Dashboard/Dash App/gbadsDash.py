@@ -1068,13 +1068,16 @@ def prep_ahle_fortreemap_ecs(INPUT_DF):
    working_df = INPUT_DF.copy()
 
    # Trim the data to keep things needed for the treemap
-   ecs_ahle_attr_treemap = working_df[['production_system',
-                                       'age_group',
-                                       'sex',
-                                       'ahle_component',
-                                       'cause',
-                                       'mean',
-                                       'pct_of_total']]
+   ecs_ahle_attr_treemap = working_df[[
+       'species',
+       'production_system',
+       'age_group',
+       'sex',
+       'ahle_component',
+       'cause',
+       'mean',
+       # 'pct_of_total'
+       ]]
 
    # Can only have positive values
    ecs_ahle_attr_treemap['mean'] = abs(ecs_ahle_attr_treemap['mean'])
@@ -1511,10 +1514,11 @@ def create_attr_treemap_ecs(input_df, path):
                       #    ],
                       path = path,
                       values='mean',
-                      hover_data=['pct_of_total'],
-                      custom_data=['pct_of_total'],
+                      # hover_data=['pct_of_total'],
+                      # custom_data=['pct_of_total'],
                       color='cause', # cause only applys to the cause level
-                      color_discrete_map={'(?)':'lightgrey','Infectious':'#68000D', 'Non-infectious':'#08316C', 'External':'#00441B'}) # Cause colors matches the Human health dashboard
+                      color_discrete_map={'(?)':'lightgrey','Infectious':'#68000D', 'Non-infectious':'#08316C', 'External':'#00441B'} # Cause colors matches the Human health dashboard
+                      )
 
     return treemap_fig
 
@@ -2846,8 +2850,6 @@ gbadsDash.layout = html.Div([
                                 value='All Small Ruminants',
                                 clearable = False,
                                 ),
-                    # Text underneath slider
-                    html.P('* Does not apply to Attribution graph'),
                     ]),
                 dbc.Col([
                     html.H4("Production System"),
@@ -4990,7 +4992,6 @@ def update_improvment_factors(compare):
     )
 # def update_core_data_ahle_ecs(species, prodsys, age, sex):
 def update_core_data_ahle_ecs(species, prodsys, agesex):
-    # input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary.csv'))
     input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_scensmry.csv'))
 
     # Species filter
@@ -5001,7 +5002,7 @@ def update_core_data_ahle_ecs(species, prodsys, agesex):
     else:
         input_df=input_df
 
-    # Prodicton System filter
+    # Production System filter
     if prodsys == 'Crop livestock mixed' or prodsys == "Pastoral" or prodsys == 'Periurban dairy':
         input_df=input_df.loc[(input_df['production_system'] == prodsys)]
     elif prodsys == "All Production Systems":
@@ -5029,7 +5030,6 @@ def update_core_data_ahle_ecs(species, prodsys, agesex):
     input_df=input_df.loc[(input_df['agesex_scenario'] == agesex)]
 
     return input_df.to_json(date_format='iso', orient='split')
-
 
 # AHLE datatable below graphic
 @gbadsDash.callback(
@@ -5112,19 +5112,26 @@ def update_ecs_ahle_data(input_json ,currency):
 @gbadsDash.callback(
     Output('core-data-attr-ecs','data'),
     Input('select-prodsys-ecs','value'),
+    Input('select-species-ecs','value'),
     # Input('select-age-ecs','value'),
     # Input('select-sex-ecs','value'),
     # Input('select-attr-ecs','value'),
     )
 # def update_core_data_attr_ecs(prodsys, age, sex):
-def update_core_data_attr_ecs(prodsys):
-    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
+def update_core_data_attr_ecs(prodsys, species):
+    input_df = ecs_ahle_all_withattr
 
-    # Prodicton System filter
-    if prodsys == 'Crop livestock mixed':
-        input_df=input_df.loc[(input_df['production_system'] == 'Crop livestock mixed')]
-    elif prodsys == "Pastoral":
+    # Production System filter
+    if prodsys == 'Crop livestock mixed' or prodsys == "Pastoral" or prodsys == 'Periurban dairy':
         input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+    else:       # If 'All production systems', don't filter. Attribution data is not aggregated to that level.
+        input_df=input_df
+
+    # Species filter
+    if species == "Cattle":
+        input_df=input_df.loc[(input_df['species'] == species)]
+    elif species == 'Goat' or species == "Sheep" or species == "All Small Ruminants":
+        input_df=input_df.loc[(input_df['species'] == 'All small ruminants')]
     else:
         input_df=input_df
 
@@ -5199,10 +5206,11 @@ def update_ecs_attr_data(input_json, currency):
                               'lower95',
                               'upper95',
                               ]].applymap('{:,.0f}'.format))
-    input_df.update(input_df[['pct_of_total']].applymap('{:,.2f}%'.format))
+    # input_df.update(input_df[['pct_of_total']].applymap('{:,.2f}%'.format))
 
     columns_to_display_with_labels = {
-      'production_system':'Production System'
+      'species':'Species'
+      ,'production_system':'Production System'
       ,'age_group':'Age'
       ,'sex':'Sex'
       ,'ahle_component':'AHLE Component'
@@ -5211,7 +5219,7 @@ def update_ecs_attr_data(input_json, currency):
       ,'sd':'Std. Dev.'
       ,'lower95':'Lower 95%'
       ,'upper95':'Upper 95%'
-      ,'pct_of_total':'Percent of Total AHLE'
+      # ,'pct_of_total':'Percent of Total AHLE'
     }
 
     # Subset columns
@@ -5604,9 +5612,9 @@ def update_attr_treemap_ecs(input_json, prodsys, currency,
     ecs_treemap_fig = create_attr_treemap_ecs(input_df, path)
 
     # Add title
+    species_label = input_df.iloc[0]['species']     # Input DF is already filtered to species. Get from first row.
     ecs_treemap_fig.update_layout(
-        # title_text=f'Attribution | All Small Ruminants <br><sup> Using {prodsys} for {age} and {sex}</sup><br>',
-        title_text=f'Attribution | All Small Ruminants, {prodsys}',
+        title_text=f'Attribution | {species_label}, {prodsys}',
         font_size=15,
         margin=dict(t=100)
         )

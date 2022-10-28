@@ -1,14 +1,16 @@
 #%% About
 '''
-The University of Liverpool has provided R code to run the simulation compartmental model
-for Sheep in the Crop Livestock Mixed (CLM) production system.
+The University of Liverpool (UoL) has provided R code to run the simulation
+compartmental model to estimate the production values and costs for different
+species.
 
-This program runs R code using the subprocess library.
+This program runs the UoL R code using the subprocess library.
 Any R libraries required must be installed first, which I have done through RGui.
 - Run RGui as administrator
 - In console run: install.packages('package_name')
 
-Update: the same R code now runs the compartmental model for both species and production systems
+This code does not need to be run. If UoL has run it, I can retrieve the updated
+output files from ETHIOPIA_OUTPUT_FOLDER.
 '''
 
 #%% Setup

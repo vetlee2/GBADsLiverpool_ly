@@ -88,3 +88,30 @@ r_args = [
 timerstart()
 run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=99)
 timerstop()
+
+# =============================================================================
+#### Poultry
+# =============================================================================
+# Full path to the R program you want to run
+r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table _ POULTRY.R')
+
+# Arguments to R function, as list of strings.
+# ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
+r_args = [
+    # Arg 1: Number of simulation runs
+    '100'
+
+    # Arg 2: Folder location for saving output files
+    ,ETHIOPIA_OUTPUT_FOLDER
+
+    # Arg 3: full path to scenario control file
+    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters POULTRY.xlsx')
+
+    # Arg 4: only run the first N scenarios from the control file
+    # -1: use all scenarios
+    ,'-1'
+]
+
+timerstart()
+run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=99)
+timerstop()

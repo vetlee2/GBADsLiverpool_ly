@@ -1,0 +1,154 @@
+"Item","Group","Mean","StDev","Min","Q1","Median","Q3","Max"
+"Num Offtake","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Num Offtake","Neonatal Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Num Offtake","Neonatal Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Num Offtake","Neonatal Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Num Offtake","Juvenile Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Num Offtake","Juvenile Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Num Offtake","Juvenile Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Num Offtake","Adult Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Num Offtake","Adult Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Cml Pop Growth","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Cml Pop Growth","Neonatal Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Cml Pop Growth","Neonatal Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Cml Pop Growth","Neonatal Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Cml Pop Growth","Juvenile Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Cml Pop Growth","Juvenile Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Cml Pop Growth","Juvenile Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Cml Pop Growth","Adult Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Cml Pop Growth","Adult Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Number Increase","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Number Increase","Neonatal Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Number Increase","Neonatal Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Number Increase","Neonatal Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Number Increase","Juvenile Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Number Increase","Juvenile Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Number Increase","Juvenile Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Number Increase","Adult Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Number Increase","Adult Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Mortality","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Mortality","Neonatal Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Mortality","Neonatal Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Mortality","Neonatal Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Mortality","Juvenile Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Mortality","Juvenile Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Mortality","Juvenile Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Mortality","Adult Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Mortality","Adult Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Population Liveweight (kg)","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Population Liveweight (kg)","Neonatal Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Population Liveweight (kg)","Neonatal Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Population Liveweight (kg)","Juvenile Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Population Liveweight (kg)","Juvenile Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Population Liveweight (kg)","Juvenile Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Population Liveweight (kg)","Adult Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Population Liveweight (kg)","Adult Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Offtake Liveweight (kg)","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Offtake Liveweight (kg)","Juvenile Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Offtake Liveweight (kg)","Juvenile Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Offtake Liveweight (kg)","Adult Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Offtake Liveweight (kg)","Adult Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Meat (kg)","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Eggs Sold","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Eggs Consumed","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Offtake","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Offtake","Neonatal Female",0,0,0,0,0,0,0
+"Value of Offtake","Neonatal Male",0,0,0,0,0,0,0
+"Value of Offtake","Neonatal Combined",0,0,0,0,0,0,0
+"Value of Offtake","Juvenile Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Offtake","Juvenile Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Offtake","Juvenile Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Offtake","Adult Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Offtake","Adult Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase","Neonatal Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase","Neonatal Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase","Neonatal Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase","Juvenile Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase","Juvenile Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase","Juvenile Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase","Adult Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase","Adult Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase plus Offtake","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase plus Offtake","Neonatal Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase plus Offtake","Neonatal Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase plus Offtake","Neonatal Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase plus Offtake","Juvenile Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase plus Offtake","Juvenile Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase plus Offtake","Juvenile Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase plus Offtake","Adult Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Herd Increase plus Offtake","Adult Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Eggs sold","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Value of Eggs consumed","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Production Value","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Production Value","Neonatal Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Production Value","Neonatal Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Production Value","Neonatal Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Production Value","Juvenile Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Production Value","Juvenile Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Production Value","Juvenile Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Production Value","Adult Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Production Value","Adult Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Feed Cost","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Feed Cost","Neonatal Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Feed Cost","Neonatal Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Feed Cost","Neonatal Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Feed Cost","Juvenile Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Feed Cost","Juvenile Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Feed Cost","Juvenile Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Feed Cost","Adult Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Feed Cost","Adult Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Labour Cost","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Labour Cost","Neonatal Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Labour Cost","Neonatal Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Labour Cost","Neonatal Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Labour Cost","Juvenile Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Labour Cost","Juvenile Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Labour Cost","Juvenile Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Labour Cost","Adult Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Labour Cost","Adult Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Health Cost","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Health Cost","Neonatal Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Health Cost","Neonatal Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Health Cost","Neonatal Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Health Cost","Juvenile Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Health Cost","Juvenile Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Health Cost","Juvenile Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Health Cost","Adult Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Health Cost","Adult Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Capital Cost","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Capital Cost","Neonatal Female",0,0,0,0,0,0,0
+"Capital Cost","Neonatal Male",0,0,0,0,0,0,0
+"Capital Cost","Neonatal Combined",0,0,0,0,0,0,0
+"Capital Cost","Juvenile Female",0,0,0,0,0,0,0
+"Capital Cost","Juvenile Male",0,0,0,0,0,0,0
+"Capital Cost","Juvenile Combined",0,0,0,0,0,0,0
+"Capital Cost","Adult Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Capital Cost","Adult Male",0,0,0,0,0,0,0
+"Infrastructure Cost","Overall",0,0,0,0,0,0,0
+"Infrastructure Cost","Neonatal Female",0,0,0,0,0,0,0
+"Infrastructure Cost","Neonatal Male",0,0,0,0,0,0,0
+"Infrastructure Cost","Neonatal Combined",0,0,0,0,0,0,0
+"Infrastructure Cost","Juvenile Female",0,0,0,0,0,0,0
+"Infrastructure Cost","Juvenile Male",0,0,0,0,0,0,0
+"Infrastructure Cost","Juvenile Combined",0,0,0,0,0,0,0
+"Infrastructure Cost","Adult Female",0,0,0,0,0,0,0
+"Infrastructure Cost","Adult Male",0,0,0,0,0,0,0
+"Total Expenditure","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Expenditure","Neonatal Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Expenditure","Neonatal Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Expenditure","Neonatal Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Expenditure","Juvenile Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Expenditure","Juvenile Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Expenditure","Juvenile Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Expenditure","Adult Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Total Expenditure","Adult Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Gross Margin","Overall",NA,NA,Inf,NA,NA,NA,-Inf
+"Gross Margin","Neonatal Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Gross Margin","Neonatal Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Gross Margin","Neonatal Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Gross Margin","Juvenile Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Gross Margin","Juvenile Male",NA,NA,Inf,NA,NA,NA,-Inf
+"Gross Margin","Juvenile Combined",NA,NA,Inf,NA,NA,NA,-Inf
+"Gross Margin","Adult Female",NA,NA,Inf,NA,NA,NA,-Inf
+"Gross Margin","Adult Male",NA,NA,Inf,NA,NA,NA,-Inf

@@ -16,7 +16,7 @@
 # Set manually
 # -----------------------------------------------------------------
 # Number of simulation iterations
-cmd_nruns <- 100
+cmd_nruns <- 10000
 
 # Folder location to save outputs
 cmd_output_directory <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Program outputs'
@@ -1901,7 +1901,7 @@ ahle_scenarios_cln <- subset(ahle_scenarios, select = !(names(ahle_scenarios) %i
 # If specified, limit number of scenarios (columns) used
 #if (cmd_run_first_n_scenarios > 0){
 	ahle_scenarios_cln <- ahle_scenarios_cln[ ,0:cmd_run_first_n_scenarios]
-}
+
 
 # Loop through scenario columns, calling the function for each
 for (COLNAME in colnames(ahle_scenarios_cln)){

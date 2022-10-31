@@ -18,9 +18,6 @@ exchg_data_tomerge = exchg_data_tomerge[['country_name' ,'exchg_rate_lcuperusdol
 
 #%% Combine scenario result files
 
-# =============================================================================
-#### Merge scenarios
-# =============================================================================
 def combine_ahle_scenarios(
         input_folder
         ,input_file_prefix      # String
@@ -58,9 +55,9 @@ def combine_ahle_scenarios(
 
    return dfcombined
 
-# -----------------------------------------------------------------------------
-# Small ruminants
-# -----------------------------------------------------------------------------
+# =============================================================================
+#### Small ruminants
+# =============================================================================
 small_rum_suffixes=[
     'Current'
 
@@ -176,9 +173,9 @@ ahle_sheep_past.columns = ahle_sheep_past.columns.str.replace('_all_mortality_ze
 ahle_goat_clm.columns = ahle_goat_clm.columns.str.replace('_all_mortality_zero' ,'_mortality_zero')
 ahle_goat_past.columns = ahle_goat_past.columns.str.replace('_all_mortality_zero' ,'_mortality_zero')
 
-# -----------------------------------------------------------------------------
-# Cattle
-# -----------------------------------------------------------------------------
+# =============================================================================
+#### Cattle
+# =============================================================================
 cattle_suffixes = [
     'current'
     ,'ideal'
@@ -224,9 +221,51 @@ ahle_cattle_peri = combine_ahle_scenarios(
 )
 datainfo(ahle_cattle_peri)
 
-# -----------------------------------------------------------------------------
-# Stack species and production systems
-# -----------------------------------------------------------------------------
+# =============================================================================
+#### Poultry
+# =============================================================================
+poultry_suffixes = [
+    'current'
+    ,'ideal'
+    ,'ideal_A'
+    ,'ideal_J'
+    ,'ideal_N'
+    ,'mortality_zero'
+    ,'mortality_zero_A'
+    ,'mortality_zero_J'
+    ,'mortality_zero_N'
+]
+
+ahle_poultry_smallholder = combine_ahle_scenarios(
+    input_folder=ETHIOPIA_OUTPUT_FOLDER
+    ,input_file_prefix='ahle_Smallholder_hybrid'
+    ,input_file_suffixes=poultry_suffixes
+    ,label_species='Poultry hybrid'
+    ,label_prodsys='Small holder'
+)
+datainfo(ahle_poultry_smallholder)
+
+ahle_poultry_villagehybrid = combine_ahle_scenarios(
+    input_folder=ETHIOPIA_OUTPUT_FOLDER
+    ,input_file_prefix='ahle_Village_hybrid'
+    ,input_file_suffixes=poultry_suffixes
+    ,label_species='Poultry hybrid'
+    ,label_prodsys='Village'
+)
+datainfo(ahle_poultry_villagehybrid)
+
+ahle_poultry_villageindig = combine_ahle_scenarios(
+    input_folder=ETHIOPIA_OUTPUT_FOLDER
+    ,input_file_prefix='ahle_Village_indigenous'
+    ,input_file_suffixes=poultry_suffixes
+    ,label_species='Poultry indigenous'
+    ,label_prodsys='Village'
+)
+datainfo(ahle_poultry_villageindig)
+
+# =============================================================================
+#### Stack species and production systems
+# =============================================================================
 concat_list = [
     ahle_sheep_clm
     ,ahle_sheep_past
@@ -236,6 +275,10 @@ concat_list = [
     ,ahle_cattle_clm
     ,ahle_cattle_past
     ,ahle_cattle_peri
+
+    ,ahle_poultry_smallholder
+    ,ahle_poultry_villagehybrid
+    ,ahle_poultry_villageindig
 ]
 ahle_combo_cat = pd.concat(
    concat_list      # List of dataframes to concatenate
@@ -411,7 +454,7 @@ for i ,VARCOL in enumerate(var_cols):
 ahle_combo_withagg_sumall = ahle_combo_withagg.pivot_table(
     index=['species' ,'production_system' ,'item']
     ,values=mean_cols + var_cols
-    ,aggfunc='sum'
+    ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
 ).reset_index()
 ahle_combo_withagg_sumall['group'] = 'Overall'
 ahle_combo_withagg_sumall['age_group'] = 'Overall'
@@ -432,7 +475,7 @@ for AGE_GRP in age_group_values:
     ahle_combo_withagg_sumsexes = ahle_combo_withagg.query(f"age_group == '{AGE_GRP}'").pivot_table(
         index=['species' ,'production_system' ,'item' ,'age_group']
         ,values=mean_cols + var_cols
-        ,aggfunc='sum'
+        ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
     ).reset_index()
     ahle_combo_withagg_sumsexes['group'] = f'{AGE_GRP} Combined'
     ahle_combo_withagg_sumsexes['sex'] = 'Overall'
@@ -457,7 +500,7 @@ for SEX_GRP in sex_values:
     ahle_combo_withagg_sumages = ahle_combo_withagg.query(f"sex == '{SEX_GRP}'").pivot_table(
         index=['species' ,'production_system' ,'item' ,'sex']
         ,values=mean_cols + var_cols
-        ,aggfunc='sum'
+        ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
     ).reset_index()
     ahle_combo_withagg_sumages['group'] = f'Overall {SEX_GRP}'
     ahle_combo_withagg_sumages['age_group'] = 'Overall'
@@ -494,7 +537,7 @@ ahle_combo_withagg = ahle_combo_withagg.drop_duplicates(
 ahle_combo_withagg_sumprod = ahle_combo_withagg.pivot_table(
    index=['species' ,'item' ,'group' ,'age_group' ,'sex']
    ,values=mean_cols + var_cols
-   ,aggfunc='sum'
+   ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
 ).reset_index()
 ahle_combo_withagg_sumprod['production_system'] = 'Overall'
 
@@ -507,22 +550,31 @@ ahle_combo_withagg = pd.concat(
 del ahle_combo_withagg_sumprod
 
 # -----------------------------------------------------------------------------
-# Create combined species All Small Ruminants
+# Create combined species
 # -----------------------------------------------------------------------------
+# "All Small Ruminants"
 ahle_combo_withagg_sumspec = ahle_combo_withagg.query("species.str.upper().isin(['SHEEP' ,'GOAT'])").pivot_table(
    index=['production_system' ,'item' ,'group' ,'age_group' ,'sex']
    ,values=mean_cols + var_cols
-   ,aggfunc='sum'
+   ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
 ).reset_index()
-ahle_combo_withagg_sumspec['species'] = 'All small ruminants'
+ahle_combo_withagg_sumspec['species'] = 'All Small Ruminants'
+
+# "All poultry"
+ahle_combo_withagg_sumspec2 = ahle_combo_withagg.query("species.str.contains('poultry' ,case=False ,na=False)").pivot_table(
+   index=['production_system' ,'item' ,'group' ,'age_group' ,'sex']
+   ,values=mean_cols + var_cols
+   ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
+).reset_index()
+ahle_combo_withagg_sumspec2['species'] = 'All Poultry'
 
 ahle_combo_withagg = pd.concat(
-   [ahle_combo_withagg ,ahle_combo_withagg_sumspec]
+   [ahle_combo_withagg ,ahle_combo_withagg_sumspec ,ahle_combo_withagg_sumspec2]
    ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
    ,join='outer'        # 'outer': keep all index values from all data frames
    ,ignore_index=True   # True: do not keep index values on concatenation axis
 )
-del ahle_combo_withagg_sumspec
+del ahle_combo_withagg_sumspec ,ahle_combo_withagg_sumspec2
 
 # -----------------------------------------------------------------------------
 # Calculate standard deviations
@@ -692,7 +744,6 @@ Relying on the following properties of sums of random variables:
 ahle_combo_withahle = ahle_combo_withagg_p.copy()
 
 ahle_combo_withahle.eval(
-    # Scenarios that change all age/sex groups
     '''
     ahle_total_mean = mean_ideal_gross_margin - mean_current_gross_margin
     ahle_dueto_mortality_mean = mean_mortality_zero_gross_margin - mean_current_gross_margin
@@ -762,6 +813,16 @@ ahle_combo_withahle.eval(
     ahle_when_jm_growth_imp100_mean = mean_current_growth_100_imp_jm_gross_margin - mean_current_gross_margin
     ahle_when_nf_growth_imp100_mean = mean_current_growth_100_imp_nf_gross_margin - mean_current_gross_margin
     ahle_when_nm_growth_imp100_mean = mean_current_growth_100_imp_nm_gross_margin - mean_current_gross_margin
+    '''
+    # These apply to poultry
+    '''
+    ahle_when_a_ideal_mean = mean_ideal_a_gross_margin - mean_current_gross_margin
+    ahle_when_j_ideal_mean = mean_ideal_j_gross_margin - mean_current_gross_margin
+    ahle_when_n_ideal_mean = mean_ideal_n_gross_margin - mean_current_gross_margin
+
+    ahle_when_a_mort_imp100_mean = mean_mortality_zero_a_gross_margin - mean_current_gross_margin
+    ahle_when_j_mort_imp100_mean = mean_mortality_zero_j_gross_margin - mean_current_gross_margin
+    ahle_when_n_mort_imp100_mean = mean_mortality_zero_n_gross_margin - mean_current_gross_margin
     '''
     ,inplace=True
 )
@@ -865,12 +926,15 @@ scenario_basetable = pd.DataFrame({
    'agesex_scenario':[
       'Adult Female'
       ,'Adult Male'
+      ,'Adult Combined'     # Only applied to poultry
 
       ,'Juvenile Female'
       ,'Juvenile Male'
+      ,'Juvenile Combined'     # Only applied to poultry
 
       ,'Neonatal Female'
       ,'Neonatal Male'
+      ,'Neonatal Combined'     # Only applied to poultry
 
       ,'Oxen'       # Only applies to Cattle
 
@@ -906,6 +970,7 @@ def fill_column_where(
     ):
     dfmod = DATAFRAME.copy()
     dfmod.loc[LOC ,COLUMN_TOFILL] = dfmod.loc[LOC ,COLUMN_TOUSE]
+    # dfmod = dfmod.drop(columns=COLUMN_TOUSE)
     return dfmod
 
 # -----------------------------------------------------------------------------
@@ -983,6 +1048,21 @@ ahle_combo_scensmry.loc[_scen_am ,'mean_current_repro_100_imp'] = np.nan
 _scen_cols = [i for i in list(ahle_combo_scensmry) if '_am' in i]
 print(f"> Dropping {len(_scen_cols) :,} columns.")
 ahle_combo_scensmry = ahle_combo_scensmry.drop(columns=_scen_cols)
+
+# -----------------------------------------------------------------------------
+# Adult combined - currently poultry only
+# -----------------------------------------------------------------------------
+_scen_ac = (ahle_combo_scensmry['agesex_scenario'].str.upper() == 'ADULT COMBINED')
+print(f"> Selected {_scen_ac.sum(): ,} rows.")
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'mean_ideal' ,'mean_ideal_a')
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'stdev_ideal' ,'stdev_ideal_a')
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'mean_mortality_zero' ,'mean_mortality_zero_a')
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'stdev_mortality_zero' ,'stdev_mortality_zero_a')
+
+# Drop columns for group specific scenario
+# Not working because dropping '_a' may drop too many columns
 
 # -----------------------------------------------------------------------------
 # Juvenile Female
@@ -1063,9 +1143,25 @@ print(f"> Dropping {len(_scen_cols) :,} columns.")
 ahle_combo_scensmry = ahle_combo_scensmry.drop(columns=_scen_cols)
 
 # Further: drop columns for juveniles that are not sex-specific
-_scen_cols = [i for i in list(ahle_combo_scensmry) if '_j' in i]
-print(f"> Dropping {len(_scen_cols) :,} columns.")
-ahle_combo_scensmry = ahle_combo_scensmry.drop(columns=_scen_cols)
+# Dropping '_j' has unintended consequences
+# _scen_cols = [i for i in list(ahle_combo_scensmry) if '_j' in i]
+# print(f"> Dropping {len(_scen_cols) :,} columns.")
+# ahle_combo_scensmry = ahle_combo_scensmry.drop(columns=_scen_cols)
+
+# -----------------------------------------------------------------------------
+# Juvenile combined - currently poultry only
+# -----------------------------------------------------------------------------
+_scen_jc = (ahle_combo_scensmry['agesex_scenario'].str.upper() == 'JUVENILE COMBINED')
+print(f"> Selected {_scen_jc.sum(): ,} rows.")
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'mean_ideal' ,'mean_ideal_j')
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'stdev_ideal' ,'stdev_ideal_j')
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'mean_mortality_zero' ,'mean_mortality_zero_j')
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'stdev_mortality_zero' ,'stdev_mortality_zero_j')
+
+# Drop columns for group specific scenario
+# Not working because dropping '_j' may drop too many columns
 
 # -----------------------------------------------------------------------------
 # Neonatal Female
@@ -1146,9 +1242,25 @@ print(f"> Dropping {len(_scen_cols) :,} columns.")
 ahle_combo_scensmry = ahle_combo_scensmry.drop(columns=_scen_cols)
 
 # Further: drop columns for neonates that are not sex-specific
-_scen_cols = [i for i in list(ahle_combo_scensmry) if '_n' in i]
-print(f"> Dropping {len(_scen_cols) :,} columns.")
-ahle_combo_scensmry = ahle_combo_scensmry.drop(columns=_scen_cols)
+# Dropping '_i' has unintended consequences
+# _scen_cols = [i for i in list(ahle_combo_scensmry) if '_n' in i]
+# print(f"> Dropping {len(_scen_cols) :,} columns.")
+# ahle_combo_scensmry = ahle_combo_scensmry.drop(columns=_scen_cols)
+
+# -----------------------------------------------------------------------------
+# Neonatal combined - currently poultry only
+# -----------------------------------------------------------------------------
+_scen_nc = (ahle_combo_scensmry['agesex_scenario'].str.upper() == 'NEONATAL COMBINED')
+print(f"> Selected {_scen_nc.sum(): ,} rows.")
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'mean_ideal' ,'mean_ideal_n')
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'stdev_ideal' ,'stdev_ideal_n')
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'mean_mortality_zero' ,'mean_mortality_zero_n')
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'stdev_mortality_zero' ,'stdev_mortality_zero_n')
+
+# Drop columns for group specific scenario
+# Not working because dropping '_n' may drop too many columns
 
 # -----------------------------------------------------------------------------
 # Oxen
@@ -1209,7 +1321,7 @@ for i ,VARCOL in enumerate(var_cols):
 ahle_combo_scensmry_sumprod = ahle_combo_scensmry.pivot_table(
    index=['species' ,'item' ,'agesex_scenario']
    ,values=mean_cols + var_cols
-   ,aggfunc=lambda x: x.mean() * x.count()  # Hack: aggfunc sum is equal to zero if all values are missing. Do it this way to respect missings.
+   ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
 ).reset_index()
 ahle_combo_scensmry_sumprod['production_system'] = 'Overall'
 
@@ -1224,22 +1336,30 @@ del ahle_combo_scensmry_sumprod
 # -----------------------------------------------------------------------------
 # Create overall species
 # -----------------------------------------------------------------------------
-# "All small ruminants" is only for Sheep and Goats
-ahle_combo_scensmry_sumspec = ahle_combo_scensmry.query("species.str.upper().isin(['SHEEP' ,'GOAT'])").pivot_table(
+# "All Small Ruminants" for Sheep and Goats
+ahle_combo_scensmry_sumspec1 = ahle_combo_scensmry.query("species.str.upper().isin(['SHEEP' ,'GOAT'])").pivot_table(
    index=['production_system' ,'item' ,'agesex_scenario']
    ,values=mean_cols + var_cols
-   ,aggfunc=lambda x: x.mean() * x.count()  # Hack: aggfunc sum is equal to zero if all values are missing. Do it this way to respect missings.
+   ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
 ).reset_index()
-ahle_combo_scensmry_sumspec['species'] = 'All small ruminants'
+ahle_combo_scensmry_sumspec1['species'] = 'All Small Ruminants'
 
+# "All poultry"
+ahle_combo_scensmry_sumspec2 = ahle_combo_scensmry.query("species.str.contains('poultry' ,case=False ,na=False)").pivot_table(
+   index=['production_system' ,'item' ,'agesex_scenario']
+   ,values=mean_cols + var_cols
+   ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
+).reset_index()
+ahle_combo_scensmry_sumspec2['species'] = 'All Poultry'
 
+# Concatenate
 ahle_combo_scensmry = pd.concat(
-   [ahle_combo_scensmry ,ahle_combo_scensmry_sumspec]
+   [ahle_combo_scensmry ,ahle_combo_scensmry_sumspec1 ,ahle_combo_scensmry_sumspec2]
    ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
    ,join='outer'        # 'outer': keep all index values from all data frames
    ,ignore_index=True   # True: do not keep index values on concatenation axis
 )
-del ahle_combo_scensmry_sumspec
+del ahle_combo_scensmry_sumspec1 ,ahle_combo_scensmry_sumspec2
 
 # -----------------------------------------------------------------------------
 # Calculate standard deviations

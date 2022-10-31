@@ -433,14 +433,19 @@ swine_lookup_breed_df = {
 # =============================================================================
 #### Ethiopia case study options
 # =============================================================================
+# Species
+ecs_species_options = []
+for i in np.sort(ecs_ahle_summary['species'].unique()):
+    str(ecs_species_options.append({'label':i,'value':(i)}))
+
 # Production system
-# ecs_prodsys_options = [{'label': "All Production Systems", 'value': "All Production Systems", 'disabled': False}]
 # Rename Overall to more descriptive
 ecs_ahle_summary['production_system'] = ecs_ahle_summary['production_system'].replace({'Overall': 'All Production Systems'})
 
-ecs_prodsys_options = []
-for i in np.sort(ecs_ahle_summary['production_system'].unique()):
-   str(ecs_prodsys_options.append({'label':i,'value':(i)}))
+# ecs_prodsys_options are now defined dynamically in a callback based on selected species
+# ecs_prodsys_options = []
+# for i in np.sort(ecs_ahle_summary['production_system'].unique()):
+#    str(ecs_prodsys_options.append({'label':i,'value':(i)}))
 
 # Age
 # Rename Overall to more descriptive
@@ -487,14 +492,6 @@ ecs_hierarchy_attr_options = [{'label': "Cause", 'value': "cause", 'disabled': F
 ecs_hierarchy_dd_attr_options = [{'label': i, 'value': i, 'disabled': False} for i in ["None"]]
 
 ecs_hierarchy_dd_attr_options += ecs_hierarchy_attr_options
-
-# Species
-ecs_ahle_summary['species'] = ecs_ahle_summary['species'].replace({'All small ruminants': 'All Small Ruminants'})
-
-ecs_species_options = []
-for i in np.sort(ecs_ahle_summary['species'].unique()):
-    str(ecs_species_options.append({'label':i,'value':(i)}))
-
 
 # Display
 ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Side by Side",
@@ -1139,6 +1136,8 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
 
    # Keep only items for the waterfall
    waterfall_plot_values = ('Value of Offtake',
+                            'Value of Eggs consumed',
+                            'Value of Eggs sold',
                             'Value of Herd Increase',
                             'Value of draught',
                             'Value of Milk',
@@ -1231,7 +1230,6 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
    ecs_ahle_waterfall['mean_all_current_growth_50_AHLE_usd'] = ecs_ahle_waterfall['mean_current_growth_50_imp_all_usd'] - ecs_ahle_waterfall['mean_current']
    ecs_ahle_waterfall['mean_all_current_growth_75_AHLE_usd'] = ecs_ahle_waterfall['mean_current_growth_75_imp_all_usd'] - ecs_ahle_waterfall['mean_current']
    ecs_ahle_waterfall['mean_all_current_growth_100_AHLE_usd'] = ecs_ahle_waterfall['mean_current_growth_100_imp_all_usd'] - ecs_ahle_waterfall['mean_current']
-
 
    OUTPUT_DF = ecs_ahle_waterfall
 
@@ -2854,8 +2852,9 @@ gbadsDash.layout = html.Div([
                 dbc.Col([
                     html.H4("Production System"),
                     dcc.Dropdown(id='select-prodsys-ecs',
-                                options=ecs_prodsys_options,
-                                value='All Production Systems',
+                                 # Options and value are now defined in a callback based on selected species
+                                # options=ecs_prodsys_options,
+                                # value='All Production Systems',
                                 clearable = False,
                                 ),
                     ],style={
@@ -2920,16 +2919,6 @@ gbadsDash.layout = html.Div([
                                           },
                                 ),
 
-                            # Species
-                            # dbc.Col([
-                            #     html.H6("Species"),
-                            #     dcc.Dropdown(id='select-species-ecs',
-                            #                 options=ecs_species_options,
-                            #                 value='All Small Ruminants',
-                            #                 clearable = False,
-                            #                 ),
-                            #     ],
-                            #     ),
                         ]), # END OF ROW
                         dbc.Row([  # Improvement scenarios
 
@@ -2965,76 +2954,6 @@ gbadsDash.layout = html.Div([
                 # END OF CARD
                 ], color='#F2F2F2'),
                 ],width=6),
-
-                # Controls for Both Graphs
-                # dbc.Col([
-                # dbc.Card([
-                #     dbc.CardBody([
-                #         html.H5("Controls for Both Graphs",
-                #                 className="card-title",
-                #                 style={"font-weight": "bold"}
-                #                 ),
-                #         dbc.Row([
-
-                #             # Production System
-                #             dbc.Col([
-                #                 html.H6("Production System"),
-                #                 dcc.Dropdown(id='select-prodsys-ecs',
-                #                             options=ecs_prodsys_options,
-                #                             value='All Production Systems',
-                #                             clearable = False,
-                #                             ),
-                #                 ],style={
-                #                         # "margin-top":"10px",
-                #                         "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
-                #                         }
-                #                 ),
-
-                #             # UPDATE: Using combined agesex filter instead of individuals
-                #             # Age
-                #             # dbc.Col([
-                #             #     html.H6("Age"),
-                #             #     dcc.Dropdown(id='select-age-ecs',
-                #             #                   options=ecs_age_options,
-                #             #                   value='Overall Age',
-                #             #                   clearable = False,
-                #             #                   )
-                #             #     ],style={
-                #             #               # "margin-top":"10px",
-                #             #               "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
-                #             #               },
-                #             #     ),
-
-                #             # Sex
-                #             # dbc.Col([
-                #             #     html.H6("Sex"),
-                #             #     dcc.Dropdown(id='select-sex-ecs',
-                #             #                 options=ecs_sex_options_all,
-                #             #                 value="Overall Sex",
-                #             #                 clearable = False,
-                #             #                 )
-                #             #     ],style={
-                #             #             # "margin-top":"10px",
-                #             #             "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
-                #             #             },
-                #             #     ),
-
-                #             ]), # END OF ROW
-                #         dbc.Row([
-                #             # Currency selector
-                #             html.H6("Currency"),
-                #             dcc.Dropdown(id='select-currency-ecs',
-                #                         options=ecs_currency_options,
-                #                         value='Birr',
-                #                         clearable = False,
-                #                         ),
-                #             ]), # END OF ROW
-                #     # END OF CARD BODY
-                #     ],),
-
-                #   # END OF CARD
-                #   ], color='#F2F2F2'),
-                #   ]),
 
             # Attribution Specific Controls
             dbc.Col([
@@ -4857,18 +4776,15 @@ def update_age_options_ecs(species):
 # Update production system options based on species
 @gbadsDash.callback(
     Output('select-prodsys-ecs', 'options'),
+    Output('select-prodsys-ecs', 'value'),
     Input('select-species-ecs', 'value'),
     )
 def update_prodsys_options_ecs(species):
-    if species == "Cattle":
-        options = ecs_prodsys_options
-    else:
-        options = ecs_prodsys_options.copy()
-        for d in options:
-            if d['value'] == 'Periurban dairy':
-                options.remove(d)
-    return options
-
+    # Get unique production systems for selected species
+    unique_prodsys = np.sort(ecs_ahle_summary.loc[ecs_ahle_summary['species'] == species ,'production_system'].unique())
+    options = [{'label': i, 'value': i} for i in unique_prodsys]
+    value = options[0]['value']  # Default is first one
+    return options, value
 
 # Update hierarchy dropdown filters to remove higher level selections from the options
 @gbadsDash.callback(
@@ -4995,20 +4911,12 @@ def update_core_data_ahle_ecs(species, prodsys, agesex):
     input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_scensmry.csv'))
 
     # Species filter
-    if species == 'Goat' or species == "Sheep" or species == "Cattle":
-        input_df=input_df.loc[(input_df['species'] == species)]
-    elif species == "All Small Ruminants":
-        input_df=input_df.loc[(input_df['species'] == 'All small ruminants')]
-    else:
-        input_df=input_df
+    input_df = input_df.loc[(input_df['species'] == species)]
 
     # Production System filter
-    if prodsys == 'Crop livestock mixed' or prodsys == "Pastoral" or prodsys == 'Periurban dairy':
-        input_df=input_df.loc[(input_df['production_system'] == prodsys)]
-    elif prodsys == "All Production Systems":
-        input_df=input_df.loc[(input_df['production_system'] == 'Overall')]
-    else:
-        input_df=input_df
+    # Rename values to match filters
+    input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
+    input_df=input_df.loc[(input_df['production_system'] == prodsys)]
 
     # Age filter
     # if age == 'Adult' or age == "Juvenile" or age == "Neonatal" or age == "Oxen":
@@ -5084,7 +4992,9 @@ def update_ecs_ahle_data(input_json ,currency):
     waterfall_plot_values = ('Value of Offtake',
                              'Value of Herd Increase',
                              'Value of draught',
-                             'Value of Milk'
+                             'Value of Milk',
+                             'Value of Eggs consumed',
+                             'Value of Eggs sold',
                              'Value of Manure',
                              'Value of Hides',
                              'Feed Cost',
@@ -5123,18 +5033,21 @@ def update_core_data_attr_ecs(prodsys, species):
     input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
 
     # Production System filter
-    if prodsys == 'Crop livestock mixed' or prodsys == "Pastoral" or prodsys == 'Periurban dairy':
-        input_df=input_df.loc[(input_df['production_system'] == prodsys)]
-    else:       # If 'All production systems', don't filter. Attribution data is not aggregated to that level.
+    # If All production systems, don't filter. Attribution data is not aggregated to that level.
+    if prodsys == 'All Production Systems':
         input_df=input_df
+    else:
+        input_df=input_df.loc[(input_df['production_system'] == prodsys)]
 
     # Species filter
-    if species == "Cattle":
-        input_df=input_df.loc[(input_df['species'] == species)]
-    elif species == 'Goat' or species == "Sheep" or species == "All Small Ruminants":
-        input_df=input_df.loc[(input_df['species'] == 'All small ruminants')]
+    # Goat and Sheep do not appear separately. These get all small ruminants results.
+    if species == 'Goat' or species == "Sheep":
+        input_df=input_df.loc[(input_df['species'] == 'All Small Ruminants')]
+    # Poultry subspecies do not appear separately. These get all poultry results.
+    elif species == 'Poultry hybrid' or species == "Poultry indigenous":
+        input_df=input_df.loc[(input_df['species'] == 'All Poultry')]
     else:
-        input_df=input_df
+        input_df=input_df.loc[(input_df['species'] == species)]
 
     # Age filter
     # if age == 'Adult':
@@ -5350,7 +5263,7 @@ def update_ahle_waterfall_ecs(input_json, agesex, species, display, compare, pro
     # else:
     #     measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
 
-    if species == "Cattle": # Cattle have draught and milk added for overall groups
+    if species == "Cattle":     # Cattle have draught
         waterfall_plot_values = ('Value of Offtake',
                                  'Value of Herd Increase',
                                  'Value of Draught',
@@ -5365,7 +5278,20 @@ def update_ahle_waterfall_ecs(input_json, agesex, species, display, compare, pro
                                  'Gross Margin')
         prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
-    else: # all species have milk added for overall groups
+    elif 'POULTRY' in species.upper():   # Poultry have value of eggs, do not have manure or hides
+        waterfall_plot_values = ('Value of Offtake',
+                                 'Value of Herd Increase',
+                                 'Value of Eggs consumed',
+                                 'Value of Eggs sold',
+                                 'Expenditure on Feed',
+                                 'Expenditure on Labour',
+                                 'Expenditure on Health',
+                                 'Expenditure on Housing',
+                                 'Expenditure on Capital',
+                                 'Gross Margin')
+        prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
+        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+    else:
         waterfall_plot_values = ('Value of Offtake',
                                  'Value of Herd Increase',
                                  'Value of Milk',
@@ -5595,55 +5521,53 @@ def update_attr_treemap_ecs(input_json, prodsys, species, currency,
         input_df['lower95'] = input_df['lower95_usd']
         input_df['upper95'] = input_df['upper95_usd']
 
-    # Check for realistic combination of filters
-    if (prodsys == 'Periurban dairy') & (species != 'Cattle'):
-        ecs_treemap_fig = px.treemap()      # Empty chart
-        ecs_treemap_fig.update_layout(      # Add title
-            title_text=f'Attribution | {species}, {prodsys}',
-            font_size=15,
-            margin=dict(t=100)
-            )
+    # Prep data
+    input_df = prep_ahle_fortreemap_ecs(input_df)
 
+    # Hiararchy structure
+    path = [top_lvl_hierarchy]
+
+    if dd1_hierarchy != 'None':
+        path +=[dd1_hierarchy]
+    if dd2_hierarchy != 'None':
+        path +=[dd2_hierarchy]
+    if dd3_hierarchy != 'None':
+        path +=[dd3_hierarchy]
+    if dd4_hierarchy != 'None':
+        path +=[dd4_hierarchy]
+
+    # Set up treemap structure
+    ecs_treemap_fig = create_attr_treemap_ecs(input_df, path)
+
+    # Add title
+    # Species filter is already in place on input data. Create labels accordingly.
+    if species == 'Goat' or species == "Sheep":
+        species_label = 'All Small Ruminants'
+    elif species == 'Poultry hybrid' or species == "Poultry indigenous":
+        species_label = 'All Poultry'
     else:
-        # Prep data
-        input_df = prep_ahle_fortreemap_ecs(input_df)
+        species_label = species
 
-        # Hiararchy structure
-        path = [top_lvl_hierarchy]
+    ecs_treemap_fig.update_layout(
+        title_text=f'Attribution | {species_label}, {prodsys}',
+        font_size=15,
+        margin=dict(t=100)
+        )
 
-        if dd1_hierarchy != 'None':
-            path +=[dd1_hierarchy]
-        if dd2_hierarchy != 'None':
-            path +=[dd2_hierarchy]
-        if dd3_hierarchy != 'None':
-            path +=[dd3_hierarchy]
-        if dd4_hierarchy != 'None':
-            path +=[dd4_hierarchy]
+    # Add % of total AHLE
+    # ecs_treemap_fig.data[0].texttemplate = "%{label}<br>% of Total AHLE=%{customdata[0]:,.2f}%"
 
-        # Set up treemap structure
-        ecs_treemap_fig = create_attr_treemap_ecs(input_df, path)
+    # Add tooltip
+    if currency == 'Birr':
+        ecs_treemap_fig.update_traces(root_color="white",
+                                      hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} Birr<extra></extra>')
 
-        # Add title
-        ecs_treemap_fig.update_layout(
-            title_text=f'Attribution | {species}, {prodsys}',
-            font_size=15,
-            margin=dict(t=100)
-            )
-
-        # Add % of total AHLE
-        # ecs_treemap_fig.data[0].texttemplate = "%{label}<br>% of Total AHLE=%{customdata[0]:,.2f}%"
-
-        # Add tooltip
-        if currency == 'Birr':
-            ecs_treemap_fig.update_traces(root_color="white",
-                                          hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} Birr<extra></extra>')
-
-        elif currency == 'USD':
-            ecs_treemap_fig.update_traces(root_color="white",
-                                          hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} USD<extra></extra>')
-        else:
-            ecs_treemap_fig.update_traces(root_color="white",
-                                          hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f}<br><extra></extra>')
+    elif currency == 'USD':
+        ecs_treemap_fig.update_traces(root_color="white",
+                                      hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f} USD<extra></extra>')
+    else:
+        ecs_treemap_fig.update_traces(root_color="white",
+                                      hovertemplate='Attribution=%{label}<br>Value=%{value:,.0f}<br><extra></extra>')
 
     return ecs_treemap_fig
 
@@ -5663,7 +5587,6 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
     input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
 
     # Rename values to match filters
-    input_df['species'] = input_df['species'].replace({'All small ruminants': 'All Small Ruminants'})
     input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
 
     # Set columns for stacked bar based on selections
@@ -6029,57 +5952,48 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
     # -----------------------------------------------------------------------------
     # Base plot
     # -----------------------------------------------------------------------------
-    # Check for realistic combination of filters
-    if (prodsys == 'Periurban dairy') & (species != 'Cattle'):
-        ahle_bar_ecs_fig = px.bar()         # Empty chart
-        ahle_bar_ecs_fig.update_layout(     # Add title
-            title_text=f'AHLE contributions by Age Group | {species}, {prodsys}',
+    # Structure for plot
+    stackedbar_df = prep_ahle_forstackedbar_ecs(input_df, cols_birr_costs, cols_usd_costs, pretty_ahle_cost_names)
+
+    # Apply production system filter
+    stackedbar_df = stackedbar_df.loc[(stackedbar_df['production_system'] == prodsys)]
+
+    # Apply species filter
+    stackedbar_df = stackedbar_df.loc[(stackedbar_df['species'] == species)]
+    x = stackedbar_df['species']
+
+    # Change y based on selected currency value
+    yaxis_title = 'Ethiopian Birr'
+    y = stackedbar_df['cost_birr']
+    text = stackedbar_df['label_birr']
+    if currency == 'USD':
+        yaxis_title = 'USD'
+        y = stackedbar_df['cost_usd']
+        text = stackedbar_df['label_usd']
+
+    # Color
+    color = stackedbar_df['AHLE Due To']
+
+    # Create Stacked Bar
+    ahle_bar_ecs_fig = create_stacked_bar_ecs(stackedbar_df, x, y, text, color, yaxis_title)
+
+    if compare == 'Ideal' or compare == 'Zero Mortality':
+        ahle_bar_ecs_fig.update_layout(
+            title_text=f'AHLE contributions by Age Group | {species}, {prodsys} <br><sup>{compare} scenario</sup><br>',
+            font_size=15
+            )
+    else:
+        ahle_bar_ecs_fig.update_layout(
+            title_text=f'AHLE contributions by Age Group | {species}, {prodsys} <br><sup>{impvmnt_factor} {impvmnt_value} improvement scenario</sup><br>',
             font_size=15
             )
 
-    else:
-        # Structure for plot
-        stackedbar_df = prep_ahle_forstackedbar_ecs(input_df, cols_birr_costs, cols_usd_costs, pretty_ahle_cost_names)
-
-        # Apply production system filter
-        stackedbar_df = stackedbar_df.loc[(stackedbar_df['production_system'] == prodsys)]
-
-        # Apply species filter
-        stackedbar_df = stackedbar_df.loc[(stackedbar_df['species'] == species)]
-        x = stackedbar_df['species']
-
-        # Change y based on selected currency value
-        yaxis_title = 'Ethiopian Birr'
-        y = stackedbar_df['cost_birr']
-        text = stackedbar_df['label_birr']
-        if currency == 'USD':
-            yaxis_title = 'USD'
-            y = stackedbar_df['cost_usd']
-            text = stackedbar_df['label_usd']
-
-        # Color
-        color = stackedbar_df['AHLE Due To']
-
-        # Create Stacked Bar
-        ahle_bar_ecs_fig = create_stacked_bar_ecs(stackedbar_df, x, y, text, color, yaxis_title)
-
-        if compare == 'Ideal' or compare == 'Zero Mortality':
-            ahle_bar_ecs_fig.update_layout(
-                title_text=f'AHLE contributions by Age Group | {species}, {prodsys} <br><sup>{compare} scenario</sup><br>',
-                font_size=15
-                )
-        else:
-            ahle_bar_ecs_fig.update_layout(
-                title_text=f'AHLE contributions by Age Group | {species}, {prodsys} <br><sup>{impvmnt_factor} {impvmnt_value} improvement scenario</sup><br>',
-                font_size=15
-                )
-
-        # !!! - STILL WORKING ON THIS
-        # # Add tooltip
-        # if currency == 'Birr':
-        #     ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} Birr<extra></extra>')
-        # elif currency == 'USD':
-        #     ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} USD<extra></extra>')
+    # !!! - STILL WORKING ON THIS
+    # # Add tooltip
+    # if currency == 'Birr':
+    #     ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} Birr<extra></extra>')
+    # elif currency == 'USD':
+    #     ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} USD<extra></extra>')
 
     return ahle_bar_ecs_fig
 

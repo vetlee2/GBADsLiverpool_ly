@@ -434,9 +434,18 @@ swine_lookup_breed_df = {
 #### Ethiopia case study options
 # =============================================================================
 # Species
-ecs_species_options = []
-for i in np.sort(ecs_ahle_summary['species'].unique()):
-    str(ecs_species_options.append({'label':i,'value':(i)}))
+# ecs_species_options = []
+# for i in np.sort(ecs_ahle_summary['species'].unique()):
+#     str(ecs_species_options.append({'label':i,'value':(i)}))
+# Specify the order of the species
+ecs_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["All Small Ruminants",
+                                                                             "Goats",
+                                                                             "Sheep",
+                                                                             "All Poultry",
+                                                                             "Poultry hybrid",
+                                                                             "Poultry indigenous",
+                                                                             "Cattle"
+                                                                             ]]
 
 # Production system
 # Rename Overall to more descriptive
@@ -517,9 +526,6 @@ ecs_improve_options = [{'label': i, 'value': i, 'disabled': True} for i in ['25%
                                                                             '75%',
                                                                             '100%',
                                                                             ]]
-
-# Defaults for sliders
-factor_ecs_default = 'Current'
 
 # =============================================================================
 #### Global Aggregate options
@@ -4785,6 +4791,21 @@ def update_prodsys_options_ecs(species):
     options = [{'label': i, 'value': i} for i in unique_prodsys]
     value = options[0]['value']  # Default is first one
     return options, value
+
+# Remove improvement option from scenario for cattle and poultry while those are misssing
+@gbadsDash.callback(
+    Output('select-compare-ecs', 'options'),
+    Input('select-species-ecs', 'value'),
+    )
+def update_compare_options_ecs(species):
+    if species == "Cattle" or species == 'All Poultry' or species == 'Poultry hybrid' or species == 'Poultry indigenous':
+        options = ecs_compare_options.copy()
+        for d in options:
+            if d['value'] == 'Improvement':
+                options.remove(d)
+    else:
+        options = ecs_compare_options
+    return options
 
 # Update hierarchy dropdown filters to remove higher level selections from the options
 @gbadsDash.callback(

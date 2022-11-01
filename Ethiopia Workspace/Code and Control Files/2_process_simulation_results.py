@@ -353,6 +353,59 @@ print('\n> Checking mortality as proportion of total AHLE')
 print(check_grossmargin_overall[['species' ,'production_system' ,'gmchange_dueto_mortality_prpn']])
 
 # =============================================================================
+#### Change in AHLE when adding health cost to individual sum
+# =============================================================================
+mean_cols = [i for i in list(check_ahle_combo) if 'mean' in i]
+_items_gm_hc = (check_ahle_combo['item'].str.upper() == 'GROSS MARGIN') \
+    | (check_ahle_combo['item'].str.upper() == 'HEALTH COST')
+
+# Pivot items into columns
+check_grossmargin_withhealth = check_ahle_combo.loc[_group_overall].loc[_items_gm_hc].pivot(
+    index=['species' ,'production_system' ,'group' ,'age_group' ,'sex']
+    ,columns='item'
+    ,values=mean_cols
+).reset_index()
+check_grossmargin_withhealth = colnames_from_index(check_grossmargin_withhealth)   # Change multi-index to column names
+cleancolnames(check_grossmargin_withhealth)
+
+# Remove underscores added when collapsing column index
+check_grossmargin_withhealth = check_grossmargin_withhealth.rename(
+    columns={
+        'species_':'species'
+        ,'production_system_':'production_system'
+        ,'group_':'group'
+        ,'age_group_':'age_group'
+        ,'sex_':'sex'
+    }
+)
+
+check_grossmargin_withhealth.eval(
+    #### Change in Gross Margin overall vs. individual ideal scenarios
+    '''
+    gmchange_ideal_overall = mean_ideal_gross_margin - mean_current_gross_margin
+
+    gmchange_ideal_af = mean_ideal_af_gross_margin - mean_current_gross_margin
+    gmchange_ideal_am = mean_ideal_am_gross_margin - mean_current_gross_margin
+    gmchange_ideal_jf = mean_ideal_jf_gross_margin - mean_current_gross_margin
+    gmchange_ideal_jm = mean_ideal_jm_gross_margin - mean_current_gross_margin
+    gmchange_ideal_nf = mean_ideal_nf_gross_margin - mean_current_gross_margin
+    gmchange_ideal_nm = mean_ideal_nm_gross_margin - mean_current_gross_margin
+
+    gmchange_ideal_sumind = gmchange_ideal_af + gmchange_ideal_am \
+        + gmchange_ideal_jf + gmchange_ideal_jm \
+            + gmchange_ideal_nf + gmchange_ideal_nm
+
+    gmchange_ideal_sumind_withhealth = gmchange_ideal_sumind + mean_current_health_cost
+
+    gmchange_ideal_check_withhealth = gmchange_ideal_sumind_withhealth / gmchange_ideal_overall
+    '''
+    ,inplace=True
+)
+print('\n> Checking the change in Gross Margin for ideal overall vs. individual ideal scenarios')
+print('> With health cost added to sum of individual ideal scenarios')
+print(check_grossmargin_withhealth[['species' ,'production_system' ,'gmchange_ideal_check_withhealth']])
+
+# =============================================================================
 #### Sum of agesex groups compared to system total for each item
 # =============================================================================
 # Sum individual agesex groups for each item

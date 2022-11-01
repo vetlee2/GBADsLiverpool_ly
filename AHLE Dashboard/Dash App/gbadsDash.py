@@ -3178,9 +3178,9 @@ gbadsDash.layout = html.Div([
                 ]),
                 dbc.Col([
                   # Cost Assumptions
-                  html.P("*AHLE Components are production loss, mortality loss, and health costs. Health costs make up the smallest proportion."),
+                  html.P("*AHLE Components are production loss, mortality loss, and health costs. Health costs make up the smallest proportion and may not be visible in this view."),
                   # Health Cost temporary distribution
-                  html.P("**Health costs attribution is currently a placeholder that is divided evenly among the AHLE causes.")
+                  html.P("**Health cost attribution is currently a placeholder, and is attributed evenly among the AHLE causes.")
                 ]),
             ], style={'margin-left':"40px", 'font-style': 'italic'}
             ),
@@ -3237,6 +3237,19 @@ gbadsDash.layout = html.Div([
             html.Br(),
             ### END OF ADDITIONAL VISUALS
 
+            #### -- ADDITIONAL FOOTNOTES
+            dbc.Row([
+                dbc.Col([
+                  # Stacked bar
+                  html.P("*Expenditure on Health is not recorded for individual age groups so is not included in individual AHLE calculations."),
+                  html.P("**Expenditure on Health is very small, so the impact on AHLE is negligible."),
+                ]),
+                dbc.Col([
+                  # Sankey
+                  # No footnote
+                ]),
+            ], style={'margin-left':"40px", 'font-style': 'italic'}
+            ),
 
             #### -- DATATABLE
             dbc.Row([

@@ -1785,7 +1785,7 @@ gbadsDash.layout = html.Div([
                     dcc.Dropdown(id='select-country-overview-ga',
                                   options=country_options_ga,
                                   # value='All',
-                                  value='Albania', #!!! - for testing
+                                  value='Ethiopia', #!!! - for testing
                                   clearable = False,
                                   ),
                     ],style={

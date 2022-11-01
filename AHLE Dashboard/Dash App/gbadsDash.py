@@ -439,7 +439,7 @@ swine_lookup_breed_df = {
 #     str(ecs_species_options.append({'label':i,'value':(i)}))
 # Specify the order of the species
 ecs_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["All Small Ruminants",
-                                                                             "Goats",
+                                                                             "Goat",
                                                                              "Sheep",
                                                                              "All Poultry",
                                                                              "Poultry hybrid",

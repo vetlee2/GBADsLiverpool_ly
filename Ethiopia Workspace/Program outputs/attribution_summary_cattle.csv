@@ -1,61 +1,61 @@
 "AHLE","Production system","Age class","Cause","median","mean","sd","lower95","upper95"
-"Mortality","Crop livestock mixed","Adult","External",1277626167.09493,1129087588.89271,14603387851.4649,223976864.377238,2034198313.40818
-"Mortality","Crop livestock mixed","Adult","Infectious",3485034614.20821,3865681868.41838,36493750431.2162,1603817345.67536,6127546391.16141
-"Mortality","Crop livestock mixed","Adult","Non-infectious",2485913761.51587,2708935034.04821,27214012790.6325,1022224040.37753,4395646027.7189
-"Mortality","Crop livestock mixed","Juvenile","External",3366852906.74373,3376161955.42169,10536029468.9595,2723144082.91413,4029179827.92924
-"Mortality","Crop livestock mixed","Juvenile","Infectious",10103784561.431,10305998345.6789,31788315240.3235,8335774358.55047,12276222332.8073
-"Mortality","Crop livestock mixed","Juvenile","Non-infectious",4377432298.32673,4526048930.52072,14744933202.1032,3612165295.48811,5439932565.55333
-"Mortality","Crop livestock mixed","Oxen","External",543605168.683184,942736289.990469,11378327100.7273,237513228.693754,1647959351.28718
-"Mortality","Crop livestock mixed","Oxen","Infectious",1284878850.78124,2145315987.05499,26588584119.3581,497368751.735986,3793263222.374
-"Mortality","Crop livestock mixed","Oxen","Non-infectious",867930217.388443,1514891391.33806,16849049293.1028,470595686.246075,2559187096.43004
-"Mortality","Crop livestock mixed","Sub-adult","External",3529249144.2646,3778112628.14235,11921355697.0098,3039232924.20811,4516992332.07658
-"Mortality","Crop livestock mixed","Sub-adult","Infectious",8578260734.05316,8963663964.8109,27732632000.9738,7244809210.11749,10682518719.5043
-"Mortality","Crop livestock mixed","Sub-adult","Non-infectious",5305126060.14006,5343338556.49141,16478886729.7732,4321985343.18911,6364691769.79371
-"Mortality","Dairy","Adult","External",356897681.029601,318931236.545776,1839282677.82842,204933409.873587,432929063.217965
-"Mortality","Dairy","Adult","Infectious",761713335.367219,620802694.256671,3740034930.87839,388997187.176275,852608201.337066
-"Mortality","Dairy","Adult","Non-infectious",610013984.485555,512484769.153095,3141460171.71903,317778628.291686,707190910.014504
-"Mortality","Dairy","Juvenile","External",26428425.836783,21787799.523122,890477505.755234,-33403553.9214831,76979152.9677271
-"Mortality","Dairy","Juvenile","Infectious",110755823.270204,104411401.341523,3539809519.23263,-114984234.190955,323807036.874001
-"Mortality","Dairy","Juvenile","Non-infectious",44034195.1444481,42315790.7547126,1808061905.9448,-69746987.9856581,154378569.495083
-"Mortality","Dairy","Sub-adult","External",-15098618.509742,-9818792.42864703,1115756952.99924,-78972854.1014675,59335269.2441735
-"Mortality","Dairy","Sub-adult","Infectious",-52240606.5783515,-13773770.2510896,3211294534.94518,-212808210.25367,185260669.751491
-"Mortality","Dairy","Sub-adult","Non-infectious",-27405847.7034317,-34526249.204374,1922590860.46382,-153687475.651337,84634977.2425885
-"Mortality","Pastoral","Adult","External",4545880893.51589,4833602014.40519,3799872250.14256,4598087820.00216,5069116208.80822
-"Mortality","Pastoral","Adult","Infectious",9415234296.69562,9530157430.81657,7213370694.73116,9083076298.54001,9977238563.09314
-"Mortality","Pastoral","Adult","Non-infectious",5504372770.84796,5788401962.90296,4496213144.32508,5509728905.79945,6067075020.00648
-"Mortality","Pastoral","Juvenile","External",1492244916.44904,1444081371.60651,2842860111.32349,1267882314.153,1620280429.06002
-"Mortality","Pastoral","Juvenile","Infectious",2932193786.3388,2970500355.0512,5735098067.61009,2615041825.84278,3325958884.25962
-"Mortality","Pastoral","Juvenile","Non-infectious",1235673522.66894,1229583281.68858,2470828544.31812,1076442555.94411,1382724007.43305
-"Mortality","Pastoral","Sub-adult","External",1554241734.61594,1628512786.96471,2985110254.58559,1443497136.29736,1813528437.63207
-"Mortality","Pastoral","Sub-adult","Infectious",2701358093.5176,2701541753.54484,4997214916.09094,2391816855.5097,3011266651.57998
-"Mortality","Pastoral","Sub-adult","Non-infectious",1579479708.33471,1532415610.52276,2868286538.18352,1354640635.76354,1710190585.28198
-"Production loss","Crop livestock mixed","Adult","External",47483718335.564,49692852081.4667,19179182501.1289,48504135877.6805,50881568285.253
-"Production loss","Crop livestock mixed","Adult","Infectious",164494394501.717,167307676930.98,59181641956.7832,163639628162.136,170975725699.824
-"Production loss","Crop livestock mixed","Adult","Non-infectious",149293938542.094,151256932050.695,53379948952.9808,147948469332.122,154565394769.268
-"Production loss","Crop livestock mixed","Juvenile","External",-469656769.564488,-986514783.450819,20176947153.9488,-2237071944.75973,264042377.858091
-"Production loss","Crop livestock mixed","Juvenile","Infectious",-1110086331.64732,-2687895128.54056,54545828389.6972,-6068618475.4277,692828218.34658
-"Production loss","Crop livestock mixed","Juvenile","Non-infectious",-767522293.28918,-1843696239.20596,38713440227.5571,-4243136032.85191,555743554.439985
-"Production loss","Crop livestock mixed","Oxen","External",8346748747.93777,8680074746.12344,11767194638.006,7950749868.04375,9409399624.20314
-"Production loss","Crop livestock mixed","Oxen","Infectious",27840709167.4703,28732242662.7316,38507711581.0352,26345553828.3974,31118931497.0659
-"Production loss","Crop livestock mixed","Oxen","Non-infectious",24423097739.7273,25194972157.5784,33462070425.6693,23121009655.5328,27268934659.6239
-"Production loss","Crop livestock mixed","Sub-adult","External",886982160.939791,804781515.29284,15984815559.7551,-185949412.331248,1795512442.91693
-"Production loss","Crop livestock mixed","Sub-adult","Infectious",3413419231.40428,2311105518.6324,52430018418.8615,-938480977.332298,5560692014.5971
-"Production loss","Crop livestock mixed","Sub-adult","Non-infectious",2976660120.24441,2049432157.30422,44425981002.7347,-704068075.770961,4802932390.37939
-"Production loss","Dairy","Adult","External",2600969901.17665,2793004782.88159,2437310289.42059,2641941501.92482,2944068063.83836
-"Production loss","Dairy","Adult","Infectious",10997784780.2254,11146752232.4986,9320992206.07957,10569041765.9508,11724462699.0463
-"Production loss","Dairy","Adult","Non-infectious",11404903033.8858,11298374201.0946,9404331565.76394,10715498402.4341,11881249999.7552
-"Production loss","Dairy","Juvenile","External",21516834.7617214,13753985.8295316,1666230675.98697,-89518163.7354882,117026135.394551
-"Production loss","Dairy","Juvenile","Infectious",91587854.3589554,-7015333.27880688,6348776100.68565,-400509322.120696,386478655.563082
-"Production loss","Dairy","Juvenile","Non-infectious",70011377.7286943,32261913.1938321,5054878901.61174,-281036970.018178,345560796.405842
-"Production loss","Dairy","Sub-adult","External",99070773.0373517,94103546.1563459,1772549204.33808,-15758172.9800688,203965265.29276
-"Production loss","Dairy","Sub-adult","Infectious",294113435.772546,337760466.659849,5528084092.69133,-4867439.22134715,680388372.541044
-"Production loss","Dairy","Sub-adult","Non-infectious",246910782.032102,296664451.059846,5044140619.99542,-15968878.7920353,609297780.911727
-"Production loss","Pastoral","Adult","External",37116029629.419,38189212768.3303,9671476362.32355,37589779467.8884,38788646068.7722
-"Production loss","Pastoral","Adult","Infectious",68620186258.8882,69443537992.5023,14494920626.9087,68545150012.6816,70341925972.323
-"Production loss","Pastoral","Adult","Non-infectious",55641853411.6959,56278389242.2381,12048809360.0582,55531610023.5832,57025168460.8929
-"Production loss","Pastoral","Juvenile","External",-303792298.791376,-251009326.19604,4078902573.32352,-503817681.416061,1799029.02398095
-"Production loss","Pastoral","Juvenile","Infectious",-659876597.751215,-420486103.109241,9198912803.46473,-990630148.928267,149657942.709785
-"Production loss","Pastoral","Juvenile","Non-infectious",-676683159.533787,-398228232.023534,8882429857.88033,-948756822.094327,152300358.04726
-"Production loss","Pastoral","Sub-adult","External",797189834.622928,954782288.926257,5959290038.47516,585428452.73536,1324136125.11715
-"Production loss","Pastoral","Sub-adult","Infectious",1200447269.41124,1426157231.03722,8800980931.6459,880676804.953088,1971637657.12135
-"Production loss","Pastoral","Sub-adult","Non-infectious",1031375978.5803,1205599137.21488,7466980477.74375,742799396.572806,1668398877.85695
+"Mortality","Crop livestock mixed","Adult","External",NA,NA,NA,NA,NA
+"Mortality","Crop livestock mixed","Adult","Infectious",NA,NA,NA,NA,NA
+"Mortality","Crop livestock mixed","Adult","Non-infectious",NA,NA,NA,NA,NA
+"Mortality","Crop livestock mixed","Juvenile","External",3161984190.58818,3152746293.09031,10841159999.4816,2480816581.88055,3824676004.30007
+"Mortality","Crop livestock mixed","Juvenile","Infectious",10353990281.1465,9953003372.85357,32344984625.7502,7948277293.75283,11957729451.9543
+"Mortality","Crop livestock mixed","Juvenile","Non-infectious",4342390628.18366,4690780109.04082,14804485716.7605,3773205438.73362,5608354779.34803
+"Mortality","Crop livestock mixed","Oxen","External",569722874.956411,1006970730.82875,11455011235.8472,296994824.931654,1716946636.72586
+"Mortality","Crop livestock mixed","Oxen","Infectious",1531819497.28277,2451702505.07316,26727908557.2765,795120010.30411,4108284999.84222
+"Mortality","Crop livestock mixed","Oxen","Non-infectious",829721521.273786,1363244114.88836,17146773842.2264,300495590.142185,2425992639.63454
+"Mortality","Crop livestock mixed","Sub-adult","External",3212012676.91227,3386668176.14539,11931527367.5254,2647158037.12557,4126178315.16521
+"Mortality","Crop livestock mixed","Sub-adult","Infectious",8204899620.21259,8226083283.0606,27858870237.5582,6499404345.175,9952762220.9462
+"Mortality","Crop livestock mixed","Sub-adult","Non-infectious",4866217152.99458,4919424480.27016,17109380037.583,3858993604.95969,5979855355.58064
+"Mortality","Dairy","Adult","External",NA,NA,NA,NA,NA
+"Mortality","Dairy","Adult","Infectious",NA,NA,NA,NA,NA
+"Mortality","Dairy","Adult","Non-infectious",NA,NA,NA,NA,NA
+"Mortality","Dairy","Juvenile","External",42203157.1288923,45623231.7676972,887931142.432296,-9410299.3431079,100656762.878502
+"Mortality","Dairy","Juvenile","Infectious",210762298.389581,207534117.24342,3540249281.07468,-11888774.5095676,426957008.996408
+"Mortality","Dairy","Juvenile","Non-infectious",101486983.146562,91880994.7652149,1782383976.70517,-18590278.6768962,202352268.207326
+"Mortality","Dairy","Sub-adult","External",-8304088.89084243,-7205075.0888471,1109247432.71884,-75955679.9284193,61545529.7507251
+"Mortality","Dairy","Sub-adult","Infectious",-21661452.3768051,-8790920.69410914,3221134203.40729,-208435218.459924,190853377.071706
+"Mortality","Dairy","Sub-adult","Non-infectious",-12927130.1553292,7492185.57158944,1919491052.1361,-111476916.295112,126461287.438291
+"Mortality","Pastoral","Adult","External",NA,NA,NA,NA,NA
+"Mortality","Pastoral","Adult","Infectious",NA,NA,NA,NA,NA
+"Mortality","Pastoral","Adult","Non-infectious",NA,NA,NA,NA,NA
+"Mortality","Pastoral","Juvenile","External",1499790226.69997,1488344090.88199,2805326580.53878,1314471343.021,1662216838.74298
+"Mortality","Pastoral","Juvenile","Infectious",2950699340.66418,2918746659.93087,5652094731.25692,2568432636.27609,3269060683.58565
+"Mortality","Pastoral","Juvenile","Non-infectious",1254101389.11176,1241968366.48663,2401500808.04139,1093124539.39668,1390812193.57657
+"Mortality","Pastoral","Sub-adult","External",1572196122.77702,1581039554.8434,2942373943.55229,1398672679.50379,1763406430.18301
+"Mortality","Pastoral","Sub-adult","Infectious",2767868225.87254,2707201755.37382,4984595365.36073,2398259010.82392,3016144499.92371
+"Mortality","Pastoral","Sub-adult","Non-infectious",1540690974.19265,1515161843.41731,2832868793.12534,1339582042.90234,1690741643.93228
+"Production loss","Crop livestock mixed","Adult","External",NA,NA,NA,NA,NA
+"Production loss","Crop livestock mixed","Adult","Infectious",NA,NA,NA,NA,NA
+"Production loss","Crop livestock mixed","Adult","Non-infectious",NA,NA,NA,NA,NA
+"Production loss","Crop livestock mixed","Juvenile","External",NA,NA,NA,NA,NA
+"Production loss","Crop livestock mixed","Juvenile","Infectious",NA,NA,NA,NA,NA
+"Production loss","Crop livestock mixed","Juvenile","Non-infectious",NA,NA,NA,NA,NA
+"Production loss","Crop livestock mixed","Oxen","External",7611106514.51953,7714222858.38638,11860547752.787,6979112000.62754,8449333716.14523
+"Production loss","Crop livestock mixed","Oxen","Infectious",25571336515.4396,25278868484.609,38545263856.6036,22889852178.8899,27667884790.3282
+"Production loss","Crop livestock mixed","Oxen","Non-infectious",21893000498.8513,22425481537.7188,34309098644.1299,20299020647.4709,24551942427.9667
+"Production loss","Crop livestock mixed","Sub-adult","External",NA,NA,NA,NA,NA
+"Production loss","Crop livestock mixed","Sub-adult","Infectious",NA,NA,NA,NA,NA
+"Production loss","Crop livestock mixed","Sub-adult","Non-infectious",NA,NA,NA,NA,NA
+"Production loss","Dairy","Adult","External",NA,NA,NA,NA,NA
+"Production loss","Dairy","Adult","Infectious",NA,NA,NA,NA,NA
+"Production loss","Dairy","Adult","Non-infectious",NA,NA,NA,NA,NA
+"Production loss","Dairy","Juvenile","External",NA,NA,NA,NA,NA
+"Production loss","Dairy","Juvenile","Infectious",NA,NA,NA,NA,NA
+"Production loss","Dairy","Juvenile","Non-infectious",NA,NA,NA,NA,NA
+"Production loss","Dairy","Sub-adult","External",NA,NA,NA,NA,NA
+"Production loss","Dairy","Sub-adult","Infectious",NA,NA,NA,NA,NA
+"Production loss","Dairy","Sub-adult","Non-infectious",NA,NA,NA,NA,NA
+"Production loss","Pastoral","Adult","External",NA,NA,NA,NA,NA
+"Production loss","Pastoral","Adult","Infectious",NA,NA,NA,NA,NA
+"Production loss","Pastoral","Adult","Non-infectious",NA,NA,NA,NA,NA
+"Production loss","Pastoral","Juvenile","External",NA,NA,NA,NA,NA
+"Production loss","Pastoral","Juvenile","Infectious",NA,NA,NA,NA,NA
+"Production loss","Pastoral","Juvenile","Non-infectious",NA,NA,NA,NA,NA
+"Production loss","Pastoral","Sub-adult","External",NA,NA,NA,NA,NA
+"Production loss","Pastoral","Sub-adult","Infectious",NA,NA,NA,NA,NA
+"Production loss","Pastoral","Sub-adult","Non-infectious",NA,NA,NA,NA,NA

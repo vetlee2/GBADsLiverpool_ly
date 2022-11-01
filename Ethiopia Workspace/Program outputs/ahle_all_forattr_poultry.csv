@@ -1,0 +1,19 @@
+Species,Production system,Age class,AHLE,mean,sd
+All Poultry,Small holder,Adult,Health cost,1009398.69896175,9445.667736312722
+All Poultry,Small holder,Adult,Mortality,32627843.797969997,131876087.13847461
+All Poultry,Small holder,Adult,Production loss,119454864.21655305,190891719.31922245
+All Poultry,Small holder,Juvenile,Health cost,892878.056238388,14686.115108043625
+All Poultry,Small holder,Juvenile,Mortality,-9157182.515399992,118367455.43974681
+All Poultry,Small holder,Juvenile,Production loss,-19129348.344829384,167853673.74735194
+All Poultry,Small holder,Chick,Health cost,81444.2088191968,0.0
+All Poultry,Small holder,Chick,Mortality,-28709316.649933994,120203268.39425023
+All Poultry,Small holder,Chick,Production loss,-9596434.040905194,168748827.15947646
+All Poultry,Village,Adult,Health cost,0.0,0.0
+All Poultry,Village,Adult,Mortality,9987733518.45067,5252493141.009699
+All Poultry,Village,Adult,Production loss,23350268375.75609,11372880154.396969
+All Poultry,Village,Juvenile,Health cost,0.0,0.0
+All Poultry,Village,Juvenile,Mortality,2329675374.4794197,4193883367.6221595
+All Poultry,Village,Juvenile,Production loss,2579243089.9706097,6167244093.530016
+All Poultry,Village,Chick,Health cost,0.0,0.0
+All Poultry,Village,Chick,Mortality,11598837970.87197,5407914054.251327
+All Poultry,Village,Chick,Production loss,1355719594.0874424,7703722072.059344

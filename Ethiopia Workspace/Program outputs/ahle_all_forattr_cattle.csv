@@ -1,37 +1,58 @@
 Species,Production system,Age class,AHLE,mean,sd
-Cattle,Crop livestock mixed,Sub-adult,Mortality,17180999148.671997,56059245806.15858
-Cattle,Crop livestock mixed,Juvenile,Mortality,15836000814.14801,55862339983.7282
-Cattle,Crop livestock mixed,Oxen,Mortality,5722340173.118011,55656678703.00469
-Cattle,Pastoral,Sub-adult,Mortality,5961574361.064796,10818792306.062391
-Cattle,Pastoral,Juvenile,Mortality,5995250353.051498,10914055605.348154
-Cattle,Pastoral,Oxen,Mortality,-51679338.435302734,10894819076.652956
-Cattle,Dairy,Sub-adult,Mortality,146901210.3652954,6230946078.087453
-Cattle,Dairy,Juvenile,Mortality,134714178.6573944,6189699414.110483
-Cattle,Dairy,Oxen,Mortality,-174358654.44100952,6182911428.774927
-Cattle,Crop livestock mixed,Oxen,Health cost,1749335448.00626,6588.25203824228
+Cattle,Crop livestock mixed,Adult,Mortality,,0.0
+Cattle,Crop livestock mixed,Sub-adult,Mortality,15614917009.063019,56874166372.434044
+Cattle,Crop livestock mixed,Juvenile,Mortality,15383157200.662018,56831700899.9648
+Cattle,Crop livestock mixed,Oxen,Mortality,5951621143.21402,56169159666.446754
+Cattle,Pastoral,Adult,Mortality,,0.0
+Cattle,Pastoral,Sub-adult,Mortality,5901677141.971001,10728160474.23467
+Cattle,Pastoral,Juvenile,Mortality,5993946405.7715,10721379005.785156
+Cattle,Pastoral,Oxen,Mortality,-17729335.13279724,10816870219.047722
+Cattle,Dairy,Adult,Mortality,,0.0
+Cattle,Dairy,Sub-adult,Mortality,196597618.6100006,6233420177.713078
+Cattle,Dairy,Juvenile,Mortality,311367304.14630127,6165934958.577099
+Cattle,Dairy,Oxen,Mortality,60648622.08610535,6209614472.033134
+Cattle,Crop livestock mixed,Adult,Health cost,2231948376.864385,193605.1784071588
+Cattle,Crop livestock mixed,Sub-adult,Health cost,1296229633.865628,1383606.86119078
+Cattle,Crop livestock mixed,Juvenile,Health cost,960022609.717283,3346096.241543232
+Cattle,Crop livestock mixed,Oxen,Health cost,1749335465.83606,6542.01397305541
+Cattle,Pastoral,Adult,Health cost,817416165.884287,15763.99194325376
+Cattle,Pastoral,Sub-adult,Health cost,353208586.47591996,113023.17809926806
+Cattle,Pastoral,Juvenile,Health cost,388932183.53279996,269939.2555287415
 Cattle,Pastoral,Oxen,Health cost,0.0,0.0
+Cattle,Dairy,Adult,Health cost,102371982.2130712,495.76046927635076
+Cattle,Dairy,Sub-adult,Health cost,62106476.5629559,3767.8068031949992
+Cattle,Dairy,Juvenile,Health cost,55881019.6151571,10403.587878126633
 Cattle,Dairy,Oxen,Health cost,0.0,0.0
-Cattle,Crop livestock mixed,Oxen,Production loss,60458633563.58673,82326797565.10782
-Cattle,Pastoral,Oxen,Production loss,92904590.42700195,15385275488.973219
-Cattle,Dairy,Oxen,Production loss,315226744.58110046,8756603018.40367
-Cattle,Crop livestock mixed,Sub-adult,Health cost,1296225536.291068,1379932.0693879335
-Cattle,Crop livestock mixed,Sub-adult,Production loss,3219699119.287942,112236295244.48933
-Cattle,Pastoral,Sub-adult,Health cost,353211777.147151,113122.99107425757
-Cattle,Pastoral,Sub-adult,Production loss,4703359935.0142565,21651073703.40689
-Cattle,Dairy,Sub-adult,Health cost,62106128.056630805,3747.207673007587
-Cattle,Dairy,Sub-adult,Production loss,1070560841.1347754,12442871128.853731
-Cattle,Crop livestock mixed,Juvenile,Health cost,960050798.3711979,3299664.9704656997
-Cattle,Crop livestock mixed,Juvenile,Production loss,-3387604303.937207,111802728001.86902
-Cattle,Pastoral,Juvenile,Health cost,388929720.629884,271601.48369787546
-Cattle,Pastoral,Juvenile,Production loss,-689740622.7220776,21765889430.696125
-Cattle,Dairy,Juvenile,Health cost,55879976.5745102,10381.582454514659
-Cattle,Dairy,Juvenile,Production loss,454299835.6251968,12410017766.999277
-Cattle,Crop livestock mixed,Adult,Health cost,2231947629.10401,193666.94094730652
-Cattle,Crop livestock mixed,Adult,Mortality,10472984145.811005,79216580705.72588
-Cattle,Crop livestock mixed,Adult,Production loss,368126920287.585,122186807961.70143
-Cattle,Pastoral,Adult,Health cost,817416652.738086,15744.728460370974
-Cattle,Pastoral,Adult,Mortality,19740973363.673798,15234372984.745338
-Cattle,Pastoral,Adult,Production loss,163987172709.0466,30326849468.378696
-Cattle,Dairy,Adult,Health cost,102371941.62269978,491.4847286960015
-Cattle,Dairy,Adult,Mortality,1478139419.2832947,8804491031.850796
-Cattle,Dairy,Adult,Production loss,24903743826.896694,20657747689.291077
+Cattle,Crop livestock mixed,Adult,Production loss,,0.0
+Cattle,Crop livestock mixed,Sub-adult,Production loss,,0.0
+Cattle,Crop livestock mixed,Juvenile,Production loss,,0.0
+Cattle,Crop livestock mixed,Oxen,Production loss,58883040270.42993,83244286892.82541
+Cattle,Pastoral,Adult,Production loss,,0.0
+Cattle,Pastoral,Sub-adult,Production loss,,0.0
+Cattle,Pastoral,Juvenile,Production loss,,0.0
+Cattle,Pastoral,Oxen,Production loss,-227861214.27899933,15253734159.931139
+Cattle,Dairy,Adult,Production loss,,0.0
+Cattle,Dairy,Sub-adult,Production loss,,0.0
+Cattle,Dairy,Juvenile,Production loss,,0.0
+Cattle,Dairy,Oxen,Production loss,-182327099.08270264,8760217166.301712
+Cattle,Crop livestock mixed,Sub-adult,Health cost,2592459267.731256,1956715.5880884696
+Cattle,Crop livestock mixed,Sub-adult,Production loss,5810794205.061343,113578859118.86537
+Cattle,Pastoral,Sub-adult,Health cost,706417172.9518399,159838.91133049465
+Cattle,Pastoral,Sub-adult,Production loss,4398762044.34569,21497460692.817543
+Cattle,Dairy,Sub-adult,Health cost,124212953.1259118,5328.483481479983
+Cattle,Dairy,Sub-adult,Production loss,910210277.0278492,12406994039.822233
+Cattle,Crop livestock mixed,Juvenile,Health cost,1920045219.434566,4732094.685796078
+Cattle,Crop livestock mixed,Juvenile,Production loss,-1211966567.0532815,113546899781.7088
+Cattle,Pastoral,Juvenile,Health cost,777864367.0655999,381751.75618564273
+Cattle,Pastoral,Juvenile,Production loss,-933568936.988992,21479250764.982742
+Cattle,Dairy,Juvenile,Health cost,111762039.2303142,14712.895074587015
+Cattle,Dairy,Juvenile,Production loss,35220991.26644993,12397109192.584187
+Cattle,Crop livestock mixed,Adult,Health cost,4463896753.72877,273799.06904906663
+Cattle,Crop livestock mixed,Adult,Mortality,8513314278.218018,79818852678.65324
+Cattle,Crop livestock mixed,Adult,Production loss,369256824597.78265,123366580412.01518
+Cattle,Pastoral,Adult,Health cost,1634832331.768574,22293.651203289668
+Cattle,Pastoral,Adult,Mortality,19602410254.543007,15021074704.866285
+Cattle,Pastoral,Adult,Production loss,163330789112.0315,30038513750.76481
+Cattle,Dairy,Adult,Health cost,204743964.4261424,701.1111793390654
+Cattle,Dairy,Adult,Mortality,1556923996.6006012,8827596428.855877
+Cattle,Dairy,Adult,Production loss,25478882466.51712,20903495973.409237

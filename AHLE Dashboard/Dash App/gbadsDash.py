@@ -229,6 +229,8 @@ ga_countries_biomass = ga_countries_biomass.drop(columns=['producing_animals_egg
                                                           ])
 
 # KEEP ONLY ETHIOPIA FOR TESTING
+# ga_countries_biomass = ga_countries_biomass.loc[ga_countries_biomass['country'] == 'Ethiopia']
+
 ga_countries_biomass = ga_countries_biomass.loc[ga_countries_biomass['year'] >= 2015]
  
 # Drop missing values from species

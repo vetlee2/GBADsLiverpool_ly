@@ -203,6 +203,26 @@ ecs_ahle_all_withattr = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahl
 # Biomass FAOSTAT
 ga_countries_biomass = pd.read_pickle(os.path.join(GA_DATA_FOLDER ,'world_ahle_abt_fordash.pkl.gz'))
 
+# Drop unnecessary columns
+ga_countries_biomass = ga_countries_biomass.drop(columns=['producing_animals_eggs_hd',
+                                                          'producing_animals_hides_hd',
+                                                          'producing_animals_meat_hd',
+                                                          'producing_animals_milk_hd',
+                                                          'producing_animals_wool_hd',
+                                                          'output_live_hd',
+                                                          'output_total_hd',
+                                                          'output_live_biomass_kg',
+                                                          'output_total_biomass_kg',
+                                                          'output_value_live_2010usd',
+                                                          'output_value_total_2010usd',
+                                                          'output_value_meatlive_2010usd',
+                                                          # 'producer_price_milk_usdpertonne_cnst2010',
+                                                          # 'producer_price_wool_usdpertonne_cnst2010',
+                                                          # 'producer_price_eggs_usdpertonne_cnst2010',
+                                                          # 'producer_price_meat_usdpertonne_cnst2010',
+                                                          ])
+
+ 
 # Drop missing values from species
 ga_countries_biomass['species'].replace('', np.nan, inplace=True)
 ga_countries_biomass.dropna(subset=['species'], inplace=True)

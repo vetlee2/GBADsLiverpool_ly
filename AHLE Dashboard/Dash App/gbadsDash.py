@@ -216,10 +216,16 @@ ga_countries_biomass = ga_countries_biomass.drop(columns=['producing_animals_egg
                                                           'output_value_live_2010usd',
                                                           'output_value_total_2010usd',
                                                           'output_value_meatlive_2010usd',
-                                                          # 'producer_price_milk_usdpertonne_cnst2010',
-                                                          # 'producer_price_wool_usdpertonne_cnst2010',
-                                                          # 'producer_price_eggs_usdpertonne_cnst2010',
-                                                          # 'producer_price_meat_usdpertonne_cnst2010',
+                                                          'producer_price_milk_usdpertonne_cnst2010',
+                                                          'producer_price_wool_usdpertonne_cnst2010',
+                                                          'producer_price_meat_live_usdpertonne_cnst2010',
+                                                          'producer_price_eggs_usdpertonne_cnst2010',
+                                                          'producer_price_meat_usdpertonne_cnst2010',
+                                                          'production_eggs_kgperkgbm',
+                                                          'production_hides_kgperkgbm',
+                                                          'production_meat_kgperkgbm',
+                                                          'production_milk_kgperkgbm',
+                                                          'production_wool_kgperkgbm',
                                                           ])
 
  
@@ -6550,11 +6556,11 @@ def update_display_table_ga(input_json ,selected_region ,selected_incgrp ,select
         ,'production_milk_tonnes':'Milk production (tonnes)'
         ,'production_wool_tonnes':'Wool production (tonnes)'
 
-        ,'producer_price_meat_live_usdpertonne_cnst2010':'Liveweight price (USD per tonne)'
-        ,'producer_price_eggs_usdpertonne_cnst2010':'Egg price (USD per tonne)'
-        ,'producer_price_meat_usdpertonne_cnst2010':'Meat price (USD per tonne)'
-        ,'producer_price_milk_usdpertonne_cnst2010':'Milk price (USD per tonne)'
-        ,'producer_price_wool_usdpertonne_cnst2010':'Wool price (USD per tonne)'
+        # ,'producer_price_meat_live_usdpertonne_cnst2010':'Liveweight price (USD per tonne)'
+        # ,'producer_price_eggs_usdpertonne_cnst2010':'Egg price (USD per tonne)'
+        # ,'producer_price_meat_usdpertonne_cnst2010':'Meat price (USD per tonne)'
+        # ,'producer_price_milk_usdpertonne_cnst2010':'Milk price (USD per tonne)'
+        # ,'producer_price_wool_usdpertonne_cnst2010':'Wool price (USD per tonne)'
 
         ,'biomass_value_2010usd':'Value of biomass (USD)'
         ,'output_value_eggs_2010usd':'Value of Egg production (USD)'
@@ -6607,13 +6613,13 @@ def update_display_table_ga(input_json ,selected_region ,selected_incgrp ,select
 
     # Two decimal places
     input_df_filtered.update(input_df_filtered[[
-        'producer_price_meat_live_usdpertonne_cnst2010'
-        ,'producer_price_eggs_usdpertonne_cnst2010'
-        ,'producer_price_meat_usdpertonne_cnst2010'
-        ,'producer_price_milk_usdpertonne_cnst2010'
-        ,'producer_price_wool_usdpertonne_cnst2010'
+        # 'producer_price_meat_live_usdpertonne_cnst2010'
+        # ,'producer_price_eggs_usdpertonne_cnst2010'
+        # ,'producer_price_meat_usdpertonne_cnst2010'
+        # ,'producer_price_milk_usdpertonne_cnst2010'
+        # ,'producer_price_wool_usdpertonne_cnst2010'
 
-        ,'biomass_value_2010usd'
+        'biomass_value_2010usd'
         ,'output_value_eggs_2010usd'
         ,'output_value_meat_2010usd'
         ,'output_value_milk_2010usd'
@@ -6654,11 +6660,11 @@ def update_display_table_ga(input_json ,selected_region ,selected_incgrp ,select
         ,'production_milk_tonnes':'Source: FAO'
         ,'production_wool_tonnes':'Source: FAO'
 
-        ,'producer_price_meat_live_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
-        ,'producer_price_eggs_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
-        ,'producer_price_meat_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
-        ,'producer_price_milk_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
-        ,'producer_price_wool_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        # ,'producer_price_meat_live_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        # ,'producer_price_eggs_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        # ,'producer_price_meat_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        # ,'producer_price_milk_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        # ,'producer_price_wool_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
 
         ,'biomass_value_2010usd':'Constant 2010 US dollars'
         ,'output_value_eggs_2010usd':'Constant 2010 US dollars'

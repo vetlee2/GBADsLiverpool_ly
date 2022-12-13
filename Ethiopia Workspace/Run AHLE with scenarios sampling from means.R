@@ -17,7 +17,7 @@
 # -----------------------------------------------------------------
 # Number of simulation iterations
 
-cmd_nruns <- 10
+cmd_nruns <- 10000
 
 # Folder location to save outputs
 #cmd_output_directory <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Program outputs'
@@ -26,7 +26,7 @@ cmd_output_directory <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsL
 
 # Full path to scenario control file
 #cmd_scenario_file <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters MAJOR SCENARIOS ONLY.xlsx'
-cmd_scenario_file <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters.xlsx'
+cmd_scenario_file <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters-20221202.xlsx'
 
 # -----------------------------------------------------------------
 # Get from command line arguments
@@ -799,10 +799,6 @@ compartmental_model <- function(
     Meat_kg <- 0
     Wool <- 0
     
-    prop_F_milked <- 0
-    lac_duration <- 0
-    avg_daily_yield_ltr <- 0
-    milk_value_ltr <- 0
     #
     Cumulitive_DM <- 0
     

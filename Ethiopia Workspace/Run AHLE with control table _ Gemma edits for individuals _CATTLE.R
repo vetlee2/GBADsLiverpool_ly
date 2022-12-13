@@ -259,7 +259,7 @@ compartmental_model <- function(
 	
 #prpn_lskeepers_purch_feed <- 0.25
 #prpn_feed_paid_for <- rpert(10000, 0, 1, 0.5)
-	#DM_in_feed <- rpert(10000, 0.8, 0.95, 0.9)
+#DM_in_feed <- rpert(10000, 0.8, 0.95, 0.9)
 	  
 	KG_Feed_purchased_NF <- DM_purch_NF / DM_in_feed
 	KG_Feed_purchased_NM <- DM_purch_NM / DM_in_feed

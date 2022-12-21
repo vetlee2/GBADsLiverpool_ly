@@ -1,0 +1,6 @@
+region,poultry_n_countries,bovines_n_countries,sheep_and_goats_n_countries,pigs_n_countries,equidae_n_countries,rabbit_hares_n_countries,aquaculture_n_countries,bees_n_countries,camelidae_n_countries,cervidae__farmed_n_countries,reptiles__e_g__crocodiles_n_countries,other_n_countries
+Africa,24,23,23,17,17,13,8,6,11,1,2,1
+Americas,18,18,18,18,13,13,11,4,4,2,4,1
+"Asia, Far East and Oceania",22,20,19,18,11,7,14,5,3,3,2,0
+Europe,41,40,40,37,37,35,34,22,14,21,8,4
+Middle East,3,3,3,0,2,2,1,2,2,2,0,0

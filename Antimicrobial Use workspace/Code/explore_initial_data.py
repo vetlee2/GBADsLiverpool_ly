@@ -373,6 +373,10 @@ amu2018_biomass_all = pd.concat(
 	,ignore_index=True   # True: do not keep index values on concatenation axis
 )
 
+# Add column suffixes
+amu2018_biomass_all = amu2018_biomass_all.add_suffix('_kg')
+amu2018_biomass_all = amu2018_biomass_all.rename(columns={'region_kg':'region' ,'segment_kg':'segment'})
+
 # Reorder columns and sort
 cols_first = ['region' ,'segment']
 cols_other = [i for i in list(amu2018_biomass_all) if i not in cols_first]

@@ -7,36 +7,36 @@ Importing and exploring the initial antimicrobial usage data
 # =============================================================================
 #### All antimicrobial usage
 # =============================================================================
-amu2018_all = pd.read_excel(
+amu2018_total = pd.read_excel(
 	os.path.join(RAWDATA_FOLDER ,'AMU_2018_6th report_GBADs.xlsx')
 	,sheet_name='Antimicrobial Quantities (AQ)'
 	,skiprows=7                 # List: row numbers to skip. Integer: count of rows to skip at start of file
     ,nrows=10                    # Total number of rows to read
 )
-cleancolnames(amu2018_all)
-amu2018_all.columns = amu2018_all.columns.str.strip('_')    # Remove trailing underscores
+cleancolnames(amu2018_total)
+amu2018_total.columns = amu2018_total.columns.str.strip('_')    # Remove trailing underscores
 
 # Clean up region names
-amu2018_all[['region' ,'count']] = amu2018_all['unnamed:_0'].str.split('(' ,expand=True)    # Splitting at hyphen (-). expand=True to return multiple columns.
-amu2018_all['region'] = amu2018_all['region'].str.rstrip()      # Drop trailing blanks
+amu2018_total[['region' ,'count']] = amu2018_total['unnamed:_0'].str.split('(' ,expand=True)    # Splitting at hyphen (-). expand=True to return multiple columns.
+amu2018_total['region'] = amu2018_total['region'].str.rstrip()      # Drop trailing blanks
 
 # Drop rows where region is missing - these are summary rows
-amu2018_all = amu2018_all.dropna(subset='region')
+amu2018_total = amu2018_total.dropna(subset='region')
 
 # Drop columns
-amu2018_all = amu2018_all.drop(columns=['unnamed:_0' ,'total_tonnes' ,'unnamed:_26' ,'count'])
+amu2018_total = amu2018_total.drop(columns=['unnamed:_0' ,'total_tonnes' ,'unnamed:_26' ,'count'])
 
 # Reorder columns and sort
 cols_first = ['region' ,'number_of_countries']
-cols_other = [i for i in list(amu2018_all) if i not in cols_first]
-amu2018_all = amu2018_all.reindex(columns=cols_first + cols_other)
-amu2018_all = amu2018_all.sort_values(by=cols_first ,ignore_index=True)
+cols_other = [i for i in list(amu2018_total) if i not in cols_first]
+amu2018_total = amu2018_total.reindex(columns=cols_first + cols_other)
+amu2018_total = amu2018_total.sort_values(by=cols_first ,ignore_index=True)
 
 # Add column suffixes
-amu2018_all = amu2018_all.add_suffix('_tonnes')
-amu2018_all = amu2018_all.rename(columns={'region_tonnes':'region' ,'number_of_countries_tonnes':'number_of_countries'})
+amu2018_total = amu2018_total.add_suffix('_tonnes')
+amu2018_total = amu2018_total.rename(columns={'region_tonnes':'region' ,'number_of_countries_tonnes':'number_of_countries'})
 
-datainfo(amu2018_all)
+datainfo(amu2018_total)
 
 # =============================================================================
 #### Terrestrial antimicrobial usage
@@ -70,9 +70,24 @@ amu2018_ter = amu2018_ter.sort_values(by=cols_first ,ignore_index=True)
 amu2018_ter = amu2018_ter.add_suffix('_tonnes')
 amu2018_ter = amu2018_ter.rename(columns={'region_tonnes':'region' ,'number_of_countries_tonnes':'number_of_countries'})
 
-# TODO: Add Middle East row
+# Add Middle East by subtraction
+amu2018_ter_t = amu2018_ter.transpose()     # Transpose regions to columns
+colnames = list(amu2018_ter_t.iloc[0])      # Get names from desired row
+amu2018_ter_t.columns = colnames			# Rename columns
+# cleancolnames(amu2018_ter_t)
+amu2018_ter_t = amu2018_ter_t.drop(index='region')		# Drop row used for names
+amu2018_ter_t = amu2018_ter_t.astype('float')   # Change all columns to numeric
+datainfo(amu2018_ter_t)
 
-datainfo(amu2018_ter)
+amu2018_ter_t['Middle East'] = amu2018_ter_t['Global'] - (amu2018_ter_t['Africa'] + amu2018_ter_t['Americas'] + amu2018_ter_t['Asia, Far East and Oceania'] + amu2018_ter_t['Europe'])
+amu2018_ter_t['Middle East'] = round(amu2018_ter_t['Middle East'] ,3)
+amu2018_ter_t = amu2018_ter_t.drop(columns=['Global'])
+
+amu2018_ter_t_t = amu2018_ter_t.transpose()
+amu2018_ter_t_t = amu2018_ter_t_t.reset_index()
+amu2018_ter_t_t = amu2018_ter_t_t.rename(columns={'index':'region'})
+
+datainfo(amu2018_ter_t_t)
 
 # =============================================================================
 #### Growth promotants
@@ -112,15 +127,12 @@ datainfo(amu2018_agp)
 #### Stack and export antimicrobial usage
 # =============================================================================
 # Add indicator of scope
-amu2018_all['scope'] = 'All'
-amu2018_ter['scope'] = 'Terrestrial Food Producing'
+amu2018_total['scope'] = 'All'
+amu2018_ter_t_t['scope'] = 'Terrestrial Food Producing'
 amu2018_agp['scope'] = 'AGP'
 
 amu2018 = pd.concat(
-    [amu2018_all
-    ,amu2018_ter
-    ,amu2018_agp
-    ]
+    [amu2018_total ,amu2018_ter_t_t ,amu2018_agp]
 	,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
 	,join='outer'        # 'outer': keep all index values from all data frames
 	,ignore_index=True   # True: do not keep index values on concatenation axis
@@ -360,7 +372,7 @@ amu2018_biomass_rgn_as['region'] = 'Asia'
 amu2018_biomass_rgn_eu['region'] = 'Europe'
 amu2018_biomass_rgn_me['region'] = 'Middle East'
 
-amu2018_biomass_all = pd.concat(
+amu2018_biomass = pd.concat(
     [amu2018_biomass_glbl
     ,amu2018_biomass_rgn_af
     ,amu2018_biomass_rgn_am
@@ -374,16 +386,16 @@ amu2018_biomass_all = pd.concat(
 )
 
 # Add column suffixes
-amu2018_biomass_all = amu2018_biomass_all.add_suffix('_kg')
-amu2018_biomass_all = amu2018_biomass_all.rename(columns={'region_kg':'region' ,'segment_kg':'segment'})
+amu2018_biomass = amu2018_biomass.add_suffix('_kg')
+amu2018_biomass = amu2018_biomass.rename(columns={'region_kg':'region' ,'segment_kg':'segment'})
 
 # Reorder columns and sort
 cols_first = ['region' ,'segment']
-cols_other = [i for i in list(amu2018_biomass_all) if i not in cols_first]
-amu2018_biomass_all = amu2018_biomass_all.reindex(columns=cols_first + cols_other)
-amu2018_biomass_all = amu2018_biomass_all.sort_values(by=cols_first ,ignore_index=True)
+cols_other = [i for i in list(amu2018_biomass) if i not in cols_first]
+amu2018_biomass = amu2018_biomass.reindex(columns=cols_first + cols_other)
+amu2018_biomass = amu2018_biomass.sort_values(by=cols_first ,ignore_index=True)
 
-datainfo(amu2018_biomass_all)
+datainfo(amu2018_biomass)
 
 # Export
-amu2018_biomass_all.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_biomass.csv') ,index=False)
+amu2018_biomass.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_biomass.csv') ,index=False)

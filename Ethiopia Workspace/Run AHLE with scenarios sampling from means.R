@@ -17,14 +17,18 @@
 # -----------------------------------------------------------------
 # Number of simulation iterations
 
+## > to trial the code and paramater spreadsheet set this to 10
 cmd_nruns <- 10000
 
 # Folder location to save outputs
+## > make sure you have your own folder path name 
+##   here where you want your outputs to store
 #cmd_output_directory <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Program outputs'
 cmd_output_directory <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Program outputs'
 
 
 # Full path to scenario control file
+## > and the path name of the scenario spreadsheet you are using
 #cmd_scenario_file <- 'F:/First Analytics/Clients/University of Liverpool/GBADs Github/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters MAJOR SCENARIOS ONLY.xlsx'
 cmd_scenario_file <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLiverpool/Ethiopia Workspace/Code and Control Files/AHLE scenario parameters-20221202.xlsx'
 
@@ -33,7 +37,8 @@ cmd_scenario_file <- '/Users/gemmachaters/Dropbox/Mac/Documents/GitHub/GBADsLive
 # -----------------------------------------------------------------
 # If this was invoked from the command line, look for command arguments
 # Will overwrite manual settings above
-## ONLY FOR PYTHON ##
+
+## ONLY FOR PYTHON when running this script as part of larger programme ##
 if (grepl('Rterm.exe', paste(commandArgs(), collapse=" "), ignore.case = TRUE, fixed = TRUE))
 {
   cmd_args <- commandArgs(trailingOnly=TRUE)	# Fetch command line arguments
@@ -60,6 +65,8 @@ library(truncnorm)
 # =================================================================
 # Define functions
 # =================================================================
+
+## > This is the pert distribution used in the code, note min, max, mode order of values
 rpert <- function( n, x.min, x.max, x.mode, lambda = 4 )
 {
   if( x.min > x.max || x.mode > x.max || x.mode < x.min ) stop( "invalid parameters" );
@@ -82,10 +89,11 @@ rpert <- function( n, x.min, x.max, x.mode, lambda = 4 )
   return ( rbeta( n, v, w ) * x.range + x.min );
 }
 
+## > this is the compartmental model function created to simulate the population
 compartmental_model <- function(
-    nruns 			## Number of iterations (duration of simulation) # representing days 
-    ,Num_months 	## NOTE - if you change this you must change rates to be monthly 
-    
+    nruns 			## Number of iterations (duration of simulation) defined at start of script
+    ,Num_months 	## NOTE - if you change this to days/weeks/years you must change rates accordingly 
+                  ## currently 12 to represent a year with monthly time steps
     # Initial population
     ,N_NF_t0		# Neonatal female
     ,N_NM_t0		# Neonatal male
@@ -95,11 +103,13 @@ compartmental_model <- function(
     ,N_AM_t0		# Adult male
     
     ## Growth rate N -> J and J-> A
+    ## for small ruminants this is 6 months for each transition but for other species
+    ## this will be set as a Beta_N and Beta_J if animals spend different durations 
+    ## in the age groups
     ,Beta
-    # Castration rate
-    
+
     # Fertility
-    ,part
+    ,part # parturition rate
     ,prolif
     
     # lactation
@@ -115,29 +125,29 @@ compartmental_model <- function(
     ,GammaM 		# offtake rate male
     
     # Mortality ## informed from META analysis
-    ,AlphaN		# mortality rate neonate ## parameter derived from meat pooled proportion and variance 
-    ,AlphaJ		# mortality rate juvenile ## parameter derived from meat pooled proportion and variance 
-    ,AlphaF		# mortality  adult female ##Parameter derived from meat pooled proportion and variance
-    ,AlphaM		# motality adult male ##Parameter derived from meat pooled proportion and variancethin the national herd for breeding
+    ,AlphaN		# mortality rate neonate ## 
+    ,AlphaJ		# mortality rate juvenile ## 
+    ,AlphaF		# mortality  adult female ##
+    ,AlphaM		# motality adult male ##
     
     # Culls
-    ,CullF	 	# cullrate Adult Female ## These will be valueless
-    ,CullM		# cullrate Adult Male  ## These will still have a value
+    ,CullF	 	# cullrate Adult Female ## These will be valueless, in SR cull age 10 years
+    ,CullM		# cullrate Adult Male  ## These will still have a value, in SR culled around age 5
     
     ## Production parameters (kg)
     
     # Liveweight conversion (kg) ## Informed from META analysis
-    ,lwNF  		# Liveweight Neonate## parameters derived from meta pooled mean and variance 
-    ,lwNM  		# Liveweight Neonateparameters derived from meta pooled mean and variance
-    ,lwJF 		# Liveweight Juvenille # Same here ##parameters derived from meta pooled mean and variance
-    ,lwJM 		# Liveweight Juvenille # Same here##parameters derived from meta pooled mean and variance
-    ,lwAF 		# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
-    ,lwAM 		# Liveweight Adult # Same here ##parameters derived from meta pooled mean and variance
+    ,lwNF  		# Liveweight Neonate female  
+    ,lwNM  		# Liveweight Neonate male 
+    ,lwJF 		# Liveweight Juvenille female # 
+    ,lwJM 		# Liveweight Juvenille male # 
+    ,lwAF 		# Liveweight Adult # 
+    ,lwAM 		# Liveweight Adult # 
     
     # carcase yeild
-    ,ccy 			# As a % of Liveweight for all groups
+    ,ccy 			# As a % of Liveweight for all groups used to calculate kg meat out
     
-    ## Financial value of live animals
+    ## Financial value of live animals - taken from current market data or historic for previous years
     # Ethiopian Birr
     ,fvNF 		## Financial value of neonatal Female
     ,fvJF 		## Financial value of neonatal Male
@@ -146,23 +156,23 @@ compartmental_model <- function(
     ,fvJM			## Financial value of adult Female
     ,fvAM			## Financial value of adult Male  
     
-    ## Off take which go for fertility in females (used when calculating hide numbers)
-    #,fert_offtake	# for breeding age females only 75% of offtake contribute to skins (25% remain in national breeding herd)
-    
     ## skin/hides  
     ## parameters can be updated through expert opinion but adding options for flexibility here
+    ## hides_rate is actually excluded in the main code now as the liveweight price includes meat and hides
+    ## hides from mortality are still included (50%) of dead animals contribute a hide, because otherwise these 
+    ## animals are valueless
     ,hides_rate			# 1 skin per animal offtake for males
     ,hides_rate_mor	# 50% of dead animals contribute to hides count
     
-    # 1 usd per piece = 51 eth birr
+    # 51 ethiopian birr currently used for small ruminants (parameter set in scenario table)
     ,hides_value
     
     # manure rate (kg produced/animal/day)
     ,Man_N		# Manure kg/ day from neonates ## means and Sds  are derived from  body wt
     ,Man_J		# Manure kg/ day from juvenile## means and Sds  are derived from  body wt
-    ,Man_A		# Manure kg/ day from adults ##means and Sds  are derived from  body wt
+    ,Man_A		# Manure kg/ day from adults ## means and Sds  are derived from  body wt
     
-    # 0.0125 USD / kg = 0.65 eth birr per kg 2021 price
+    # 0.65 eth birr per kg 2021 price (parameter set in scenario table)
     ,Man_value
     
     ## dry matter requirements as proportion of Liveweight
@@ -174,65 +184,81 @@ compartmental_model <- function(
     ,DM_req_prpn_AM		# Dry matter required by adults
     
     ## Proportion of livestock keepers that spend any money on feed
+    ## Using this in the model equates to the proportion of livestock for which some food is purchased.
     ## NOTE Currently the same for all age*sex groups
     ,prpn_lskeepers_purch_feed
     
     ## For those spending any money on feed, the proportion of feed that is purchased
-    ## NOTE Currently the same for all age*sex groups
+    ## NOTE Currently the same for all age*sex groups and an estimate centered around 50%
     ,prpn_feed_paid_for
     
-    ## Input parameters ## just example distributions for now
-    ,Feed_cost_kg		## Ethiopian birr/kg wheat and barley
+    ## Feed cost (example distributions used for now)
+    ,Feed_cost_kg		## Ethiopian birr/kg wheat and barley fodder used - NOT concentrate feed
     
+    ## Dry matter % in feed 
+    ## used to calculate volume of feed purchased based on dry matter needed, proportion of livestock keepers
+    ## purchasing any feed for livestock and estimated proportion of feed required which these ls keepers purchase
     ## variable results for the amount of dry matter in wheat and barley and tef in Ethiopia
     ## range 30-90%
-    ## taking 70% as an estimate for this trial
-    ,DM_in_feed			## change this to choose from data informed distribution
+    ## taking 90% as mean estimate for this model (pert distribution)
+    ,DM_in_feed			## 
     
     ## Labour cost
     ## birr/head/month
-    ## example code to change labour cost to selecting from distribution
-    ,Lab_SR
+    ,Lab_SR ## (pert distribution)
+    ## amount of labour time spent on NON-health related tasks (so healthcare labour can be discounted in ideal scenario)
     ,lab_non_health	## 0.86 in ideal this was not used in the current and this may not apply for ideal
     
     ## Helath care costs
     ## birr/head/month
     ## this includes medicines and veterinary care
-    ## and changing health care costs to select from distribution
-    ,Health_exp			# the two national level estimates(national production and import of vet drugs and vaccines, and LFSDP and RPLRP projects) are used as bound for the price and used for unif distribution 14.3 was from an earlier study covering only two districts 
+    ## health care costs select from a uniform distribution as we only had 2 estimates
+    ## the two national level estimates(national production and import of vet drugs and vaccines, 
+    ## and LFSDP and RPLRP projects) are used as bound for the price and used for unif distribution  
+    ,Health_exp	
     
     ## Capital costs
     ## for this we are using bank of Ethiopia inflation rate
-    ,Interest_rate
+    ,Interest_rate ## zero in current model as inflation so high there is 
+                   ## no capitol cost associated with having livestock
+    
+    ## Infrastructure cost associated with keeping livestock and some maintenance over the year 
+    ## (though this is considered negligeble in extensive Ethiopian systems),
+    ## arbitrary value of 1 birr per head used in current model more to serve as place holder 
+    ## for when dealing with systems with higher infrastructure costs
     ,Infrastructure_per_head
 )
 {
+  
+  ## Reproduction rate (parturition rate (avg # births per adult female year) * prolificacy rate (litter size))
   Mu <- (sample(part, size = 10000, replace = TRUE) * sample(prolif, size = 10000, replace = TRUE)) / 12 # birth rate (parturition rate * prolificacy rate / 12)
   
-  ## Off take which go for fertility in females
-  #	hides_rate_of = 1 - fert_offtake
-  # dont need to adjust for this anymore
-  DM_req_prpn_AF <- 0.026
-  ## dry matter requirements (measured in kg and calculated as a % of Liveweight)
-  kg_DM_req_NF = DM_req_prpn_NF * lwNF  	# Dry matter required by neonates
-  kg_DM_req_NM = DM_req_prpn_NM * lwNM  	# Dry matter required by neonates
-  kg_DM_req_JF = DM_req_prpn_JF * lwJF  	# Dry matter required by juvenile
-  kg_DM_req_JM = DM_req_prpn_JM * lwJM  	# Dry matter required by juvenile
-  kg_DM_req_AF = DM_req_prpn_AF * lwAF  	# Dry matter required by adults
-  kg_DM_req_AM = DM_req_prpn_AM * lwAM  	# Dry matter required by adults
+  ## Daily dry matter requirements (measured in kg and calculated as a % of Liveweight)
+  ## so calculation is liveweight (kg) (pert distribution) * Dry matter requirement per kg of body weight (0.026)
+  kg_DM_req_NF = DM_req_prpn_NF * lwNF  	# Dry matter required by neonate females 
+  kg_DM_req_NM = DM_req_prpn_NM * lwNM  	# Dry matter required by neonates males
+  kg_DM_req_JF = DM_req_prpn_JF * lwJF  	# Dry matter required by juvenile females
+  kg_DM_req_JM = DM_req_prpn_JM * lwJM  	# Dry matter required by juvenile males
+  kg_DM_req_AF = DM_req_prpn_AF * lwAF  	# Dry matter required by adult females
+  kg_DM_req_AM = DM_req_prpn_AM * lwAM  	# Dry matter required by adult males
   
+  ## Daily dry matter purchased 
+  ## (dry matter required * proportion of LS keepers purchasing feed * proportion of feed paid for, by those purchasing any)
+  ## prpn_feed_paid_for = rpert(10000, 0.1, 1, 0.5)) - a pert distribution centred around 50%
+  ## prpn_lskeepers_purch_feed <- 0.25 (set as a fixed value in paramaters but could be taken from a distribution)
   ## NOTE in the pastoral system this purchased feed will be 0
   
-  DM_purch_NF <- (kg_DM_req_NF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
-  DM_purch_NM <- (kg_DM_req_NM * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
-  DM_purch_JF <- (kg_DM_req_JF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
-  DM_purch_JM <- (kg_DM_req_JM * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
-  DM_purch_AF <- (kg_DM_req_AF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
-  DM_purch_AM <- (kg_DM_req_AM * prpn_lskeepers_purch_feed * prpn_feed_paid_for) #rpert(10000, 0.1, 1, 0.5))
+  DM_purch_NF <- (kg_DM_req_NF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) 
+  DM_purch_NM <- (kg_DM_req_NM * prpn_lskeepers_purch_feed * prpn_feed_paid_for) 
+  DM_purch_JF <- (kg_DM_req_JF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) 
+  DM_purch_JM <- (kg_DM_req_JM * prpn_lskeepers_purch_feed * prpn_feed_paid_for) 
+  DM_purch_AF <- (kg_DM_req_AF * prpn_lskeepers_purch_feed * prpn_feed_paid_for) 
+  DM_purch_AM <- (kg_DM_req_AM * prpn_lskeepers_purch_feed * prpn_feed_paid_for) 
   
-  #prpn_lskeepers_purch_feed <- 0.25
-  #prpn_feed_paid_for <- rpert(10000, 0, 1, 0.5)
-  
+  ## Actual Kg of feed purchased on average per day for an avg animal in each age-sex group
+  ## (amount of dry matter needed to be purchased / expected dry matter % of purchased feed)
+  ## In this system we only consider the cost of purchasing forage type feed, not concentrate feed
+  ## we do not account for the cost (financial or opportunity cost) of grazed feed
   KG_Feed_purchased_NF <- DM_purch_NF / DM_in_feed
   KG_Feed_purchased_NM <- DM_purch_NM / DM_in_feed
   KG_Feed_purchased_JF <- DM_purch_JF / DM_in_feed
@@ -240,7 +266,8 @@ compartmental_model <- function(
   KG_Feed_purchased_AF <- DM_purch_AF / DM_in_feed
   KG_Feed_purchased_AM <- DM_purch_AM / DM_in_feed
   
-  ## Expenditure on feed per animal
+  ## Expenditure on feed per animal day
+  ## amount of feed purchased * feed cost (taken from market information data)
   Expenditure_on_feed_NF <- KG_Feed_purchased_NF * Feed_cost_kg
   Expenditure_on_feed_NM <- KG_Feed_purchased_NM * Feed_cost_kg
   Expenditure_on_feed_JF <- KG_Feed_purchased_JF * Feed_cost_kg
@@ -251,8 +278,10 @@ compartmental_model <- function(
   # --------------------------------------------------------------
   # Create vectors to store the model outputs at each time step
   # --------------------------------------------------------------
-  # population
+  # time step is set in scenario code and for now is 12 months (1 year)
   #	Num_months <- 12
+  
+  ## population size at each time step
   numNF <- rep(0, Num_months)
   numJF <- rep(0, Num_months)
   numAF <- rep(0, Num_months)
@@ -261,16 +290,17 @@ compartmental_model <- function(
   numAM <- rep(0, Num_months)
   numN <- rep(0, Num_months)
   
-  #births
+  # births
   births <- rep(0, Num_months)
   
-  #growth
+  # size of population growth from neonates and juveniles 
+  # that will move into juveniles and adults compartments respectively
   growth_NF <- rep(0, Num_months)
   growth_NM <- rep(0, Num_months)
   growth_JF <- rep(0, Num_months)
   growth_JM <- rep(0, Num_months)
   
-  #deaths
+  # deaths from each each sex group
   deaths_NF <- rep(0, Num_months)
   deaths_NM <- rep(0, Num_months)
   deaths_JF <- rep(0, Num_months)
@@ -278,19 +308,20 @@ compartmental_model <- function(
   deaths_AF <- rep(0, Num_months)
   deaths_AM <- rep(0, Num_months)
   
-  #culls
+  # culls from each each sex group with any culls (only adults)
   culls_AF <- rep(0, Num_months)
   culls_AM <- rep(0, Num_months)
   
+  ## A vector for storing cumulative number of culled animals over the year (or total time steps)
   Cumulative_culls_AM <- rep(0, Num_months)
   
-  # offtake
+  # number of offtake from each age-sex group with any offtake (juvs and adults)
   offtake_JF <- rep(0, Num_months)
   offtake_JM <- rep(0, Num_months)
   offtake_AF <- rep(0, Num_months)
   offtake_AM <- rep(0, Num_months)
   
-  Monthly_mortality <- rep(0, Num_months)
+  # vector for storing mortalities (total deaths)
   Total_Mortality <- rep(0, Num_months)
   
   Total_Mortality_NF <- rep(0, Num_months)
@@ -300,11 +331,10 @@ compartmental_model <- function(
   Total_Mortality_AF <- rep(0, Num_months)
   Total_Mortality_AM <- rep(0, Num_months)
   
-  # Production
+  ## Production ##
   
-  # Liveweight
-  Quant_Liveweight_kg <- rep(0, Num_months)
-  
+  # Live weight
+  # totals will be the sum of the age sex groups
   Quant_Liveweight_kg_NF <- rep(0, Num_months)
   Quant_Liveweight_kg_NM <- rep(0, Num_months)
   Quant_Liveweight_kg_JF <- rep(0, Num_months)
@@ -312,19 +342,23 @@ compartmental_model <- function(
   Quant_Liveweight_kg_AF <- rep(0, Num_months)
   Quant_Liveweight_kg_AM <- rep(0, Num_months)
   
+  Quant_Liveweight_kg <- rep(0, Num_months)
+  
   # Meat
+  # for if you want to turn liveweight offtake into meat, 
+  # this is calculated as liveweight offtake * carase yeild
   Quant_Meat_kg <- rep(0, Num_months)
   
   # Offtake
-  Num_Offtake <- rep(0, Num_months)
-  
-  ## and for individual age cats
+  ## for individual age catagories
   Num_Offtake_NF <- rep(0, Num_months)
   Num_Offtake_NM <- rep(0, Num_months)
   Num_Offtake_JF <- rep(0, Num_months)
   Num_Offtake_JM <- rep(0, Num_months)
   Num_Offtake_AF <- rep(0, Num_months)
   Num_Offtake_AM <- rep(0, Num_months)
+  
+  Num_Offtake <- rep(0, Num_months) # total
   
   # Offtake Liveweight
   Offtake_Liveweight_kg <- rep(0, Num_months)
@@ -334,7 +368,7 @@ compartmental_model <- function(
   Offtake_Liveweight_kg_AF <- rep(0, Num_months)
   Offtake_Liveweight_kg_AM <- rep(0, Num_months)
   
-  # Pop growth
+  # Population growth
   Pop_growth <- rep(0, Num_months)
   
   Pop_growth_NF <- rep(0, Num_months)
@@ -344,9 +378,6 @@ compartmental_model <- function(
   Pop_growth_AF <- rep(0, Num_months)
   Pop_growth_AM <- rep(0, Num_months)
   
-  ##
-  Monthly_growth_rate <- rep(0, Num_months)
-  monthly_pop_growth <- rep(0, Num_months)
   
   ## Manure
   Quant_Manure <- rep(0, Num_months)
@@ -365,20 +396,19 @@ compartmental_model <- function(
   Quant_Hides_AF <- rep(0, Num_months)
   Quant_Hides_AM <- rep(0, Num_months)
   
+  # milk and wool
   Quant_Milk <- rep(0, Num_months)
   Quant_Wool <- rep(0, Num_months)
   
-  ##
-  Cumilative_Dry_Matter <- rep(0, Num_months)
+  ## dry matter required
+  Cumulative_Dry_Matter <- rep(0, Num_months)
   
-  Cumilative_Dry_Matter_NF <- rep(0, Num_months)
-  Cumilative_Dry_Matter_NM <- rep(0, Num_months)
-  Cumilative_Dry_Matter_JF <- rep(0, Num_months)
-  Cumilative_Dry_Matter_JM <- rep(0, Num_months)
-  Cumilative_Dry_Matter_AF <- rep(0, Num_months)
-  Cumilative_Dry_Matter_AM <- rep(0, Num_months)
-  
-  Monthly_DM <- rep(0, Num_months)
+  Cumulative_Dry_Matter_NF <- rep(0, Num_months)
+  Cumulative_Dry_Matter_NM <- rep(0, Num_months)
+  Cumulative_Dry_Matter_JF <- rep(0, Num_months)
+  Cumulative_Dry_Matter_JM <- rep(0, Num_months)
+  Cumulative_Dry_Matter_AF <- rep(0, Num_months)
+  Cumulative_Dry_Matter_AM <- rep(0, Num_months)
   
   ## Value of offtake
   Value_Offtake <- rep(0, Num_months)
@@ -401,7 +431,8 @@ compartmental_model <- function(
   Value_Herd_Increase_AF <- rep(0, Num_months)
   Value_Herd_Increase_AM <- rep(0, Num_months)
   
-  ## Total value increase herd value increase plus offtake value
+  ## Total value increase 
+  ## Herd value increase + Offtake value
   Total_Value_increase <- rep(0, Num_months)
   
   Total_Value_increase_NF <- rep(0, Num_months)
@@ -462,13 +493,8 @@ compartmental_model <- function(
   Infrastructure_cost_AF <- rep(0, Num_months)
   Infrastructure_cost_AM <- rep(0, Num_months)
   
-  
-  
-  # total expenditure
+  # Total expenditure sums all summed costs
   Total_expenditure <- rep(0, Num_months)
-  
-  ## Example of making storage output a matrix
-  ## Total_expenditure <- rep(0, Num_months)
   
   Total_expenditure_NF <- rep(0, Num_months)
   Total_expenditure_NM <- rep(0, Num_months)
@@ -480,6 +506,9 @@ compartmental_model <- function(
   # --------------------------------------------------------------
   # Create matrix to store the model output vectors at each time step
   # --------------------------------------------------------------
+  # all vectors created above also have a matrix with as many rows as number of runs required
+  # nruns for trial run of code to check and debug maybe 10, for modelling we have used 10,000 runs
+  
   # population
   numNF_M <- matrix(, nrow = nruns, ncol = Num_months)
   numJF_M <- matrix(, nrow = nruns, ncol = Num_months)
@@ -487,9 +516,11 @@ compartmental_model <- function(
   numNM_M <- matrix(, nrow = nruns, ncol = Num_months)
   numJM_M <- matrix(, nrow = nruns, ncol = Num_months)
   numAM_M <- matrix(, nrow = nruns, ncol = Num_months)
+  
   numN_M <- matrix(, nrow = nruns, ncol = Num_months)
   
-  Monthly_mortality_M <- matrix(, nrow = nruns, ncol = Num_months)
+  # mortality
+
   Total_Mortality_M <- matrix(, nrow = nruns, ncol = Num_months)
   
   Total_Mortality_NF_M <- matrix(, nrow = nruns, ncol = Num_months)
@@ -499,11 +530,9 @@ compartmental_model <- function(
   Total_Mortality_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Total_Mortality_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
   
-  ###############################################################
+  ### Production ###
   
-  # Production
-  
-  # Liveweight
+  # Live weight
   Quant_Liveweight_kg_M <- matrix(, nrow = nruns, ncol = Num_months)
   
   Quant_Liveweight_kg_NF_M <- matrix(, nrow = nruns, ncol = Num_months)
@@ -516,12 +545,9 @@ compartmental_model <- function(
   # Meat
   Quant_Meat_kg_M <- matrix(, nrow = nruns, ncol = Num_months)
   
-  
-  
   # Offtake
   Num_Offtake_M <- matrix(, nrow = nruns, ncol = Num_months)
   
-  ## and for individual age cats
   Num_Offtake_NF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Num_Offtake_NM_M <- matrix(, nrow = nruns, ncol = Num_months)
   Num_Offtake_JF_M <- matrix(, nrow = nruns, ncol = Num_months)
@@ -529,11 +555,9 @@ compartmental_model <- function(
   Num_Offtake_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Num_Offtake_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
   
-  ## Offtake Liveweight
-  # Offtake
+  ## Offtake Live weight
   Offtake_Liveweight_kg_M <- matrix(, nrow = nruns, ncol = Num_months)
   
-  ## and for individual age cats
   Offtake_Liveweight_kg_JF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Offtake_Liveweight_kg_JM_M <- matrix(, nrow = nruns, ncol = Num_months)
   Offtake_Liveweight_kg_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
@@ -549,12 +573,9 @@ compartmental_model <- function(
   Pop_growth_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Pop_growth_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
   
-  ##
-  Monthly_growth_rate_M <- matrix(, nrow = nruns, ncol = Num_months)
-  monthly_pop_growth_M <- matrix(, nrow = nruns, ncol = Num_months)
-  
   ## Manure
   Quant_Manure_M <- matrix(, nrow = nruns, ncol = Num_months)
+ 
   Quant_Manure_NF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Quant_Manure_NM_M <- matrix(, nrow = nruns, ncol = Num_months)
   Quant_Manure_JF_M <- matrix(, nrow = nruns, ncol = Num_months)
@@ -562,7 +583,9 @@ compartmental_model <- function(
   Quant_Manure_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Quant_Manure_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
   
+  # Value of manure
   Value_Manure_M <- matrix(, nrow = nruns, ncol = Num_months)
+  
   Value_Manure_NF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Value_Manure_NM_M <- matrix(, nrow = nruns, ncol = Num_months)
   Value_Manure_JF_M <- matrix(, nrow = nruns, ncol = Num_months)
@@ -570,7 +593,7 @@ compartmental_model <- function(
   Value_Manure_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Value_Manure_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
   
-  ## Havent seperated by age cat as only adults
+  ## Hides
   Quant_Hides_M <- matrix(, nrow = nruns, ncol = Num_months)
   
   Quant_Hides_JF_M <- matrix(, nrow = nruns, ncol = Num_months)
@@ -578,6 +601,7 @@ compartmental_model <- function(
   Quant_Hides_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Quant_Hides_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
   
+  # Value of hides
   Value_Hides_M <- matrix(, nrow = nruns, ncol = Num_months)
   
   Value_Hides_JF_M <- matrix(, nrow = nruns, ncol = Num_months)
@@ -585,22 +609,22 @@ compartmental_model <- function(
   Value_Hides_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Value_Hides_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
   
+  # milk quantity and value
   Quant_Milk_M <- matrix(, nrow = nruns, ncol = Num_months)
   Value_Milk_M <- matrix(, nrow = nruns, ncol = Num_months)
   
+  # wool quantity
   Quant_Wool_M <- matrix(, nrow = nruns, ncol = Num_months)
   
-  ##
-  Cumilative_Dry_Matter_M <- matrix(, nrow = nruns, ncol = Num_months)
+  ## dry matter required by system
+  Cumulative_Dry_Matter_M <- matrix(, nrow = nruns, ncol = Num_months)
   
-  Cumilative_Dry_Matter_NF_M <- matrix(, nrow = nruns, ncol = Num_months)
-  Cumilative_Dry_Matter_NM_M <- matrix(, nrow = nruns, ncol = Num_months)
-  Cumilative_Dry_Matter_JF_M <- matrix(, nrow = nruns, ncol = Num_months)
-  Cumilative_Dry_Matter_JM_M <- matrix(, nrow = nruns, ncol = Num_months)
-  Cumilative_Dry_Matter_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
-  Cumilative_Dry_Matter_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
-  
-  Monthly_DM_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Cumulative_Dry_Matter_NF_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Cumulative_Dry_Matter_NM_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Cumulative_Dry_Matter_JF_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Cumulative_Dry_Matter_JM_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Cumulative_Dry_Matter_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Cumulative_Dry_Matter_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
   
   ## Value of offtake
   Value_Offtake_M <- matrix(, nrow = nruns, ncol = Num_months)
@@ -633,9 +657,10 @@ compartmental_model <- function(
   Total_Value_increase_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Total_Value_increase_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
   
-  ## all produce values
+  ## all produce values matrix
   Production_value_herd_offteake_hide_man_M <- matrix(, nrow = nruns, ncol = Num_months)
-  Production_value_herd_offteake_hide_man_NF_M <- matrix(, nrow = nruns, ncol = Num_months)
+ 
+   Production_value_herd_offteake_hide_man_NF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Production_value_herd_offteake_hide_man_NM_M <- matrix(, nrow = nruns, ncol = Num_months)
   Production_value_herd_offteake_hide_man_JF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Production_value_herd_offteake_hide_man_JM_M <- matrix(, nrow = nruns, ncol = Num_months)
@@ -685,6 +710,7 @@ compartmental_model <- function(
   
   # Infrastructure
   Infrastructure_cost_M <- matrix(, nrow = nruns, ncol = Num_months)
+  
   Infrastructure_cost_NF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Infrastructure_cost_NM_M <- matrix(, nrow = nruns, ncol = Num_months)
   Infrastructure_cost_JF_M <- matrix(, nrow = nruns, ncol = Num_months)
@@ -692,7 +718,7 @@ compartmental_model <- function(
   Infrastructure_cost_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Infrastructure_cost_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
   
-    # total expenditure
+  # Total expenditure
   Total_expenditure_M <- matrix(, nrow = nruns, ncol = Num_months)
   
   ## Example of making storage output a matrix
@@ -703,23 +729,18 @@ compartmental_model <- function(
   Total_expenditure_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Total_expenditure_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
   
-  #nruns <- 10
   ################################################################
   ## FIND START ##
   for (i in c(1:nruns))
   {
-    ## Current
-    ## Crop-livestock
-    ## Sheep
-    
-    ## Variables
-    
     ## Initial population size
     
     # Total population is sum of age*sex segments
     Nt0 <- N_NF_t0 + N_NM_t0 + N_JF_t0 + N_JM_t0 + N_AF_t0 + N_AM_t0
     
+    ## Step 1
     # Define population variables and set initial values from function arguments 
+    
     N <- Nt0
     NF <- N_NF_t0
     NM <- N_NM_t0
@@ -728,7 +749,9 @@ compartmental_model <- function(
     AF <- N_AF_t0
     AM <- N_AM_t0
     
-    ## age sex group prop of pop at t0 - this ratio should probably stay the same
+    ## age sex group prop of pop at t0 - this ratio should stay the same
+    ## but is currently unused in the code - but we need to calculate it for 
+    # ME requirements down the line so leaving it in for now
     pNF_t0 <- NF/N
     pJF_t0 <- JF/N
     pAF_t0 <- AF/N
@@ -748,11 +771,11 @@ compartmental_model <- function(
     ##################################################################
     ##  Create empty variables to be used for calculating production
     
-    ## NOTE these MUST always be reset to 0 before running the model 
-    ## otherwise the starting values will be the same as they were at 
-    ## the end of the last model run
+    ## NOTE these MUST always be reset to 0 before running the model which 
+    ## is why they are coded here otherwise the starting values will be the 
+    ## same as they were at the end of the last model run
     
-    # Production Values (Value at t0)
+    # Production quantities and values (at t0)
     Liveweight_kg <- 0
     
     Liveweight_kg_NF <- 0
@@ -761,8 +784,7 @@ compartmental_model <- function(
     Liveweight_kg_JM <- 0
     Liveweight_kg_AF <- 0
     Liveweight_kg_AM <- 0
-    ##
-    
+
     ##
     Offtake <- 0
     
@@ -799,7 +821,8 @@ compartmental_model <- function(
     Meat_kg <- 0
     Wool <- 0
     
-    #
+    #################################
+    ### System Input requirements ###
     Cumulitive_DM <- 0
     
     Cumulitive_DM_NF <- 0
@@ -808,47 +831,18 @@ compartmental_model <- function(
     Cumulitive_DM_JM <- 0
     Cumulitive_DM_AF <- 0
     Cumulitive_DM_AM <- 0
-    
-    
-    #
-    Monthly_Dry_Matter <- 0
-    
-    popultation_growth_rate <- 0
-    Monthly_growth_rate <- 0
-    monthly_pop_growth <- 0
-    
-    ##
-    Value_offt <- 0
-    
-    Value_offt_NF <- 0 
-    Value_offt_NM <- 0 
-    Value_offt_JF <- 0 
-    Value_offt_JM <- 0 
-    Value_offt_AF <- 0 
-    Value_offt_AM <- 0 
-    
-    ##
-    Value_herd_inc <- 0
-    
-    Value_herd_inc_NF <- 0
-    Value_herd_inc_NM <- 0
-    Value_herd_inc_JF <- 0
-    Value_herd_inc_JM <- 0
-    Value_herd_inc_AF <- 0
-    Value_herd_inc_AM <- 0
-    
+
     
     # Input cost values (Value at t0)
-    Feed <- 0
-    
+
     Feed_NF <- 0
     Feed_NM <- 0
     Feed_JF <- 0
     Feed_JM <- 0
     Feed_AF <- 0
     Feed_AM <- 0
-    ##
-    Labour <- 0
+    
+    ## Labour cost at t0 
     
     Labour_NF <- 0
     Labour_NM <- 0
@@ -869,12 +863,6 @@ compartmental_model <- function(
     ##
     Capital <- 0
     
-    Capital_NF <- 0
-    Capital_NM <- 0
-    Capital_JF <- 0
-    Capital_JM <- 0
-    Capital_AF <- 0
-    Capital_AM <- 0
     
     ############################################################
     #############     Simulation model            ##############
@@ -884,43 +872,51 @@ compartmental_model <- function(
     ####
     
     ## 
-    for(month in c(1:Num_months))
+    for(month in c(1:Num_months)) ## For each month for as many months as set, do this...
     {
-      births[month] <- sample(Mu, 1) * AF
+      births[month] <- sample(Mu, 1) * AF # number of adult females * reproduction rate
       
+      # calculate number of deaths from each age-sex group
       deaths_NF[month] <- (sample(AlphaN, 1) * NF)
       deaths_JF[month] <- (sample(AlphaJ, 1) * JF) 
       deaths_AF[month] <- (sample(AlphaF, 1) * AF)
-      
       deaths_NM[month] <- (sample(AlphaN, 1) * NM)
       deaths_JM[month] <- (sample(AlphaJ, 1) * JM)
       deaths_AM[month] <- (sample(AlphaM, 1) * AM)
       
+      # calculate number of offtake from each age-sex group
       offtake_JF[month] <- (sample(GammaF, 1) * JF)
       offtake_AF[month] <- (sample(GammaF, 1) * AF)
       offtake_JM[month] <- (sample(GammaM, 1) * JM)
       offtake_AM[month] <- (sample(GammaM, 1) * AM)
       
+      # calculate size of population growth into next age-sex compartment from each age-sex group
       growth_NF[month] <- (sample(Beta, 1) * NF)
       growth_JF[month] <- (sample(Beta, 1) * JF)
       growth_NM[month] <- (sample(Beta, 1) * NM)
       growth_JM[month] <- (sample(Beta, 1) * JM)
       
+      # calculate number of culls from each age-sex group
       culls_AF[month] <- (sample(CullF, 1) * AF)
       culls_AM[month] <- (sample(CullM, 1) * AM)
       
-      # now the population model uses numbers calculated in stochastic equations above
+      # now the compartmental population model uses numbers calculated in stochastic equations above
+      # to create a new population for each monthly time step
+     
+       # females
       numNF[month] = NF + (births[month] * 0.5) - deaths_NF[month] - growth_NF[month]
       numJF[month] = JF + growth_NF[month] - growth_JF[month] - offtake_JF[month] - deaths_JF[month]
       numAF[month] = AF + growth_JF[month] - offtake_AF[month] - deaths_AF[month] - culls_AF[month]
       
+      # males
       numNM[month] = NM + (births[month] * 0.5) - growth_NM[month] - deaths_NM[month]
       numJM[month] = JM + growth_NM[month] - growth_JM[month] - offtake_JM[month] - deaths_JM[month]
       numAM[month] = AM + growth_JM[month] - offtake_AM[month] - deaths_AM[month] - culls_AM[month]
-      
+     
+       # total
       numN[month] = numNF[month] + numJF[month] + numAF[month] + numNM[month] + numJM[month] + numAM[month]
       
-      # population
+      # set new monthly population numbers based on above equations
       NF = numNF[month]
       JF = numJF[month]
       AF = numAF[month]
@@ -929,10 +925,8 @@ compartmental_model <- function(
       AM = numAM[month]
       N = numN[month]
       
-      
-      ## total mortality
-      
-      ## age group deaths (cumilative within age groups then sum for total cumilative)
+      ## Mortality
+      ## age group deaths (cumulative within age groups then sum across age-sex groups for total)
       Total_Mortality_NF[month] = Num_dead_NF + deaths_NF[month]
       Num_dead_NF = Total_Mortality_NF[month]
       Total_Mortality_NM[month] = Num_dead_NM + deaths_NM[month]
@@ -946,18 +940,9 @@ compartmental_model <- function(
       Total_Mortality_AM[month] = Num_dead_AM + deaths_AM[month]
       Num_dead_AM = Total_Mortality_AM[month]
       
-      
       Total_Mortality[month] = Total_Mortality_NF[month] + Total_Mortality_NM[month] + 
         Total_Mortality_JF[month] + Total_Mortality_JM[month] + 
         Total_Mortality_AF[month] + Total_Mortality_AM[month]
-      
-      ## Note, this model is stochastic so the whole N population is different from the individual age groups
-      ## to make the total N sum to the same as the other age groups it should be calculated differently
-      ## A sum of age groups rather than another simulation
-      
-      ## This calculates monthly mortality rate so it can be evaluated
-      # redundant in model function
-      #Monthly_mortality[month] = Total_Mortality[month] / numN[month]
       
       # Population growth (total population in month - original population size)
       Pop_growth[month] =  numN[month] - Nt0
@@ -969,12 +954,7 @@ compartmental_model <- function(
       Pop_growth_AF[month] =  AF - N_AF_t0
       Pop_growth_AM[month] =  AM - N_AM_t0
       
-      # whole population Liveweight (number in each age sex group * Liveweight conversion factor, for each month - NOT cumilative)
-      # note there is currently no difference in weights of adult animals
-      ## and Liveweight should not be cumulative
-      
-    ##  >> To here..... 
-      
+      # whole population as Liveweight (number in each age sex group * Liveweight conversion factor, for each month - NOT Cumulative)
       Quant_Liveweight_kg_NF[month] = (NF * sample(lwNF, 1))
       Quant_Liveweight_kg_NM[month] = (NM * sample(lwNM, 1))
       Quant_Liveweight_kg_JF[month] = (JF * sample(lwJF, 1))
@@ -987,8 +967,9 @@ compartmental_model <- function(
         Quant_Liveweight_kg_AF[month] + Quant_Liveweight_kg_AM[month]
       
       # Offtake (all offtake added + culled adult males)
-      
-      ## offtake from different age cats (offtake... is from original calculation, Offtake... is cum.sum, Num_Offtake is monthly cumilative)
+      ## offtake_ from different age cats. (offtake... (lowercase o) is from original calculation above, 
+      ## Offtake_is cumulative sum across months
+      ## Num_Offtake is Cumulative sum for that month at time [month]
       Num_Offtake_JF[month] <- Offtake_JF + offtake_JF[month]
       Num_Offtake_JM[month] <- Offtake_JM + offtake_JM[month]
       Num_Offtake_AF[month] <- Offtake_AF + offtake_AF[month]
@@ -1001,10 +982,9 @@ compartmental_model <- function(
       Offtake_AM = Num_Offtake_AM[month]
       
       Num_Offtake[month] = Num_Offtake_JF[month] + Num_Offtake_JM[month] + Num_Offtake_AF[month] + Num_Offtake_AM[month] 
-      
       Offtake = Num_Offtake[month]
       
-      ## Offtake Liveweight
+      ## Off take Liveweight (convert offtake animals into a liveweight)
       Offtake_Liveweight_kg_JF[month] = (sample(lwJF, 1) * Offtake_JF)
       Offtake_Liveweight_kg_JM[month] = (sample(lwJM, 1) * Offtake_JM)
       Offtake_Liveweight_kg_AF[month] = (sample(lwAF, 1) * Offtake_AF)
@@ -1013,22 +993,22 @@ compartmental_model <- function(
       Offtake_Liveweight_kg[month] <- Offtake_Liveweight_kg_JF[month] + Offtake_Liveweight_kg_JM[month] +
         Offtake_Liveweight_kg_AF[month] + Offtake_Liveweight_kg_AM[month]
       
-      # Changed here, made meat from offtake only
-      # whole population as meat
+      ## Meat production (not currently used by other models as an output as liveweight prices are used)
+      ## Offtake live weight converted into meat 
+      ## Offtake_JF etc accumulates month on month through the year so converting this to meat each month 
+      ## will give total meat for the year by month 12
       
-      Quant_Meat_kg[month] = Meat_kg + (Offtake_Liveweight_kg_JF[month] * ccy) + 
+      Quant_Meat_kg[month] = (Offtake_Liveweight_kg_JF[month] * ccy) + 
         (Offtake_Liveweight_kg_JM[month] * ccy) +
         (Offtake_Liveweight_kg_AF[month] * ccy) + 
         (Offtake_Liveweight_kg_AM[month] * ccy) 
       
-      ## 
+      ## not actually used as dont need to make this cumulative  
       Meat_kg = Quant_Meat_kg[month]
       
-      ## to here... tidying code!
-      
-      # Hides per month (only calculated on offftake as a proportion (1-prop females for fertility), we could add a proportion of dead too? * Expert opinion question)
-      
-      # Quantity of hides in the dif age sex groups
+      ## Hides
+      ## Quantity of hides in the dif age sex groups
+      ## Only adding hides from dead stock as offtake hides value is covered in live animal price
       Quant_Hides_JF[month] = Hides_JF + (deaths_JF[month] * hides_rate_mor)
       Quant_Hides_JM[month] = Hides_JM + (deaths_JM[month] * hides_rate_mor)
       Quant_Hides_AF[month] = Hides_AF + (deaths_AF[month] * hides_rate_mor)
@@ -1039,20 +1019,27 @@ compartmental_model <- function(
       Hides_AF = Quant_Hides_AF[month]
       Hides_AM = Quant_Hides_AM[month]
       
-      # sum for total population
+      # Total sum of hides for total population
       Quant_Hides[month] = Quant_Hides_JF[month] + Quant_Hides_JM[month] + 	Quant_Hides_AF[month] + Quant_Hides_AM[month]
-      
       Hides = Quant_Hides[month]
       
-      ## Milk
-      # number of females giving birth in month x, multiplied by number that would be milked
-      ## multiplied by lactation duration and daily yield)
+      ## Milk yield 
+      # Number of females * monthly avg parturition rate * number that would be milked * lactation duration * avg daily yield
+
+      ## The amount of milk produced each month is the sum of milk from each adult female that gives birth 
+      ## full lactation, and each month this is added to the amount of milk produced by animals that give birth 
+      ## in the previous months. Some milking animals will die during their lactation and this is not accounted for
+      ## in this calculation, but, dead animals wont give birth and produce any milk so I think it evens out.
+      ## This is a calculation that can be revisited in time
+      
       Quant_Milk[month] = Milk + (AF * (sample(part, 1)) * prop_F_milked * lac_duration * avg_daily_yield_ltr) 
       
       Milk = Quant_Milk[month]
       
       ## Manure 
-      ## manure from different age cats
+      ## daily manure produced from all animals in each age-sex group * 30 
+      ## to give monthly manure production from the different age-sex groups
+      ## cumulative so added
       
       Quant_Manure_NF[month] = Manure_kg_NF + (NF * (sample(Man_N, 1) * 30))  
       Quant_Manure_NM[month] = Manure_kg_NM + (NM * (sample(Man_N, 1) * 30))  
@@ -1072,123 +1059,120 @@ compartmental_model <- function(
       
       Manure_kg = Quant_Manure[month]
       
-      # Cumilative dry matter used by the system
-      ## NOTE does this need to be multiplied by 30 to get a monthly dry matter requirement?
+      # Cumulative dry matter used by the system (dry matter for now but ME can be calculated similarly)
       
-      Cumilative_Dry_Matter_NF[month] = Cumulitive_DM_NF + (NF * (sample(kg_DM_req_NF, 1) * 30)) 
-      Cumilative_Dry_Matter_NM[month] = Cumulitive_DM_NM + (NM * (sample(kg_DM_req_NF, 1) * 30)) 
-      Cumilative_Dry_Matter_JF[month] = Cumulitive_DM_JF + (JF * (sample(kg_DM_req_NF, 1) * 30)) 
-      Cumilative_Dry_Matter_JM[month] = Cumulitive_DM_JM + (JM * (sample(kg_DM_req_NF, 1) * 30)) 
-      Cumilative_Dry_Matter_AF[month] = Cumulitive_DM_AF + (AF * (sample(kg_DM_req_NF, 1) * 30)) 
-      Cumilative_Dry_Matter_AM[month] = Cumulitive_DM_AM + (AM * (sample(kg_DM_req_NF, 1) * 30)) 
+      ## This is number of animals in age-sex group * daily dry matter requirement of those animals * 30 
+      ## to give monthly dry matter requirement, which is summed month on month
       
-      Cumulitive_DM_NF = Cumilative_Dry_Matter_NF[month]
-      Cumulitive_DM_NM = Cumilative_Dry_Matter_NM[month]
-      Cumulitive_DM_JF = Cumilative_Dry_Matter_JF[month]
-      Cumulitive_DM_JM = Cumilative_Dry_Matter_JM[month]
-      Cumulitive_DM_AF = Cumilative_Dry_Matter_AF[month]
-      Cumulitive_DM_AM = Cumilative_Dry_Matter_AM[month]
+      ## // SIDE note... to calculate ME we will need to estimate animals daily ME requirements for maintenance, 
+      ## growth (in neonates and juveniles) and any production outputs (milk, gestation, traction)
+      ## for the average sized animal in each age-sex group, and this can be the ME used by the system 
+      ## at present //
       
-      ## Total population
-      Cumilative_Dry_Matter[month] = Cumilative_Dry_Matter_NF[month] + Cumilative_Dry_Matter_NM[month] +
-        Cumilative_Dry_Matter_JF[month] + Cumilative_Dry_Matter_JM[month] +
-        Cumilative_Dry_Matter_AF[month] + Cumilative_Dry_Matter_AM[month]
+      Cumulative_Dry_Matter_NF[month] = Cumulitive_DM_NF + (NF * (sample(kg_DM_req_NF, 1) * 30)) 
+      Cumulative_Dry_Matter_NM[month] = Cumulitive_DM_NM + (NM * (sample(kg_DM_req_NF, 1) * 30)) 
+      Cumulative_Dry_Matter_JF[month] = Cumulitive_DM_JF + (JF * (sample(kg_DM_req_NF, 1) * 30)) 
+      Cumulative_Dry_Matter_JM[month] = Cumulitive_DM_JM + (JM * (sample(kg_DM_req_NF, 1) * 30)) 
+      Cumulative_Dry_Matter_AF[month] = Cumulitive_DM_AF + (AF * (sample(kg_DM_req_NF, 1) * 30)) 
+      Cumulative_Dry_Matter_AM[month] = Cumulitive_DM_AM + (AM * (sample(kg_DM_req_NF, 1) * 30)) 
       
-      Cumulitive_DM = Cumilative_Dry_Matter[month]
+      Cumulitive_DM_NF = Cumulative_Dry_Matter_NF[month]
+      Cumulitive_DM_NM = Cumulative_Dry_Matter_NM[month]
+      Cumulitive_DM_JF = Cumulative_Dry_Matter_JF[month]
+      Cumulitive_DM_JM = Cumulative_Dry_Matter_JM[month]
+      Cumulitive_DM_AF = Cumulative_Dry_Matter_AF[month]
+      Cumulitive_DM_AM = Cumulative_Dry_Matter_AM[month]
       
-      ## Production values (make sure all the values that update each month are updated here) 
-      ## this is so each month the values are new and can be added to
-      # deleted what was here as no longer stores output to examine pop growth rate
+      ## Total population dry matter requirement
+      Cumulative_Dry_Matter[month] = Cumulative_Dry_Matter_NF[month] + Cumulative_Dry_Matter_NM[month] +
+        Cumulative_Dry_Matter_JF[month] + Cumulative_Dry_Matter_JM[month] +
+        Cumulative_Dry_Matter_AF[month] + Cumulative_Dry_Matter_AM[month]
       
-      # financial value of offtake (all offtake and culled males * population sizes * financial value)
       
-      ## with the new equation structure below if offtake changes or varies or we add uncertainty then the financial value of offtake will change
       
-      ## Juv and adults only
+      ## Financial value of off take 
+      ## (all off take * financial value) // Note, for adult males the Offtake_AM includes culled males
+      ## Juvenile and adults only
+      
       Value_Offtake_JF[month] = (sample(fvJF, 1) * Offtake_JF) 
-      Value_offt_JF = Value_Offtake_JF[month]
-      
       Value_Offtake_JM[month] = (sample(fvJM, 1) * Offtake_JM)
-      Value_offt_JM = Value_Offtake_JM[month]
-      
       Value_Offtake_AF[month] = (sample(fvAF, 1) * Offtake_AF)
-      Value_offt_AF = Value_Offtake_AF[month]
-      
       Value_Offtake_AM[month] = (sample(fvAM, 1) * Offtake_AM)  
-      Value_offt_AM = Value_Offtake_AM[month]
       
-      ## sum total population
+      ## Total value of off take
+      ## Sum value's of offtake for the four age-sex groups 
       Value_Offtake[month] = Value_Offtake_JF[month] + Value_Offtake_JM[month] + Value_Offtake_AF[month] + Value_Offtake_AM[month]
       
-      Value_offt = Value_Offtake[month] 
+      ## Financial value of heard increase 
+      ## calculation is change in herd/flock population since t0 * price per head (each month compares to t0)
+      ## NOTE important factor here is we use current market price, BUT, if pop size increase 
+      ## AND offtake increases price and demand will likely drop so we need to factor that in.
+      ## MUST work with wider economic impact theme to adjust this price relationship
       
-      # financial value of heard increase (can only do for months > 1 as doing -1 month calcs)
-      
-      ## Gemma edits here as this calculation doesnt make sense 
-      ## now calculation is change in population since t0 
-      ## multiplied by price per head (each month compares to t0)
-      ##
-      
-      ## NOTE ##
-      ## This section isn't working now - need to change sampling structure, add if statement or something.
-      ## revert to old style of code?
-        Value_Herd_Increase_NF[month] = (sample(fvNF, 1) * (NF - N_NF_t0))
-        Value_herd_inc_NF = Value_Herd_Increase_NF[month]
-      
+        Value_Herd_Increase_NF[month] = (NF - N_NF_t0) * (sample(fvNF, 1))
         Value_Herd_Increase_NM[month] = (NM - N_NM_t0) * (sample(fvNM, 1))
-        Value_herd_inc_NM = Value_Herd_Increase_NM[month]
-      
         Value_Herd_Increase_JF[month] = (JF - N_JF_t0) * (sample(fvJF, 1))
-        Value_herd_inc_JF = Value_Herd_Increase_JF[month]
-      
         Value_Herd_Increase_JM[month] = (JM - N_JM_t0) * (sample(fvJM, 1))
-        Value_herd_inc_JM = Value_Herd_Increase_JM[month]
-     
         Value_Herd_Increase_AF[month] = (AF - N_AF_t0) * (sample(fvAF, 1))
-        Value_herd_inc_AF = Value_Herd_Increase_AF[month]
-      
         Value_Herd_Increase_AM[month] = (AM - N_AM_t0) * (sample(fvAM, 1))
-        Value_herd_inc_AM = Value_Herd_Increase_AM[month]
-      
-      # total pop value of herd increase
+        
+      # total population value of national herd size increase
       Value_Herd_Increase[month] = Value_Herd_Increase_NF[month] + Value_Herd_Increase_NM[month] + Value_Herd_Increase_JF[month] + Value_Herd_Increase_JM[month] + Value_Herd_Increase_AF[month] + Value_Herd_Increase_AM[month]
       
-      Value_herd_inc = Value_Herd_Increase[month]
+      ## Total value increase (Offtake + herd increase) 
+      ## AGAIN this calculation uses current market prices
+      ## summing together the two values calculated above
+      Total_Value_increase[month] = Value_Herd_Increase[month] + Value_Offtake[month]
       
+      Total_Value_increase_NF[month] = Value_Herd_Increase_NF[month] 
+      Total_Value_increase_NM[month] = Value_Herd_Increase_NM[month] 
+      Total_Value_increase_JF[month] = Value_Herd_Increase_JF[month] + Value_Offtake_JF[month]
+      Total_Value_increase_JM[month] = Value_Herd_Increase_JM[month] + Value_Offtake_JM[month]
+      Total_Value_increase_AF[month] = Value_Herd_Increase_AF[month] + Value_Offtake_AF[month]
+      Total_Value_increase_AM[month] = Value_Herd_Increase_AM[month] + Value_Offtake_AM[month]
       
-      ## Total value increase
-      Total_Value_increase[month] = Value_herd_inc + Value_offt
+      ##########################################
+      ######     Expenditure in system    ######
       
-      Total_Value_increase_NF[month] = Value_herd_inc_NF 
-      Total_Value_increase_NM[month] = Value_herd_inc_NM 
-      Total_Value_increase_JF[month] = Value_herd_inc_JF + Value_offt_JF
-      Total_Value_increase_JM[month] = Value_herd_inc_JM + Value_offt_JM
-      Total_Value_increase_AF[month] = Value_herd_inc_AF + Value_offt_AF
-      Total_Value_increase_AM[month] = Value_herd_inc_AM + Value_offt_AM
+      ## feed cost is calculated based on current market value cost of feed
+      ## which is roughage crop (not concentrate) for Ethiopia scenario
+      ## // Note, reiterating point made above re feed calculations...
+      ## multiplied by the amount needed by the animals (dry matter requirement) 
+      ## multiplied by the total amount that is purchased (proportion of LS keepers 
+      ## buying any feed * estimated amount they might buy) 
       
-      ## Expenditure in system
-      # Feed cost
+      ## > Feed cost ##
+     
+      # amount spent calculated each month and added to previous month(s)
       Feed_cost_NF[month] = Feed_NF + (NF * (sample(Expenditure_on_feed_NF, 1)) * 30) 
-      Feed_NF = Feed_cost_NF[month]
       Feed_cost_NM[month] = Feed_NM + (NM * (sample(Expenditure_on_feed_NM, 1)) * 30) 
-      Feed_NM = Feed_cost_NM[month]
       Feed_cost_JF[month] = Feed_JF + (JF * (sample(Expenditure_on_feed_JF, 1)) * 30)
-      Feed_JF = Feed_cost_JF[month]
       Feed_cost_JM[month] = Feed_JM + (JM * (sample(Expenditure_on_feed_JM, 1)) * 30)
-      Feed_JM = Feed_cost_JM[month]
       Feed_cost_AF[month] = Feed_AF + (AF * (sample(Expenditure_on_feed_AF, 1)) * 30)
-      Feed_AF = Feed_cost_AF[month]
       Feed_cost_AM[month] = Feed_AM + (AM * (sample(Expenditure_on_feed_AM, 1)) * 30) 
+      
+      Feed_NF = Feed_cost_NF[month]
+      Feed_NM = Feed_cost_NM[month]
+      Feed_JF = Feed_cost_JF[month]
+      Feed_JM = Feed_cost_JM[month]
+      Feed_AF = Feed_cost_AF[month]
       Feed_AM = Feed_cost_AM[month]
       
-      # total feed cost
-      Feed_cost[month] = Feed_cost_NF[month] + Feed_cost_NM[month] + 
-        Feed_cost_JF[month] + Feed_cost_JM[month] +
-        Feed_cost_AF[month] + Feed_cost_AM[month]
+      # Total feed cost (sum all age-sex groups)
+      Feed_cost[month] = Feed_cost_NF[month] + Feed_cost_NM[month] + Feed_cost_JF[month] + Feed_cost_JM[month] + Feed_cost_AF[month] + Feed_cost_AM[month]
       
-      Feed = Feed_cost[month]
       
-      # Labour costs (number of SR's * labour cost per head per month)
+      ## > Labour cost ##
+      
+      ## Labour cost is calculated each month by multiplying the number of animals 
+      ## in each age-sex group by the labour cost per head per month and added to previous
+      ## months data to get cumulative expenditure on labour through the year
+      ## labour cost is also multiplied by the proportio of labour time spent on health 
+      ## related activities, as in the ideal scenario overall labour time and thus cost will 
+      ## be reduced as less time will be spent on health related activities.
+      ## to get this parameter experts were asked what proportion of labour time was spent on 
+      ## health related tasks. in the current scenario the value of lab_non_health is = 1 and in 
+      ## the ideal scenario the value of lab_non_health is 1 - (prop. time spent on health related tasks)
       
       Labour_cost_NF[month] = Labour_NF + (NF * (sample(Lab_SR, 1)) * lab_non_health) 
       Labour_cost_NM[month] = Labour_NM + (NM * (sample(Lab_SR, 1)) * lab_non_health)  
@@ -1204,11 +1188,14 @@ compartmental_model <- function(
       Labour_AF = Labour_cost_AF[month]
       Labour_AM = Labour_cost_AM[month]
       
-      Labour_cost[month] = Labour_cost_NF[month] + Labour_cost_NM[month] + Labour_cost_JF[month] + 
-        Labour_cost_JM[month] + Labour_cost_AF[month] + Labour_cost_AM[month]
-      Labour =  Labour_cost[month]
+      ## Total population labour expenditure
+      Labour_cost[month] = Labour_cost_NF[month] + Labour_cost_NM[month] + Labour_cost_JF[month] + Labour_cost_JM[month] + Labour_cost_AF[month] + Labour_cost_AM[month]
       
-      # Medicines and veterinary expenditure
+
+      ## > Health care cost ##
+      
+      ## This calculation includes medicines and veterinary expenditure
+      ## each month is calculated for animals in each age-sex groups and added to previous month(s)
       
       Health_cost_NF[month] = Health_NF + (NF * (sample(Health_exp, 1))) 
       Health_cost_NM[month] = Health_NM + (NM * (sample(Health_exp, 1))) 
@@ -1225,34 +1212,23 @@ compartmental_model <- function(
       Health_AM = Health_cost_AM[month]
       
       Health_cost[month] = Health_cost_NF[month] + Health_cost_NM[month] + Health_cost_JF[month] + Health_cost_JM[month] + Health_cost_AF[month] + Health_cost_AM[month]
-      Health = Health_cost[month]
-      
-      # Capital costs
+
+      ## > Capital cost ##
       
       Capital_cost_NF[month] = numNF[1] * (sample(fvNF, 1)) * Interest_rate 
-      Capital_NF = Capital_cost_NF[month]
-      
       Capital_cost_NM[month] = numNM[1] * (sample(fvNM, 1)) * Interest_rate  
-      Capital_NM = Capital_cost_NM[month]
-      
       Capital_cost_JF[month] = numJF[1] * (sample(fvJF, 1)) * Interest_rate  
-      Capital_JF = Capital_cost_JF[month]
-      
       Capital_cost_JM[month] = numJM[1] * (sample(fvJM, 1)) * Interest_rate  
-      Capital_JM = Capital_cost_JM[month]
-      
       Capital_cost_AF[month] = numAF[1] * (sample(fvAF, 1)) * Interest_rate  
-      Capital_AF = Capital_cost_AF[month]
-      
       Capital_cost_AM[month] = numAM[1] * (sample(fvAM, 1)) * Interest_rate  
-      Capital_AM = Capital_cost_AM[month]
       
       # total pop capital cost
-      Capital_cost[month] = Capital_cost_NF[month] + Capital_cost_NM[month] + Capital_cost_JF[month] + Capital_cost_JM[month] + Capital_cost_AF[month] + Capital_cost_AM[month]
+      Capital_cost[month] = Capital_cost_NF[month] + Capital_cost_NM[month] + Capital_cost_JF[month] + 
+                            Capital_cost_JM[month] + Capital_cost_AF[month] + Capital_cost_AM[month]
       
-      Capital = Capital_cost[month]
+      ### >>>> to here.....
       
-      ## Infrastructure cost
+      ## > Infrastructure cost ##
       ## simple calculation - number of animals at t0 * baseline annual infrastructure cost per head
       Infrastructure_cost_NF[month] <- N_NF_t0 * (sample(Infrastructure_per_head, 1))
       Infrastructure_cost_NM[month] <- N_NM_t0 * (sample(Infrastructure_per_head, 1))
@@ -1264,14 +1240,14 @@ compartmental_model <- function(
       Infrastructure_cost[month] <- Infrastructure_cost_NF[month] + Infrastructure_cost_NM[month] + Infrastructure_cost_JF[month] + Infrastructure_cost_JM[month] + Infrastructure_cost_AF[month] + Infrastructure_cost_AM[month]
       
       ##
-      Total_expenditure[month] =  Feed + Health + Labour + Capital + Infrastructure_cost[month]
+      Total_expenditure[month] =  Feed_cost[month] + Health_cost[month] + Labour_cost[month] + Capital_cost[month] + Infrastructure_cost[month]
       
-      Total_expenditure_NF[month] =  Feed_NF + Health_NF + Labour_NF + Capital_NF + Infrastructure_cost_NF[month]
-      Total_expenditure_NM[month] =  Feed_NM + Health_NM + Labour_NM + Capital_NM + Infrastructure_cost_NM[month]
-      Total_expenditure_JF[month] =  Feed_JF + Health_JF + Labour_JF + Capital_JF + Infrastructure_cost_JF[month]
-      Total_expenditure_JM[month] =  Feed_JM + Health_JM + Labour_JM + Capital_JM + Infrastructure_cost_JM[month]
-      Total_expenditure_AF[month] =  Feed_AF + Health_AF + Labour_AF + Capital_AF + Infrastructure_cost_AF[month]
-      Total_expenditure_AM[month] =  Feed_AM + Health_AM + Labour_AM + Capital_AM + Infrastructure_cost_AM[month]
+      Total_expenditure_NF[month] =  Feed_NF + Health_NF + Labour_NF + Capital_cost_NF[month] + Infrastructure_cost_NF[month]
+      Total_expenditure_NM[month] =  Feed_NM + Health_NM + Labour_NM + Capital_cost_NM[month] + Infrastructure_cost_NM[month]
+      Total_expenditure_JF[month] =  Feed_JF + Health_JF + Labour_JF + Capital_cost_JF[month] + Infrastructure_cost_JF[month]
+      Total_expenditure_JM[month] =  Feed_JM + Health_JM + Labour_JM + Capital_cost_JM[month] + Infrastructure_cost_JM[month]
+      Total_expenditure_AF[month] =  Feed_AF + Health_AF + Labour_AF + Capital_cost_AF[month] + Infrastructure_cost_AF[month]
+      Total_expenditure_AM[month] =  Feed_AM + Health_AM + Labour_AM + Capital_cost_AM[month] + Infrastructure_cost_AM[month]
     }
     
     ### Fill all of the matrices
@@ -1286,7 +1262,6 @@ compartmental_model <- function(
     numAM_M[i, ] <- numAM
     numN_M[i, ] <- numN
     
-    Monthly_mortality_M[i, ] <- Monthly_mortality
     Total_Mortality_M[i, ] <- Total_Mortality
     
     Total_Mortality_NF_M[i, ] <- Total_Mortality_NF
@@ -1370,17 +1345,14 @@ compartmental_model <- function(
     Quant_Wool_M[i, ] <- Quant_Wool
     
     ##
-    Cumilative_Dry_Matter_M[i, ] <- Cumilative_Dry_Matter
+    Cumulative_Dry_Matter_M[i, ] <- Cumulative_Dry_Matter
     
-    Cumilative_Dry_Matter_NF_M[i, ] <- Cumilative_Dry_Matter_NF
-    Cumilative_Dry_Matter_NM_M[i, ] <- Cumilative_Dry_Matter_NM
-    Cumilative_Dry_Matter_JF_M[i, ] <- Cumilative_Dry_Matter_JF
-    Cumilative_Dry_Matter_JM_M[i, ] <- Cumilative_Dry_Matter_JM
-    Cumilative_Dry_Matter_AF_M[i, ] <- Cumilative_Dry_Matter_AF
-    Cumilative_Dry_Matter_AM_M[i, ] <- Cumilative_Dry_Matter_AM
-    
-    
-    Monthly_DM_M[i, ] <- Monthly_DM
+    Cumulative_Dry_Matter_NF_M[i, ] <- Cumulative_Dry_Matter_NF
+    Cumulative_Dry_Matter_NM_M[i, ] <- Cumulative_Dry_Matter_NM
+    Cumulative_Dry_Matter_JF_M[i, ] <- Cumulative_Dry_Matter_JF
+    Cumulative_Dry_Matter_JM_M[i, ] <- Cumulative_Dry_Matter_JM
+    Cumulative_Dry_Matter_AF_M[i, ] <- Cumulative_Dry_Matter_AF
+    Cumulative_Dry_Matter_AM_M[i, ] <- Cumulative_Dry_Matter_AM
     
     ## Value of offtake
     Value_Offtake_M[i, ] <- Value_Offtake
@@ -1560,8 +1532,8 @@ compartmental_model <- function(
   #Quant_Milk_J_M <- Quant_Milk_JF_M + Quant_Milk_JM_M
   #Quant_Wool_N_M <- Quant_Wool_NF_M + Quant_Wool_NM_M
   #Quant_Wool_J_M <- Quant_Wool_JF_M + Quant_Wool_JM_M
-  Cumilative_Dry_Matter_N_M <- Cumilative_Dry_Matter_NF_M + Cumilative_Dry_Matter_NM_M
-  Cumilative_Dry_Matter_J_M <- Cumilative_Dry_Matter_JF_M + Cumilative_Dry_Matter_JM_M
+  Cumulative_Dry_Matter_N_M <- Cumulative_Dry_Matter_NF_M + Cumulative_Dry_Matter_NM_M
+  Cumulative_Dry_Matter_J_M <- Cumulative_Dry_Matter_JF_M + Cumulative_Dry_Matter_JM_M
   
   Value_Offtake_N_M <- Value_Offtake_NF_M + Value_Offtake_NM_M
   Value_Offtake_J_M <- Value_Offtake_JF_M + Value_Offtake_JM_M
@@ -1613,7 +1585,7 @@ compartmental_model <- function(
       ,'Hides' = 'Quant_Hides'
       ,'Milk' = 'Quant_Milk'
       ,'Wool' = 'Quant_Wool'
-      ,'Cml Dry Matter' = 'Cumilative_Dry_Matter'
+      ,'Cml Dry Matter' = 'Cumulative_Dry_Matter'
       
       ,'Value of Offtake' = 'Value_Offtake'
       ,'Value of Herd Increase' = 'Value_Herd_Increase'

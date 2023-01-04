@@ -1,0 +1,6 @@
+region,cattle_n_countries,pigs___commercial_n_countries,pigs___backyard_n_countries,sheep_n_countries,goats_n_countries,sheep_and_goats__mixed_flocks_n_countries,layers___commercial_production_for_eggs_n_countries,broilers___commercial_production_for_meat_n_countries,other_commercial_poultry_n_countries,poultry___backyard_n_countries,buffaloes__not_syncerus_caffer_n_countries,cervidae__farmed_n_countries,camelidae_n_countries,equidae_n_countries,rabbit_hares_n_countries,bees_n_countries,fish___aquaculture_production_n_countries,crustaceans___aquaculture_production_n_countries,molluscs___aquaculture_production_n_countries,amphibians_n_countries,reptiles__e_g__crocodiles_n_countries,other_n_countries,total_n_countries
+Africa,23,16,12,20,21,18,22,22,15,19,1,1,11,17,13,6,8,3,2,0,2,1,253
+Americas,18,17,17,15,16,14,18,18,12,17,6,2,4,13,13,4,9,7,3,2,4,1,230
+"Asia, Far East and Oceania",20,18,14,16,17,12,20,18,13,14,10,3,3,11,7,5,14,7,4,2,2,0,230
+Europe,40,36,32,39,37,30,37,39,36,36,15,21,14,37,35,22,34,12,13,8,8,4,585
+Middle East,3,0,0,3,3,3,3,3,2,2,2,2,2,2,2,2,1,1,1,1,0,0,38

@@ -149,6 +149,19 @@ datainfo(amu2018)
 # Export
 amu2018.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018.csv') ,index=False)
 
+# -----------------------------------------------------------------------------
+# Reshape
+# -----------------------------------------------------------------------------
+amu2018_m = amu2018.melt(
+	id_vars=['region' ,'scope' ,'number_of_countries']         # Optional: column(s) to use as ID variables
+	,var_name='antimicrobial'             # Name for new "variable" column
+	,value_name='tonnes'              # Name for new "value" column
+)
+amu2018_m['antimicrobial'] = amu2018_m['antimicrobial'].str.replace('_tonnes' ,'')
+
+# Export
+amu2018_m.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_tall.csv') ,index=False)
+
 # =============================================================================
 #### Species
 # =============================================================================

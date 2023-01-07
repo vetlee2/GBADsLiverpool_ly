@@ -2441,7 +2441,6 @@ gbadsDash.layout = html.Div([
                                   clearable = False,
                                   ),
                     ],style={
-                              "order":1,
                               "margin-top":"10px",
                               },
                     ),
@@ -2455,7 +2454,6 @@ gbadsDash.layout = html.Div([
                                   clearable = False,
                                   ),
                     ],style={
-                              "order":2,
                               "margin-top":"10px",
                               },
                     ),
@@ -2469,7 +2467,6 @@ gbadsDash.layout = html.Div([
                                   clearable = False,
                                   )
                       ],style={
-                              'order': 3,
                               "margin-top":"10px",
                               },
                       ),
@@ -2483,7 +2480,6 @@ gbadsDash.layout = html.Div([
                                   clearable = False,
                                   )
                     ],style={
-                              "order": 4,
                               "margin-top":"10px",
                               "margin-right": '10px',
                               },
@@ -2513,7 +2509,6 @@ gbadsDash.layout = html.Div([
                     # Text underneath slider
                     html.P(id='reference-dof-poultry'),
                       ],style={'width': "auto",
-                              "order":5,
                               # 'margin-left':'-40px',
                               }
                     ),
@@ -2534,7 +2529,7 @@ gbadsDash.layout = html.Div([
                     # Text underneath slider
                       html.P(id='reference-achievable-pct-poultry'),
                       ],style={'width': "auto",
-                              "order":6,}
+                              }
                       ),
 
                 # Price to Producers Upon Sale
@@ -2553,7 +2548,7 @@ gbadsDash.layout = html.Div([
                     # Text underneath slider
                     html.P(id='reference-producerprice-poultry'),
                     ],style={'width': "auto",
-                              "order":7,}
+                             }
                     ),
 
                 # Ration prices
@@ -2572,7 +2567,7 @@ gbadsDash.layout = html.Div([
                     # Text underneath slider
                     html.P(id='reference-feedprice-poultry'),
                     ],style={'width': "auto",
-                              "order":8,}
+                              }
                     ),
 
                 # FCR
@@ -2590,7 +2585,6 @@ gbadsDash.layout = html.Div([
                     # Text underneath slider
                     html.P(id='reference-fcr-poultry'),
                     ],style={'width': "auto",
-                              "order":8,
                               'margin-right':'20px'}
                     ),
 
@@ -2598,7 +2592,6 @@ gbadsDash.layout = html.Div([
                 dbc.Col([
                     html.Button('Reset to default', id='reset-val-poultry', n_clicks=0),
                 ],style={'width': "auto",
-                          "order":9,
                           'textAlign':'center',
                           'margin':'auto',}
                 ),
@@ -2748,7 +2741,6 @@ gbadsDash.layout = html.Div([
                                   clearable = False,
                                   ),
                     ],style={
-                              "order":1,
                               "margin-top":"10px"
                               }
                     ),
@@ -2762,7 +2754,6 @@ gbadsDash.layout = html.Div([
                                   clearable = False,
                                   ),
                     ],style={
-                              "order":2,
                               "margin-top":"10px"
                               },
                     ),
@@ -2776,7 +2767,6 @@ gbadsDash.layout = html.Div([
                                   clearable = False,
                                   )
                       ],style={
-                              'order': 3,
                               "margin-top":"10px"
                               },
                       ),
@@ -2790,7 +2780,6 @@ gbadsDash.layout = html.Div([
                                   clearable = False,
                                   )
                     ],style={
-                              "order": 4,
                               "margin-top":"10px",
                               "margin-right": '10px',
                               },
@@ -2817,7 +2806,6 @@ gbadsDash.layout = html.Div([
                         value=dof_swine_default,
                         ),
                     ],style={'width': "auto",
-                              "order":5,
                               }
                     ),
 
@@ -2836,7 +2824,6 @@ gbadsDash.layout = html.Div([
                   #         ),
                   #     html.P(id='reference-feedintake-swine'),
                   #      ],style={'width': "auto",
-                  #               "order":5,
                   #               }
                   #     ),
 
@@ -2856,7 +2843,7 @@ gbadsDash.layout = html.Div([
                     # Text underneath slider
                     html.P(id='reference-liveweight-swine'),
                     ],style={'width': "auto",
-                            "order":6}
+                            }
                     ),
 
                 # Price to Producers Upon Sale
@@ -2874,7 +2861,7 @@ gbadsDash.layout = html.Div([
                     # Text underneath slider
                     html.P(id='reference-producerprice-swine'),
                     ],style={'width': "auto",
-                              "order":7}
+                              }
                     ),
 
                 # Ration prices
@@ -2892,7 +2879,6 @@ gbadsDash.layout = html.Div([
                     # Text underneath slider
                     html.P(id='reference-feedprice-swine'),
                     ],style={'width': "auto",
-                              "order":8,
                               'margin-right':'20px'}
                     ),
 
@@ -2911,7 +2897,6 @@ gbadsDash.layout = html.Div([
                     # Text underneath slider
                     html.P(id='reference-fcr-swine'),
                     ],style={'width': "auto",
-                              "order":8,
                               'margin-right':'20px'}
                     ),
 
@@ -2919,7 +2904,6 @@ gbadsDash.layout = html.Div([
                 dbc.Col([
                     html.Button('Reset to default', id='reset-val-swine', n_clicks=0),
                 ],style={'width': "auto",
-                          "order":9,
                           'textAlign':'center',
                           'margin':'auto',}
                 ),
@@ -6681,7 +6665,7 @@ def update_overview_table_ga(input_json):
 
 #     # Apply filters
 #     input_df_filtered = input_df
-    
+
     # Filter Species
     # input_df_filtered = input_df_filtered.loc[(input_df_filtered['species'] == species)]
 
@@ -6845,7 +6829,7 @@ def update_overview_table_ga(input_json):
         # ,'producer_price_meat_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
         # ,'producer_price_milk_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
         # ,'producer_price_wool_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
-        
+
 #         ,'biomass_value_2010usd':'Constant 2010 US dollars'
 #         ,'output_value_eggs_2010usd':'Constant 2010 US dollars'
 #         ,'output_value_meat_2010usd':'Constant 2010 US dollars'
@@ -6923,7 +6907,7 @@ def update_overview_table_ga(input_json):
    # Input('select-currency-ecs','value'),
    )
 def update_bio_ahle_visual_ga(input_json, viz_selection, species, country, region, display, income):
-       
+
    # Data
    input_df = pd.read_json(input_json, orient='split')
 
@@ -6984,7 +6968,7 @@ def update_bio_ahle_visual_ga(input_json, viz_selection, species, country, regio
             input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
         else:
             input_df=input_df.loc[(input_df['country'] == country)]
-    
+
     # Filter Income Group
    if income == 'All':
         input_df = input_df

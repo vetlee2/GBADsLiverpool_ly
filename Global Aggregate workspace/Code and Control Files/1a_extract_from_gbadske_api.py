@@ -45,16 +45,16 @@ gbadske_query_uri = 'http://gbadske.org:9000/GBADsPublicQuery/'
 # -----------------------------------------------------------------------------
 # Pieces
 # -----------------------------------------------------------------------------
-gbadske_query_table_name = 'livestock_countries_biomass'
-gbadske_query_params = {
-    'fields':gbadske_get_column_names(gbadske_query_table_name ,'string')   # All columns in table
-    ,'query':"year=2017 AND member_country='Australia'"     # Note character column value must be in SINGLE QUOTES (double quotes don't work)
-    ,'format':'file'
-    }
-gbadske_query_resp = req.get(gbadske_query_uri + gbadske_query_table_name , params=gbadske_query_params)
+# gbadske_query_table_name = 'livestock_countries_biomass'
+# gbadske_query_params = {
+#     'fields':gbadske_get_column_names(gbadske_query_table_name ,'string')   # All columns in table
+#     ,'query':"year=2017 AND member_country='Australia'"     # Note character column value must be in SINGLE QUOTES (double quotes don't work)
+#     ,'format':'file'
+#     }
+# gbadske_query_resp = req.get(gbadske_query_uri + gbadske_query_table_name , params=gbadske_query_params)
 
-# Read table into pandas dataframe
-gbadske_query_df = pd.read_csv(io.StringIO(gbadske_query_resp.text))
+# # Read table into pandas dataframe
+# gbadske_query_df = pd.read_csv(io.StringIO(gbadske_query_resp.text))
 
 # -----------------------------------------------------------------------------
 # Function
@@ -93,11 +93,11 @@ get_years = range(2000 ,2022)
 # 2022-8-4: Guelph says this is the correct table to use
 # =============================================================================
 # Get data for range of years
-biomass_cols = gbadske_get_column_names('livestock_countries_biomass')
-biomass = pd.DataFrame()    # Initialize
+livestock_countries_biomass_cols = gbadske_get_column_names('livestock_countries_biomass')
+livestock_countries_biomass = pd.DataFrame()    # Initialize
 for i in get_years:
     single_year = gbadske_import_to_pandas('livestock_countries_biomass' ,QUERY=f"year={i}")
-    biomass = pd.concat([biomass ,single_year] ,ignore_index=True)
+    livestock_countries_biomass = pd.concat([livestock_countries_biomass ,single_year] ,ignore_index=True)
 
 # -----------------------------------------------------------------------------
 # Cleanup
@@ -105,34 +105,62 @@ for i in get_years:
 # Change columns to numeric
 convert_cols_to_numeric = ['year' ,'population' ,'biomass']
 for COL in convert_cols_to_numeric:
-    biomass[COL] = pd.to_numeric(biomass[COL] ,errors='coerce')  # Use to_numeric to handle remaining values like ':'
+    livestock_countries_biomass[COL] = pd.to_numeric(livestock_countries_biomass[COL] ,errors='coerce')  # Use to_numeric to handle remaining values like ':'
 
 # For Ducks, liveweight is in grams. Change to kg.
-_row_selection = (biomass['species'].str.upper() == 'DUCKS') & (biomass['liveweight'] > 1000)
+_row_selection = (livestock_countries_biomass['species'].str.upper() == 'DUCKS') & (livestock_countries_biomass['liveweight'] > 1000)
 print(f"> Selected {_row_selection.sum(): ,} rows.")
-biomass.loc[_row_selection ,'liveweight'] = biomass.loc[_row_selection ,'liveweight'] / 1000
+livestock_countries_biomass.loc[_row_selection ,'liveweight'] = livestock_countries_biomass.loc[_row_selection ,'liveweight'] / 1000
 
 # Recalculate biomass as population * liveweight
-biomass.loc[_row_selection ,'biomass'] = \
-    biomass.loc[_row_selection ,'liveweight'] * biomass.loc[_row_selection ,'population']
+livestock_countries_biomass.loc[_row_selection ,'biomass'] = \
+    livestock_countries_biomass.loc[_row_selection ,'liveweight'] * livestock_countries_biomass.loc[_row_selection ,'population']
 
 # Remove duplicates (country-species-year combinations that appear twice)
-csy_counts = biomass[['country' ,'species' ,'year']].value_counts()
-biomass_countries = list(biomass['country'].unique())
-biomass = biomass.drop_duplicates(
+csy_counts = livestock_countries_biomass[['country' ,'species' ,'year']].value_counts()
+biomass_countries = list(livestock_countries_biomass['country'].unique())
+livestock_countries_biomass = livestock_countries_biomass.drop_duplicates(
    subset=['country' ,'species' ,'year']          # List (opt): only consider these columns when identifying duplicates. If None, consider all columns.
    ,keep='first'                   # String: which occurrence to keep, 'first' or 'last'
 )
 
-datainfo(biomass)
+datainfo(livestock_countries_biomass)
+
+lcb_years = livestock_countries_biomass['year'].value_counts()
 
 # Profile
-# profile = biomass.profile_report()
+# profile = livestock_countries_biomass.profile_report()
 # profile.to_file(os.path.join(RAWDATA_FOLDER ,'livestock_countries_biomass_profile.html'))
 
 # Export
-biomass.to_csv(os.path.join(RAWDATA_FOLDER ,'livestock_countries_biomass.csv') ,index=False)
-biomass.to_pickle(os.path.join(PRODATA_FOLDER ,'livestock_countries_biomass.pkl.gz'))
+livestock_countries_biomass.to_csv(os.path.join(RAWDATA_FOLDER ,'livestock_countries_biomass.csv') ,index=False)
+livestock_countries_biomass.to_pickle(os.path.join(PRODATA_FOLDER ,'livestock_countries_biomass.pkl.gz'))
+
+# =============================================================================
+#### livestock_countries_biomass_oie
+# 2023-1-9: Liverpool wants to use the WOAH/OIE biomass numbers
+# =============================================================================
+# Get data for range of years
+livestock_countries_biomass_oie_cols = gbadske_get_column_names('livestock_countries_biomass_oie')
+livestock_countries_biomass_oie = pd.DataFrame()    # Initialize
+for i in get_years:
+    single_year = gbadske_import_to_pandas('livestock_countries_biomass_oie' ,QUERY=f"year={i}")
+    livestock_countries_biomass_oie = pd.concat([livestock_countries_biomass_oie ,single_year] ,ignore_index=True)
+
+lcbo_years = livestock_countries_biomass_oie['year'].value_counts()
+
+# =============================================================================
+#### biomass_oie
+# 2023-1-9: Liverpool wants to use the WOAH/OIE biomass numbers
+# =============================================================================
+# Get data for range of years
+biomass_oie_cols = gbadske_get_column_names('biomass_oie')
+biomass_oie = pd.DataFrame()    # Initialize
+for i in get_years:
+    single_year = gbadske_import_to_pandas('biomass_oie' ,QUERY=f"year={i}")
+    biomass_oie = pd.concat([biomass_oie ,single_year] ,ignore_index=True)
+
+bo_years = biomass_oie['year'].value_counts()
 
 # =============================================================================
 #### livestock_national_population_biomass_faostat

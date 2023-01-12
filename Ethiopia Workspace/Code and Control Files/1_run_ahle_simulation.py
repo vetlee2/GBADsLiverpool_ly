@@ -9,19 +9,12 @@ Any R libraries required must be installed first, which I have done through RGui
 - Run RGui as administrator
 - In console run: install.packages('package_name')
 
-This code does not need to be run. If UoL has run it, I can retrieve the updated
-output files from ETHIOPIA_OUTPUT_FOLDER.
+This code does not need to be run if UoL has already run the simulations.
 '''
 
-#%% Setup
+#%% Define folder paths
 
-# =============================================================================
-#### Rscript executable
-# =============================================================================
-# On Lotka
-# r_executable = 'C:\\Program Files\\R\\R-4.2.0\\bin\\x64\\Rscript.exe'
-
-# On Local
+# Full path to rscript.exe
 r_executable = 'C:\\Program Files\\R\\R-4.2.1\\bin\\x64\\Rscript.exe'
 
 #%% Run AHLE simulation
@@ -56,7 +49,6 @@ r_args = [
     # 9/28: Gemma removed the code that performed this task
     # ,'-1'
 ]
-
 timerstart()
 run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=99)
 timerstop()
@@ -84,7 +76,6 @@ r_args = [
     # 9/28: Gemma removed the code that performed this task
     # ,'-1'
 ]
-
 timerstart()
 run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=99)
 timerstop()
@@ -111,7 +102,6 @@ r_args = [
     # -1: use all scenarios
     ,'-1'
 ]
-
 timerstart()
 run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=99)
 timerstop()

@@ -162,8 +162,44 @@ for i in get_years:
 
 bo_years = biomass_oie['year'].value_counts()
 
-# Describe frequency of sources for latest year
+# Describe frequency of sources by year
 bo_sources = biomass_oie[['animal_category', 'year', 'source_data']].value_counts()
+
+# =============================================================================
+#### biomass_live_weight_fao
+# This update to the biomass data has been downloaded from an Informatics team
+# repository containing data that has not yet been added to the public API.
+# https://github.com/GBADsInformatics/PPSTheme
+# =============================================================================
+biomass_live_weight_fao = pd.read_csv(os.path.join(RAWDATA_FOLDER ,'20230116_biomass_live_weight_fao.csv'))
+biomass_live_weight_fao = biomass_live_weight_fao.rename(columns={"country_x":"country" ,"live_weight":"liveweight"})
+
+# Limit to same years as other tables
+biomass_live_weight_fao = biomass_live_weight_fao.loc[biomass_live_weight_fao['year'].isin(get_years)]
+
+datainfo(biomass_live_weight_fao)
+
+# Compare to livestock_countries_biomass
+check_lcb_vs_blw = pd.merge(
+    left=livestock_countries_biomass
+    ,right=biomass_live_weight_fao
+    ,on=['iso3' ,'species' ,'year']
+    ,how='outer'
+    ,indicator=True
+)
+datainfo(check_lcb_vs_blw)
+
+check_lcb_vs_blw['_merge'].value_counts()
+
+check_lcb_vs_blw_specyear = check_lcb_vs_blw.pivot_table(
+    index=['species' ,'year']
+    ,values=['biomass_x' ,'biomass_y']
+    ,aggfunc=['count' ,'sum']
+    )
+
+# Export
+biomass_live_weight_fao.to_csv(os.path.join(RAWDATA_FOLDER ,'biomass_live_weight_fao.csv') ,index=False)
+biomass_live_weight_fao.to_pickle(os.path.join(PRODATA_FOLDER ,'biomass_live_weight_fao.pkl.gz'))
 
 # =============================================================================
 #### livestock_national_population_biomass_faostat

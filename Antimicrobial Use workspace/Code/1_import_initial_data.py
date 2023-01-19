@@ -1,14 +1,19 @@
 #%% About
 '''
-Importing and exploring the initial antimicrobial usage data
+Importing and exploring the antimicrobial data
 '''
-#%% Import
+#%% Import Antimicrobial Usage 2018 report
+
+input_amu_report_file = os.path.join(RAWDATA_FOLDER ,'AMU_2018_6th report_GBADs.xlsx')
 
 # =============================================================================
-#### All antimicrobial usage
+#### Antimicrobial usage
 # =============================================================================
+# -----------------------------------------------------------------------------
+# All
+# -----------------------------------------------------------------------------
 amu2018_total = pd.read_excel(
-	os.path.join(RAWDATA_FOLDER ,'AMU_2018_6th report_GBADs.xlsx')
+	input_amu_report_file
 	,sheet_name='Antimicrobial Quantities (AQ)'
 	,skiprows=7                 # List: row numbers to skip. Integer: count of rows to skip at start of file
     ,nrows=10                    # Total number of rows to read
@@ -38,11 +43,11 @@ amu2018_total = amu2018_total.rename(columns={'region_tonnes':'region' ,'number_
 
 datainfo(amu2018_total)
 
-# =============================================================================
-#### Terrestrial antimicrobial usage
-# =============================================================================
+# -----------------------------------------------------------------------------
+# Terrestrial
+# -----------------------------------------------------------------------------
 amu2018_ter = pd.read_excel(
-	os.path.join(RAWDATA_FOLDER ,'AMU_2018_6th report_GBADs.xlsx')
+	input_amu_report_file
 	,sheet_name='AQ-Terrestrial'
 	,skiprows=2                 # List: row numbers to skip. Integer: count of rows to skip at start of file
     ,nrows=7                    # Total number of rows to read
@@ -89,11 +94,11 @@ amu2018_ter_t_t = amu2018_ter_t_t.rename(columns={'index':'region'})
 
 datainfo(amu2018_ter_t_t)
 
-# =============================================================================
-#### Growth promotants
-# =============================================================================
+# -----------------------------------------------------------------------------
+# Growth promotants
+# -----------------------------------------------------------------------------
 amu2018_agp = pd.read_excel(
-	os.path.join(RAWDATA_FOLDER ,'AMU_2018_6th report_GBADs.xlsx')
+	input_amu_report_file
 	,sheet_name='AQ-AGPs'
 	,skiprows=2                 # List: row numbers to skip. Integer: count of rows to skip at start of file
     ,nrows=5                    # Total number of rows to read
@@ -123,9 +128,9 @@ amu2018_agp = amu2018_agp.rename(columns={'region_tonnes':'region' ,'number_of_c
 
 datainfo(amu2018_agp)
 
-# =============================================================================
-#### Stack and export antimicrobial usage
-# =============================================================================
+# -----------------------------------------------------------------------------
+# Stack and export
+# -----------------------------------------------------------------------------
 # Add indicator of scope
 amu2018_total['scope'] = 'All'
 amu2018_ter_t_t['scope'] = 'Terrestrial Food Producing'
@@ -145,6 +150,10 @@ amu2018 = amu2018.reindex(columns=cols_first + cols_other)
 amu2018 = amu2018.sort_values(by=cols_first ,ignore_index=True)
 
 datainfo(amu2018)
+
+# Profile
+profile = amu2018.profile_report()
+profile.to_file(os.path.join(PRODATA_FOLDER ,'amu2018_profile.html'))
 
 # Export
 amu2018.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018.csv') ,index=False)
@@ -169,7 +178,7 @@ amu2018_m.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_tall.csv') ,index=False)
 # Detailed species
 # -----------------------------------------------------------------------------
 amu2018_species_dtl = pd.read_excel(
-	os.path.join(RAWDATA_FOLDER ,'AMU_2018_6th report_GBADs.xlsx')
+	input_amu_report_file
 	,sheet_name='Species covered'
 	,skiprows=3                 # List: row numbers to skip. Integer: count of rows to skip at start of file
     ,nrows=5                    # Total number of rows to read
@@ -193,7 +202,7 @@ amu2018_species_dtl.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_species_dtl.csv
 # Species groups
 # -----------------------------------------------------------------------------
 amu2018_species_grp = pd.read_excel(
-	os.path.join(RAWDATA_FOLDER ,'AMU_2018_6th report_GBADs.xlsx')
+	input_amu_report_file
 	,sheet_name='Species covered'
 	,skiprows=16                 # List: row numbers to skip. Integer: count of rows to skip at start of file
     ,nrows=5                    # Total number of rows to read
@@ -223,7 +232,7 @@ amu2018_species_grp.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_species_grp.csv
 # Global
 # -----------------------------------------------------------------------------
 amu2018_biomass_glbl = pd.read_excel(
-	os.path.join(RAWDATA_FOLDER ,'AMU_2018_6th report_GBADs.xlsx')
+	input_amu_report_file
 	,sheet_name='Animal Biomass'
 	,skiprows=3                 # List: row numbers to skip. Integer: count of rows to skip at start of file
     ,nrows=3                    # Total number of rows to read
@@ -249,7 +258,7 @@ datainfo(amu2018_biomass_glbl)
 # AFRICA
 # -----------------------------------------------------------------------------
 amu2018_biomass_rgn_af = pd.read_excel(
-	os.path.join(RAWDATA_FOLDER ,'AMU_2018_6th report_GBADs.xlsx')
+	input_amu_report_file
 	,sheet_name='Animal Biomass'
 	,skiprows=12                 # List: row numbers to skip. Integer: count of rows to skip at start of file
     ,nrows=3                    # Total number of rows to read
@@ -275,7 +284,7 @@ datainfo(amu2018_biomass_rgn_af)
 # AMERICAS
 # -----------------------------------------------------------------------------
 amu2018_biomass_rgn_am = pd.read_excel(
-	os.path.join(RAWDATA_FOLDER ,'AMU_2018_6th report_GBADs.xlsx')
+	input_amu_report_file
 	,sheet_name='Animal Biomass'
 	,skiprows=21                 # List: row numbers to skip. Integer: count of rows to skip at start of file
     ,nrows=3                    # Total number of rows to read
@@ -301,7 +310,7 @@ datainfo(amu2018_biomass_rgn_am)
 # ASIA
 # -----------------------------------------------------------------------------
 amu2018_biomass_rgn_as = pd.read_excel(
-	os.path.join(RAWDATA_FOLDER ,'AMU_2018_6th report_GBADs.xlsx')
+	input_amu_report_file
 	,sheet_name='Animal Biomass'
 	,skiprows=31                 # List: row numbers to skip. Integer: count of rows to skip at start of file
     ,nrows=3                    # Total number of rows to read
@@ -327,7 +336,7 @@ datainfo(amu2018_biomass_rgn_as)
 # EUROPE
 # -----------------------------------------------------------------------------
 amu2018_biomass_rgn_eu = pd.read_excel(
-	os.path.join(RAWDATA_FOLDER ,'AMU_2018_6th report_GBADs.xlsx')
+	input_amu_report_file
 	,sheet_name='Animal Biomass'
 	,skiprows=42                 # List: row numbers to skip. Integer: count of rows to skip at start of file
     ,nrows=3                    # Total number of rows to read
@@ -353,7 +362,7 @@ datainfo(amu2018_biomass_rgn_eu)
 # MIDDLE EAST
 # -----------------------------------------------------------------------------
 amu2018_biomass_rgn_me = pd.read_excel(
-	os.path.join(RAWDATA_FOLDER ,'AMU_2018_6th report_GBADs.xlsx')
+	input_amu_report_file
 	,sheet_name='Animal Biomass'
 	,skiprows=53                 # List: row numbers to skip. Integer: count of rows to skip at start of file
     ,nrows=3                    # Total number of rows to read
@@ -410,8 +419,21 @@ amu2018_biomass = amu2018_biomass.sort_values(by=cols_first ,ignore_index=True)
 
 datainfo(amu2018_biomass)
 
+# Profile
+profile = amu2018_biomass.profile_report()
+profile.to_file(os.path.join(PRODATA_FOLDER ,'amu2018_biomass_profile.html'))
+
 # Export
 amu2018_biomass.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_biomass.csv') ,index=False)
+
+#%% Import AMR data
+
+amr = pd.read_csv(os.path.join(RAWDATA_FOLDER ,'SBM_JSA_AMR_livestock.csv'))
+datainfo(amr)
+
+# Profile
+profile = amr.profile_report()
+profile.to_file(os.path.join(PRODATA_FOLDER ,'amr_profile.html'))
 
 #%% Checks
 
@@ -419,6 +441,8 @@ amu2018_biomass.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_biomass.csv') ,inde
 #### Compare to prior biomass data
 # =============================================================================
 livestock_countries_biomass = pd.read_pickle(os.path.join(GLBL_PRODATA_FOLDER ,'livestock_countries_biomass.pkl.gz'))
+biomass_live_weight_fao = pd.read_pickle(os.path.join(GLBL_PRODATA_FOLDER ,'biomass_live_weight_fao.pkl.gz'))
 
 # Global biomass by species
 global_biomass_prev = livestock_countries_biomass.groupby(['species' ,'year'])['biomass'].sum()
+global_biomass_prev_upd = biomass_live_weight_fao.groupby(['species' ,'year'])['biomass'].sum()

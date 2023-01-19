@@ -412,3 +412,13 @@ datainfo(amu2018_biomass)
 
 # Export
 amu2018_biomass.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_biomass.csv') ,index=False)
+
+#%% Checks
+
+# =============================================================================
+#### Compare to prior biomass data
+# =============================================================================
+livestock_countries_biomass = pd.read_pickle(os.path.join(GLBL_PRODATA_FOLDER ,'livestock_countries_biomass.pkl.gz'))
+
+# Global biomass by species
+global_biomass_prev = livestock_countries_biomass.groupby(['species' ,'year'])['biomass'].sum()

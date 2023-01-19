@@ -12,3 +12,5 @@ GRANDPARENT_FOLDER = os.path.dirname(PARENT_FOLDER)
 RAWDATA_FOLDER = os.path.join(PARENT_FOLDER, 'Data' ,'Raw')
 PRODATA_FOLDER = os.path.join(PARENT_FOLDER, 'Data' ,'Processed')
 PROGRAM_OUTPUT_FOLDER = os.path.join(PARENT_FOLDER ,'Program outputs')
+
+GLBL_PRODATA_FOLDER = os.path.join(GRANDPARENT_FOLDER, 'Global Aggregate workspace', 'Data', 'Intermediate')

@@ -162,6 +162,9 @@ for i in get_years:
 
 bo_years = biomass_oie['year'].value_counts()
 
+# Describe frequency of sources for latest year
+bo_sources = biomass_oie[['animal_category', 'year', 'source_data']].value_counts()
+
 # =============================================================================
 #### livestock_national_population_biomass_faostat
 # 2022-8-4: Guelph says this is out of date

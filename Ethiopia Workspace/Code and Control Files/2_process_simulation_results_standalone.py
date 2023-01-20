@@ -91,11 +91,14 @@ def colnames_from_index(INPUT_DF):
 
 CURRENT_FOLDER = os.getcwd()
 PARENT_FOLDER = os.path.dirname(CURRENT_FOLDER)
+GRANDPARENT_FOLDER = os.path.dirname(PARENT_FOLDER)
 
 # Folder for shared code with Liverpool
 ETHIOPIA_CODE_FOLDER = CURRENT_FOLDER
 ETHIOPIA_OUTPUT_FOLDER = os.path.join(PARENT_FOLDER ,'Program outputs')
 ETHIOPIA_DATA_FOLDER = os.path.join(PARENT_FOLDER ,'Data')#%% Preliminaries
+
+DASH_DATA_FOLDER = os.path.join(GRANDPARENT_FOLDER, 'AHLE Dashboard' ,'Dash App' ,'data')
 
 # =============================================================================
 #### Prepare currency conversion data
@@ -844,6 +847,9 @@ datainfo(ahle_combo_withagg_smry)
 ahle_combo_withagg_smry.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.csv') ,index=False)
 ahle_combo_withagg_smry.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.pkl.gz'))
 
+# Output for Dash
+ahle_combo_withagg_smry.to_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv') ,index=False)
+
 #%% Calculate AHLE
 
 # =============================================================================
@@ -1026,6 +1032,9 @@ datainfo(ahle_combo_withahle_smry)
 
 ahle_combo_withahle_smry.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary2.csv') ,index=False)
 ahle_combo_withahle_smry.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary2.pkl.gz'))
+
+# Output for Dash
+ahle_combo_withahle_smry.to_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary2.csv') ,index=False)
 
 #%% Checks on calculated AHLE
 
@@ -1565,6 +1574,9 @@ datainfo(ahle_combo_scensmry)
 ahle_combo_scensmry.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_scensmry.csv') ,index=False)
 ahle_combo_scensmry.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_scensmry.pkl.gz'))
 
+# Output for Dash
+ahle_combo_scensmry.to_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry.csv') ,index=False)
+
 #%% Calculate alternative AHLE
 
 # =============================================================================
@@ -1715,3 +1727,6 @@ datainfo(ahle_combo_scensmry_withahle_sub)
 
 ahle_combo_scensmry_withahle_sub.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_scensmry_ahle.csv') ,index=False)
 ahle_combo_scensmry_withahle_sub.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_scensmry_ahle.pkl.gz'))
+
+# Output for Dash
+ahle_combo_scensmry_withahle_sub.to_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry_ahle.csv') ,index=False)

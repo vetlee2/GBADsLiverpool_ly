@@ -187,21 +187,21 @@ swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'
 # Ethiopia Case Study
 # -----------------------------------------------------------------------------
 # AHLE Summary
-# ecs_ahle_summary = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary.csv'))
+# ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv'))
 # Using alternative data which summarizes results from age/sex specific scenarios
-ecs_ahle_summary = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_scensmry.csv'))
+ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry.csv'))
 
 # AHLE Summary 2 - for stacked bar
-ecs_ahle_summary2 = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
+ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary2.csv'))
 
 # Attribution Summary
-ecs_ahle_all_withattr = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
+ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr.csv'))
 
 # -----------------------------------------------------------------------------
 # Global Aggregate
 # -----------------------------------------------------------------------------
 # Biomass FAOSTAT
-ga_countries_biomass = pd.read_pickle(os.path.join(GA_DATA_FOLDER ,'world_ahle_abt_fordash.pkl.gz'))
+ga_countries_biomass = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'world_ahle_abt_fordash.pkl.gz'))
 
 # Drop unnecessary columns
 ga_countries_biomass = ga_countries_biomass.drop(columns=['producing_animals_eggs_hd',

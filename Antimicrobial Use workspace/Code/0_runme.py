@@ -14,3 +14,4 @@ PRODATA_FOLDER = os.path.join(PARENT_FOLDER, 'Data' ,'Processed')
 PROGRAM_OUTPUT_FOLDER = os.path.join(PARENT_FOLDER ,'Program outputs')
 
 GLBL_PRODATA_FOLDER = os.path.join(GRANDPARENT_FOLDER, 'Global Aggregate workspace', 'Data', 'Intermediate')
+DASH_DATA_FOLDER = os.path.join(GRANDPARENT_FOLDER, 'AHLE Dashboard' ,'Dash App' ,'data')

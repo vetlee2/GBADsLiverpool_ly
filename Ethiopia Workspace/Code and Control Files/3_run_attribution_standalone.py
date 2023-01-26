@@ -328,13 +328,14 @@ ahle_combo_forattr_smallrum_aggneo['agesex_scenario'] = 'Neonatal Combined'
 ahle_combo_forattr_smallrum_aggneo['stdev'] = np.sqrt(ahle_combo_forattr_smallrum_aggneo['variance'])
 
 # Concatenate with original
+ahle_combo_forattr_smallrum_base = ahle_combo_forattr_smallrum.loc[~ _agg_juv].loc[~ _agg_neo]  # Drop rows to avoid duplicates
 ahle_combo_forattr_smallrum = pd.concat(
-    [ahle_combo_forattr_smallrum ,ahle_combo_forattr_smallrum_aggjuv ,ahle_combo_forattr_smallrum_aggneo]
+    [ahle_combo_forattr_smallrum_base ,ahle_combo_forattr_smallrum_aggjuv ,ahle_combo_forattr_smallrum_aggneo]
 	,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
 	,join='outer'        # 'outer': keep all index values from all data frames
 	,ignore_index=True   # True: do not keep index values on concatenation axis
 )
-del ahle_combo_forattr_smallrum_aggjuv ,ahle_combo_forattr_smallrum_aggneo
+del ahle_combo_forattr_smallrum_base ,ahle_combo_forattr_smallrum_aggjuv ,ahle_combo_forattr_smallrum_aggneo
 
 # Fill in missing standard deviations with zero
 ahle_combo_forattr_smallrum['stdev'] = ahle_combo_forattr_smallrum['stdev'].replace(np.nan ,0)
@@ -443,13 +444,14 @@ ahle_combo_forattr_cattle_aggadt['agesex_scenario'] = 'Adult Combined'
 ahle_combo_forattr_cattle_aggadt['stdev'] = np.sqrt(ahle_combo_forattr_cattle_aggadt['variance'])
 
 # Concatenate with original
+ahle_combo_forattr_cattle_base = ahle_combo_forattr_cattle.loc[~ _agg_juv].loc[~ _agg_neo].loc[~ _agg_adt]
 ahle_combo_forattr_cattle = pd.concat(
-    [ahle_combo_forattr_cattle ,ahle_combo_forattr_cattle_aggjuv ,ahle_combo_forattr_cattle_aggneo ,ahle_combo_forattr_cattle_aggadt]
+    [ahle_combo_forattr_cattle_base ,ahle_combo_forattr_cattle_aggjuv ,ahle_combo_forattr_cattle_aggneo ,ahle_combo_forattr_cattle_aggadt]
 	,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
 	,join='outer'        # 'outer': keep all index values from all data frames
 	,ignore_index=True   # True: do not keep index values on concatenation axis
 )
-del ahle_combo_forattr_cattle_aggjuv ,ahle_combo_forattr_cattle_aggneo ,ahle_combo_forattr_cattle_aggadt
+del ahle_combo_forattr_cattle_base ,ahle_combo_forattr_cattle_aggjuv ,ahle_combo_forattr_cattle_aggneo ,ahle_combo_forattr_cattle_aggadt
 
 # Fill in missing standard deviations with zero
 ahle_combo_forattr_cattle['stdev'] = ahle_combo_forattr_cattle['stdev'].replace(np.nan ,0)

@@ -702,7 +702,7 @@ del ahle_combo_withagg_sumprod
 # -----------------------------------------------------------------------------
 # Create combined species
 # -----------------------------------------------------------------------------
-# "All Small Ruminants"
+# All Small Ruminants
 ahle_combo_withagg_sumspec = ahle_combo_withagg.query("species.str.upper().isin(['SHEEP' ,'GOAT'])").pivot_table(
    index=['production_system' ,'item' ,'group' ,'age_group' ,'sex']
    ,values=mean_cols + var_cols
@@ -710,7 +710,7 @@ ahle_combo_withagg_sumspec = ahle_combo_withagg.query("species.str.upper().isin(
 ).reset_index()
 ahle_combo_withagg_sumspec['species'] = 'All Small Ruminants'
 
-# "All poultry"
+# All poultry
 ahle_combo_withagg_sumspec2 = ahle_combo_withagg.query("species.str.contains('poultry' ,case=False ,na=False)").pivot_table(
    index=['production_system' ,'item' ,'group' ,'age_group' ,'sex']
    ,values=mean_cols + var_cols

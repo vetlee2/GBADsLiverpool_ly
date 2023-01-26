@@ -33,5 +33,5 @@ The tabs are grouped by level of geography, from most aggregate (global) to most
 	</p>
 	<p><b>Ethiopia Case Study</b>
 	<br />
-	A detailed analysis of the burden of disease for small ruminants (sheep and goats) in Ethiopia.
+	A detailed analysis of the burden of disease for selected species in Ethiopia.
 	</p>

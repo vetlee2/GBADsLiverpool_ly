@@ -3372,16 +3372,16 @@ gbadsDash.layout = html.Div([
             #### -- FOOTNOTES
             dbc.Row([
                 dbc.Col([
-                  # Breed Standard Potential source
-                  html.P("*Using population numbers from 2021"),
-                  # Waterfall explanation 
-                  html.P("**The blue indicates an increase, the red indicates a decrease in costs/value for each category. The orange is the sum/difference of all of them."),
+                  # Waterfall explanation
+                  html.P("*The blue indicates an increase, the red indicates a decrease in costs/value for each category. The orange is the sum/difference of all of them."),
                 ]),
                 dbc.Col([
+                  # Species groups
+                  html.P("*Attribution is reported for species groups rather than individual species."),
                   # Cost Assumptions
-                  html.P("*AHLE Components are production loss, mortality loss, and health costs. Health costs make up the smallest proportion and may not be visible in this view."),
+                  html.P("**AHLE Components are production loss, mortality loss, and health costs. Health costs make up the smallest proportion and may not be visible in this view."),
                   # Health Cost temporary distribution
-                  html.P("**Health cost attribution is currently a placeholder, and is attributed evenly among the AHLE causes.")
+                  html.P("***Health cost attribution is currently a placeholder, and is attributed evenly among the AHLE causes.")
                 ]),
             ], style={'margin-left':"40px", 'font-style': 'italic'}
             ),

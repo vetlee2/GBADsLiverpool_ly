@@ -1744,7 +1744,8 @@ def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
         decreasing = {'marker':{"color":'#E84C3D'}},
         increasing = {'marker':{"color":'#3598DB'}},
         totals = {'marker':{"color":'#F7931D'}},
-        connector = {"line":{"color":"darkgrey"}}
+        connector = {"line":{"color":"darkgrey"}},
+        customdata=y,
         ))
 
     waterfall_fig.update_layout(clickmode='event+select', ### EVENT SELECT ??????
@@ -5607,6 +5608,7 @@ def update_ahle_waterfall_ecs(input_json, agesex, species, display, compare, pro
                 increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
                 totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
                 connector = {"line":{"dash":"dot"}},
+                customdata=prep_df['mean_current'],
                 ))
             ecs_waterfall_fig.update_layout(
                 waterfallgroupgap = 0.5,
@@ -5640,6 +5642,7 @@ def update_ahle_waterfall_ecs(input_json, agesex, species, display, compare, pro
                 increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
                 totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
                 connector = {"line":{"dash":"dot"}},
+                customdata=prep_df['mean_current'],
                 ))
             ecs_waterfall_fig.update_layout(
                 waterfallgroupgap = 0.5,
@@ -5697,6 +5700,7 @@ def update_ahle_waterfall_ecs(input_json, agesex, species, display, compare, pro
                 increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
                 totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
                 connector = {"line":{"dash":"dot"}},
+                customdata=prep_df['mean_current'],
                 ))
             ecs_waterfall_fig.update_layout(
                 waterfallgroupgap = 0.5,
@@ -5717,11 +5721,21 @@ def update_ahle_waterfall_ecs(input_json, agesex, species, display, compare, pro
 
     # Add tooltip
     if currency == 'Birr':
-        ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} Birr<extra></extra>')
+        ecs_waterfall_fig.update_traces(hovertemplate='Category: %{x}'+
+                                        '<br>Value: %{customdata:,.0f} Birr<extra></extra>'+
+                                        '<br>Cumulative Value: %{y:,.0f} Birr'
+                                        )
+                                        
     elif currency == 'USD':
-        ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} USD<extra></extra>')
+        ecs_waterfall_fig.update_traces(hovertemplate='Category: %{x}'+
+                                        '<br>Value: %{customdata:,.0f} USD<extra></extra>'+
+                                        '<br>Cumulative Value: %{y:,.0f} USD'
+                                        )
     else:
-        ecs_waterfall_fig.update_traces(hovertemplate='Category=%{x}<br>Value=%{y:,.0f} <extra></extra>')
+        ecs_waterfall_fig.update_traces(hovertemplate='Category: %{x}'+
+                                        '<br>Value: %{customdata:,.0f} <extra></extra>'+
+                                        '<br>Cumulative Value: %{y:,.0f} '
+                                        )
 
     return ecs_waterfall_fig
 

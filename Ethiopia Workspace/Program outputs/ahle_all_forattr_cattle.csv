@@ -15,17 +15,17 @@ Cattle,Crop livestock mixed,Oxen,Production loss,58883040270.42993,83244286892.8
 Cattle,Pastoral,Oxen,Production loss,-227861214.27899933,15253734159.931139
 Cattle,Dairy,Oxen,Production loss,-182327099.08270264,8760217166.301712
 Cattle,Crop livestock mixed,Sub-adult,Health cost,2592459267.731256,1956715.5880884696
-Cattle,Crop livestock mixed,Sub-adult,Production loss,5810794205.061343,113578859118.86537
+Cattle,Crop livestock mixed,Sub-adult,Production loss,0.0,0.0
 Cattle,Pastoral,Sub-adult,Health cost,706417172.9518399,159838.91133049465
-Cattle,Pastoral,Sub-adult,Production loss,4398762044.34569,21497460692.817543
+Cattle,Pastoral,Sub-adult,Production loss,0.0,0.0
 Cattle,Dairy,Sub-adult,Health cost,124212953.1259118,5328.483481479983
-Cattle,Dairy,Sub-adult,Production loss,910210277.0278492,12406994039.822233
+Cattle,Dairy,Sub-adult,Production loss,0.0,0.0
 Cattle,Crop livestock mixed,Juvenile,Health cost,1920045219.434566,4732094.685796078
-Cattle,Crop livestock mixed,Juvenile,Production loss,-1211966567.0532815,113546899781.7088
+Cattle,Crop livestock mixed,Juvenile,Production loss,0.0,0.0
 Cattle,Pastoral,Juvenile,Health cost,777864367.0655999,381751.75618564273
-Cattle,Pastoral,Juvenile,Production loss,-933568936.988992,21479250764.982742
+Cattle,Pastoral,Juvenile,Production loss,0.0,0.0
 Cattle,Dairy,Juvenile,Health cost,111762039.2303142,14712.895074587015
-Cattle,Dairy,Juvenile,Production loss,35220991.26644993,12397109192.584187
+Cattle,Dairy,Juvenile,Production loss,0.0,0.0
 Cattle,Crop livestock mixed,Adult,Health cost,4463896753.72877,273799.06904906663
 Cattle,Crop livestock mixed,Adult,Mortality,8513314278.218018,79818852678.65324
 Cattle,Crop livestock mixed,Adult,Production loss,369256824597.78265,123366580412.01518

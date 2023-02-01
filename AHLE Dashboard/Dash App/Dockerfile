@@ -14,6 +14,5 @@ COPY . /app/dash
 
 
 # Specifying the dashboard command
-CMD ["python3","gbadsDash.py"]
-# CMD ["waitress-serve","--port=80","--call","wsgi:returnApp"]
-
+# CMD ["python3","gbadsDash.py"]
+CMD ["waitress-serve","--host=0.0.0.0","--port=80","--call","gbadsDash:returnApp"]

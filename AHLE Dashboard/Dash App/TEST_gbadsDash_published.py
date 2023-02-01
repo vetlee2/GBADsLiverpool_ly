@@ -1598,59 +1598,59 @@ def create_stacked_bar_ecs(input_df, x, y, text, color, yaxis_title):
 
 # Define the Biomass map
 def create_biomass_map_ga(input_df, iso_alpha3, value, country, display):
-    # biomass_map_fig = px.choropleth(input_df, locations=iso_alpha3,
-    #                                 color=value,
-    #                                 hover_name=country, # column to add to hover information
-    #                                 animation_frame="year",
-    #                                 color_continuous_scale=px.colors.sequential.Plasma)
-    # biomass_map_fig.update_layout(
-    #     geo=dict(
-    #         showframe=False,
-    #         showcoastlines=False,
-    #         projection_type='equirectangular',
-    #         ),
-    #     coloraxis_colorbar=dict(
-    #         title=f"{display}",
-    #         ),
-    #     )
+    biomass_map_fig = px.choropleth(input_df, locations=iso_alpha3,
+                                    color=value,
+                                    hover_name=country, # column to add to hover information
+                                    animation_frame="year",
+                                    color_continuous_scale=px.colors.sequential.Plasma)
+    biomass_map_fig.update_layout(
+        geo=dict(
+            showframe=False,
+            showcoastlines=False,
+            projection_type='equirectangular',
+            ),
+        coloraxis_colorbar=dict(
+            title=f"{display}",
+            ),
+        )
 
-    # biomass_map_fig.add_annotation(x=0.50, xref='paper',         # x position is absolute on axis
-    #                               y=0.05, yref='paper',     # y position is relative [0,1] to work regardless of scale
-    #                               text="Source: GBADs",
-    #                               showarrow=False,
-    #                               font=dict(
-    #                                   family="Helvetica",
-    #                                   size=18,
-    #                                   color="black"
-    #                                   )
-    #                               )
+    biomass_map_fig.add_annotation(x=0.50, xref='paper',         # x position is absolute on axis
+                                  y=0.05, yref='paper',     # y position is relative [0,1] to work regardless of scale
+                                  text="Source: GBADs",
+                                  showarrow=False,
+                                  font=dict(
+                                      family="Helvetica",
+                                      size=18,
+                                      color="black"
+                                      )
+                                  )
 
-    # # Rename the animation frame
-    # biomass_map_fig.update_layout(sliders=[{"currentvalue": {"prefix": "Year="}}])
+    # Rename the animation frame
+    biomass_map_fig.update_layout(sliders=[{"currentvalue": {"prefix": "Year="}}])
     
-    #######
-    # Trying with go.Choroplethmapbox
-    #######
-    from urllib.request import urlopen
-    import json
-    with urlopen('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson') as response:
-        countries = json.load(response)
+    # #######
+    # # Trying with go.Choroplethmapbox
+    # #######
+    # from urllib.request import urlopen
+    # import json
+    # with urlopen('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson') as response:
+    #     countries = json.load(response)
     
-    biomass_map_fig = go.Figure(go.Choroplethmapbox(geojson=countries, 
-                                                    featureidkey='properties.ISO_A3',
-                                          locations=iso_alpha3,
-                                          z=value,
-                                          text=country, # column to add to hover information
-                                          # animation_frame="year",
-                                          colorscale="Viridis",
-                                          ))
+    # biomass_map_fig = go.Figure(go.Choroplethmapbox(geojson=countries, 
+    #                                                 featureidkey='properties.ISO_A3',
+    #                                       locations=iso_alpha3,
+    #                                       z=value,
+    #                                       text=country, # column to add to hover information
+    #                                       # animation_frame="year",
+    #                                       colorscale="Viridis",
+    #                                       ))
 
-    # biomass_map_fig = go.Figure(go.Choroplethmapbox(geojson=counties, locations=df.fips, z=df.unemp,
-    #                                     colorscale="Viridis", zmin=0, zmax=12,
-    #                                     marker_opacity=0.5, marker_line_width=0))
+    # # biomass_map_fig = go.Figure(go.Choroplethmapbox(geojson=counties, locations=df.fips, z=df.unemp,
+    # #                                     colorscale="Viridis", zmin=0, zmax=12,
+    # #                                     marker_opacity=0.5, marker_line_width=0))
     
-    biomass_map_fig.update_layout(mapbox_style="carto-positron",
-                                  margin={"r":0,"t":0,"l":0,"b":0})
+    # biomass_map_fig.update_layout(mapbox_style="carto-positron",
+    #                               margin={"r":0,"t":0,"l":0,"b":0})
 
 
     return biomass_map_fig

@@ -60,10 +60,10 @@ gbadske_query_uri = 'http://gbadske.org:9000/GBADsPublicQuery/'
 # Function
 # -----------------------------------------------------------------------------
 # Return a table as a pandas dataframe
-# Usage: table_df = gbadske_import_to_pandas(table)
+# Usage: table_df = gbadske_import_to_pandas(tablename)
 def gbadske_import_to_pandas(
         TABLE_NAME      # String: name of table
-        ,QUERY=""       # String (optional): data query in DOUBLE QUOTES e.g. "year=2017 AND member_country='Australia'". Values for character columns value must be in SINGLE QUOTES.
+        ,QUERY=""       # String (optional): data query in DOUBLE QUOTES. Values for character columns value must be in SINGLE QUOTES e.g. QUERY="year=2017 AND member_country='Australia'".
     ):
     funcname = inspect.currentframe().f_code.co_name
     query_params = {

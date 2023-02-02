@@ -438,6 +438,26 @@ datainfo(amu2018_biomass)
 # Export
 amu2018_biomass.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_biomass.csv') ,index=False)
 
+#%% Import price data
+
+amu_prices = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER ,'AMU_ euros per ton.xlsx')
+	,skiprows=2                 # List: row numbers to skip. Integer: count of rows to skip at start of file
+    ,nrows=5                    # Total number of rows to read
+)
+cleancolnames(amu_prices)
+
+# Rename, drop columns
+amu_prices = amu_prices.rename(columns={'unnamed:_0':'category'})
+amu_prices = amu_prices.drop(columns=['unnamed:_5' ,'reference_price_europe'])
+
+# Add columns based on metadata
+amu_prices['region'] = 'Europe'
+amu_prices['n_countries'] = 31
+amu_prices['year'] = 2020
+
+datainfo(amu_prices)
+
 #%% Import AMR data
 
 amr = pd.read_csv(os.path.join(RAWDATA_FOLDER ,'SBM_JSA_AMR_livestock.csv'))
@@ -446,33 +466,6 @@ datainfo(amr)
 # Profile
 # profile = amr.profile_report()
 # profile.to_file(os.path.join(PRODATA_FOLDER ,'amr_profile.html'))
-
-#%% Import price data
-
-amu_prices = pd.read_excel(
-    os.path.join(RAWDATA_FOLDER ,'AMU_ euros per ton.xlsx')
-	,skiprows=1                 # List: row numbers to skip. Integer: count of rows to skip at start of file
-    ,nrows=6                    # Total number of rows to read
-)
-
-# Rename columns based on first row
-colnames = list(amu_prices.iloc[0]) 							# Get names from desired row
-amu_prices.columns = colnames 								# Rename columns
-amu_prices = amu_prices.drop(index=0).reset_index(drop=True)		# Drop row used for names
-cleancolnames(amu_prices)
-amu_prices = amu_prices.rename(columns={'nan':'category'})
-
-# Change columns to numeric
-make_numeric = [
-    'percentage_of_market'
-    ,'volume_sales_2020__euros___'
-    ,'volume_sold_active_substance_2020___tons_'
-    ,'euros_per_ton'
-    ]
-for COL in make_numeric:
-    amu_prices[COL] = pd.to_numeric(amu_prices[COL] ,errors='coerce')
-
-datainfo(amu_prices)
 
 #%% Checks
 

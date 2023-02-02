@@ -7342,3 +7342,6 @@ if __name__ == "__main__":
    use_port = 8050                 # set to fixed fixed number
 
    fa.run_server(app, use_port, debug=True)
+
+def returnApp():
+    return app.server

@@ -4,9 +4,19 @@
 format: jb-book
 root: intro
 parts:
-  - caption: Using This Tool
+  - caption: Overview
     chapters:
     - file: Tool/Overview of the tabs
+    - file: Tool/Downloading results
+  - caption: Global Overview
+    chapters:
+    - file: Tool/Selecting country, year, and metric GLOBAL.md
+  - caption: Global AHLE Details
+    chapters:
+    - file: Tool/Selecting country, year, and metric GLOBAL DTL.md
+  - caption: Major Producers Tabs
+    chapters:
+    - file: Analysis/Overview of the approach
     - file: Tool/Selecting country, year, and metric
     - file: Tool/Changing inputs
     - file: Tool/Reading the charts
@@ -17,10 +27,6 @@ parts:
       sections:
       - file: Tool/Main table
       - file: Tool/Breed standard table
-    - file: Tool/Downloading results
-  - caption: Analysis Behind The Tool
-    chapters:
-    - file: Analysis/Overview of the approach
     - file: Analysis/Poultry analysis details
       sections:
       - file: Analysis/Calculating head placed_poultry
@@ -34,6 +40,12 @@ parts:
       - file: Analysis/Breed standards_swine
       - file: Analysis/Cost data_swine
     #- file: Analysis/Challenges and open issues
+  - caption: Ethiopia Case Study
+    chapters:
+    - file: Tool/eth_basic_controls.md
+    - file: Tool/eth_value_cost_chart.md
+    - file: Tool/eth_attribution_chart.md
+    - file: Tool/eth_ahle_contrib_chart.md
   - caption: References
     chapters:
     - file: References/General

@@ -151,6 +151,9 @@ datainfo(world_ahle_abt_fordash)
 world_ahle_abt_fordash.to_csv(os.path.join(FINDATA_FOLDER ,'world_ahle_abt_fordash.csv') ,index=False)
 world_ahle_abt_fordash.to_pickle(os.path.join(FINDATA_FOLDER ,'world_ahle_abt_fordash.pkl.gz'))
 
+# Output to Dash data folder
+world_ahle_abt_fordash.to_pickle(os.path.join(DASH_DATA_FOLDER ,'world_ahle_abt_fordash.pkl.gz'))
+
 #%% Add mortality and other rates
 '''
 Currently using the same rates for all species.

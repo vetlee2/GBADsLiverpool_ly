@@ -80,9 +80,6 @@ profile.to_file(os.path.join(CHARACTERIZE_FOLDER ,'uk_feedprice_profile.html'))
 # ----------------------------------------------------------------------------
 # Import
 # ----------------------------------------------------------------------------
-# Loop over all tabs in spreadsheet
-uk_feedcmdtyprice_file = os.path.join(RAWDATA_FOLDER ,'uk-commodityprices-straights-20jan22.ods')
-
 # Create list for naming month columns
 monthlist = [
    'jan'
@@ -99,10 +96,12 @@ monthlist = [
    ,'dec'
 ]
 
+# Loop over all tabs in spreadsheet
 uk_feedcmdtyprice_imp = pd.DataFrame()   # Initialize data to hold all years
 for YEAR in range(2011 ,2022):
    # Import single sheet (year)
-   uk_feedcmdtyprice_sheet_imp = pd.read_excel(uk_feedcmdtyprice_file ,sheet_name=str(YEAR)
+   uk_feedcmdtyprice_sheet_imp = pd.read_excel(os.path.join(RAWDATA_FOLDER ,'uk-commodityprices-straights-20jan22.ods')
+                                               ,sheet_name=str(YEAR)
                                                ,skiprows=list(range(8))   # Exclude descriptive rows at top
                                                )
 

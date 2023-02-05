@@ -60,10 +60,10 @@ gbadske_query_uri = 'http://gbadske.org:9000/GBADsPublicQuery/'
 # Function
 # -----------------------------------------------------------------------------
 # Return a table as a pandas dataframe
-# Usage: table_df = gbadske_import_to_pandas(table)
+# Usage: table_df = gbadske_import_to_pandas(tablename)
 def gbadske_import_to_pandas(
         TABLE_NAME      # String: name of table
-        ,QUERY=""       # String (optional): data query in DOUBLE QUOTES e.g. "year=2017 AND member_country='Australia'". Values for character columns value must be in SINGLE QUOTES.
+        ,QUERY=""       # String (optional): data query in DOUBLE QUOTES. Values for character columns value must be in SINGLE QUOTES e.g. QUERY="year=2017 AND member_country='Australia'".
     ):
     funcname = inspect.currentframe().f_code.co_name
     query_params = {
@@ -161,6 +161,45 @@ for i in get_years:
     biomass_oie = pd.concat([biomass_oie ,single_year] ,ignore_index=True)
 
 bo_years = biomass_oie['year'].value_counts()
+
+# Describe frequency of sources by year
+bo_sources = biomass_oie[['animal_category', 'year', 'source_data']].value_counts()
+
+# =============================================================================
+#### biomass_live_weight_fao
+# This update to the biomass data has been downloaded from an Informatics team
+# repository containing data that has not yet been added to the public API.
+# https://github.com/GBADsInformatics/PPSTheme
+# =============================================================================
+biomass_live_weight_fao = pd.read_csv(os.path.join(RAWDATA_FOLDER ,'20230116_biomass_live_weight_fao.csv'))
+biomass_live_weight_fao = biomass_live_weight_fao.rename(columns={"country_x":"country" ,"live_weight":"liveweight"})
+
+# Limit to same years as other tables
+biomass_live_weight_fao = biomass_live_weight_fao.loc[biomass_live_weight_fao['year'].isin(get_years)]
+
+datainfo(biomass_live_weight_fao)
+
+# Compare to livestock_countries_biomass
+check_lcb_vs_blw = pd.merge(
+    left=livestock_countries_biomass
+    ,right=biomass_live_weight_fao
+    ,on=['iso3' ,'species' ,'year']
+    ,how='outer'
+    ,indicator=True
+)
+datainfo(check_lcb_vs_blw)
+
+check_lcb_vs_blw['_merge'].value_counts()
+
+check_lcb_vs_blw_specyear = check_lcb_vs_blw.pivot_table(
+    index=['species' ,'year']
+    ,values=['biomass_x' ,'biomass_y']
+    ,aggfunc=['count' ,'sum']
+    )
+
+# Export
+biomass_live_weight_fao.to_csv(os.path.join(RAWDATA_FOLDER ,'biomass_live_weight_fao.csv') ,index=False)
+biomass_live_weight_fao.to_pickle(os.path.join(PRODATA_FOLDER ,'biomass_live_weight_fao.pkl.gz'))
 
 # =============================================================================
 #### livestock_national_population_biomass_faostat

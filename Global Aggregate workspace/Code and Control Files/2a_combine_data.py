@@ -4,36 +4,39 @@
 #%% Extend biomass data
 '''
 Biomass table from GBADSKE only has data to 2017. Extend with FAOstat population data to 2020.
+UPDATE JAN. 2023: This is not longer necessary because Informatics has provided an updated
+biomass table with data through 2020.
 '''
-biomass = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'livestock_countries_biomass.pkl.gz'))
-fao_production_p = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'fao_production.pkl.gz'))
+# biomass = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'livestock_countries_biomass.pkl.gz'))
 
-# -----------------------------------------------------------------------------
-# Create rows for additional years
-# -----------------------------------------------------------------------------
-# Get country*species combos from biomass data
-biomass_country_spec_combos = pd.DataFrame(biomass[['iso3' ,'country' ,'species']].value_counts())
-biomass_country_spec_combos = indextocolumns(biomass_country_spec_combos)
-biomass_country_spec_combos['identity'] = 1     # Add constant column for merging
+# # -----------------------------------------------------------------------------
+# # Create rows for additional years
+# # -----------------------------------------------------------------------------
+# # Get country*species combos from biomass data
+# biomass_country_spec_combos = pd.DataFrame(biomass[['iso3' ,'country' ,'species']].value_counts())
+# biomass_country_spec_combos = indextocolumns(biomass_country_spec_combos)
+# biomass_country_spec_combos['identity'] = 1     # Add constant column for merging
 
-# Create full list of desired years
-extend_years = pd.DataFrame({'year':range(2000 ,2021) ,'identity':1})
+# # Create full list of desired years
+# extend_years = pd.DataFrame({'year':range(2000 ,2021) ,'identity':1})
 
-# Create dummy data with all desired countries, species, and years
-extended_data = pd.merge(
-    left=biomass_country_spec_combos
-    ,right=extend_years
-    ,on='identity'
-    ,how='outer'
-)
+# # Create dummy data with all desired countries, species, and years
+# extended_data = pd.merge(
+#     left=biomass_country_spec_combos
+#     ,right=extend_years
+#     ,on='identity'
+#     ,how='outer'
+# )
 
-# Merge dummy data with biomass
-biomass_extended = pd.merge(
-    left=biomass
-    ,right=extended_data[['iso3' ,'country' ,'species' ,'year']]
-    ,on=['iso3' ,'country' ,'species' ,'year']
-    ,how='right'    # Keep all rows from extended data
-)
+# # Merge dummy data with biomass
+# biomass_extended = pd.merge(
+#     left=biomass
+#     ,right=extended_data[['iso3' ,'country' ,'species' ,'year']]
+#     ,on=['iso3' ,'country' ,'species' ,'year']
+#     ,how='right'    # Keep all rows from extended data
+# )
+
+biomass_extended = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'biomass_live_weight_fao.pkl.gz'))
 
 #%% Merge
 
@@ -91,6 +94,7 @@ biomass_iso_missing = biomass_iso.query("country_iso3.isnull()")
 # =============================================================================
 #### Prep FAO tables
 # =============================================================================
+fao_production_p = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'fao_production.pkl.gz'))
 fao_producerprice_p = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'fao_producerprice.pkl.gz'))
 fao_impexp_p = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'fao_impexp_p.pkl.gz'))
 

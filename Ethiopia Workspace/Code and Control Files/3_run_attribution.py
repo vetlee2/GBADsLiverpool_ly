@@ -1,7 +1,7 @@
 #%% About
 '''
-This runs the R program provided by the University of Murdoch to add attribution
-for AHLE.
+This runs the R program provided by the University of Murdoch to estimate
+attribution of the AHLE.
 
 The attribution relies on expert opinions which are recorded in CSV files.
 There is a separate expert opinion file for each species or group:
@@ -13,20 +13,24 @@ There are also differences in the production systems and age classes for
 each species which require differences in the code to prepare AHLE outputs
 for the attribution function.
 
-So, I will separate the AHLE data by species and process each one individually.
-I will call the attribution function separately, once for each species or group,
+This code separates the AHLE output by species and processes each one individually.
+It then calls the attribution function separately, once for each species or group,
 before concatenating the results into a single file for export.
 '''
-#%% Preliminaries
+#%% Data prep
 
 # =============================================================================
-#### Rscript executable
+#### Prepare currency conversion data
 # =============================================================================
-# On Lotka
-# r_executable = 'C:\\Program Files\\R\\R-4.2.0\\bin\\x64\\Rscript.exe'
+# Read conversion data
+exchg_data = pd.read_csv(os.path.join(ETHIOPIA_DATA_FOLDER ,'worldbank_inflation_exchangerate_gdp_2010_2021' ,'20475199-8fa4-4249-baec-98b6635f68e3_Data.csv'))
+cleancolnames(exchg_data)
+datainfo(exchg_data)
 
-# On Local
-r_executable = 'C:\\Program Files\\R\\R-4.2.1\\bin\\x64\\Rscript.exe'
+exchg_data_tomerge = exchg_data.query("country_name == 'Ethiopia'").query("time == 2019")
+exchg_data_tomerge = exchg_data_tomerge.rename(columns={'official_exchange_rate__lcu_per_us_dol___period_average___pa_nus_fcrf_':'exchg_rate_lcuperusdol'})
+exchg_data_tomerge['exchg_rate_lcuperusdol'] = exchg_data_tomerge['exchg_rate_lcuperusdol'].astype('float64')                     # Convert a single column. Can replace original or make new column.
+exchg_data_tomerge = exchg_data_tomerge[['country_name' ,'exchg_rate_lcuperusdol']]
 
 #%% Run Attribution using example inputs
 
@@ -37,7 +41,7 @@ r_executable = 'C:\\Program Files\\R\\R-4.2.1\\bin\\x64\\Rscript.exe'
 # r_args = [
 #     os.path.join(ETHIOPIA_CODE_FOLDER ,'Attribution function input - example AHLE.csv')                # String: full path to AHLE estimates file (csv)
 #     ,os.path.join(ETHIOPIA_CODE_FOLDER ,'attribution_experts_smallruminants.csv')               # String: full path to expert opinion attribution file (csv)
-#     ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary.csv')    # String: full path to output file (csv)
+#     ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_example.csv')    # String: full path to output file (csv)
 # ]
 #
 # timerstart()
@@ -178,13 +182,14 @@ ahle_combo_forattr_smallrum_aggneo['agesex_scenario'] = 'Neonatal Combined'
 ahle_combo_forattr_smallrum_aggneo['stdev'] = np.sqrt(ahle_combo_forattr_smallrum_aggneo['variance'])
 
 # Concatenate with original
+ahle_combo_forattr_smallrum_base = ahle_combo_forattr_smallrum.loc[~ _agg_juv].loc[~ _agg_neo]  # Drop rows to avoid duplicates
 ahle_combo_forattr_smallrum = pd.concat(
-    [ahle_combo_forattr_smallrum ,ahle_combo_forattr_smallrum_aggjuv ,ahle_combo_forattr_smallrum_aggneo]
+    [ahle_combo_forattr_smallrum_base ,ahle_combo_forattr_smallrum_aggjuv ,ahle_combo_forattr_smallrum_aggneo]
 	,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
 	,join='outer'        # 'outer': keep all index values from all data frames
 	,ignore_index=True   # True: do not keep index values on concatenation axis
 )
-del ahle_combo_forattr_smallrum_aggjuv ,ahle_combo_forattr_smallrum_aggneo
+del ahle_combo_forattr_smallrum_base ,ahle_combo_forattr_smallrum_aggjuv ,ahle_combo_forattr_smallrum_aggneo
 
 # Fill in missing standard deviations with zero
 ahle_combo_forattr_smallrum['stdev'] = ahle_combo_forattr_smallrum['stdev'].replace(np.nan ,0)
@@ -293,13 +298,14 @@ ahle_combo_forattr_cattle_aggadt['agesex_scenario'] = 'Adult Combined'
 ahle_combo_forattr_cattle_aggadt['stdev'] = np.sqrt(ahle_combo_forattr_cattle_aggadt['variance'])
 
 # Concatenate with original
+ahle_combo_forattr_cattle_base = ahle_combo_forattr_cattle.loc[~ _agg_juv].loc[~ _agg_neo].loc[~ _agg_adt]
 ahle_combo_forattr_cattle = pd.concat(
-    [ahle_combo_forattr_cattle ,ahle_combo_forattr_cattle_aggjuv ,ahle_combo_forattr_cattle_aggneo ,ahle_combo_forattr_cattle_aggadt]
+    [ahle_combo_forattr_cattle_base ,ahle_combo_forattr_cattle_aggjuv ,ahle_combo_forattr_cattle_aggneo ,ahle_combo_forattr_cattle_aggadt]
 	,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
 	,join='outer'        # 'outer': keep all index values from all data frames
 	,ignore_index=True   # True: do not keep index values on concatenation axis
 )
-del ahle_combo_forattr_cattle_aggjuv ,ahle_combo_forattr_cattle_aggneo ,ahle_combo_forattr_cattle_aggadt
+del ahle_combo_forattr_cattle_base ,ahle_combo_forattr_cattle_aggjuv ,ahle_combo_forattr_cattle_aggneo ,ahle_combo_forattr_cattle_aggadt
 
 # Fill in missing standard deviations with zero
 ahle_combo_forattr_cattle['stdev'] = ahle_combo_forattr_cattle['stdev'].replace(np.nan ,0)
@@ -450,7 +456,6 @@ r_args = [
    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'attribution_experts_smallruminants.csv')    # String: full path to expert opinion attribution file (csv)
    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_smallruminants.csv')    # String: full path to output file (csv)
 ]
-
 timerstart()
 run_cmd([r_executable ,r_script] + r_args)
 timerstop()
@@ -465,7 +470,6 @@ r_args = [
    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'attribution_experts_cattle.csv')    # String: full path to expert opinion attribution file (csv)
    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_cattle.csv')    # String: full path to output file (csv)
 ]
-
 timerstart()
 run_cmd([r_executable ,r_script] + r_args)
 timerstop()
@@ -480,7 +484,6 @@ r_args = [
    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'attribution_experts_chickens.csv')    # String: full path to expert opinion attribution file (csv)
    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_poultry.csv')    # String: full path to output file (csv)
 ]
-
 timerstart()
 run_cmd([r_executable ,r_script] + r_args)
 timerstop()

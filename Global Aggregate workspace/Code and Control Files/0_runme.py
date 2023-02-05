@@ -13,3 +13,5 @@ RAWDATA_FOLDER = os.path.join(PARENT_FOLDER, 'Data' ,'Downloaded')
 PRODATA_FOLDER = os.path.join(PARENT_FOLDER, 'Data' ,'Intermediate')
 FINDATA_FOLDER = os.path.join(PARENT_FOLDER, 'Data')
 PROGRAM_OUTPUT_FOLDER = os.path.join(PARENT_FOLDER ,'Program outputs')
+
+DASH_DATA_FOLDER = os.path.join(GRANDPARENT_FOLDER, 'AHLE Dashboard' ,'Dash App' ,'data')

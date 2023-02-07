@@ -10,10 +10,10 @@ parts:
     - file: Tool/Downloading results
   - caption: Global Overview
     chapters:
-    - file: Tool/Selecting country, year, and metric GLOBAL.md
+    - file: Tool/govr_basic_controls.md
   - caption: Global AHLE Details
     chapters:
-    - file: Tool/Selecting country, year, and metric GLOBAL DTL.md
+    - file: Tool/gdtl_basic_controls.md
   - caption: Major Producers Tabs
     chapters:
     - file: Analysis/Overview of the approach

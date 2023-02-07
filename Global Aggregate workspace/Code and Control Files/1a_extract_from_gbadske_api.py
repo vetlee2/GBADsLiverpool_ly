@@ -4,9 +4,69 @@ We will prefer to get data from the Informatics team API.
 For documentation see http://gbadske.org:9000/dataportal/
 '''
 
-#%% Preliminaries
+#%% Packages and functions
 
 import requests as req         # For sending HTTP requests
+import inspect
+import io
+import pandas as pd
+
+# To clean up column names in a dataframe
+def cleancolnames(INPUT_DF):
+   # Comments inside the statement create errors. Putting all comments at the top.
+   # Convert to lowercase
+   # Strip leading and trailing spaces, then replace spaces with underscore
+   # Replace slashes, parenthesis, and brackets with underscore
+   # Replace some special characters with underscore
+   # Replace other special characters with words
+   INPUT_DF.columns = INPUT_DF.columns.str.lower() \
+      .str.strip().str.replace(' ' ,'_' ,regex=False) \
+      .str.replace('/' ,'_' ,regex=False).str.replace('\\' ,'_' ,regex=False) \
+      .str.replace('(' ,'_' ,regex=False).str.replace(')' ,'_' ,regex=False) \
+      .str.replace('[' ,'_' ,regex=False).str.replace(']' ,'_' ,regex=False) \
+      .str.replace('{' ,'_' ,regex=False).str.replace('}' ,'_' ,regex=False) \
+      .str.replace('!' ,'_' ,regex=False).str.replace('?' ,'_' ,regex=False) \
+      .str.replace('-' ,'_' ,regex=False).str.replace('+' ,'_' ,regex=False) \
+      .str.replace('^' ,'_' ,regex=False).str.replace('*' ,'_' ,regex=False) \
+      .str.replace('.' ,'_' ,regex=False).str.replace(',' ,'_' ,regex=False) \
+      .str.replace('|' ,'_' ,regex=False).str.replace('#' ,'_' ,regex=False) \
+      .str.replace('>' ,'_gt_' ,regex=False) \
+      .str.replace('<' ,'_lt_' ,regex=False) \
+      .str.replace('=' ,'_eq_' ,regex=False) \
+      .str.replace('@' ,'_at_' ,regex=False) \
+      .str.replace('$' ,'_dol_' ,regex=False) \
+      .str.replace('%' ,'_pct_' ,regex=False) \
+      .str.replace('&' ,'_and_' ,regex=False)
+   return None
+
+# To print df.info() with header for readability, and optionally write data info to text file
+def datainfo(
+      INPUT_DF
+      ,OUTFOLDER=None     # String (opt): folder to output {dataname}_info.txt. If None, no file will be created.
+   ):
+   funcname = inspect.currentframe().f_code.co_name
+   dataname = [x for x in globals() if globals()[x] is INPUT_DF][0]
+   rowcount = INPUT_DF.shape[0]
+   colcount = INPUT_DF.shape[1]
+   idxcols = str(list(INPUT_DF.index.names))
+   header = f"Data name: {dataname :>26s}\nRows:      {rowcount :>26,}\nColumns:   {colcount :>26,}\nIndex:     {idxcols :>26s}\n"
+   divider = ('-'*26) + ('-'*11) + '\n'
+   bigdivider = ('='*26) + ('='*11) + '\n'
+   print(bigdivider + header + divider)
+   INPUT_DF.info()
+   print(divider + f"End:       {dataname:>26s}\n" + bigdivider)
+
+   if OUTFOLDER:     # If something has been passed to OUTFOLDER parameter
+      filename = f"{dataname}_info"
+      print(f"\n<{funcname}> Creating file {OUTFOLDER}\{filename}.txt")
+      datetimestamp = 'Created on ' + time.strftime('%Y-%m-%d %X', time.gmtime()) + ' UTC' + '\n'
+      buffer = io.StringIO()
+      INPUT_DF.info(buf=buffer, max_cols=colcount)
+      filecontents = header + divider + datetimestamp + buffer.getvalue()
+      tofile = os.path.join(OUTFOLDER, f"{filename}.txt")
+      with open(tofile, 'w', encoding='utf-8') as f: f.write(filecontents)
+      print(f"<{funcname}> ...done.")
+   return None
 
 #%% View tables and field names
 
@@ -74,15 +134,12 @@ def gbadske_import_to_pandas(
     query_resp = req.get(gbadske_query_uri + TABLE_NAME , params=query_params)
 
     if query_resp.status_code == 200:
-        # Read table into pandas dataframe
-        query_df = pd.read_csv(io.StringIO(query_resp.text))
+        query_df = pd.read_csv(io.StringIO(query_resp.text))    # Read table into pandas dataframe
     else:
         print(f'<{funcname}> HTTP query error.')
         query_df = pd.DataFrame()
 
     return query_df
-
-# biomass_oie_df = gbadske_import_to_pandas('livestock_countries_biomass' ,"year=2017 AND member_country='Australia'")
 
 #%% Get tables needed for AHLE
 
@@ -251,12 +308,24 @@ un_geo_codes.to_csv(os.path.join(RAWDATA_FOLDER ,'un_geo_codes.csv') ,index=Fals
 un_geo_codes.to_pickle(os.path.join(PRODATA_FOLDER ,'un_geo_codes.pkl.gz'))
 
 # =============================================================================
+#### countries_adminunits_iso
+# =============================================================================
+# check_admin = gbadske_import_to_pandas('countries_adminunits_iso')
+
+gbadske_query_table_name = 'countries_adminunits_iso'
+gbadske_query_params = {
+    'fields':gbadske_get_column_names(gbadske_query_table_name ,'string')   # All columns in table
+    ,'query':""     # Note character column value must be in SINGLE QUOTES (double quotes don't work)
+    ,'format':'file'
+    }
+gbadske_query_resp = req.get(gbadske_query_uri + gbadske_query_table_name , params=gbadske_query_params)
+
+# =============================================================================
 #### Check others
 # =============================================================================
 # check_faoprod = gbadske_import_to_pandas('livestock_production_faostat' ,"year=2019")
 # check_faoprodanimals = gbadske_import_to_pandas('prodanimals_national_faostat' ,"year=2019")
 # check_idtable = gbadske_import_to_pandas('idtable')
-# check_admin = gbadske_import_to_pandas('countries_adminunits_iso')
 # check_country_info = gbadske_import_to_pandas('country_info')
 
 #%% Create summaries

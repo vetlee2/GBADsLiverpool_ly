@@ -35,7 +35,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
-import humanize
+import datashader as ds
 
 # private (fa) libraries
 import lib.fa_dash_utils as fa
@@ -6693,9 +6693,6 @@ def update_display_table_ga(input_json ,selected_region ,selected_incgrp ,select
 
     # Apply filters
     input_df_filtered = input_df
-
-    # Filter Species
-    # input_df_filtered = input_df_filtered.loc[(input_df_filtered['species'] == species)]
 
     # Region, Country and Income group might not be filtered
     if selected_region == 'All':

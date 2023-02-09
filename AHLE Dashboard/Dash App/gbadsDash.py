@@ -35,7 +35,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
-import humanize
+import datashader as ds
 
 # private (fa) libraries
 import lib.fa_dash_utils as fa
@@ -189,7 +189,7 @@ swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'
 # AHLE Summary
 # ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv'))
 # Using alternative data which summarizes results from age/sex specific scenarios
-ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry.csv'))
+ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry_yearlyfake.csv'))
 
 # AHLE Summary 2 - for stacked bar
 ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary2.csv'))
@@ -661,7 +661,11 @@ ecs_ahle_summary['production_system'] = ecs_ahle_summary['production_system'].re
 
 # Year
 # !!! - PLACEHOLDER UNTIL WE HAVE MORE DATA
-ecs_year_options = [{'label': 2021, 'value': 2021, 'disabled': False}]
+# ecs_year_options = [{'label': 2021, 'value': 2021, 'disabled': False}]
+ecs_year_options=[]
+for i in np.sort(ecs_ahle_summary['year'].unique()):
+    str(ecs_year_options.append({'label':i,'value':(i)}))
+
 
 # Age
 # Rename Overall to more descriptive
@@ -1317,6 +1321,7 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
                                     # 'sex',
                                     'agesex_scenario',
                                     'item',
+                                    'year',
                                     'mean_current',
                                     'mean_ideal',
                                     'mean_mortality_zero',
@@ -3130,7 +3135,7 @@ gbadsDash.layout = html.Div([
 
                             # Factor dropdown
                             dbc.Col([
-                                html.H6("Improvement Factor"),
+                                html.H6("Improvement Factor", id='select-factor-ecs-title'),
                                 dcc.Dropdown(id='select-factor-ecs',
                                               options=ecs_factor_options,
                                               value='Mortality',
@@ -3141,7 +3146,7 @@ gbadsDash.layout = html.Div([
 
                             # Reduction
                             dbc.Col([
-                                html.H6("Improvement Amount"),
+                                html.H6("Improvement Amount", id='select-improve-ecs-title'),
                                 dcc.RadioItems(id='select-improve-ecs',
                                               options=ecs_improve_options,
                                               value= "25%",
@@ -5110,7 +5115,11 @@ def update_dd4_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_
 # Enable the options for factor/improvement when 'Improvement' selected
 @gbadsDash.callback(
     Output('select-factor-ecs','options'),
+    Output('select-factor-ecs','style'),
+    Output('select-factor-ecs-title','style'),
     Output('select-improve-ecs','options'),
+    Output('select-improve-ecs','style'),
+    Output('select-improve-ecs-title','style'),
     Input('select-compare-ecs','value'),
     )
 def update_improvment_factors(compare):
@@ -5118,17 +5127,21 @@ def update_improvment_factors(compare):
     options2 = ecs_improve_options.copy()
     for d in options1:
         if compare == 'Improvement':
+            block = {'display': 'block'}
             if d['value'] != 'Lactation':
                 d['disabled']=False
         else:
+            block = {'display': 'none'} # hide the improvement options
             d['disabled']=True
     for d in options2:
         if compare == 'Improvement':
+            block = {'display': 'block'}
             d['disabled']=False
         else:
+            block = {'display': 'none'} # hide the improvement options
             d['disabled']=True
 
-    return options1, options2
+    return options1, block, block, options2, block, block
 
 # ------------------------------------------------------------------------------
 #### -- Data
@@ -5141,10 +5154,11 @@ def update_improvment_factors(compare):
     # Input('select-age-ecs','value'),
     # Input('select-sex-ecs','value'),
     Input('select-agesex-ecs', 'value'),
+    Input('select-year-ecs', 'value'),
     )
-# def update_core_data_ahle_ecs(species, prodsys, age, sex):
-def update_core_data_ahle_ecs(species, prodsys, agesex):
-    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_scensmry.csv'))
+# def update_core_data_ahle_ecs(species, prodsys, age, sex, year):
+def update_core_data_ahle_ecs(species, prodsys, agesex, year):
+    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_scensmry_yearlyfake.csv'))
 
     # Species filter
     input_df = input_df.loc[(input_df['species'] == species)]
@@ -5172,6 +5186,9 @@ def update_core_data_ahle_ecs(species, prodsys, agesex):
 
     # Age/sex filter
     input_df=input_df.loc[(input_df['agesex_scenario'] == agesex)]
+    
+    # Year filter
+    input_df=input_df.loc[(input_df['year'] == year)]
 
     return input_df.to_json(date_format='iso', orient='split')
 
@@ -5210,6 +5227,7 @@ def update_ecs_ahle_data(input_json ,currency):
     columns_to_display_with_labels = {
       'species':'Species'
       ,'production_system':'Production System'
+      ,'year':'Year'
       ,'item':'Value or Cost'
       # ,'age_group':'Age'
       # ,'sex':'Sex'
@@ -6693,9 +6711,6 @@ def update_display_table_ga(input_json ,selected_region ,selected_incgrp ,select
 
     # Apply filters
     input_df_filtered = input_df
-
-    # Filter Species
-    # input_df_filtered = input_df_filtered.loc[(input_df_filtered['species'] == species)]
 
     # Region, Country and Income group might not be filtered
     if selected_region == 'All':

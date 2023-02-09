@@ -1,4 +1,4 @@
-region,scope,number_of_countries,antimicrobial,tonnes
+region,scope,number_of_countries,antimicrobial_class,tonnes
 Africa,AGP,1.0,aminoglycosides,0.0
 Americas,AGP,5.0,aminoglycosides,0.0
 "Asia, Far East and Oceania",AGP,6.0,aminoglycosides,0.707

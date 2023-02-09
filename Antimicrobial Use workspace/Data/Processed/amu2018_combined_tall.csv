@@ -1,0 +1,433 @@
+region,scope,number_of_countries,antimicrobial_class,tonnes,critically_important_antimicrobials,highly_important_antimicrobials,importance_ctg
+Africa,AGP,1.0,aminoglycosides,0.0,Y,nan,A: Critically Important
+Americas,AGP,5.0,aminoglycosides,0.0,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",AGP,6.0,aminoglycosides,0.707,Y,nan,A: Critically Important
+Europe,AGP,0.0,aminoglycosides,,Y,nan,A: Critically Important
+Global,AGP,12.0,aminoglycosides,0.707,Y,nan,A: Critically Important
+Middle East,AGP,0.0,aminoglycosides,,Y,nan,A: Critically Important
+Africa,All,24.0,aminoglycosides,33.65154353510884,Y,nan,A: Critically Important
+Americas,All,19.0,aminoglycosides,762.3757826245582,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",All,22.0,aminoglycosides,1425.6633331469927,Y,nan,A: Critically Important
+Europe,All,41.0,aminoglycosides,527.6433177347999,Y,nan,A: Critically Important
+Global,All,109.0,aminoglycosides,2753.9849770414594,Y,nan,A: Critically Important
+Middle East,All,3.0,aminoglycosides,4.651,Y,nan,A: Critically Important
+Africa,Terrestrial Food Producing,6.0,aminoglycosides,3.8016855000000005,Y,nan,A: Critically Important
+Americas,Terrestrial Food Producing,11.0,aminoglycosides,166.50740406923404,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,aminoglycosides,1210.6992128601441,Y,nan,A: Critically Important
+Europe,Terrestrial Food Producing,10.0,aminoglycosides,81.437791987,Y,nan,A: Critically Important
+Global,Terrestrial Food Producing,37.0,aminoglycosides,1465.4160944163782,Y,nan,A: Critically Important
+Middle East,Terrestrial Food Producing,1.0,aminoglycosides,2.97,Y,nan,A: Critically Important
+Africa,AGP,1.0,amphenicols,0.0,nan,Y,B: Highly Important
+Americas,AGP,5.0,amphenicols,0.0,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",AGP,6.0,amphenicols,0.0,nan,Y,B: Highly Important
+Europe,AGP,0.0,amphenicols,,nan,Y,B: Highly Important
+Global,AGP,12.0,amphenicols,0.0,nan,Y,B: Highly Important
+Middle East,AGP,0.0,amphenicols,,nan,Y,B: Highly Important
+Africa,All,24.0,amphenicols,20.410307295,nan,Y,B: Highly Important
+Americas,All,19.0,amphenicols,739.797925,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",All,22.0,amphenicols,2422.62492398,nan,Y,B: Highly Important
+Europe,All,41.0,amphenicols,243.87317625000006,nan,Y,B: Highly Important
+Global,All,109.0,amphenicols,3428.306332525,nan,Y,B: Highly Important
+Middle East,All,3.0,amphenicols,1.6,nan,Y,B: Highly Important
+Africa,Terrestrial Food Producing,6.0,amphenicols,9.3548,nan,Y,B: Highly Important
+Americas,Terrestrial Food Producing,11.0,amphenicols,96.02734378000001,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,amphenicols,2141.469115,nan,Y,B: Highly Important
+Europe,Terrestrial Food Producing,10.0,amphenicols,28.0098675,nan,Y,B: Highly Important
+Global,Terrestrial Food Producing,37.0,amphenicols,2276.36112628,nan,Y,B: Highly Important
+Middle East,Terrestrial Food Producing,1.0,amphenicols,1.5,nan,Y,B: Highly Important
+Africa,AGP,1.0,arsenicals,0.0,nan,nan,C: Other
+Americas,AGP,5.0,arsenicals,0.0,nan,nan,C: Other
+"Asia, Far East and Oceania",AGP,6.0,arsenicals,74.44,nan,nan,C: Other
+Europe,AGP,0.0,arsenicals,,nan,nan,C: Other
+Global,AGP,12.0,arsenicals,74.44,nan,nan,C: Other
+Middle East,AGP,0.0,arsenicals,,nan,nan,C: Other
+Africa,All,24.0,arsenicals,0.011,nan,nan,C: Other
+Americas,All,19.0,arsenicals,51.9,nan,nan,C: Other
+"Asia, Far East and Oceania",All,22.0,arsenicals,74.44,nan,nan,C: Other
+Europe,All,41.0,arsenicals,0.0,nan,nan,C: Other
+Global,All,109.0,arsenicals,126.351,nan,nan,C: Other
+Middle East,All,3.0,arsenicals,0.0,nan,nan,C: Other
+Africa,Terrestrial Food Producing,6.0,arsenicals,0.0,nan,nan,C: Other
+Americas,Terrestrial Food Producing,11.0,arsenicals,51.9,nan,nan,C: Other
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,arsenicals,0.0,nan,nan,C: Other
+Europe,Terrestrial Food Producing,10.0,arsenicals,0.0,nan,nan,C: Other
+Global,Terrestrial Food Producing,37.0,arsenicals,51.9,nan,nan,C: Other
+Middle East,Terrestrial Food Producing,1.0,arsenicals,0.0,nan,nan,C: Other
+Africa,AGP,1.0,cephalosporins__all_generations,0.0,nan,nan,C: Other
+Americas,AGP,5.0,cephalosporins__all_generations,0.0,nan,nan,C: Other
+"Asia, Far East and Oceania",AGP,6.0,cephalosporins__all_generations,0.0,nan,nan,C: Other
+Europe,AGP,0.0,cephalosporins__all_generations,,nan,nan,C: Other
+Global,AGP,12.0,cephalosporins__all_generations,0.0,nan,nan,C: Other
+Middle East,AGP,0.0,cephalosporins__all_generations,,nan,nan,C: Other
+Africa,All,24.0,cephalosporins__all_generations,10.0178996,nan,nan,C: Other
+Americas,All,19.0,cephalosporins__all_generations,116.27410461424999,nan,nan,C: Other
+"Asia, Far East and Oceania",All,22.0,cephalosporins__all_generations,421.64690735783785,nan,nan,C: Other
+Europe,All,41.0,cephalosporins__all_generations,44.660103946599996,nan,nan,C: Other
+Global,All,109.0,cephalosporins__all_generations,592.7990155186878,nan,nan,C: Other
+Middle East,All,3.0,cephalosporins__all_generations,0.2,nan,nan,C: Other
+Africa,Terrestrial Food Producing,6.0,cephalosporins__all_generations,0.07614,nan,nan,C: Other
+Americas,Terrestrial Food Producing,11.0,cephalosporins__all_generations,49.93894542825001,nan,nan,C: Other
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,cephalosporins__all_generations,306.59636165858984,nan,nan,C: Other
+Europe,Terrestrial Food Producing,10.0,cephalosporins__all_generations,1.752115809,nan,nan,C: Other
+Global,Terrestrial Food Producing,37.0,cephalosporins__all_generations,358.36356289583983,nan,nan,C: Other
+Middle East,Terrestrial Food Producing,1.0,cephalosporins__all_generations,0.0,nan,nan,C: Other
+Africa,AGP,1.0,1_2_gen__cephalosporins,0.0,nan,Y,B: Highly Important
+Americas,AGP,5.0,1_2_gen__cephalosporins,0.0,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",AGP,6.0,1_2_gen__cephalosporins,0.0,nan,Y,B: Highly Important
+Europe,AGP,0.0,1_2_gen__cephalosporins,,nan,Y,B: Highly Important
+Global,AGP,12.0,1_2_gen__cephalosporins,0.0,nan,Y,B: Highly Important
+Middle East,AGP,0.0,1_2_gen__cephalosporins,,nan,Y,B: Highly Important
+Africa,All,24.0,1_2_gen__cephalosporins,0.026490000000000003,nan,Y,B: Highly Important
+Americas,All,19.0,1_2_gen__cephalosporins,55.612756462499995,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",All,22.0,1_2_gen__cephalosporins,27.308859372837826,nan,Y,B: Highly Important
+Europe,All,41.0,1_2_gen__cephalosporins,25.717692272599997,nan,Y,B: Highly Important
+Global,All,109.0,1_2_gen__cephalosporins,108.66579810793783,nan,Y,B: Highly Important
+Middle East,All,3.0,1_2_gen__cephalosporins,0.0,nan,Y,B: Highly Important
+Africa,Terrestrial Food Producing,6.0,1_2_gen__cephalosporins,0.002,nan,Y,B: Highly Important
+Americas,Terrestrial Food Producing,11.0,1_2_gen__cephalosporins,43.17509936249999,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,1_2_gen__cephalosporins,17.315807408589826,nan,Y,B: Highly Important
+Europe,Terrestrial Food Producing,10.0,1_2_gen__cephalosporins,2.2454462000000004,nan,Y,B: Highly Important
+Global,Terrestrial Food Producing,37.0,1_2_gen__cephalosporins,62.738352971089824,nan,Y,B: Highly Important
+Middle East,Terrestrial Food Producing,1.0,1_2_gen__cephalosporins,0.0,nan,Y,B: Highly Important
+Africa,AGP,1.0,3_4_gen_cephalosporins,0.0,Y,nan,A: Critically Important
+Americas,AGP,5.0,3_4_gen_cephalosporins,0.0,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",AGP,6.0,3_4_gen_cephalosporins,0.0,Y,nan,A: Critically Important
+Europe,AGP,0.0,3_4_gen_cephalosporins,,Y,nan,A: Critically Important
+Global,AGP,12.0,3_4_gen_cephalosporins,0.0,Y,nan,A: Critically Important
+Middle East,AGP,0.0,3_4_gen_cephalosporins,,Y,nan,A: Critically Important
+Africa,All,24.0,3_4_gen_cephalosporins,0.0874096,Y,nan,A: Critically Important
+Americas,All,19.0,3_4_gen_cephalosporins,25.316200491750003,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",All,22.0,3_4_gen_cephalosporins,303.07204798500004,Y,nan,A: Critically Important
+Europe,All,41.0,3_4_gen_cephalosporins,17.566308674,Y,nan,A: Critically Important
+Global,All,109.0,3_4_gen_cephalosporins,346.04196675075,Y,nan,A: Critically Important
+Middle East,All,3.0,3_4_gen_cephalosporins,0.0,Y,nan,A: Critically Important
+Africa,Terrestrial Food Producing,6.0,3_4_gen_cephalosporins,0.00033999999999999997,Y,nan,A: Critically Important
+Americas,Terrestrial Food Producing,11.0,3_4_gen_cephalosporins,6.76284606575,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,3_4_gen_cephalosporins,289.28055424999997,Y,nan,A: Critically Important
+Europe,Terrestrial Food Producing,10.0,3_4_gen_cephalosporins,1.126169609,Y,nan,A: Critically Important
+Global,Terrestrial Food Producing,37.0,3_4_gen_cephalosporins,297.16990992474996,Y,nan,A: Critically Important
+Middle East,Terrestrial Food Producing,1.0,3_4_gen_cephalosporins,0.0,Y,nan,A: Critically Important
+Africa,AGP,1.0,fluoroquinolones,0.0,Y,nan,A: Critically Important
+Americas,AGP,5.0,fluoroquinolones,0.0,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",AGP,6.0,fluoroquinolones,0.0,Y,nan,A: Critically Important
+Europe,AGP,0.0,fluoroquinolones,,Y,nan,A: Critically Important
+Global,AGP,12.0,fluoroquinolones,0.0,Y,nan,A: Critically Important
+Middle East,AGP,0.0,fluoroquinolones,,Y,nan,A: Critically Important
+Africa,All,24.0,fluoroquinolones,91.39779790500002,Y,nan,A: Critically Important
+Americas,All,19.0,fluoroquinolones,428.54548516660003,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",All,22.0,fluoroquinolones,867.5345784811577,Y,nan,A: Critically Important
+Europe,All,41.0,fluoroquinolones,219.0016683226101,Y,nan,A: Critically Important
+Global,All,109.0,fluoroquinolones,1607.208529875368,Y,nan,A: Critically Important
+Middle East,All,3.0,fluoroquinolones,0.729,Y,nan,A: Critically Important
+Africa,Terrestrial Food Producing,6.0,fluoroquinolones,21.7742,Y,nan,A: Critically Important
+Americas,Terrestrial Food Producing,11.0,fluoroquinolones,173.17156194999998,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,fluoroquinolones,474.69859099,Y,nan,A: Critically Important
+Europe,Terrestrial Food Producing,10.0,fluoroquinolones,4.3627758624999995,Y,nan,A: Critically Important
+Global,Terrestrial Food Producing,37.0,fluoroquinolones,674.1671288025,Y,nan,A: Critically Important
+Middle East,Terrestrial Food Producing,1.0,fluoroquinolones,0.16,Y,nan,A: Critically Important
+Africa,AGP,1.0,glycopeptides,0.0,Y,nan,A: Critically Important
+Americas,AGP,5.0,glycopeptides,0.0,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",AGP,6.0,glycopeptides,0.0,Y,nan,A: Critically Important
+Europe,AGP,0.0,glycopeptides,,Y,nan,A: Critically Important
+Global,AGP,12.0,glycopeptides,0.0,Y,nan,A: Critically Important
+Middle East,AGP,0.0,glycopeptides,,Y,nan,A: Critically Important
+Africa,All,24.0,glycopeptides,1.0,Y,nan,A: Critically Important
+Americas,All,19.0,glycopeptides,0.0,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",All,22.0,glycopeptides,0.0,Y,nan,A: Critically Important
+Europe,All,41.0,glycopeptides,0.503,Y,nan,A: Critically Important
+Global,All,109.0,glycopeptides,1.848,Y,nan,A: Critically Important
+Middle East,All,3.0,glycopeptides,0.345,Y,nan,A: Critically Important
+Africa,Terrestrial Food Producing,6.0,glycopeptides,0.0,Y,nan,A: Critically Important
+Americas,Terrestrial Food Producing,11.0,glycopeptides,0.0,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,glycopeptides,0.0,Y,nan,A: Critically Important
+Europe,Terrestrial Food Producing,10.0,glycopeptides,0.0,Y,nan,A: Critically Important
+Global,Terrestrial Food Producing,37.0,glycopeptides,0.255,Y,nan,A: Critically Important
+Middle East,Terrestrial Food Producing,1.0,glycopeptides,0.255,Y,nan,A: Critically Important
+Africa,AGP,1.0,glycophospholipids,0.0,nan,nan,C: Other
+Americas,AGP,5.0,glycophospholipids,13.90780678,nan,nan,C: Other
+"Asia, Far East and Oceania",AGP,6.0,glycophospholipids,97.183,nan,nan,C: Other
+Europe,AGP,0.0,glycophospholipids,,nan,nan,C: Other
+Global,AGP,12.0,glycophospholipids,111.09080678000001,nan,nan,C: Other
+Middle East,AGP,0.0,glycophospholipids,,nan,nan,C: Other
+Africa,All,24.0,glycophospholipids,110.0,nan,nan,C: Other
+Americas,All,19.0,glycophospholipids,34.70140678,nan,nan,C: Other
+"Asia, Far East and Oceania",All,22.0,glycophospholipids,99.261,nan,nan,C: Other
+Europe,All,41.0,glycophospholipids,0.084,nan,nan,C: Other
+Global,All,109.0,glycophospholipids,244.04640678,nan,nan,C: Other
+Middle East,All,3.0,glycophospholipids,0.0,nan,nan,C: Other
+Africa,Terrestrial Food Producing,6.0,glycophospholipids,110.0,nan,nan,C: Other
+Americas,Terrestrial Food Producing,11.0,glycophospholipids,0.0,nan,nan,C: Other
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,glycophospholipids,0.0,nan,nan,C: Other
+Europe,Terrestrial Food Producing,10.0,glycophospholipids,0.0,nan,nan,C: Other
+Global,Terrestrial Food Producing,37.0,glycophospholipids,110.0,nan,nan,C: Other
+Middle East,Terrestrial Food Producing,1.0,glycophospholipids,0.0,nan,nan,C: Other
+Africa,AGP,1.0,lincosamides,0.0,nan,Y,B: Highly Important
+Americas,AGP,5.0,lincosamides,22.0210782,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",AGP,6.0,lincosamides,0.21,nan,Y,B: Highly Important
+Europe,AGP,0.0,lincosamides,,nan,Y,B: Highly Important
+Global,AGP,12.0,lincosamides,22.231078200000002,nan,Y,B: Highly Important
+Middle East,AGP,0.0,lincosamides,,nan,Y,B: Highly Important
+Africa,All,24.0,lincosamides,1.36453,nan,Y,B: Highly Important
+Americas,All,19.0,lincosamides,379.67399613999993,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",All,22.0,lincosamides,647.3119385724606,nan,Y,B: Highly Important
+Europe,All,41.0,lincosamides,303.67643927872007,nan,Y,B: Highly Important
+Global,All,109.0,lincosamides,1332.0869039911804,nan,Y,B: Highly Important
+Middle East,All,3.0,lincosamides,0.06,nan,Y,B: Highly Important
+Africa,Terrestrial Food Producing,6.0,lincosamides,0.0289,nan,Y,B: Highly Important
+Americas,Terrestrial Food Producing,11.0,lincosamides,50.15478038999999,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,lincosamides,490.94257899999997,nan,Y,B: Highly Important
+Europe,Terrestrial Food Producing,10.0,lincosamides,10.19814494,nan,Y,B: Highly Important
+Global,Terrestrial Food Producing,37.0,lincosamides,551.32440433,nan,Y,B: Highly Important
+Middle East,Terrestrial Food Producing,1.0,lincosamides,0.0,nan,Y,B: Highly Important
+Africa,AGP,1.0,macrolides,0.0,Y,nan,A: Critically Important
+Americas,AGP,5.0,macrolides,62.46305198999999,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",AGP,6.0,macrolides,1174.582,Y,nan,A: Critically Important
+Europe,AGP,0.0,macrolides,,Y,nan,A: Critically Important
+Global,AGP,12.0,macrolides,1237.04505199,Y,nan,A: Critically Important
+Middle East,AGP,0.0,macrolides,,Y,nan,A: Critically Important
+Africa,All,24.0,macrolides,78.34148013000001,Y,nan,A: Critically Important
+Americas,All,19.0,macrolides,1472.3875462015326,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",All,22.0,macrolides,3981.0877146068183,Y,nan,A: Critically Important
+Europe,All,41.0,macrolides,565.3769923958588,Y,nan,A: Critically Important
+Global,All,109.0,macrolides,6105.2037333342105,Y,nan,A: Critically Important
+Middle East,All,3.0,macrolides,8.01,Y,nan,A: Critically Important
+Africa,Terrestrial Food Producing,6.0,macrolides,25.859299999999994,Y,nan,A: Critically Important
+Americas,Terrestrial Food Producing,11.0,macrolides,307.94853991403255,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,macrolides,2131.053008,Y,nan,A: Critically Important
+Europe,Terrestrial Food Producing,10.0,macrolides,70.04560975005869,Y,nan,A: Critically Important
+Global,Terrestrial Food Producing,37.0,macrolides,2542.696457664091,Y,nan,A: Critically Important
+Middle East,Terrestrial Food Producing,1.0,macrolides,7.79,Y,nan,A: Critically Important
+Africa,AGP,1.0,nitrofurans,0.0,nan,nan,C: Other
+Americas,AGP,5.0,nitrofurans,0.0,nan,nan,C: Other
+"Asia, Far East and Oceania",AGP,6.0,nitrofurans,0.0,nan,nan,C: Other
+Europe,AGP,0.0,nitrofurans,,nan,nan,C: Other
+Global,AGP,12.0,nitrofurans,0.0,nan,nan,C: Other
+Middle East,AGP,0.0,nitrofurans,,nan,nan,C: Other
+Africa,All,24.0,nitrofurans,0.16666,nan,nan,C: Other
+Americas,All,19.0,nitrofurans,0.303410528,nan,nan,C: Other
+"Asia, Far East and Oceania",All,22.0,nitrofurans,3.2116587,nan,nan,C: Other
+Europe,All,41.0,nitrofurans,0.41274580000000005,nan,nan,C: Other
+Global,All,109.0,nitrofurans,4.1044750279999995,nan,nan,C: Other
+Middle East,All,3.0,nitrofurans,0.01,nan,nan,C: Other
+Africa,Terrestrial Food Producing,6.0,nitrofurans,0.138,nan,nan,C: Other
+Americas,Terrestrial Food Producing,11.0,nitrofurans,0.0,nan,nan,C: Other
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,nitrofurans,0.0,nan,nan,C: Other
+Europe,Terrestrial Food Producing,10.0,nitrofurans,0.001,nan,nan,C: Other
+Global,Terrestrial Food Producing,37.0,nitrofurans,0.139,nan,nan,C: Other
+Middle East,Terrestrial Food Producing,1.0,nitrofurans,0.0,nan,nan,C: Other
+Africa,AGP,1.0,orthosomycins,0.0,nan,nan,C: Other
+Americas,AGP,5.0,orthosomycins,3.6422226500000003,nan,nan,C: Other
+"Asia, Far East and Oceania",AGP,6.0,orthosomycins,26.195,nan,nan,C: Other
+Europe,AGP,0.0,orthosomycins,,nan,nan,C: Other
+Global,AGP,12.0,orthosomycins,29.83722265,nan,nan,C: Other
+Middle East,AGP,0.0,orthosomycins,,nan,nan,C: Other
+Africa,All,24.0,orthosomycins,0.0,nan,nan,C: Other
+Americas,All,19.0,orthosomycins,27.93374765,nan,nan,C: Other
+"Asia, Far East and Oceania",All,22.0,orthosomycins,40.708,nan,nan,C: Other
+Europe,All,41.0,orthosomycins,4.813,nan,nan,C: Other
+Global,All,109.0,orthosomycins,73.45474765,nan,nan,C: Other
+Middle East,All,3.0,orthosomycins,0.0,nan,nan,C: Other
+Africa,Terrestrial Food Producing,6.0,orthosomycins,0.0,nan,nan,C: Other
+Americas,Terrestrial Food Producing,11.0,orthosomycins,18.715525000000003,nan,nan,C: Other
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,orthosomycins,3.353,nan,nan,C: Other
+Europe,Terrestrial Food Producing,10.0,orthosomycins,0.0,nan,nan,C: Other
+Global,Terrestrial Food Producing,37.0,orthosomycins,22.068525000000005,nan,nan,C: Other
+Middle East,Terrestrial Food Producing,1.0,orthosomycins,0.0,nan,nan,C: Other
+Africa,AGP,1.0,other_quinolones,0.0,Y,nan,A: Critically Important
+Americas,AGP,5.0,other_quinolones,0.0,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",AGP,6.0,other_quinolones,0.0,Y,nan,A: Critically Important
+Europe,AGP,0.0,other_quinolones,,Y,nan,A: Critically Important
+Global,AGP,12.0,other_quinolones,0.0,Y,nan,A: Critically Important
+Middle East,AGP,0.0,other_quinolones,,Y,nan,A: Critically Important
+Africa,All,24.0,other_quinolones,0.83929,Y,nan,A: Critically Important
+Americas,All,19.0,other_quinolones,8.016018,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",All,22.0,other_quinolones,20.504566,Y,nan,A: Critically Important
+Europe,All,41.0,other_quinolones,18.93956725,Y,nan,A: Critically Important
+Global,All,109.0,other_quinolones,48.39944125,Y,nan,A: Critically Important
+Middle East,All,3.0,other_quinolones,0.1,Y,nan,A: Critically Important
+Africa,Terrestrial Food Producing,6.0,other_quinolones,0.06985000000000001,Y,nan,A: Critically Important
+Americas,Terrestrial Food Producing,11.0,other_quinolones,0.0,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,other_quinolones,3.9355,Y,nan,A: Critically Important
+Europe,Terrestrial Food Producing,10.0,other_quinolones,3.2066000000000003,Y,nan,A: Critically Important
+Global,Terrestrial Food Producing,37.0,other_quinolones,7.21195,Y,nan,A: Critically Important
+Middle East,Terrestrial Food Producing,1.0,other_quinolones,0.0,Y,nan,A: Critically Important
+Africa,AGP,1.0,penicillins,0.0,Y,nan,A: Critically Important
+Americas,AGP,5.0,penicillins,0.025,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",AGP,6.0,penicillins,7.174,Y,nan,A: Critically Important
+Europe,AGP,0.0,penicillins,,Y,nan,A: Critically Important
+Global,AGP,12.0,penicillins,7.199000000000001,Y,nan,A: Critically Important
+Middle East,AGP,0.0,penicillins,,Y,nan,A: Critically Important
+Africa,All,24.0,penicillins,139.48317097044,Y,nan,A: Critically Important
+Americas,All,19.0,penicillins,1851.932388023641,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",All,22.0,penicillins,5809.310729588148,Y,nan,A: Critically Important
+Europe,All,41.0,penicillins,1957.1912464123898,Y,nan,A: Critically Important
+Global,All,109.0,penicillins,9762.79853499462,Y,nan,A: Critically Important
+Middle East,All,3.0,penicillins,4.881,Y,nan,A: Critically Important
+Africa,Terrestrial Food Producing,6.0,penicillins,23.96869234544,Y,nan,A: Critically Important
+Americas,Terrestrial Food Producing,11.0,penicillins,401.5405668801895,Y,nan,A: Critically Important
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,penicillins,3496.1875820142955,Y,nan,A: Critically Important
+Europe,Terrestrial Food Producing,10.0,penicillins,206.96175723087998,Y,nan,A: Critically Important
+Global,Terrestrial Food Producing,37.0,penicillins,4131.183598470805,Y,nan,A: Critically Important
+Middle East,Terrestrial Food Producing,1.0,penicillins,2.525,Y,nan,A: Critically Important
+Africa,AGP,1.0,pleuromutilins,0.0,nan,nan,C: Other
+Americas,AGP,5.0,pleuromutilins,37.982856874999996,nan,nan,C: Other
+"Asia, Far East and Oceania",AGP,6.0,pleuromutilins,12.399,nan,nan,C: Other
+Europe,AGP,0.0,pleuromutilins,,nan,nan,C: Other
+Global,AGP,12.0,pleuromutilins,50.381856875,nan,nan,C: Other
+Middle East,AGP,0.0,pleuromutilins,,nan,nan,C: Other
+Africa,All,24.0,pleuromutilins,3.6,nan,nan,C: Other
+Americas,All,19.0,pleuromutilins,369.877642475,nan,nan,C: Other
+"Asia, Far East and Oceania",All,22.0,pleuromutilins,1161.8913148328797,nan,nan,C: Other
+Europe,All,41.0,pleuromutilins,194.229793234,nan,nan,C: Other
+Global,All,109.0,pleuromutilins,1729.5987505418798,nan,nan,C: Other
+Middle East,All,3.0,pleuromutilins,0.0,nan,nan,C: Other
+Africa,Terrestrial Food Producing,6.0,pleuromutilins,0.0,nan,nan,C: Other
+Americas,Terrestrial Food Producing,11.0,pleuromutilins,225.37439490000003,nan,nan,C: Other
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,pleuromutilins,639.7021958830197,nan,nan,C: Other
+Europe,Terrestrial Food Producing,10.0,pleuromutilins,15.7585171,nan,nan,C: Other
+Global,Terrestrial Food Producing,37.0,pleuromutilins,880.8351078830198,nan,nan,C: Other
+Middle East,Terrestrial Food Producing,1.0,pleuromutilins,0.0,nan,nan,C: Other
+Africa,AGP,1.0,polypeptides,0.134,nan,nan,C: Other
+Americas,AGP,5.0,polypeptides,502.08734898838,nan,nan,C: Other
+"Asia, Far East and Oceania",AGP,6.0,polypeptides,1514.758,nan,nan,C: Other
+Europe,AGP,0.0,polypeptides,,nan,nan,C: Other
+Global,AGP,12.0,polypeptides,2016.97934898838,nan,nan,C: Other
+Middle East,AGP,0.0,polypeptides,,nan,nan,C: Other
+Africa,All,24.0,polypeptides,50.477093846604504,nan,nan,C: Other
+Americas,All,19.0,polypeptides,1746.9940220419883,nan,nan,C: Other
+"Asia, Far East and Oceania",All,22.0,polypeptides,3055.9833601249356,nan,nan,C: Other
+Europe,All,41.0,polypeptides,234.45246842576483,nan,nan,C: Other
+Global,All,109.0,polypeptides,5087.956944439294,nan,nan,C: Other
+Middle East,All,3.0,polypeptides,0.05,nan,nan,C: Other
+Africa,Terrestrial Food Producing,6.0,polypeptides,8.007412247,nan,nan,C: Other
+Americas,Terrestrial Food Producing,11.0,polypeptides,169.39966942836,nan,nan,C: Other
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,polypeptides,445.3586103841463,nan,nan,C: Other
+Europe,Terrestrial Food Producing,10.0,polypeptides,22.640610553204002,nan,nan,C: Other
+Global,Terrestrial Food Producing,37.0,polypeptides,645.4063026127103,nan,nan,C: Other
+Middle East,Terrestrial Food Producing,1.0,polypeptides,0.0,nan,nan,C: Other
+Africa,AGP,1.0,quinoxalines,0.0,nan,nan,C: Other
+Americas,AGP,5.0,quinoxalines,0.0,nan,nan,C: Other
+"Asia, Far East and Oceania",AGP,6.0,quinoxalines,1312.213,nan,nan,C: Other
+Europe,AGP,0.0,quinoxalines,,nan,nan,C: Other
+Global,AGP,12.0,quinoxalines,1312.213,nan,nan,C: Other
+Middle East,AGP,0.0,quinoxalines,,nan,nan,C: Other
+Africa,All,24.0,quinoxalines,0.0,nan,nan,C: Other
+Americas,All,19.0,quinoxalines,34.794,nan,nan,C: Other
+"Asia, Far East and Oceania",All,22.0,quinoxalines,1346.323,nan,nan,C: Other
+Europe,All,41.0,quinoxalines,0.0,nan,nan,C: Other
+Global,All,109.0,quinoxalines,1381.2670000000003,nan,nan,C: Other
+Middle East,All,3.0,quinoxalines,0.15,nan,nan,C: Other
+Africa,Terrestrial Food Producing,6.0,quinoxalines,0.0,nan,nan,C: Other
+Americas,Terrestrial Food Producing,11.0,quinoxalines,0.0,nan,nan,C: Other
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,quinoxalines,20.372,nan,nan,C: Other
+Europe,Terrestrial Food Producing,10.0,quinoxalines,0.0,nan,nan,C: Other
+Global,Terrestrial Food Producing,37.0,quinoxalines,20.372,nan,nan,C: Other
+Middle East,Terrestrial Food Producing,1.0,quinoxalines,0.0,nan,nan,C: Other
+Africa,AGP,1.0,streptogramins,0.0,nan,Y,B: Highly Important
+Americas,AGP,5.0,streptogramins,4.86238653,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",AGP,6.0,streptogramins,464.775,nan,Y,B: Highly Important
+Europe,AGP,0.0,streptogramins,,nan,Y,B: Highly Important
+Global,AGP,12.0,streptogramins,469.63738652999996,nan,Y,B: Highly Important
+Middle East,AGP,0.0,streptogramins,,nan,Y,B: Highly Important
+Africa,All,24.0,streptogramins,0.004,nan,Y,B: Highly Important
+Americas,All,19.0,streptogramins,14.067076529999998,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",All,22.0,streptogramins,473.259,nan,Y,B: Highly Important
+Europe,All,41.0,streptogramins,1.968,nan,Y,B: Highly Important
+Global,All,109.0,streptogramins,489.40007653,nan,Y,B: Highly Important
+Middle East,All,3.0,streptogramins,0.102,nan,Y,B: Highly Important
+Africa,Terrestrial Food Producing,6.0,streptogramins,0.0,nan,Y,B: Highly Important
+Americas,Terrestrial Food Producing,11.0,streptogramins,5.06369,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,streptogramins,0.272,nan,Y,B: Highly Important
+Europe,Terrestrial Food Producing,10.0,streptogramins,0.0,nan,Y,B: Highly Important
+Global,Terrestrial Food Producing,37.0,streptogramins,5.3356900000000005,nan,Y,B: Highly Important
+Middle East,Terrestrial Food Producing,1.0,streptogramins,0.0,nan,Y,B: Highly Important
+Africa,AGP,1.0,sulfonamides__including_trimethoprim,3.863,nan,Y,B: Highly Important
+Americas,AGP,5.0,sulfonamides__including_trimethoprim,0.0,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",AGP,6.0,sulfonamides__including_trimethoprim,0.77,nan,Y,B: Highly Important
+Europe,AGP,0.0,sulfonamides__including_trimethoprim,,nan,Y,B: Highly Important
+Global,AGP,12.0,sulfonamides__including_trimethoprim,4.633,nan,Y,B: Highly Important
+Middle East,AGP,0.0,sulfonamides__including_trimethoprim,,nan,Y,B: Highly Important
+Africa,All,24.0,sulfonamides__including_trimethoprim,103.43037745619999,nan,Y,B: Highly Important
+Americas,All,19.0,sulfonamides__including_trimethoprim,796.4145453110001,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",All,22.0,sulfonamides__including_trimethoprim,1892.112045819472,nan,Y,B: Highly Important
+Europe,All,41.0,sulfonamides__including_trimethoprim,741.2669017732101,nan,Y,B: Highly Important
+Global,All,109.0,sulfonamides__including_trimethoprim,3535.468870359882,nan,Y,B: Highly Important
+Middle East,All,3.0,sulfonamides__including_trimethoprim,2.245,nan,Y,B: Highly Important
+Africa,Terrestrial Food Producing,6.0,sulfonamides__including_trimethoprim,39.2480805082,nan,Y,B: Highly Important
+Americas,Terrestrial Food Producing,11.0,sulfonamides__including_trimethoprim,158.21083041999995,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,sulfonamides__including_trimethoprim,1367.8022367092183,nan,Y,B: Highly Important
+Europe,Terrestrial Food Producing,10.0,sulfonamides__including_trimethoprim,165.7287011,nan,Y,B: Highly Important
+Global,Terrestrial Food Producing,37.0,sulfonamides__including_trimethoprim,1732.1148487374182,nan,Y,B: Highly Important
+Middle East,Terrestrial Food Producing,1.0,sulfonamides__including_trimethoprim,1.125,nan,Y,B: Highly Important
+Africa,AGP,1.0,tetracyclines,3.902,nan,Y,B: Highly Important
+Americas,AGP,5.0,tetracyclines,4.8126789,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",AGP,6.0,tetracyclines,12284.669,nan,Y,B: Highly Important
+Europe,AGP,0.0,tetracyclines,,nan,Y,B: Highly Important
+Global,AGP,12.0,tetracyclines,12293.3836789,nan,Y,B: Highly Important
+Middle East,AGP,0.0,tetracyclines,,nan,Y,B: Highly Important
+Africa,All,24.0,tetracyclines,740.348046675,nan,Y,B: Highly Important
+Americas,All,19.0,tetracyclines,8517.692808254998,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",All,22.0,tetracyclines,16562.587335943434,nan,Y,B: Highly Important
+Europe,All,41.0,tetracyclines,2320.56904184088,nan,Y,B: Highly Important
+Global,All,109.0,tetracyclines,28151.987232714313,nan,Y,B: Highly Important
+Middle East,All,3.0,tetracyclines,10.79,nan,Y,B: Highly Important
+Africa,Terrestrial Food Producing,6.0,tetracyclines,99.31643682500001,nan,Y,B: Highly Important
+Americas,Terrestrial Food Producing,11.0,tetracyclines,548.0339444299999,nan,Y,B: Highly Important
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,tetracyclines,2778.4762788979688,nan,Y,B: Highly Important
+Europe,Terrestrial Food Producing,10.0,tetracyclines,365.09917541999994,nan,Y,B: Highly Important
+Global,Terrestrial Food Producing,37.0,tetracyclines,3798.9488355729686,nan,Y,B: Highly Important
+Middle East,Terrestrial Food Producing,1.0,tetracyclines,8.023,nan,Y,B: Highly Important
+Africa,AGP,1.0,others,19.25,,,
+Americas,AGP,5.0,others,221.4178,,,
+"Asia, Far East and Oceania",AGP,6.0,others,0.0,,,
+Europe,AGP,0.0,others,,,,
+Global,AGP,12.0,others,240.6678,,,
+Middle East,AGP,0.0,others,,,,
+Africa,All,24.0,others,23.584684149999998,,,
+Americas,All,19.0,others,444.9947622100001,,,
+"Asia, Far East and Oceania",All,22.0,others,691.92617274375,,,
+Europe,All,41.0,others,67.88025436550001,,,
+Global,All,109.0,others,1228.38587346925,,,
+Middle East,All,3.0,others,0.0,,,
+Africa,Terrestrial Food Producing,6.0,others,3.1968,,,
+Americas,Terrestrial Food Producing,11.0,others,23.377208000000003,,,
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,others,28.53448,,,
+Europe,Terrestrial Food Producing,10.0,others,0.7595822,,,
+Global,Terrestrial Food Producing,37.0,others,55.8680702,,,
+Middle East,Terrestrial Food Producing,1.0,others,0.0,,,
+Africa,AGP,1.0,aggregated_class_data,2.112,,,
+Americas,AGP,5.0,aggregated_class_data,212.566,,,
+"Asia, Far East and Oceania",AGP,6.0,aggregated_class_data,0.0,,,
+Europe,AGP,0.0,aggregated_class_data,,,,
+Global,AGP,12.0,aggregated_class_data,214.678,,,
+Middle East,AGP,0.0,aggregated_class_data,,,,
+Africa,All,24.0,aggregated_class_data,2.112,,,
+Americas,All,19.0,aggregated_class_data,1342.566904,,,
+"Asia, Far East and Oceania",All,22.0,aggregated_class_data,177.2729,,,
+Europe,All,41.0,aggregated_class_data,10.414200000000001,,,
+Global,All,109.0,aggregated_class_data,1532.366004,,,
+Middle East,All,3.0,aggregated_class_data,0.0,,,
+Africa,Terrestrial Food Producing,6.0,aggregated_class_data,0.0,,,
+Americas,Terrestrial Food Producing,11.0,aggregated_class_data,87.28412,,,
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,aggregated_class_data,136.05182000000002,,,
+Europe,Terrestrial Food Producing,10.0,aggregated_class_data,0.055,,,
+Global,Terrestrial Food Producing,37.0,aggregated_class_data,223.39094000000003,,,
+Middle East,Terrestrial Food Producing,1.0,aggregated_class_data,0.0,,,
+Africa,AGP,1.0,total_antimicrobials,,,,
+Americas,AGP,5.0,total_antimicrobials,,,,
+"Asia, Far East and Oceania",AGP,6.0,total_antimicrobials,,,,
+Europe,AGP,0.0,total_antimicrobials,,,,
+Global,AGP,12.0,total_antimicrobials,,,,
+Middle East,AGP,0.0,total_antimicrobials,,,,
+Africa,All,24.0,total_antimicrobials,1410.1778815633536,,,
+Americas,All,19.0,total_antimicrobials,19141.24257155157,,,
+"Asia, Far East and Oceania",All,22.0,total_antimicrobials,41409.52947989788,,,
+Europe,All,41.0,total_antimicrobials,7457.655917030333,,,
+Global,All,109.0,total_antimicrobials,69452.52985004314,,,
+Middle East,All,3.0,total_antimicrobials,33.924,,,
+Africa,Terrestrial Food Producing,6.0,total_antimicrobials,,,,
+Americas,Terrestrial Food Producing,11.0,total_antimicrobials,,,,
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,total_antimicrobials,,,,
+Europe,Terrestrial Food Producing,10.0,total_antimicrobials,,,,
+Global,Terrestrial Food Producing,37.0,total_antimicrobials,,,,
+Middle East,Terrestrial Food Producing,1.0,total_antimicrobials,,,,

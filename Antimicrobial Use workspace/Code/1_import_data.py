@@ -175,10 +175,12 @@ amu2018.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018.csv') ,index=False)
 # -----------------------------------------------------------------------------
 amu2018_m = amu2018.melt(
 	id_vars=['region' ,'scope' ,'number_of_countries']         # Optional: column(s) to use as ID variables
-	,var_name='antimicrobial'             # Name for new "variable" column
+	,var_name='antimicrobial_class'             # Name for new "variable" column
 	,value_name='tonnes'              # Name for new "value" column
 )
-amu2018_m['antimicrobial'] = amu2018_m['antimicrobial'].str.replace('_tonnes' ,'')
+amu2018_m['antimicrobial_class'] = amu2018_m['antimicrobial_class'].str.replace('_tonnes' ,'')
+
+datainfo(amu2018_m)
 
 # Export
 amu2018_m.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_tall.csv') ,index=False)
@@ -438,8 +440,37 @@ datainfo(amu2018_biomass)
 # Export
 amu2018_biomass.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_biomass.csv') ,index=False)
 
+#%% Import list of important antibiotics
+
+amu_importance = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER ,'WHO CIA and HIA.xlsx')
+)
+cleancolnames(amu_importance)
+
+# Rename columns
+amu_importance = amu_importance.rename(columns={"unnamed:_0":"antimicrobial_class"})
+
+# Ensure all columns are string
+amu_importance = amu_importance.astype('str')
+
+# Combine categories into single column
+def combine_importance(INPUT_ROW):
+    if 'Y' in INPUT_ROW['critically_important_antimicrobials'].upper():
+        OUTPUT = 'A: Critically Important'
+    elif 'Y' in INPUT_ROW['highly_important_antimicrobials'].upper():
+        OUTPUT = 'B: Highly Important'
+    else:
+        OUTPUT = 'C: Other'
+    return OUTPUT
+amu_importance['importance_ctg'] = amu_importance.apply(combine_importance ,axis=1)      # Apply to each row of the dataframe (axis=1)
+
+datainfo(amu_importance)
+
 #%% Import price data
 
+# =============================================================================
+#### Raw price data
+# =============================================================================
 amu_prices = pd.read_excel(
     os.path.join(RAWDATA_FOLDER ,'AMU_ euros per ton.xlsx')
 	,skiprows=2                 # List: row numbers to skip. Integer: count of rows to skip at start of file
@@ -458,14 +489,96 @@ amu_prices['year'] = 2020
 
 datainfo(amu_prices)
 
+# =============================================================================
+#### Extended price data
+# =============================================================================
+amu_prices_ext = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER ,'AMU_ euros per ton extended.xlsx')
+	,skiprows=2                 # List: row numbers to skip. Integer: count of rows to skip at start of file
+    ,nrows=5                    # Total number of rows to read
+)
+cleancolnames(amu_prices_ext)
+
+datainfo(amu_prices_ext)
+
+#%% Import WOAH regions and countries
+
+woah_regions = pd.read_csv(os.path.join(GLBL_RAWDATA_FOLDER ,'WOAH regions and countries.csv'))
+cleancolnames(woah_regions)
+datainfo(woah_regions)
+
+woah_regions['world_region'].unique()
+
 #%% Import AMR data
 
 amr = pd.read_csv(os.path.join(RAWDATA_FOLDER ,'SBM_JSA_AMR_livestock.csv'))
-datainfo(amr)
 
 # Profile
 # profile = amr.profile_report()
 # profile.to_file(os.path.join(PRODATA_FOLDER ,'amr_profile.html'))
+
+# =============================================================================
+#### Add WOAH regions
+# =============================================================================
+amr['location_name'] = amr['location_name'].str.upper()
+woah_regions['country'] = woah_regions['country'].str.upper()
+
+# import difflib
+# amr['country_fuzzy'] = amr['map_id'].apply(
+#     lambda x: difflib.get_close_matches(x, woah_regions['country'] ,cutoff=0.2)[0]
+# )
+# check_countrymatch = amr[['map_id' ,'country_fuzzy']].value_counts()
+
+# woah_regions['iso3_fuzzy'] = woah_regions['country'].apply(
+#     lambda x: difflib.get_close_matches(x, amr['map_id'] ,cutoff=0.1)[0]
+# )
+# check_countrymatch = woah_regions[['country' ,'iso3_fuzzy']].value_counts()
+
+datainfo(amr)
+
+# Rename countries
+rename_countries_woah = {
+    "CHINA (PEOPLE'S REP. OF)":"CHINA"
+    ,"KOREA (REP. OF)":"KOREA"
+    }
+woah_regions['country_tomatch'] = woah_regions['country'].replace(rename_countries_woah)
+
+woah_add_countries = pd.DataFrame(
+    {"country_tomatch":"GRENADA" ,"world_region":"Americas"}
+    ,index=[0]
+    )
+woah_regions = pd.concat([woah_regions ,woah_add_countries])
+
+rename_countries_amr = {
+    "BOLIVIA (PLURINATIONAL STATE OF)":"BOLIVIA"
+    ,"CZECHIA":"CZECH REPUBLIC"
+    ,"IRAN (ISLAMIC REPUBLIC OF)":"IRAN"
+    ,"LAO PEOPLE'S DEMOCRATIC REPUBLIC":"LAOS"
+    ,"REPUBLIC OF KOREA":"KOREA"
+    ,"UNITED REPUBLIC OF TANZANIA":"TANZANIA"
+    ,"VENEZUELA (BOLIVARIAN REPUBLIC OF)":"VENEZUELA"
+    ,"VIET NAM":"VIETNAM"
+    }
+amr['country_tomatch'] = amr['location_name'].replace(rename_countries_amr)
+
+# Merge
+amr_withrgn = pd.merge(
+    left=amr
+    ,right=woah_regions
+    ,on='country_tomatch'
+    ,how='left'
+    ,indicator=True
+)
+print(amr_withrgn['_merge'].value_counts())
+
+amr_withrgn.query("_merge == 'left_only'")['location_name'].unique()
+
+amr_withrgn = amr_withrgn.drop(columns=['country_tomatch' ,'country' ,'_merge'])
+
+# =============================================================================
+#### Export
+# =============================================================================
+amr_withrgn.to_csv(os.path.join(PRODATA_FOLDER ,'amr.csv') ,index=False)
 
 #%% Checks
 

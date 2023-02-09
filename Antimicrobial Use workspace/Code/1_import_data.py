@@ -176,8 +176,9 @@ amu2018.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018.csv') ,index=False)
 amu2018_m = amu2018.melt(
 	id_vars=['region' ,'scope' ,'number_of_countries']         # Optional: column(s) to use as ID variables
 	,var_name='antimicrobial_class'             # Name for new "variable" column
-	,value_name='tonnes'              # Name for new "value" column
+	,value_name='amu_tonnes'              # Name for new "value" column
 )
+amu2018_m['amu_tonnes'] = amu2018_m['amu_tonnes'].fillna(0)
 amu2018_m['antimicrobial_class'] = amu2018_m['antimicrobial_class'].str.replace('_tonnes' ,'')
 
 datainfo(amu2018_m)

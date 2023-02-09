@@ -3,6 +3,9 @@
 '''
 #%% Structure: one row per region, antimicrobial
 
+# -----------------------------------------------------------------------------
+# Combine AM usage and importance
+# -----------------------------------------------------------------------------
 # Modify antimicrobial names in importance data to match
 amu_importance_tomerge = amu_importance.copy()
 
@@ -23,8 +26,8 @@ datainfo(amu_importance_tomerge)
 
 # Merge with AMU
 amu2018_combined_tall = pd.merge(
-    left=amu2018_m
-    ,right=amu_importance_tomerge
+    left=amu2018_m.query("region != 'Global'")
+    ,right=amu_importance_tomerge[['antimicrobial_class' ,'importance_ctg']]
     ,on='antimicrobial_class'
     ,how='left'
 )
@@ -52,10 +55,10 @@ amu2018_biomass_tomerge = amu2018_biomass_tomerge.rename(columns={"biomass_regio
 datainfo(amu2018_biomass_tomerge)
 
 amu2018_combined_regional = pd.merge(
-    left=amu2018_tomerge.query("scope == 'All'")
+    left=amu2018_tomerge.query("scope == 'All'").query("region != 'Global'")
     ,right=amu2018_biomass_tomerge.query("segment == 'Countries reporting AMU data'")
     ,on='region'
-    ,how='outer'
+    ,how='left'
 )
 
 # -----------------------------------------------------------------------------

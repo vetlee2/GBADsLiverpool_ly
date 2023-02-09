@@ -38,6 +38,7 @@ amu2018_combined_tall = pd.merge(
 datainfo(amu2018_combined_tall)
 
 amu2018_combined_tall.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_combined_tall.csv') ,index=False)
+amu2018_combined_tall.to_csv(os.path.join(DASH_DATA_FOLDER ,'amu2018_combined_tall.csv') ,index=False)
 
 #%% Structure: one row per region
 

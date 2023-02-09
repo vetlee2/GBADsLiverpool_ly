@@ -405,7 +405,7 @@ datainfo(amu2018_biomass_rgn_me)
 amu2018_biomass_glbl['region'] = 'Global'
 amu2018_biomass_rgn_af['region'] = 'Africa'
 amu2018_biomass_rgn_am['region'] = 'Americas'
-amu2018_biomass_rgn_as['region'] = 'Asia'
+amu2018_biomass_rgn_as['region'] = 'Asia, Far East and Oceania'
 amu2018_biomass_rgn_eu['region'] = 'Europe'
 amu2018_biomass_rgn_me['region'] = 'Middle East'
 
@@ -422,9 +422,27 @@ amu2018_biomass = pd.concat(
 	,ignore_index=True   # True: do not keep index values on concatenation axis
 )
 
-# Add column suffixes
+# Add total biomass column
+amu2018_biomass['total'] = amu2018_biomass.sum(axis=1)  # Sum all numeric columns
+
+# Add total bimoass for Terrestrial Food Producing animals
+tfp_species = [
+    'bovine'
+    ,'swine'
+    ,'poultry'
+    ,'equine'
+    ,'goats'
+    ,'sheep'
+    ,'rabbits'
+    ,'camelids'
+    ,'cervids'
+]
+amu2018_biomass['total_terr'] = amu2018_biomass[tfp_species].sum(axis=1)
+
+# Add column prefix and suffix
+amu2018_biomass = amu2018_biomass.add_prefix('biomass_')
 amu2018_biomass = amu2018_biomass.add_suffix('_kg')
-amu2018_biomass = amu2018_biomass.rename(columns={'region_kg':'region' ,'segment_kg':'segment'})
+amu2018_biomass = amu2018_biomass.rename(columns={'biomass_region_kg':'region' ,'biomass_segment_kg':'segment'})
 
 # Reorder columns and sort
 cols_first = ['region' ,'segment']

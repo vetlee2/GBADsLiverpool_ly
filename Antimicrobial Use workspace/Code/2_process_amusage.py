@@ -1,7 +1,7 @@
 #%% About
 '''
 '''
-#%% Structure: one row per region, antimicrobial
+#%% Structure: one row per region & antimicrobial
 
 # -----------------------------------------------------------------------------
 # Combine AM usage and importance
@@ -33,6 +33,33 @@ amu2018_combined_tall = pd.merge(
 )
 
 # -----------------------------------------------------------------------------
+# Add biomass data
+# -----------------------------------------------------------------------------
+# Merge
+amu2018_combined_tall = pd.merge(
+    left=amu2018_combined_tall
+    ,right=amu2018_biomass[['region' ,'segment' ,'biomass_total_kg' ,'biomass_total_terr_kg']].query("segment == 'Countries reporting AMU data'")
+    ,on='region'
+    ,how='left'
+)
+del amu2018_combined_tall['segment']
+
+# Apply appropriate biomass to each row based on scope
+def biomass_for_scope(INPUT_ROW):
+    if INPUT_ROW['scope'].upper() == 'ALL':
+        OUTPUT = INPUT_ROW['biomass_total_kg']
+    elif INPUT_ROW['scope'].upper() == 'TERRESTRIAL FOOD PRODUCING':
+        OUTPUT = INPUT_ROW['biomass_total_terr_kg']
+    else:
+        OUTPUT = np.nan
+    return OUTPUT
+amu2018_combined_tall['biomass_total_kg'] = amu2018_combined_tall.apply(biomass_for_scope ,axis=1)
+del amu2018_combined_tall['biomass_total_terr_kg']
+
+# Calculate AMU per kg biomass
+amu2018_combined_tall['amu_mg_perkgbiomass'] = (amu2018_combined_tall['amu_tonnes'] / amu2018_combined_tall['biomass_total_kg']) * 1e9
+
+# -----------------------------------------------------------------------------
 # Export
 # -----------------------------------------------------------------------------
 datainfo(amu2018_combined_tall)
@@ -45,19 +72,9 @@ amu2018_combined_tall.to_csv(os.path.join(DASH_DATA_FOLDER ,'amu2018_combined_ta
 # -----------------------------------------------------------------------------
 # Combine biomass and AM usage
 # -----------------------------------------------------------------------------
-amu2018_tomerge = amu2018.copy()
-
-rename_region = {'Asia, Far East and Oceania':'Asia'}
-amu2018_tomerge['region'] = amu2018_tomerge['region'].replace(rename_region)
-
-# Add prefix to biomass columns
-amu2018_biomass_tomerge = amu2018_biomass.add_prefix('biomass_')
-amu2018_biomass_tomerge = amu2018_biomass_tomerge.rename(columns={"biomass_region":"region" ,"biomass_segment":"segment"})
-datainfo(amu2018_biomass_tomerge)
-
 amu2018_combined_regional = pd.merge(
-    left=amu2018_tomerge.query("scope == 'All'").query("region != 'Global'")
-    ,right=amu2018_biomass_tomerge.query("segment == 'Countries reporting AMU data'")
+    left=amu2018.query("scope == 'All'").query("region != 'Global'")
+    ,right=amu2018_biomass.query("segment == 'Countries reporting AMU data'")
     ,on='region'
     ,how='left'
 )
@@ -66,36 +83,7 @@ amu2018_combined_regional = pd.merge(
 # Find proportion of AM usage going to terrestrial food producing animals
 # -----------------------------------------------------------------------------
 # Calculate proportion of biomass
-biomass_species = [
-    'biomass_bovine_kg'
-    ,'biomass_swine_kg'
-    ,'biomass_poultry_kg'
-    ,'biomass_equine_kg'
-    ,'biomass_goats_kg'
-    ,'biomass_sheep_kg'
-    ,'biomass_rabbits_kg'
-    ,'biomass_camelids_kg'
-    ,'biomass_cervids_kg'
-    ,'biomass_cats_kg'
-    ,'biomass_dogs_kg'
-    ,'biomass_aquaculture_kg'
-    ,'biomass_farmed_fish_kg'
-]
-biomass_tfp_species = [     # Terrestrial Food Producing
-    'biomass_bovine_kg'
-    ,'biomass_swine_kg'
-    ,'biomass_poultry_kg'
-    ,'biomass_equine_kg'
-    ,'biomass_goats_kg'
-    ,'biomass_sheep_kg'
-    ,'biomass_rabbits_kg'
-    ,'biomass_camelids_kg'
-    ,'biomass_cervids_kg'
-]
-
-amu2018_combined_regional['biomass_total_kg'] = amu2018_combined_regional[biomass_species].sum(axis=1)
-amu2018_combined_regional['biomass_terr_kg'] = amu2018_combined_regional[biomass_tfp_species].sum(axis=1)
-amu2018_combined_regional['biomass_terr_prpn'] = amu2018_combined_regional['biomass_terr_kg'] / amu2018_combined_regional['biomass_total_kg']
+amu2018_combined_regional['biomass_terr_prpn'] = amu2018_combined_regional['biomass_total_terr_kg'] / amu2018_combined_regional['biomass_total_kg']
 amu2018_combined_regional['terr_amu_tonnes'] = amu2018_combined_regional['total_antimicrobials_tonnes'] * amu2018_combined_regional['biomass_terr_prpn']
 
 # -----------------------------------------------------------------------------

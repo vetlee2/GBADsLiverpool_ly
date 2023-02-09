@@ -1,10 +1,10 @@
-region,scope,number_of_countries,antimicrobial,tonnes
+region,scope,number_of_countries,antimicrobial_class,amu_tonnes
 Africa,AGP,1.0,aminoglycosides,0.0
 Americas,AGP,5.0,aminoglycosides,0.0
 "Asia, Far East and Oceania",AGP,6.0,aminoglycosides,0.707
-Europe,AGP,0.0,aminoglycosides,
+Europe,AGP,0.0,aminoglycosides,0.0
 Global,AGP,12.0,aminoglycosides,0.707
-Middle East,AGP,0.0,aminoglycosides,
+Middle East,AGP,0.0,aminoglycosides,0.0
 Africa,All,24.0,aminoglycosides,33.65154353510884
 Americas,All,19.0,aminoglycosides,762.3757826245582
 "Asia, Far East and Oceania",All,22.0,aminoglycosides,1425.6633331469927
@@ -20,9 +20,9 @@ Middle East,Terrestrial Food Producing,1.0,aminoglycosides,2.97
 Africa,AGP,1.0,amphenicols,0.0
 Americas,AGP,5.0,amphenicols,0.0
 "Asia, Far East and Oceania",AGP,6.0,amphenicols,0.0
-Europe,AGP,0.0,amphenicols,
+Europe,AGP,0.0,amphenicols,0.0
 Global,AGP,12.0,amphenicols,0.0
-Middle East,AGP,0.0,amphenicols,
+Middle East,AGP,0.0,amphenicols,0.0
 Africa,All,24.0,amphenicols,20.410307295
 Americas,All,19.0,amphenicols,739.797925
 "Asia, Far East and Oceania",All,22.0,amphenicols,2422.62492398
@@ -38,9 +38,9 @@ Middle East,Terrestrial Food Producing,1.0,amphenicols,1.5
 Africa,AGP,1.0,arsenicals,0.0
 Americas,AGP,5.0,arsenicals,0.0
 "Asia, Far East and Oceania",AGP,6.0,arsenicals,74.44
-Europe,AGP,0.0,arsenicals,
+Europe,AGP,0.0,arsenicals,0.0
 Global,AGP,12.0,arsenicals,74.44
-Middle East,AGP,0.0,arsenicals,
+Middle East,AGP,0.0,arsenicals,0.0
 Africa,All,24.0,arsenicals,0.011
 Americas,All,19.0,arsenicals,51.9
 "Asia, Far East and Oceania",All,22.0,arsenicals,74.44
@@ -56,9 +56,9 @@ Middle East,Terrestrial Food Producing,1.0,arsenicals,0.0
 Africa,AGP,1.0,cephalosporins__all_generations,0.0
 Americas,AGP,5.0,cephalosporins__all_generations,0.0
 "Asia, Far East and Oceania",AGP,6.0,cephalosporins__all_generations,0.0
-Europe,AGP,0.0,cephalosporins__all_generations,
+Europe,AGP,0.0,cephalosporins__all_generations,0.0
 Global,AGP,12.0,cephalosporins__all_generations,0.0
-Middle East,AGP,0.0,cephalosporins__all_generations,
+Middle East,AGP,0.0,cephalosporins__all_generations,0.0
 Africa,All,24.0,cephalosporins__all_generations,10.0178996
 Americas,All,19.0,cephalosporins__all_generations,116.27410461424999
 "Asia, Far East and Oceania",All,22.0,cephalosporins__all_generations,421.64690735783785
@@ -74,9 +74,9 @@ Middle East,Terrestrial Food Producing,1.0,cephalosporins__all_generations,0.0
 Africa,AGP,1.0,1_2_gen__cephalosporins,0.0
 Americas,AGP,5.0,1_2_gen__cephalosporins,0.0
 "Asia, Far East and Oceania",AGP,6.0,1_2_gen__cephalosporins,0.0
-Europe,AGP,0.0,1_2_gen__cephalosporins,
+Europe,AGP,0.0,1_2_gen__cephalosporins,0.0
 Global,AGP,12.0,1_2_gen__cephalosporins,0.0
-Middle East,AGP,0.0,1_2_gen__cephalosporins,
+Middle East,AGP,0.0,1_2_gen__cephalosporins,0.0
 Africa,All,24.0,1_2_gen__cephalosporins,0.026490000000000003
 Americas,All,19.0,1_2_gen__cephalosporins,55.612756462499995
 "Asia, Far East and Oceania",All,22.0,1_2_gen__cephalosporins,27.308859372837826
@@ -92,9 +92,9 @@ Middle East,Terrestrial Food Producing,1.0,1_2_gen__cephalosporins,0.0
 Africa,AGP,1.0,3_4_gen_cephalosporins,0.0
 Americas,AGP,5.0,3_4_gen_cephalosporins,0.0
 "Asia, Far East and Oceania",AGP,6.0,3_4_gen_cephalosporins,0.0
-Europe,AGP,0.0,3_4_gen_cephalosporins,
+Europe,AGP,0.0,3_4_gen_cephalosporins,0.0
 Global,AGP,12.0,3_4_gen_cephalosporins,0.0
-Middle East,AGP,0.0,3_4_gen_cephalosporins,
+Middle East,AGP,0.0,3_4_gen_cephalosporins,0.0
 Africa,All,24.0,3_4_gen_cephalosporins,0.0874096
 Americas,All,19.0,3_4_gen_cephalosporins,25.316200491750003
 "Asia, Far East and Oceania",All,22.0,3_4_gen_cephalosporins,303.07204798500004
@@ -110,9 +110,9 @@ Middle East,Terrestrial Food Producing,1.0,3_4_gen_cephalosporins,0.0
 Africa,AGP,1.0,fluoroquinolones,0.0
 Americas,AGP,5.0,fluoroquinolones,0.0
 "Asia, Far East and Oceania",AGP,6.0,fluoroquinolones,0.0
-Europe,AGP,0.0,fluoroquinolones,
+Europe,AGP,0.0,fluoroquinolones,0.0
 Global,AGP,12.0,fluoroquinolones,0.0
-Middle East,AGP,0.0,fluoroquinolones,
+Middle East,AGP,0.0,fluoroquinolones,0.0
 Africa,All,24.0,fluoroquinolones,91.39779790500002
 Americas,All,19.0,fluoroquinolones,428.54548516660003
 "Asia, Far East and Oceania",All,22.0,fluoroquinolones,867.5345784811577
@@ -128,9 +128,9 @@ Middle East,Terrestrial Food Producing,1.0,fluoroquinolones,0.16
 Africa,AGP,1.0,glycopeptides,0.0
 Americas,AGP,5.0,glycopeptides,0.0
 "Asia, Far East and Oceania",AGP,6.0,glycopeptides,0.0
-Europe,AGP,0.0,glycopeptides,
+Europe,AGP,0.0,glycopeptides,0.0
 Global,AGP,12.0,glycopeptides,0.0
-Middle East,AGP,0.0,glycopeptides,
+Middle East,AGP,0.0,glycopeptides,0.0
 Africa,All,24.0,glycopeptides,1.0
 Americas,All,19.0,glycopeptides,0.0
 "Asia, Far East and Oceania",All,22.0,glycopeptides,0.0
@@ -146,9 +146,9 @@ Middle East,Terrestrial Food Producing,1.0,glycopeptides,0.255
 Africa,AGP,1.0,glycophospholipids,0.0
 Americas,AGP,5.0,glycophospholipids,13.90780678
 "Asia, Far East and Oceania",AGP,6.0,glycophospholipids,97.183
-Europe,AGP,0.0,glycophospholipids,
+Europe,AGP,0.0,glycophospholipids,0.0
 Global,AGP,12.0,glycophospholipids,111.09080678000001
-Middle East,AGP,0.0,glycophospholipids,
+Middle East,AGP,0.0,glycophospholipids,0.0
 Africa,All,24.0,glycophospholipids,110.0
 Americas,All,19.0,glycophospholipids,34.70140678
 "Asia, Far East and Oceania",All,22.0,glycophospholipids,99.261
@@ -164,9 +164,9 @@ Middle East,Terrestrial Food Producing,1.0,glycophospholipids,0.0
 Africa,AGP,1.0,lincosamides,0.0
 Americas,AGP,5.0,lincosamides,22.0210782
 "Asia, Far East and Oceania",AGP,6.0,lincosamides,0.21
-Europe,AGP,0.0,lincosamides,
+Europe,AGP,0.0,lincosamides,0.0
 Global,AGP,12.0,lincosamides,22.231078200000002
-Middle East,AGP,0.0,lincosamides,
+Middle East,AGP,0.0,lincosamides,0.0
 Africa,All,24.0,lincosamides,1.36453
 Americas,All,19.0,lincosamides,379.67399613999993
 "Asia, Far East and Oceania",All,22.0,lincosamides,647.3119385724606
@@ -182,9 +182,9 @@ Middle East,Terrestrial Food Producing,1.0,lincosamides,0.0
 Africa,AGP,1.0,macrolides,0.0
 Americas,AGP,5.0,macrolides,62.46305198999999
 "Asia, Far East and Oceania",AGP,6.0,macrolides,1174.582
-Europe,AGP,0.0,macrolides,
+Europe,AGP,0.0,macrolides,0.0
 Global,AGP,12.0,macrolides,1237.04505199
-Middle East,AGP,0.0,macrolides,
+Middle East,AGP,0.0,macrolides,0.0
 Africa,All,24.0,macrolides,78.34148013000001
 Americas,All,19.0,macrolides,1472.3875462015326
 "Asia, Far East and Oceania",All,22.0,macrolides,3981.0877146068183
@@ -200,9 +200,9 @@ Middle East,Terrestrial Food Producing,1.0,macrolides,7.79
 Africa,AGP,1.0,nitrofurans,0.0
 Americas,AGP,5.0,nitrofurans,0.0
 "Asia, Far East and Oceania",AGP,6.0,nitrofurans,0.0
-Europe,AGP,0.0,nitrofurans,
+Europe,AGP,0.0,nitrofurans,0.0
 Global,AGP,12.0,nitrofurans,0.0
-Middle East,AGP,0.0,nitrofurans,
+Middle East,AGP,0.0,nitrofurans,0.0
 Africa,All,24.0,nitrofurans,0.16666
 Americas,All,19.0,nitrofurans,0.303410528
 "Asia, Far East and Oceania",All,22.0,nitrofurans,3.2116587
@@ -218,9 +218,9 @@ Middle East,Terrestrial Food Producing,1.0,nitrofurans,0.0
 Africa,AGP,1.0,orthosomycins,0.0
 Americas,AGP,5.0,orthosomycins,3.6422226500000003
 "Asia, Far East and Oceania",AGP,6.0,orthosomycins,26.195
-Europe,AGP,0.0,orthosomycins,
+Europe,AGP,0.0,orthosomycins,0.0
 Global,AGP,12.0,orthosomycins,29.83722265
-Middle East,AGP,0.0,orthosomycins,
+Middle East,AGP,0.0,orthosomycins,0.0
 Africa,All,24.0,orthosomycins,0.0
 Americas,All,19.0,orthosomycins,27.93374765
 "Asia, Far East and Oceania",All,22.0,orthosomycins,40.708
@@ -236,9 +236,9 @@ Middle East,Terrestrial Food Producing,1.0,orthosomycins,0.0
 Africa,AGP,1.0,other_quinolones,0.0
 Americas,AGP,5.0,other_quinolones,0.0
 "Asia, Far East and Oceania",AGP,6.0,other_quinolones,0.0
-Europe,AGP,0.0,other_quinolones,
+Europe,AGP,0.0,other_quinolones,0.0
 Global,AGP,12.0,other_quinolones,0.0
-Middle East,AGP,0.0,other_quinolones,
+Middle East,AGP,0.0,other_quinolones,0.0
 Africa,All,24.0,other_quinolones,0.83929
 Americas,All,19.0,other_quinolones,8.016018
 "Asia, Far East and Oceania",All,22.0,other_quinolones,20.504566
@@ -254,9 +254,9 @@ Middle East,Terrestrial Food Producing,1.0,other_quinolones,0.0
 Africa,AGP,1.0,penicillins,0.0
 Americas,AGP,5.0,penicillins,0.025
 "Asia, Far East and Oceania",AGP,6.0,penicillins,7.174
-Europe,AGP,0.0,penicillins,
+Europe,AGP,0.0,penicillins,0.0
 Global,AGP,12.0,penicillins,7.199000000000001
-Middle East,AGP,0.0,penicillins,
+Middle East,AGP,0.0,penicillins,0.0
 Africa,All,24.0,penicillins,139.48317097044
 Americas,All,19.0,penicillins,1851.932388023641
 "Asia, Far East and Oceania",All,22.0,penicillins,5809.310729588148
@@ -272,9 +272,9 @@ Middle East,Terrestrial Food Producing,1.0,penicillins,2.525
 Africa,AGP,1.0,pleuromutilins,0.0
 Americas,AGP,5.0,pleuromutilins,37.982856874999996
 "Asia, Far East and Oceania",AGP,6.0,pleuromutilins,12.399
-Europe,AGP,0.0,pleuromutilins,
+Europe,AGP,0.0,pleuromutilins,0.0
 Global,AGP,12.0,pleuromutilins,50.381856875
-Middle East,AGP,0.0,pleuromutilins,
+Middle East,AGP,0.0,pleuromutilins,0.0
 Africa,All,24.0,pleuromutilins,3.6
 Americas,All,19.0,pleuromutilins,369.877642475
 "Asia, Far East and Oceania",All,22.0,pleuromutilins,1161.8913148328797
@@ -290,9 +290,9 @@ Middle East,Terrestrial Food Producing,1.0,pleuromutilins,0.0
 Africa,AGP,1.0,polypeptides,0.134
 Americas,AGP,5.0,polypeptides,502.08734898838
 "Asia, Far East and Oceania",AGP,6.0,polypeptides,1514.758
-Europe,AGP,0.0,polypeptides,
+Europe,AGP,0.0,polypeptides,0.0
 Global,AGP,12.0,polypeptides,2016.97934898838
-Middle East,AGP,0.0,polypeptides,
+Middle East,AGP,0.0,polypeptides,0.0
 Africa,All,24.0,polypeptides,50.477093846604504
 Americas,All,19.0,polypeptides,1746.9940220419883
 "Asia, Far East and Oceania",All,22.0,polypeptides,3055.9833601249356
@@ -308,9 +308,9 @@ Middle East,Terrestrial Food Producing,1.0,polypeptides,0.0
 Africa,AGP,1.0,quinoxalines,0.0
 Americas,AGP,5.0,quinoxalines,0.0
 "Asia, Far East and Oceania",AGP,6.0,quinoxalines,1312.213
-Europe,AGP,0.0,quinoxalines,
+Europe,AGP,0.0,quinoxalines,0.0
 Global,AGP,12.0,quinoxalines,1312.213
-Middle East,AGP,0.0,quinoxalines,
+Middle East,AGP,0.0,quinoxalines,0.0
 Africa,All,24.0,quinoxalines,0.0
 Americas,All,19.0,quinoxalines,34.794
 "Asia, Far East and Oceania",All,22.0,quinoxalines,1346.323
@@ -326,9 +326,9 @@ Middle East,Terrestrial Food Producing,1.0,quinoxalines,0.0
 Africa,AGP,1.0,streptogramins,0.0
 Americas,AGP,5.0,streptogramins,4.86238653
 "Asia, Far East and Oceania",AGP,6.0,streptogramins,464.775
-Europe,AGP,0.0,streptogramins,
+Europe,AGP,0.0,streptogramins,0.0
 Global,AGP,12.0,streptogramins,469.63738652999996
-Middle East,AGP,0.0,streptogramins,
+Middle East,AGP,0.0,streptogramins,0.0
 Africa,All,24.0,streptogramins,0.004
 Americas,All,19.0,streptogramins,14.067076529999998
 "Asia, Far East and Oceania",All,22.0,streptogramins,473.259
@@ -344,9 +344,9 @@ Middle East,Terrestrial Food Producing,1.0,streptogramins,0.0
 Africa,AGP,1.0,sulfonamides__including_trimethoprim,3.863
 Americas,AGP,5.0,sulfonamides__including_trimethoprim,0.0
 "Asia, Far East and Oceania",AGP,6.0,sulfonamides__including_trimethoprim,0.77
-Europe,AGP,0.0,sulfonamides__including_trimethoprim,
+Europe,AGP,0.0,sulfonamides__including_trimethoprim,0.0
 Global,AGP,12.0,sulfonamides__including_trimethoprim,4.633
-Middle East,AGP,0.0,sulfonamides__including_trimethoprim,
+Middle East,AGP,0.0,sulfonamides__including_trimethoprim,0.0
 Africa,All,24.0,sulfonamides__including_trimethoprim,103.43037745619999
 Americas,All,19.0,sulfonamides__including_trimethoprim,796.4145453110001
 "Asia, Far East and Oceania",All,22.0,sulfonamides__including_trimethoprim,1892.112045819472
@@ -362,9 +362,9 @@ Middle East,Terrestrial Food Producing,1.0,sulfonamides__including_trimethoprim,
 Africa,AGP,1.0,tetracyclines,3.902
 Americas,AGP,5.0,tetracyclines,4.8126789
 "Asia, Far East and Oceania",AGP,6.0,tetracyclines,12284.669
-Europe,AGP,0.0,tetracyclines,
+Europe,AGP,0.0,tetracyclines,0.0
 Global,AGP,12.0,tetracyclines,12293.3836789
-Middle East,AGP,0.0,tetracyclines,
+Middle East,AGP,0.0,tetracyclines,0.0
 Africa,All,24.0,tetracyclines,740.348046675
 Americas,All,19.0,tetracyclines,8517.692808254998
 "Asia, Far East and Oceania",All,22.0,tetracyclines,16562.587335943434
@@ -380,9 +380,9 @@ Middle East,Terrestrial Food Producing,1.0,tetracyclines,8.023
 Africa,AGP,1.0,others,19.25
 Americas,AGP,5.0,others,221.4178
 "Asia, Far East and Oceania",AGP,6.0,others,0.0
-Europe,AGP,0.0,others,
+Europe,AGP,0.0,others,0.0
 Global,AGP,12.0,others,240.6678
-Middle East,AGP,0.0,others,
+Middle East,AGP,0.0,others,0.0
 Africa,All,24.0,others,23.584684149999998
 Americas,All,19.0,others,444.9947622100001
 "Asia, Far East and Oceania",All,22.0,others,691.92617274375
@@ -398,9 +398,9 @@ Middle East,Terrestrial Food Producing,1.0,others,0.0
 Africa,AGP,1.0,aggregated_class_data,2.112
 Americas,AGP,5.0,aggregated_class_data,212.566
 "Asia, Far East and Oceania",AGP,6.0,aggregated_class_data,0.0
-Europe,AGP,0.0,aggregated_class_data,
+Europe,AGP,0.0,aggregated_class_data,0.0
 Global,AGP,12.0,aggregated_class_data,214.678
-Middle East,AGP,0.0,aggregated_class_data,
+Middle East,AGP,0.0,aggregated_class_data,0.0
 Africa,All,24.0,aggregated_class_data,2.112
 Americas,All,19.0,aggregated_class_data,1342.566904
 "Asia, Far East and Oceania",All,22.0,aggregated_class_data,177.2729
@@ -413,21 +413,21 @@ Americas,Terrestrial Food Producing,11.0,aggregated_class_data,87.28412
 Europe,Terrestrial Food Producing,10.0,aggregated_class_data,0.055
 Global,Terrestrial Food Producing,37.0,aggregated_class_data,223.39094000000003
 Middle East,Terrestrial Food Producing,1.0,aggregated_class_data,0.0
-Africa,AGP,1.0,total_antimicrobials,
-Americas,AGP,5.0,total_antimicrobials,
-"Asia, Far East and Oceania",AGP,6.0,total_antimicrobials,
-Europe,AGP,0.0,total_antimicrobials,
-Global,AGP,12.0,total_antimicrobials,
-Middle East,AGP,0.0,total_antimicrobials,
+Africa,AGP,1.0,total_antimicrobials,0.0
+Americas,AGP,5.0,total_antimicrobials,0.0
+"Asia, Far East and Oceania",AGP,6.0,total_antimicrobials,0.0
+Europe,AGP,0.0,total_antimicrobials,0.0
+Global,AGP,12.0,total_antimicrobials,0.0
+Middle East,AGP,0.0,total_antimicrobials,0.0
 Africa,All,24.0,total_antimicrobials,1410.1778815633536
 Americas,All,19.0,total_antimicrobials,19141.24257155157
 "Asia, Far East and Oceania",All,22.0,total_antimicrobials,41409.52947989788
 Europe,All,41.0,total_antimicrobials,7457.655917030333
 Global,All,109.0,total_antimicrobials,69452.52985004314
 Middle East,All,3.0,total_antimicrobials,33.924
-Africa,Terrestrial Food Producing,6.0,total_antimicrobials,
-Americas,Terrestrial Food Producing,11.0,total_antimicrobials,
-"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,total_antimicrobials,
-Europe,Terrestrial Food Producing,10.0,total_antimicrobials,
-Global,Terrestrial Food Producing,37.0,total_antimicrobials,
-Middle East,Terrestrial Food Producing,1.0,total_antimicrobials,
+Africa,Terrestrial Food Producing,6.0,total_antimicrobials,0.0
+Americas,Terrestrial Food Producing,11.0,total_antimicrobials,0.0
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,total_antimicrobials,0.0
+Europe,Terrestrial Food Producing,10.0,total_antimicrobials,0.0
+Global,Terrestrial Food Producing,37.0,total_antimicrobials,0.0
+Middle East,Terrestrial Food Producing,1.0,total_antimicrobials,0.0

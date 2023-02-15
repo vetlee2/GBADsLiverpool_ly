@@ -97,7 +97,7 @@ ETHIOPIA_DATA_FOLDER = os.path.join(PARENT_FOLDER ,'Data')
 # Full path to rscript.exe
 r_executable = 'C:\\Program Files\\R\\R-4.2.1\\bin\\x64\\Rscript.exe'
 
-#%% Run AHLE simulation
+#%% Run AHLE simulation - Small ruminants
 '''
 OLD RUN TIMES
 
@@ -106,23 +106,20 @@ N runs | Run time
 100      1m 53s
 1000     14m 40s
 '''
-# =============================================================================
-#### Small ruminants
-# =============================================================================
 # Full path to the R program you want to run
-r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table _ Gemma edits for individuals .R')
+r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table_SMALLRUMINANTS.R')
 
 # Arguments to R function, as list of strings.
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
     # Arg 1: Number of simulation runs
-    '2'
+    '10'
 
     # Arg 2: Folder location for saving output files
-    ,ETHIOPIA_OUTPUT_FOLDER
+    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
 
     # Arg 3: full path to scenario control file
-    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters.xlsx')
+    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters SMALLRUMINANTS.xlsx')
 
     # Arg 4: only run the first N scenarios from the control file
     # -1: use all scenarios
@@ -133,36 +130,33 @@ timerstart()
 run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=99)
 timerstop()
 
-# =============================================================================
-#### Cattle
-# =============================================================================
+#%% Run AHLE simulation - Cattle
+
 # Full path to the R program you want to run
-r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table _ Gemma edits for individuals _CATTLE.R')
+r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table_CATTLE.R')
 
 # Arguments to R function, as list of strings.
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
     # Arg 1: Number of simulation runs
-    '1'
+    '10'
 
     # Arg 2: Folder location for saving output files
-    ,ETHIOPIA_OUTPUT_FOLDER
+    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE')
 
     # Arg 3: full path to scenario control file
     ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters CATTLE.xlsx')
 
     # Arg 4: only run the first N scenarios from the control file
     # -1: use all scenarios
-    # 9/28: Gemma removed the code that performed this task
-    # ,'-1'
+    ,'-1'
 ]
 timerstart()
 run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=99)
 timerstop()
 
-# =============================================================================
-#### Poultry
-# =============================================================================
+#%% Run AHLE simulation - Poultry
+
 # Full path to the R program you want to run
 r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table _ POULTRY.R')
 
@@ -170,10 +164,10 @@ r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table _ POULTRY.R'
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
     # Arg 1: Number of simulation runs
-    '100'
+    '10'
 
     # Arg 2: Folder location for saving output files
-    ,ETHIOPIA_OUTPUT_FOLDER
+    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle POULTRY')
 
     # Arg 3: full path to scenario control file
     ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters POULTRY.xlsx')

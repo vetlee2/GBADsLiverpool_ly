@@ -160,23 +160,18 @@ PARENT_FOLDER = os.path.dirname(CURRENT_FOLDER)
 # Folder for shared code with Liverpool
 ETHIOPIA_CODE_FOLDER = CURRENT_FOLDER
 ETHIOPIA_OUTPUT_FOLDER = os.path.join(PARENT_FOLDER ,'Program outputs')
-ETHIOPIA_DATA_FOLDER = os.path.join(PARENT_FOLDER ,'Data')#%% Preliminaries
+ETHIOPIA_DATA_FOLDER = os.path.join(PARENT_FOLDER ,'Data')
 
 # Full path to rscript.exe
 r_executable = 'C:\\Program Files\\R\\R-4.2.1\\bin\\x64\\Rscript.exe'
 
-# =============================================================================
-#### Prepare currency conversion data
-# =============================================================================
-# Read conversion data
-exchg_data = pd.read_csv(os.path.join(ETHIOPIA_DATA_FOLDER ,'worldbank_inflation_exchangerate_gdp_2010_2021' ,'20475199-8fa4-4249-baec-98b6635f68e3_Data.csv'))
-cleancolnames(exchg_data)
-datainfo(exchg_data)
+#%% Data prep
 
-exchg_data_tomerge = exchg_data.query("country_name == 'Ethiopia'").query("time == 2019")
-exchg_data_tomerge = exchg_data_tomerge.rename(columns={'official_exchange_rate__lcu_per_us_dol___period_average___pa_nus_fcrf_':'exchg_rate_lcuperusdol'})
-exchg_data_tomerge['exchg_rate_lcuperusdol'] = exchg_data_tomerge['exchg_rate_lcuperusdol'].astype('float64')                     # Convert a single column. Can replace original or make new column.
-exchg_data_tomerge = exchg_data_tomerge[['country_name' ,'exchg_rate_lcuperusdol']]
+# =============================================================================
+#### Read currency conversion data
+# =============================================================================
+# Note: this is created in 2_process_simulation_results_standalone.py
+exchg_data_tomerge = pd.read_pickle(os.path.join(ETHIOPIA_DATA_FOLDER ,'wb_exchg_data_processed.pkl.gz'))
 
 #%% Run Attribution using example inputs
 

@@ -96,7 +96,7 @@ GRANDPARENT_FOLDER = os.path.dirname(PARENT_FOLDER)
 # Folder for shared code with Liverpool
 ETHIOPIA_CODE_FOLDER = CURRENT_FOLDER
 ETHIOPIA_OUTPUT_FOLDER = os.path.join(PARENT_FOLDER ,'Program outputs')
-ETHIOPIA_DATA_FOLDER = os.path.join(PARENT_FOLDER ,'Data')#%% Preliminaries
+ETHIOPIA_DATA_FOLDER = os.path.join(PARENT_FOLDER ,'Data')
 
 DASH_DATA_FOLDER = os.path.join(GRANDPARENT_FOLDER, 'AHLE Dashboard' ,'Dash App' ,'data')
 
@@ -114,6 +114,9 @@ exchg_data_tomerge = exchg_data.query("country_name == 'Ethiopia'").query("time 
 exchg_data_tomerge = exchg_data_tomerge.rename(columns={'official_exchange_rate__lcu_per_us_dol___period_average___pa_nus_fcrf_':'exchg_rate_lcuperusdol'})
 exchg_data_tomerge['exchg_rate_lcuperusdol'] = exchg_data_tomerge['exchg_rate_lcuperusdol'].astype('float64')                     # Convert a single column. Can replace original or make new column.
 exchg_data_tomerge = exchg_data_tomerge[['country_name' ,'exchg_rate_lcuperusdol']]
+
+# Export
+exchg_data_tomerge.to_pickle(os.path.join(ETHIOPIA_DATA_FOLDER ,'wb_exchg_data_processed.pkl.gz'))
 
 #%% Combine scenario result files
 
@@ -231,7 +234,7 @@ small_rum_suffixes=[
 ]
 
 ahle_sheep_clm = combine_ahle_scenarios(
-   input_folder=ETHIOPIA_OUTPUT_FOLDER
+   input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
    ,input_file_prefix='ahle_CLM_S'
    ,input_file_suffixes=small_rum_suffixes
    ,label_species='Sheep'
@@ -240,7 +243,7 @@ ahle_sheep_clm = combine_ahle_scenarios(
 datainfo(ahle_sheep_clm)
 
 ahle_sheep_past = combine_ahle_scenarios(
-   input_folder=ETHIOPIA_OUTPUT_FOLDER
+   input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
    ,input_file_prefix='ahle_Past_S'
    ,input_file_suffixes=small_rum_suffixes
    ,label_species='Sheep'
@@ -249,7 +252,7 @@ ahle_sheep_past = combine_ahle_scenarios(
 datainfo(ahle_sheep_past)
 
 ahle_goat_clm = combine_ahle_scenarios(
-   input_folder=ETHIOPIA_OUTPUT_FOLDER
+   input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
    ,input_file_prefix='ahle_CLM_G'
    ,input_file_suffixes=small_rum_suffixes
    ,label_species='Goat'
@@ -258,7 +261,7 @@ ahle_goat_clm = combine_ahle_scenarios(
 datainfo(ahle_goat_clm)
 
 ahle_goat_past = combine_ahle_scenarios(
-   input_folder=ETHIOPIA_OUTPUT_FOLDER
+   input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
    ,input_file_prefix='ahle_Past_G'
    ,input_file_suffixes=small_rum_suffixes
    ,label_species='Goat'
@@ -294,7 +297,7 @@ cattle_suffixes = [
 ]
 
 ahle_cattle_clm = combine_ahle_scenarios(
-    input_folder=ETHIOPIA_OUTPUT_FOLDER
+    input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE')
     ,input_file_prefix='ahle_cattle_trial_CLM'
     ,input_file_suffixes=cattle_suffixes
     ,label_species='Cattle'
@@ -303,7 +306,7 @@ ahle_cattle_clm = combine_ahle_scenarios(
 datainfo(ahle_cattle_clm)
 
 ahle_cattle_past = combine_ahle_scenarios(
-    input_folder=ETHIOPIA_OUTPUT_FOLDER
+    input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE')
     ,input_file_prefix='ahle_cattle_trial_past'
     ,input_file_suffixes=cattle_suffixes
     ,label_species='Cattle'
@@ -312,7 +315,7 @@ ahle_cattle_past = combine_ahle_scenarios(
 datainfo(ahle_cattle_past)
 
 ahle_cattle_peri = combine_ahle_scenarios(
-    input_folder=ETHIOPIA_OUTPUT_FOLDER
+    input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE')
     ,input_file_prefix='ahle_cattle_trial_periurban_dairy'
     ,input_file_suffixes=cattle_suffixes
     ,label_species='Cattle'
@@ -336,7 +339,7 @@ poultry_suffixes = [
 ]
 
 ahle_poultry_smallholder = combine_ahle_scenarios(
-    input_folder=ETHIOPIA_OUTPUT_FOLDER
+    input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle POULTRY')
     ,input_file_prefix='ahle_Smallholder_hybrid'
     ,input_file_suffixes=poultry_suffixes
     ,label_species='Poultry hybrid'
@@ -345,7 +348,7 @@ ahle_poultry_smallholder = combine_ahle_scenarios(
 datainfo(ahle_poultry_smallholder)
 
 ahle_poultry_villagehybrid = combine_ahle_scenarios(
-    input_folder=ETHIOPIA_OUTPUT_FOLDER
+    input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle POULTRY')
     ,input_file_prefix='ahle_Village_hybrid'
     ,input_file_suffixes=poultry_suffixes
     ,label_species='Poultry hybrid'
@@ -354,7 +357,7 @@ ahle_poultry_villagehybrid = combine_ahle_scenarios(
 datainfo(ahle_poultry_villagehybrid)
 
 ahle_poultry_villageindig = combine_ahle_scenarios(
-    input_folder=ETHIOPIA_OUTPUT_FOLDER
+    input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle POULTRY')
     ,input_file_prefix='ahle_Village_indigenous'
     ,input_file_suffixes=poultry_suffixes
     ,label_species='Poultry indigenous'

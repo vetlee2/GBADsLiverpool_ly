@@ -413,21 +413,21 @@ Americas,Terrestrial Food Producing,11.0,aggregated_class_data,87.28412
 Europe,Terrestrial Food Producing,10.0,aggregated_class_data,0.055
 Global,Terrestrial Food Producing,37.0,aggregated_class_data,223.39094000000003
 Middle East,Terrestrial Food Producing,1.0,aggregated_class_data,0.0
-Africa,AGP,1.0,total_antimicrobials,0.0
-Americas,AGP,5.0,total_antimicrobials,0.0
-"Asia, Far East and Oceania",AGP,6.0,total_antimicrobials,0.0
+Africa,AGP,1.0,total_antimicrobials,29.261000000000003
+Americas,AGP,5.0,total_antimicrobials,1085.78823091338
+"Asia, Far East and Oceania",AGP,6.0,total_antimicrobials,16970.075
 Europe,AGP,0.0,total_antimicrobials,0.0
-Global,AGP,12.0,total_antimicrobials,0.0
+Global,AGP,12.0,total_antimicrobials,18085.124230913378
 Middle East,AGP,0.0,total_antimicrobials,0.0
-Africa,All,24.0,total_antimicrobials,1410.1778815633536
-Americas,All,19.0,total_antimicrobials,19141.24257155157
-"Asia, Far East and Oceania",All,22.0,total_antimicrobials,41409.52947989788
-Europe,All,41.0,total_antimicrobials,7457.655917030333
-Global,All,109.0,total_antimicrobials,69452.52985004314
-Middle East,All,3.0,total_antimicrobials,33.924
-Africa,Terrestrial Food Producing,6.0,total_antimicrobials,0.0
-Americas,Terrestrial Food Producing,11.0,total_antimicrobials,0.0
-"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,total_antimicrobials,0.0
-Europe,Terrestrial Food Producing,10.0,total_antimicrobials,0.0
-Global,Terrestrial Food Producing,37.0,total_antimicrobials,0.0
-Middle East,Terrestrial Food Producing,1.0,total_antimicrobials,0.0
+Africa,All,24.0,total_antimicrobials,1410.3537811633535
+Americas,All,19.0,total_antimicrobials,19222.17252850582
+"Asia, Far East and Oceania",All,22.0,total_antimicrobials,41505.041387255726
+Europe,All,41.0,total_antimicrobials,7500.239917976934
+Global,All,109.0,total_antimicrobials,69671.73061490183
+Middle East,All,3.0,total_antimicrobials,33.923
+Africa,Terrestrial Food Producing,6.0,total_antimicrobials,344.84263742563996
+Americas,Terrestrial Food Producing,11.0,total_antimicrobials,2582.5864700183156
+"Asia, Far East and Oceania",Terrestrial Food Producing,9.0,total_antimicrobials,15982.100933055974
+Europe,Terrestrial Food Producing,10.0,total_antimicrobials,979.3888652616425
+Global,Terrestrial Food Producing,37.0,total_antimicrobials,19913.266905761568
+Middle East,Terrestrial Food Producing,1.0,total_antimicrobials,24.348

@@ -671,23 +671,7 @@ for i in np.sort(ecs_ahle_summary['year'].unique()):
     str(ecs_year_options.append({'label':i,'value':(i)}))
 
 
-# Age
-# Rename Overall to more descriptive
-# ecs_ahle_summary['age_group'] = ecs_ahle_summary['age_group'].replace({'Overall': 'Overall Age'})
-# ecs_age_options = [{'label': "Overall Age", 'value': "Overall Age", 'disabled': False}]
-
-# ecs_age_options=[]
-# for i in np.sort(ecs_ahle_summary['age_group'].unique()):
-#    str(ecs_age_options.append({'label':i,'value':(i)}))
-
 # Sex
-# Rename Overall to more descriptive
-# ecs_ahle_summary['sex'] = ecs_ahle_summary['sex'].replace({'Overall': 'Overall Sex'})
-
-# ecs_sex_options_all = []
-# for i in np.sort(ecs_ahle_summary['sex'].unique()):
-#    str(ecs_sex_options_all.append({'label':i,'value':(i)}))
-
 ecs_agesex_options=[]
 for i in np.sort(ecs_ahle_summary['agesex_scenario'].unique()):
    str(ecs_agesex_options.append({'label':i,'value':(i)}))
@@ -717,10 +701,38 @@ ecs_hierarchy_dd_attr_options = [{'label': i, 'value': i, 'disabled': False} for
 
 ecs_hierarchy_dd_attr_options += ecs_hierarchy_attr_options
 
+# Graph (visualization)
+ecs_graph_options = [{'label': i, 'value': i, 'disabled': False} for i in ["By Year",
+                                                                           "Over Time",
+                                                                           ]]
+
 # Display
 ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Side by Side",
                                                                              "Difference (AHLE)",
                                                                             ]]
+# Item
+# Keep only items for the waterfall
+waterfall_plot_values = ('Value of Offtake',
+                         'Value of Eggs consumed',
+                         'Value of Eggs sold',
+                         'Value of Herd Increase',
+                         'Value of Draught',
+                         'Value of Milk',
+                         'Value of Manure',
+                         'Value of Hides',
+                         'Expenditure on Feed',
+                         'Expenditure on Labour',
+                         'Expenditure on Health',
+                         'Expenditure on Housing',
+                         'Expenditure on Capital',
+                         'Gross Margin')
+
+ecs_item_ahle_options=[]
+for i in waterfall_plot_values:
+   str(ecs_item_ahle_options.append({'label':i,'value':(i)}))
+   
+ecs_item_ahle_options += [{'label': i, 'value': i, 'disabled': False} for i in ["Totals"]]
+
 
 # Compare
 ecs_compare_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Ideal",
@@ -3077,14 +3089,7 @@ gbadsDash.layout = html.Div([
                                 clearable = False,
                                 ),
                     ]),
-                dbc.Col([
-                    html.H4("Year"),
-                    dcc.Dropdown(id='select-year-ecs',
-                                options=ecs_year_options,
-                                value=2021,
-                                clearable = False,
-                                ),
-                    ]),
+                
                 ]),
             dbc.Row([
 
@@ -3092,10 +3097,23 @@ gbadsDash.layout = html.Div([
                 dbc.Col([
                 dbc.Card([
                     dbc.CardBody([
-                        html.H5("Value and Cost Graph Controls",
+                        html.H5("Value & Cost Graph Controls",
                                 className="card-title",
                                 style={"font-weight": "bold"}),
                         dbc.Row([
+                            
+                            # Graph
+                            dbc.Col([
+                                html.H6("Graph Value & Cost..."),
+                                dcc.RadioItems(id='select-graph-ahle-ecs',
+                                              options=ecs_graph_options,
+                                              value='By Year',
+                                              labelStyle={'display': 'block'},
+                                              inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
+                                              ),
+                                ],
+                            ),
+                            
                             # Display
                             dbc.Col([
                                 html.H6("Display"),
@@ -3107,22 +3125,39 @@ gbadsDash.layout = html.Div([
                                               ),
                                 ],
                             ),
+                            
+                            # # Item
+                            # dbc.Col([
+                            #     html.H6("Item", id='select-item-ahle-ecs-title'),
+                            #     dcc.Dropdown(id='select-item-ahle-ecs',
+                            #                   options=ecs_item_ahle_options,
+                            #                   value='Totals',
+                            #                   clearable = False,
+                            #                   ),
+                            #     ],
+                            # ),
 
-                            # Compare
+                            # # Compare
+                            # dbc.Col([
+                            #     html.H6("Compare current scenario to...", id='select-compare-ecs-title'),
+                            #     dcc.RadioItems(id='select-compare-ecs',
+                            #                   options=ecs_compare_options,
+                            #                   value='Ideal',
+                            #                   labelStyle={'display': 'block'},
+                            #                   inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
+                            #                   ),
+                            #     ], id='select-compare-item-switch',
+                            # ),
+                            
+                            # Item or Compare Control switch
                             dbc.Col([
-                                html.H6("Compare current scenario to..."),
-                                dcc.RadioItems(id='select-compare-ecs',
-                                              options=ecs_compare_options,
-                                              value='Ideal',
-                                              labelStyle={'display': 'block'},
-                                              inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
-                                              ),
-                                ],
+                                
+                                ], id='select-compare-item-switch',
                             ),
 
                             # Age/Sex combination
                             dbc.Col([
-                                html.H6("Scenario applies to group..."),
+                                html.H6("Scenario applies to group...", id='select-agesex-ecs-title'),
                                 dcc.Dropdown(id='select-agesex-ecs',
                                               options=ecs_agesex_options,
                                               value='Overall',
@@ -3135,7 +3170,17 @@ gbadsDash.layout = html.Div([
                                 ),
 
                         ]), # END OF ROW
-                        dbc.Row([  # Improvement scenarios
+                        dbc.Row([  # Year for waterfall and Improvement scenarios
+                                 
+                            # Year dropdown   
+                            dbc.Col([
+                                html.H6("Year", id='select-year-ecs-title'),
+                                dcc.Dropdown(id='select-year-ecs',
+                                            options=ecs_year_options,
+                                            value=2021,
+                                            clearable = False,
+                                            ),
+                                ]),
 
                             # Factor dropdown
                             dbc.Col([
@@ -3265,55 +3310,6 @@ gbadsDash.layout = html.Div([
 
 
             # html.Hr(style={'margin-right':'10px'}),
-
-            #### -- CALCULATION CONTROLS
-            # dbc.Card([
-            #     dbc.CardBody([
-            #         html.H5("Exploring Relative Contribution to Gross Margin and AHLE",
-            #                 className="card-title",
-            #                 style={"font-weight": "bold"}),
-            # dbc.Row([  # Line up all the controls in the same row.
-
-            #     # Factor dropdown
-            #     dbc.Col([
-            #         html.H6("Factor"),
-            #         dcc.Dropdown(id='select-factor-ecs',
-            #                       options=ecs_factor_options,
-            #                       value='Mortality',
-            #                       clearable = True,
-            #                       ),
-            #           ],
-            #         ),
-
-            #     # Reduction
-            #     dbc.Col([
-            #         html.H6("Improvement"),
-            #         dcc.RadioItems(id='select-improve-ecs',
-            #                       options=ecs_improve_options,
-            #                       value= "25%",
-            #                       inputStyle={"margin-right": "2px", # This pulls the words off of the button
-            #                                   "margin-left": "10px"},
-            #                       ),
-            #         ],width=3,
-            #     ),
-
-            #     # # Reset to defaults button
-            #     # dbc.Col([
-            #     #     html.Button('Reset to Current Values', id='reset-val-ecs', n_clicks=0),
-            #     # ], width=3,
-            #     #     style={
-            #     #           'textAlign':'center',
-            #     #           'margin':'auto',}
-            #     # ),
-
-            #     ## END OF ROW ##
-            #     ]),
-
-            # # END OF CARD BODY
-            # ],),
-
-            # # END OF CARD
-            # ], color='#F2F2F2'),
 
             html.Br(),
 
@@ -5168,6 +5164,56 @@ def update_dd4_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_
 #                 d['disabled']=False
 #     return options
 
+# Switch between Compare and Item select to minimize blank space
+@gbadsDash.callback(
+    Output('select-compare-item-switch','children'),
+    Output('select-compare-item-switch','style'),
+    Input('select-graph-ahle-ecs','value'),
+    )
+def update_control_item_switch(graph):
+    if graph == 'By Year':
+        control = (html.H6("Compare current scenario to...", id='select-compare-ecs-title'),
+        dcc.RadioItems(id='select-compare-ecs',
+                      options=ecs_compare_options,
+                      value='Ideal',
+                      labelStyle={'display': 'block'},
+                      inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
+                      ),)
+        width = {'width': 3}
+    else:
+        control = (html.H6("Item", id='select-item-ahle-ecs-title'),
+            dcc.Dropdown(id='select-item-ahle-ecs',
+                          options=ecs_item_ahle_options,
+                          value='Totals',
+                          clearable = False,
+                          ),)
+        width = {'width': 6}
+    return control, width
+
+# Hide options for Value & Cost graphs when displaying the longitudinal chart
+@gbadsDash.callback(
+    Output('select-agesex-ecs','style'),
+    Output('select-agesex-ecs-title','style'),
+    Output('select-year-ecs','style'),
+    Output('select-year-ecs-title','style'),
+    Input('select-graph-ahle-ecs','value'),
+    )
+def update_ahle_graph_controls(graph):
+    options2 = ecs_agesex_options.copy()
+    options3 = ecs_year_options.copy()
+    for d in options2:
+        if graph == 'By Year':
+            block = {'display': 'block'}
+        else:
+            block = {'display': 'none'} # hide
+    for d in options3:
+        if graph == 'By Year':
+            block = {'display': 'block'}
+        else:
+            block = {'display': 'none'} # hide
+
+    return block, block, block, block
+
 # Enable the options for factor/improvement when 'Improvement' selected
 @gbadsDash.callback(
     Output('select-factor-ecs','options'),
@@ -5196,7 +5242,7 @@ def update_improvment_factors(compare):
         else:
             block = {'display': 'none'} # hide the improvement options
             d['disabled']=True
-
+            
     return options1, block, block, options2, block, block
 
 # ------------------------------------------------------------------------------
@@ -5474,342 +5520,376 @@ def update_ecs_attr_data(input_json, currency):
 @gbadsDash.callback(
     Output('ecs-ahle-waterfall','figure'),
     Input('core-data-ahle-ecs','data'),
-    # Input('select-age-ecs','value'),
+    Input('select-graph-ahle-ecs', 'value'),
+    Input('select-item-ahle-ecs', 'value'),
     Input('select-agesex-ecs', 'value'),
     Input('select-species-ecs','value'),
     Input('select-display-ecs','value'),
     Input('select-compare-ecs','value'),
     Input('select-prodsys-ecs','value'),
-    # Input('select-sex-ecs','value'),
     Input('select-currency-ecs','value'),
     Input('select-factor-ecs','value'),
     Input('select-improve-ecs','value'),
     )
-# def update_ahle_waterfall_ecs(input_json, age, species, display, compare, prodsys, sex, currency, impvmnt_factor, impvmnt_value):
-def update_ahle_waterfall_ecs(input_json, agesex, species, display, compare, prodsys, currency, impvmnt_factor, impvmnt_value):
+def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, item, agesex, species, display, compare, prodsys, currency, impvmnt_factor, impvmnt_value):
     # Data
     input_df = pd.read_json(input_json, orient='split')
 
     # Prep the data
     prep_df = prep_ahle_forwaterfall_ecs(input_df)
-
-    # If currency is USD, use USD columns
-    display_currency = 'Ethiopian Birr'
-    if currency == 'USD':
-        display_currency = 'USD'
-
-        prep_df['mean_current']                     = prep_df['mean_current_usd']
-        prep_df['mean_mortality_zero']              = prep_df['mean_mortality_zero_usd']
-        prep_df['mean_ideal']                       = prep_df['mean_ideal_usd']
-        prep_df['mean_AHLE']                        = prep_df['mean_AHLE_usd']
-        prep_df['mean_AHLE_mortality']              = prep_df['mean_AHLE_mortality_usd']
-        prep_df['mean_all_mort_25_imp']             = prep_df['mean_all_mort_25_imp_usd']
-        prep_df['mean_all_mort_50_imp']             = prep_df['mean_all_mort_50_imp_usd']
-        prep_df['mean_all_mort_75_imp']             = prep_df['mean_all_mort_75_imp_usd']
-        prep_df['mean_all_mort_25_AHLE']            = prep_df['mean_all_mort_25_AHLE_usd']
-        prep_df['mean_all_mort_50_AHLE']            = prep_df['mean_all_mort_50_AHLE_usd']
-        prep_df['mean_all_mort_75_AHLE']            = prep_df['mean_all_mort_75_AHLE_usd']
-        prep_df['mean_current_repro_25_imp']        = prep_df['mean_current_repro_25_imp_usd']
-        prep_df['mean_current_repro_50_imp']        = prep_df['mean_current_repro_50_imp_usd']
-        prep_df['mean_current_repro_75_imp']        = prep_df['mean_current_repro_75_imp_usd']
-        prep_df['mean_current_repro_100_imp']       = prep_df['mean_current_repro_100_imp_usd']
-        prep_df['mean_all_current_repro_25_AHLE']   = prep_df['mean_all_current_repro_25_AHLE_usd']
-        prep_df['mean_all_current_repro_50_AHLE']   = prep_df['mean_all_current_repro_50_AHLE_usd']
-        prep_df['mean_all_current_repro_75_AHLE']   = prep_df['mean_all_current_repro_75_AHLE_usd']
-        prep_df['mean_all_current_repro_100_AHLE']  = prep_df['mean_all_current_repro_100_AHLE_usd']
-        prep_df['mean_current_growth_25_imp_all']   = prep_df['mean_current_growth_25_imp_all_usd']
-        prep_df['mean_current_growth_50_imp_all']   = prep_df['mean_current_growth_50_imp_all_usd']
-        prep_df['mean_current_growth_75_imp_all']   = prep_df['mean_current_growth_75_imp_all_usd']
-        prep_df['mean_current_growth_100_imp_all']  = prep_df['mean_current_growth_100_imp_all_usd']
-        prep_df['mean_all_current_growth_25_AHLE']  = prep_df['mean_all_current_growth_25_AHLE_usd']
-        prep_df['mean_all_current_growth_50_AHLE']  = prep_df['mean_all_current_growth_50_AHLE_usd']
-        prep_df['mean_all_current_growth_75_AHLE']  = prep_df['mean_all_current_growth_75_AHLE_usd']
-        prep_df['mean_all_current_growth_100_AHLE'] = prep_df['mean_all_current_growth_100_AHLE_usd']
+    
+    # # Create longitudinal chart
+    # if graph_options == "Over Time":
+    #     # Apply user filters
+    #     # There will always be an item filter
+    #     prep_df_filtered = prep_df.query(f"item == '{item}'")
+    #     if item == 'Totals':
+    #         print_selected_item = 'Total Value, Cost, and Gross Margin over time'
+    #     else:
+    #         print_selected_item = f'value of {item} over time'
 
 
-    # Filters
-    # if age == "Neonatal": # Removing value of hides for neonatal
-    #     waterfall_plot_values = ('Value of Offtake',
-    #                               'Value of Herd Increase',
-    #                               'Value of Manure',
-    #                               'Expenditure on Feed',
-    #                               'Expenditure on Labour',
-    #                               'Expenditure on Health',
-    #                               'Expenditure on Housing',
-    #                               'Expenditure on Capital',
-    #                               'Gross Margin')
-    #     prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
-    #     measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
-    # elif age == 'Overall Age' and sex == 'Overall Sex':
-    #     if species == "Cattle": # Cattle have draught and milk added for overall groups
-    #         waterfall_plot_values = ('Value of Offtake',
-    #                                  'Value of Herd Increase',
-    #                                  'Value of Draught',
-    #                                  'Value of Milk',
-    #                                  'Value of Manure',
-    #                                  'Value of Hides',
-    #                                  'Expenditure on Feed',
-    #                                  'Expenditure on Labour',
-    #                                  'Expenditure on Health',
-    #                                  'Expenditure on Housing',
-    #                                  'Expenditure on Capital',
-    #                                  'Gross Margin')
-    #         prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
-    #         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
-    #     else: # all species have milk added for overall groups
-    #         waterfall_plot_values = ('Value of Offtake',
-    #                                  'Value of Herd Increase',
-    #                                  'Value of Milk',
-    #                                  'Value of Manure',
-    #                                  'Value of Hides',
-    #                                  'Expenditure on Feed',
-    #                                  'Expenditure on Labour',
-    #                                  'Expenditure on Health',
-    #                                  'Expenditure on Housing',
-    #                                  'Expenditure on Capital',
-    #                                  'Gross Margin')
-    #         prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
-    #         measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
-    # else:
-    #     measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+    #     # Create AHLE (dfiierence) value
+    #     prep_df_filtered['value_usd_ahle_diff'] = prep_df_filtered['value_usd_ideal'] - prep_df_filtered['value_usd_current']
 
-    if species == "Cattle":     # Cattle have draught
-        waterfall_plot_values = ('Value of Offtake',
-                                 'Value of Herd Increase',
-                                 'Value of Draught',
-                                 'Value of Milk',
-                                 'Value of Manure',
-                                 'Value of Hides',
-                                 'Expenditure on Feed',
-                                 'Expenditure on Labour',
-                                 'Expenditure on Health',
-                                 'Expenditure on Housing',
-                                 'Expenditure on Capital',
-                                 'Gross Margin')
-        prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
-        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
-    elif 'POULTRY' in species.upper():   # Poultry have value of eggs, do not have manure or hides
-        waterfall_plot_values = ('Value of Offtake',
-                                 'Value of Herd Increase',
-                                 'Value of Eggs consumed',
-                                 'Value of Eggs sold',
-                                 'Expenditure on Feed',
-                                 'Expenditure on Labour',
-                                 'Expenditure on Health',
-                                 'Expenditure on Housing',
-                                 'Expenditure on Capital',
-                                 'Gross Margin')
-        prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
-        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
-    else:
-        waterfall_plot_values = ('Value of Offtake',
-                                 'Value of Herd Increase',
-                                 'Value of Milk',
-                                 'Value of Manure',
-                                 'Value of Hides',
-                                 'Expenditure on Feed',
-                                 'Expenditure on Labour',
-                                 'Expenditure on Health',
-                                 'Expenditure on Housing',
-                                 'Expenditure on Capital',
-                                 'Gross Margin')
-        prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
-        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+    #     # Get sum for each year
+    #     prep_df_sums = prep_df_filtered.groupby('year')[['value_usd_current' ,'value_usd_ideal', 'value_usd_ahle_diff']].sum()
+    #     prep_df_sums = prep_df_sums.reset_index()
 
 
-    x = prep_df['item']
+    #     if display == "Side by Side":
+    #         # Plot current value
+    #         plot_current_value = go.Scatter(
+    #             x=prep_df_sums['year']
+    #             ,y=prep_df_sums['value_usd_current']
+    #             ,name='Current'
+    #             ,line=dict(color='#0028CA')
+    #             )
+    #         # Overlay ideal value
+    #         plot_ideal_value = go.Scatter(
+    #             x=prep_df_sums['year']
+    #             ,y=prep_df_sums['value_usd_ideal']
+    #             ,name='Ideal'
+    #             ,line=dict(color='#00CA0F')
+    #             )
 
-    # display and Compare filters
-    if display == "Difference (AHLE)":
-        # Applying the condition
-        prep_df["item"] = np.where(prep_df["item"] == "Gross Margin", "Gross Margin (AHLE)", prep_df["item"])
+    #         ga_lineplot_fig = make_subplots()
+    #         ga_lineplot_fig.add_trace(plot_ideal_value)
+    #         ga_lineplot_fig.add_trace(plot_current_value)
+    #         ga_lineplot_fig.update_layout(title_text=f'Current & ideal {print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
+    #                                       yaxis_title='US Dollars (2010 constant)',
+    #                                       font_size=15,
+    #                                       plot_bgcolor="#ededed",)
+
+    #     else:
+    #         # Change line color based on if AHLE or cost is selected
+    #         costs = "costs"
+    #         if selected_item == 'Net value':
+    #             # Plot AHLE value
+    #             plot_ahle_value = go.Scatter(
+    #                 x=prep_df_sums['year']
+    #                 ,y=prep_df_sums['value_usd_ahle_diff']
+    #                 ,name=f'{display}'
+    #                 ,line=dict(color='#F7931D')
+    #                 )
+    #         elif costs in selected_item:
+    #             # Plot AHLE value
+    #             plot_ahle_value = go.Scatter(
+    #                 x=prep_df_sums['year']
+    #                 ,y=prep_df_sums['value_usd_ahle_diff']
+    #                 ,name=f'{display}'
+    #                 ,line=dict(color='#E84C3D')
+    #                 )
+    #         else:
+    #             # Plot AHLE value
+    #             plot_ahle_value = go.Scatter(
+    #                 x=prep_df_sums['year']
+    #                 ,y=prep_df_sums['value_usd_ahle_diff']
+    #                 ,name=f'{display}'
+    #                 ,line=dict(color='#3598DB')
+    #                 )
+
+    #         ga_lineplot_fig = make_subplots()
+    #         ga_lineplot_fig.add_trace(plot_ahle_value)
+    #         ga_lineplot_fig.update_layout(title_text=f'Ideal minus current {print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
+    #                                       yaxis_title='US Dollars (2010 constant)',
+    #                                       font_size=15,
+    #                                       plot_bgcolor="#ededed",)
+            
+            
+            
+            
+            
+               
+    # Create waterfall chart
+    if graph_options == "By Year":
+        # If currency is USD, use USD columns
+        display_currency = 'Ethiopian Birr'
+        if currency == 'USD':
+            display_currency = 'USD'
+    
+            prep_df['mean_current']                     = prep_df['mean_current_usd']
+            prep_df['mean_mortality_zero']              = prep_df['mean_mortality_zero_usd']
+            prep_df['mean_ideal']                       = prep_df['mean_ideal_usd']
+            prep_df['mean_AHLE']                        = prep_df['mean_AHLE_usd']
+            prep_df['mean_AHLE_mortality']              = prep_df['mean_AHLE_mortality_usd']
+            prep_df['mean_all_mort_25_imp']             = prep_df['mean_all_mort_25_imp_usd']
+            prep_df['mean_all_mort_50_imp']             = prep_df['mean_all_mort_50_imp_usd']
+            prep_df['mean_all_mort_75_imp']             = prep_df['mean_all_mort_75_imp_usd']
+            prep_df['mean_all_mort_25_AHLE']            = prep_df['mean_all_mort_25_AHLE_usd']
+            prep_df['mean_all_mort_50_AHLE']            = prep_df['mean_all_mort_50_AHLE_usd']
+            prep_df['mean_all_mort_75_AHLE']            = prep_df['mean_all_mort_75_AHLE_usd']
+            prep_df['mean_current_repro_25_imp']        = prep_df['mean_current_repro_25_imp_usd']
+            prep_df['mean_current_repro_50_imp']        = prep_df['mean_current_repro_50_imp_usd']
+            prep_df['mean_current_repro_75_imp']        = prep_df['mean_current_repro_75_imp_usd']
+            prep_df['mean_current_repro_100_imp']       = prep_df['mean_current_repro_100_imp_usd']
+            prep_df['mean_all_current_repro_25_AHLE']   = prep_df['mean_all_current_repro_25_AHLE_usd']
+            prep_df['mean_all_current_repro_50_AHLE']   = prep_df['mean_all_current_repro_50_AHLE_usd']
+            prep_df['mean_all_current_repro_75_AHLE']   = prep_df['mean_all_current_repro_75_AHLE_usd']
+            prep_df['mean_all_current_repro_100_AHLE']  = prep_df['mean_all_current_repro_100_AHLE_usd']
+            prep_df['mean_current_growth_25_imp_all']   = prep_df['mean_current_growth_25_imp_all_usd']
+            prep_df['mean_current_growth_50_imp_all']   = prep_df['mean_current_growth_50_imp_all_usd']
+            prep_df['mean_current_growth_75_imp_all']   = prep_df['mean_current_growth_75_imp_all_usd']
+            prep_df['mean_current_growth_100_imp_all']  = prep_df['mean_current_growth_100_imp_all_usd']
+            prep_df['mean_all_current_growth_25_AHLE']  = prep_df['mean_all_current_growth_25_AHLE_usd']
+            prep_df['mean_all_current_growth_50_AHLE']  = prep_df['mean_all_current_growth_50_AHLE_usd']
+            prep_df['mean_all_current_growth_75_AHLE']  = prep_df['mean_all_current_growth_75_AHLE_usd']
+            prep_df['mean_all_current_growth_100_AHLE'] = prep_df['mean_all_current_growth_100_AHLE_usd']
+    
+    
+        # Filters
+        if species == "Cattle":     # Cattle have draught
+            waterfall_plot_values = ('Value of Offtake',
+                                     'Value of Herd Increase',
+                                     'Value of Draught',
+                                     'Value of Milk',
+                                     'Value of Manure',
+                                     'Value of Hides',
+                                     'Expenditure on Feed',
+                                     'Expenditure on Labour',
+                                     'Expenditure on Health',
+                                     'Expenditure on Housing',
+                                     'Expenditure on Capital',
+                                     'Gross Margin')
+            prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
+            measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+        elif 'POULTRY' in species.upper():   # Poultry have value of eggs, do not have manure or hides
+            waterfall_plot_values = ('Value of Offtake',
+                                     'Value of Herd Increase',
+                                     'Value of Eggs consumed',
+                                     'Value of Eggs sold',
+                                     'Expenditure on Feed',
+                                     'Expenditure on Labour',
+                                     'Expenditure on Health',
+                                     'Expenditure on Housing',
+                                     'Expenditure on Capital',
+                                     'Gross Margin')
+            prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
+            measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+        else:
+            waterfall_plot_values = ('Value of Offtake',
+                                     'Value of Herd Increase',
+                                     'Value of Milk',
+                                     'Value of Manure',
+                                     'Value of Hides',
+                                     'Expenditure on Feed',
+                                     'Expenditure on Labour',
+                                     'Expenditure on Health',
+                                     'Expenditure on Housing',
+                                     'Expenditure on Capital',
+                                     'Gross Margin')
+            prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
+            measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+    
+    
         x = prep_df['item']
-        if compare == 'Ideal':
-            y = prep_df['mean_AHLE']
-        elif compare == 'Zero Mortality':
-            y = prep_df['mean_AHLE_mortality']
-        else:
-            compare = impvmnt_factor + "- " + impvmnt_value
-            if impvmnt_factor == 'Mortality' and impvmnt_value == '25%':
-                y = prep_df['mean_all_mort_25_AHLE']
-            elif impvmnt_factor == 'Mortality' and impvmnt_value == '50%':
-                y = prep_df['mean_all_mort_50_AHLE']
-            elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
-                y = prep_df['mean_all_mort_75_AHLE']
-            elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
+    
+        # display and Compare filters
+        if display == "Difference (AHLE)":
+            # Applying the condition
+            prep_df["item"] = np.where(prep_df["item"] == "Gross Margin", "Gross Margin (AHLE)", prep_df["item"])
+            x = prep_df['item']
+            if compare == 'Ideal':
+                y = prep_df['mean_AHLE']
+            elif compare == 'Zero Mortality':
                 y = prep_df['mean_AHLE_mortality']
-            elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '25%':
-                y = prep_df['mean_all_current_repro_25_AHLE']
-            elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '50%':
-                y = prep_df['mean_all_current_repro_50_AHLE']
-            elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '75%':
-                y = prep_df['mean_all_current_repro_75_AHLE']
-            elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '100%':
-                y = prep_df['mean_all_current_repro_100_AHLE']
-            elif impvmnt_factor == 'Live Weight' and impvmnt_value == '25%':
-                y = prep_df['mean_all_current_growth_25_AHLE']
-            elif impvmnt_factor == 'Live Weight' and impvmnt_value == '50%':
-                y = prep_df['mean_all_current_growth_50_AHLE']
-            elif impvmnt_factor == 'Live Weight' and impvmnt_value == '75%':
-                y = prep_df['mean_all_current_growth_75_AHLE']
-            elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
-                y = prep_df['mean_all_current_growth_100_AHLE']
-
-        # Create graph
-        name = 'AHLE'
-        ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
-        # Add title
-        ecs_waterfall_fig.update_layout(
-            # title_text=f'Animal Health Loss Envelope (AHLE) | {species} <br><sup>Difference between {compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
-            title_text=f'Values and Costs (Difference) | {species}, {prodsys} <br><sup>Difference between Current and {compare} scenario applied to {agesex}</sup><br>',
-            yaxis_title=display_currency,
-            font_size=15,
-            margin=dict(t=100)
-            )
-    else:
-        if compare == 'Ideal':
-            y = prep_df['mean_ideal']
-            name = "Ideal (solid)"
+            else:
+                compare = impvmnt_factor + "- " + impvmnt_value
+                if impvmnt_factor == 'Mortality' and impvmnt_value == '25%':
+                    y = prep_df['mean_all_mort_25_AHLE']
+                elif impvmnt_factor == 'Mortality' and impvmnt_value == '50%':
+                    y = prep_df['mean_all_mort_50_AHLE']
+                elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
+                    y = prep_df['mean_all_mort_75_AHLE']
+                elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
+                    y = prep_df['mean_AHLE_mortality']
+                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '25%':
+                    y = prep_df['mean_all_current_repro_25_AHLE']
+                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '50%':
+                    y = prep_df['mean_all_current_repro_50_AHLE']
+                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '75%':
+                    y = prep_df['mean_all_current_repro_75_AHLE']
+                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '100%':
+                    y = prep_df['mean_all_current_repro_100_AHLE']
+                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '25%':
+                    y = prep_df['mean_all_current_growth_25_AHLE']
+                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '50%':
+                    y = prep_df['mean_all_current_growth_50_AHLE']
+                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '75%':
+                    y = prep_df['mean_all_current_growth_75_AHLE']
+                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
+                    y = prep_df['mean_all_current_growth_100_AHLE']
+    
             # Create graph
+            name = 'AHLE'
             ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
-            # Add current with lag
-            ecs_waterfall_fig.add_trace(go.Waterfall(
-                name = 'Current (outline)',
-                measure = measure,
-                x = x,
-                y = prep_df['mean_current'],
-                decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
-                increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
-                totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
-                connector = {"line":{"dash":"dot"}},
-                customdata=prep_df['mean_current'],
-                ))
-            ecs_waterfall_fig.update_layout(
-                waterfallgroupgap = 0.5,
-                )
             # Add title
             ecs_waterfall_fig.update_layout(
-                # title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
-                title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
+                title_text=f'Values and Costs (Difference) | {species}, {prodsys} <br><sup>Difference between Current and {compare} scenario applied to {agesex}</sup><br>',
                 yaxis_title=display_currency,
                 font_size=15,
-                margin=dict(t=100),
-                legend=dict(orientation="h",
-                            xanchor="right",
-                            x=1,
-                            yanchor="bottom",
-                            y=1.02,)
+                margin=dict(t=100)
                 )
-
-        elif compare == 'Zero Mortality':
-            y = prep_df['mean_mortality_zero']
-            name = 'Zero Mortality (solid)'
-            # Create graph
-            ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
-            # Add current with lag
-            ecs_waterfall_fig.add_trace(go.Waterfall(
-                name = 'Current (outline)',
-                measure = measure,
-                x = x,
-                y = prep_df['mean_current'],
-                decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
-                increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
-                totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
-                connector = {"line":{"dash":"dot"}},
-                customdata=prep_df['mean_current'],
-                ))
-            ecs_waterfall_fig.update_layout(
-                waterfallgroupgap = 0.5,
-                )
-            # Add title
-            ecs_waterfall_fig.update_layout(
-                # title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
-                title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
-                yaxis_title=display_currency,
-                font_size=15,
-                margin=dict(t=100),
-                legend=dict(orientation="h",
-                            xanchor="right",
-                            x=1,
-                            yanchor="bottom",
-                            y=1.02,)
-                )
-
         else:
-            if impvmnt_factor == 'Mortality' and impvmnt_value == '25%':
-                y = prep_df['mean_all_mort_25_imp']
-            elif impvmnt_factor == 'Mortality' and impvmnt_value == '50%':
-                y = prep_df['mean_all_mort_50_imp']
-            elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
-                y = prep_df['mean_all_mort_75_imp']
-            elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
+            if compare == 'Ideal':
+                y = prep_df['mean_ideal']
+                name = "Ideal (solid)"
+                # Create graph
+                ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
+                # Add current with lag
+                ecs_waterfall_fig.add_trace(go.Waterfall(
+                    name = 'Current (outline)',
+                    measure = measure,
+                    x = x,
+                    y = prep_df['mean_current'],
+                    decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
+                    increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
+                    totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
+                    connector = {"line":{"dash":"dot"}},
+                    customdata=prep_df['mean_current'],
+                    ))
+                ecs_waterfall_fig.update_layout(
+                    waterfallgroupgap = 0.5,
+                    )
+                # Add title
+                ecs_waterfall_fig.update_layout(
+                    title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
+                    yaxis_title=display_currency,
+                    font_size=15,
+                    margin=dict(t=100),
+                    legend=dict(orientation="h",
+                                xanchor="right",
+                                x=1,
+                                yanchor="bottom",
+                                y=1.02,)
+                    )
+    
+            elif compare == 'Zero Mortality':
                 y = prep_df['mean_mortality_zero']
-            elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '25%':
-                y = prep_df['mean_current_repro_25_imp']
-            elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '50%':
-                y = prep_df['mean_current_repro_50_imp']
-            elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '75%':
-                y = prep_df['mean_current_repro_75_imp']
-            elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '100%':
-                y = prep_df['mean_current_repro_100_imp']
-            elif impvmnt_factor == 'Live Weight' and impvmnt_value == '25%':
-                y = prep_df['mean_current_growth_25_imp_all']
-            elif impvmnt_factor == 'Live Weight' and impvmnt_value == '50%':
-                y = prep_df['mean_current_growth_50_imp_all']
-            elif impvmnt_factor == 'Live Weight' and impvmnt_value == '75%':
-                y = prep_df['mean_current_growth_75_imp_all']
-            elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
-                y = prep_df['mean_current_growth_100_imp_all']
-
-            name = impvmnt_factor + "- " + impvmnt_value + " (solid)"
-            # Create graph
-            ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
-            # Add current with lag
-            ecs_waterfall_fig.add_trace(go.Waterfall(
-                name = 'Current (outline)',
-                measure = measure,
-                x = x,
-                y = prep_df['mean_current'],
-                decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
-                increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
-                totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
-                connector = {"line":{"dash":"dot"}},
-                customdata=prep_df['mean_current'],
-                ))
-            ecs_waterfall_fig.update_layout(
-                waterfallgroupgap = 0.5,
-                )
-            # Add title
-            ecs_waterfall_fig.update_layout(
-                # title_text=f'Animal Health Loss Envelope ({display}) | {species} <br><sup>{compare} and Current scenario using {prodsys} for {age} and {sex}</sup><br>',
-                title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
-                yaxis_title=display_currency,
-                font_size=15,
-                margin=dict(t=100),
-                legend=dict(orientation="h",
-                            xanchor="right",
-                            x=1,
-                            yanchor="bottom",
-                            y=1.02,)
-                )
-
-    # Add tooltip
-    if currency == 'Birr':
-        ecs_waterfall_fig.update_traces(hovertemplate='Category: %{x}'+
-                                        '<br>Value: %{customdata:,.0f} Birr<extra></extra>'+
-                                        '<br>Cumulative Value: %{y:,.0f} Birr'
-                                        )
-                                        
-    elif currency == 'USD':
-        ecs_waterfall_fig.update_traces(hovertemplate='Category: %{x}'+
-                                        '<br>Value: %{customdata:,.0f} USD<extra></extra>'+
-                                        '<br>Cumulative Value: %{y:,.0f} USD'
-                                        )
-    else:
-        ecs_waterfall_fig.update_traces(hovertemplate='Category: %{x}'+
-                                        '<br>Value: %{customdata:,.0f} <extra></extra>'+
-                                        '<br>Cumulative Value: %{y:,.0f} '
-                                        )
+                name = 'Zero Mortality (solid)'
+                # Create graph
+                ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
+                # Add current with lag
+                ecs_waterfall_fig.add_trace(go.Waterfall(
+                    name = 'Current (outline)',
+                    measure = measure,
+                    x = x,
+                    y = prep_df['mean_current'],
+                    decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
+                    increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
+                    totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
+                    connector = {"line":{"dash":"dot"}},
+                    customdata=prep_df['mean_current'],
+                    ))
+                ecs_waterfall_fig.update_layout(
+                    waterfallgroupgap = 0.5,
+                    )
+                # Add title
+                ecs_waterfall_fig.update_layout(
+                    title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
+                    yaxis_title=display_currency,
+                    font_size=15,
+                    margin=dict(t=100),
+                    legend=dict(orientation="h",
+                                xanchor="right",
+                                x=1,
+                                yanchor="bottom",
+                                y=1.02,)
+                    )
+    
+            else:
+                if impvmnt_factor == 'Mortality' and impvmnt_value == '25%':
+                    y = prep_df['mean_all_mort_25_imp']
+                elif impvmnt_factor == 'Mortality' and impvmnt_value == '50%':
+                    y = prep_df['mean_all_mort_50_imp']
+                elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
+                    y = prep_df['mean_all_mort_75_imp']
+                elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
+                    y = prep_df['mean_mortality_zero']
+                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '25%':
+                    y = prep_df['mean_current_repro_25_imp']
+                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '50%':
+                    y = prep_df['mean_current_repro_50_imp']
+                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '75%':
+                    y = prep_df['mean_current_repro_75_imp']
+                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '100%':
+                    y = prep_df['mean_current_repro_100_imp']
+                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '25%':
+                    y = prep_df['mean_current_growth_25_imp_all']
+                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '50%':
+                    y = prep_df['mean_current_growth_50_imp_all']
+                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '75%':
+                    y = prep_df['mean_current_growth_75_imp_all']
+                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
+                    y = prep_df['mean_current_growth_100_imp_all']
+    
+                name = impvmnt_factor + "- " + impvmnt_value + " (solid)"
+                # Create graph
+                ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
+                # Add current with lag
+                ecs_waterfall_fig.add_trace(go.Waterfall(
+                    name = 'Current (outline)',
+                    measure = measure,
+                    x = x,
+                    y = prep_df['mean_current'],
+                    decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
+                    increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
+                    totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
+                    connector = {"line":{"dash":"dot"}},
+                    customdata=prep_df['mean_current'],
+                    ))
+                ecs_waterfall_fig.update_layout(
+                    waterfallgroupgap = 0.5,
+                    )
+                # Add title
+                ecs_waterfall_fig.update_layout(
+                    title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
+                    yaxis_title=display_currency,
+                    font_size=15,
+                    margin=dict(t=100),
+                    legend=dict(orientation="h",
+                                xanchor="right",
+                                x=1,
+                                yanchor="bottom",
+                                y=1.02,)
+                    )
+    
+        # Add tooltip
+        if currency == 'Birr':
+            ecs_waterfall_fig.update_traces(hovertemplate='Category: %{x}'+
+                                            '<br>Value: %{customdata:,.0f} Birr<extra></extra>'+
+                                            '<br>Cumulative Value: %{y:,.0f} Birr'
+                                            )
+        elif currency == 'USD':
+            ecs_waterfall_fig.update_traces(hovertemplate='Category: %{x}'+
+                                            '<br>Value: %{customdata:,.0f} USD<extra></extra>'+
+                                            '<br>Cumulative Value: %{y:,.0f} USD'
+                                            )
+        else:
+            ecs_waterfall_fig.update_traces(hovertemplate='Category: %{x}'+
+                                            '<br>Value: %{customdata:,.0f} <extra></extra>'+
+                                            '<br>Cumulative Value: %{y:,.0f} '
+                                            )
 
     return ecs_waterfall_fig
 

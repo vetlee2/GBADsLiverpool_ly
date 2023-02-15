@@ -22,14 +22,14 @@ cleancolnames(amu2018_allspec)
 amu2018_allspec.columns = amu2018_allspec.columns.str.strip('_')    # Remove trailing underscores
 
 # Clean up region names
-amu2018_allspec[['region' ,'count']] = amu2018_allspec['unnamed:_0'].str.split('(' ,expand=True)    # Splitting at hyphen (-). expand=True to return multiple columns.
+amu2018_allspec[['region' ,'count']] = amu2018_allspec['unnamed:_0'].str.split('(' ,expand=True)
 amu2018_allspec['region'] = amu2018_allspec['region'].str.rstrip()      # Drop trailing blanks
 
 # Drop rows where region is missing - these are summary rows
 amu2018_allspec = amu2018_allspec.dropna(subset='region')
 
 # Drop columns
-amu2018_allspec = amu2018_allspec.drop(columns=['unnamed:_0' ,'unnamed:_26' ,'count'])
+amu2018_allspec = amu2018_allspec.drop(columns=['unnamed:_0' ,'total_tonnes' ,'unnamed:_26' ,'count'])
 
 # Reorder columns and sort
 cols_first = ['region' ,'number_of_countries']
@@ -42,9 +42,12 @@ amu2018_allspec = amu2018_allspec.add_suffix('_tonnes')
 amu2018_allspec = amu2018_allspec.rename(columns={
     'region_tonnes':'region'
     ,'number_of_countries_tonnes':'number_of_countries'
-    ,'total_tonnes_tonnes':'total_antimicrobials_tonnes'
     }
 )
+
+# Recalculate total
+amu_cols = [i for i in amu2018_allspec if '_tonnes' in i]
+amu2018_allspec['total_antimicrobials_tonnes'] = amu2018_allspec[amu_cols].sum(axis=1)
 
 # Rename total region
 rename_region = {'Total':'Global'}
@@ -65,7 +68,7 @@ cleancolnames(amu2018_ter)
 amu2018_ter.columns = amu2018_ter.columns.str.strip('_')    # Remove trailing underscores
 
 # Clean up region names
-amu2018_ter[['region' ,'count']] = amu2018_ter['unnamed:_0'].str.split('(' ,expand=True)    # Splitting at hyphen (-). expand=True to return multiple columns.
+amu2018_ter[['region' ,'count']] = amu2018_ter['unnamed:_0'].str.split('(' ,expand=True)
 amu2018_ter['region'] = amu2018_ter['region'].str.rstrip()      # Drop trailing blanks
 
 # Drop rows where region is missing - these are summary rows
@@ -82,13 +85,20 @@ amu2018_ter = amu2018_ter.sort_values(by=cols_first ,ignore_index=True)
 
 # Add column suffixes
 amu2018_ter = amu2018_ter.add_suffix('_tonnes')
-amu2018_ter = amu2018_ter.rename(columns={'region_tonnes':'region' ,'number_of_countries_tonnes':'number_of_countries'})
+amu2018_ter = amu2018_ter.rename(columns={
+    'region_tonnes':'region'
+    ,'number_of_countries_tonnes':'number_of_countries'
+    }
+)
+
+# Recalculate total
+amu_cols = [i for i in amu2018_ter if '_tonnes' in i]
+amu2018_ter['total_antimicrobials_tonnes'] = amu2018_ter[amu_cols].sum(axis=1)
 
 # Add Middle East by subtraction
 amu2018_ter_t = amu2018_ter.transpose()     # Transpose regions to columns
 colnames = list(amu2018_ter_t.iloc[0])      # Get names from desired row
 amu2018_ter_t.columns = colnames			# Rename columns
-# cleancolnames(amu2018_ter_t)
 amu2018_ter_t = amu2018_ter_t.drop(index='region')		# Drop row used for names
 amu2018_ter_t = amu2018_ter_t.astype('float')   # Change all columns to numeric
 datainfo(amu2018_ter_t)
@@ -115,7 +125,7 @@ cleancolnames(amu2018_agp)
 amu2018_agp.columns = amu2018_agp.columns.str.strip('_')    # Remove trailing underscores
 
 # Clean up region names
-amu2018_agp[['region' ,'count']] = amu2018_agp['unnamed:_0'].str.split('(' ,expand=True)    # Splitting at hyphen (-). expand=True to return multiple columns.
+amu2018_agp[['region' ,'count']] = amu2018_agp['unnamed:_0'].str.split('(' ,expand=True)
 amu2018_agp['region'] = amu2018_agp['region'].str.rstrip()      # Drop trailing blanks
 
 # Drop rows where region is missing - these are summary rows
@@ -132,7 +142,15 @@ amu2018_agp = amu2018_agp.sort_values(by=cols_first ,ignore_index=True)
 
 # Add column suffixes
 amu2018_agp = amu2018_agp.add_suffix('_tonnes')
-amu2018_agp = amu2018_agp.rename(columns={'region_tonnes':'region' ,'number_of_countries_tonnes':'number_of_countries'})
+amu2018_agp = amu2018_agp.rename(columns={
+    'region_tonnes':'region'
+    ,'number_of_countries_tonnes':'number_of_countries'
+    }
+)
+
+# Recalculate total
+amu_cols = [i for i in amu2018_agp if '_tonnes' in i]
+amu2018_agp['total_antimicrobials_tonnes'] = amu2018_agp[amu_cols].sum(axis=1)
 
 # Rename total region
 rename_region = {'Total':'Global'}
@@ -405,7 +423,7 @@ datainfo(amu2018_biomass_rgn_me)
 amu2018_biomass_glbl['region'] = 'Global'
 amu2018_biomass_rgn_af['region'] = 'Africa'
 amu2018_biomass_rgn_am['region'] = 'Americas'
-amu2018_biomass_rgn_as['region'] = 'Asia'
+amu2018_biomass_rgn_as['region'] = 'Asia, Far East and Oceania'
 amu2018_biomass_rgn_eu['region'] = 'Europe'
 amu2018_biomass_rgn_me['region'] = 'Middle East'
 
@@ -422,9 +440,27 @@ amu2018_biomass = pd.concat(
 	,ignore_index=True   # True: do not keep index values on concatenation axis
 )
 
-# Add column suffixes
+# Add total biomass column
+amu2018_biomass['total'] = amu2018_biomass.sum(axis=1)  # Sum all numeric columns
+
+# Add total bimoass for Terrestrial Food Producing animals
+tfp_species = [
+    'bovine'
+    ,'swine'
+    ,'poultry'
+    ,'equine'
+    ,'goats'
+    ,'sheep'
+    ,'rabbits'
+    ,'camelids'
+    ,'cervids'
+]
+amu2018_biomass['total_terr'] = amu2018_biomass[tfp_species].sum(axis=1)
+
+# Add column prefix and suffix
+amu2018_biomass = amu2018_biomass.add_prefix('biomass_')
 amu2018_biomass = amu2018_biomass.add_suffix('_kg')
-amu2018_biomass = amu2018_biomass.rename(columns={'region_kg':'region' ,'segment_kg':'segment'})
+amu2018_biomass = amu2018_biomass.rename(columns={'biomass_region_kg':'region' ,'biomass_segment_kg':'segment'})
 
 # Reorder columns and sort
 cols_first = ['region' ,'segment']

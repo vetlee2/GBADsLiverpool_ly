@@ -410,6 +410,10 @@ ga_countries_biomass = ga_countries_biomass.loc[ga_countries_biomass['year'] >= 
 ga_countries_biomass['species'].replace('', np.nan, inplace=True)
 ga_countries_biomass.dropna(subset=['species'], inplace=True)
 
+# -----------------------------------------------------------------------------
+# Antimicrobial Usage
+# -----------------------------------------------------------------------------
+amu2018_combined_tall = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu2018_combined_tall.csv"))
 # =============================================================================
 #### User options and defaults
 # =============================================================================
@@ -3482,9 +3486,60 @@ gbadsDash.layout = html.Div([
 
 
         ### END OF ETHIOPIA TAB
+        
             ], style=ecs_tab_style, selected_style=ecs_tab_selected_style),
+        #### Antimicrobial Visual WIP
+        
 
+       dcc.Tab(label="Antimicrobial Usage [WIP]", children =[
+           
+            dbc.Row([ # Poultry Stacked Bar
+                dbc.Spinner(children=[
+                dcc.Graph(id='amu-stacked-bar',
+                          style = {"height":"650px"},
+                          config = {
+                              "displayModeBar" : True,
+                              "displaylogo": False,
+                              'toImageButtonOptions': {
+                                  'format': 'png', # one of png, svg, jpeg, webp
+                                  'filename': 'GBADs_AMU_Stacked_Bar'
+                                  },
+                              'modeBarButtonsToRemove': ['zoom',
+                                                          'zoomIn',
+                                                          'zoomOut',
+                                                          'autoScale',
+                                                          #'resetScale',  # Removes home button
+                                                          'pan',
+                                                          'select2d',
+                                                          'lasso2d']
+                              })
+                    # End of Spinner
+                    ],size="md", color="#393375", fullscreen=False),
+                    # End of Stacked Bar
+                    ],style={"width":5}
+                    ),
 
+       
+           #### -- DATATABLE
+           dbc.Row([
+
+               dbc.Spinner(children=[
+               dbc.Col([
+                   html.Div([  # Core data for AHLE
+                         html.Div( id='amu-2018-combined-tall'),
+                   ], style={'margin-left':"20px"}),
+
+               html.Br() # Spacer for bottom of page
+
+               ]),# END OF COL
+               # End of Spinner
+               ],size="md", color="#393375", fullscreen=False),
+
+           ]),
+           
+            ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
+       
+       
         #### USER GUIDE TAB
         dcc.Tab(label="User Guide & References", children =[
             html.Iframe(src="assets/GBADs_Documentation/_build/html/index.html", # this is for the jupyter books
@@ -3498,7 +3553,8 @@ gbadsDash.layout = html.Div([
         ### END OF TABS ###
         ],style={'margin-right':'10px',
                  'margin-left': '10px'} )
-    ])
+        ])
+                
 
 #%% 5. CALLBACKS
 # This section does the interactivity work with the web page
@@ -7346,6 +7402,71 @@ def update_ahle_lineplot_ga(input_json ,selected_region ,selected_incgrp ,select
 
 
     return ga_lineplot_fig
+
+#### Antimicrobial Use
+#AMU Stacked Bar
+@gbadsDash.callback(
+    Output('amu-stacked-bar', 'figure'),
+   Input('select-species-ga','value'),
+    )
+def update_stacked_bar_amu (input_select_species):
+    stackedbar_df = amu2018_combined_tall.copy()
+    stackedbar_df = stackedbar_df.query("scope == 'All'")
+    amu_bar_fig = px.bar(stackedbar_df, x="region", y="amu_tonnes",
+                         color='antimicrobial_class',
+                         labels={
+                             "region": "Region",
+                             "amu_tonnes": "AMU Tonnes",
+                             "antimicrobial_class": "Antimicrobial Class"})
+
+    return amu_bar_fig
+
+
+
+
+# Attribution datatable below graphic
+@gbadsDash.callback(
+    Output('amu-2018-combined-tall', 'children'),
+   Input('select-species-ga','value'),
+    )
+
+def update_table_amu (input_select_species):
+    input_df = amu2018_combined_tall.copy()
+
+    # Format numbers
+    input_df.update(input_df[['amu_tonnes',
+                
+                              ]].applymap('{:,.1f}'.format))
+
+    columns_to_display_with_labels = {
+       'region':'Region'
+       ,'scope':'Scope'
+       ,'number_of_countries':'Number of Countries'
+       ,'antimicrobial_class': 'Antimicrobial Class'
+       ,'amu_tonnes': 'AMU Tonnes'
+       ,'importance_ctg':'Importance Categories'
+    }
+
+    # Subset columns
+    input_df = input_df[list(columns_to_display_with_labels)]
+
+    return [
+            html.H4("Antimicrobial 2018 Combined"),
+            dash_table.DataTable(
+                columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+                fixed_rows={'headers': True, 'data': 0},
+                data=input_df.to_dict('records'),
+                export_format="csv",
+                style_cell={
+                    'font-family':'sans-serif',
+                    },
+                style_table={'overflowX': 'scroll',
+                              'height': '680px',
+                              'overflowY': 'auto'},
+                page_action='none',
+            )
+        ]
+
 
 #%% 6. RUN APP
 #############################################################################################################

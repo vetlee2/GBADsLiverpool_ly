@@ -5147,10 +5147,10 @@ def update_dd4_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_
     Output('select-year-item-switch-ecs','options'),
     Output('select-year-item-switch-ecs','value'),
     Output('select-year-ecs-title','children'),
-    # Output('select-item-ecs-title','style'),
     Input('select-graph-ahle-ecs','value'),
+    Input('select-species-ecs','value'),
     )
-def update_year_item_switch(graph):
+def update_year_item_switch(graph, species):
     if graph == 'By Year':
         options=ecs_year_options=[]
         for i in np.sort(ecs_ahle_summary['year'].unique()):
@@ -5158,21 +5158,43 @@ def update_year_item_switch(graph):
         value=2021,
         title = 'Year'
     else:
-        # Keep only items for the waterfall
-        waterfall_plot_values = ('Value of Offtake',
-                                 'Value of Eggs consumed',
-                                 'Value of Eggs sold',
-                                 'Value of Herd Increase',
-                                 'Value of Draught',
-                                 'Value of Milk',
-                                 'Value of Manure',
-                                 'Value of Hides',
-                                 'Expenditure on Feed',
-                                 'Expenditure on Labour',
-                                 'Expenditure on Health',
-                                 'Expenditure on Housing',
-                                 'Expenditure on Capital',
-                                 'Gross Margin')
+        # Filters Items to display based on species selected
+        if species == "Cattle":     # Cattle have draught
+            waterfall_plot_values = ('Value of Offtake',
+                                     'Value of Herd Increase',
+                                     'Value of Draught',
+                                     'Value of Milk',
+                                     'Value of Manure',
+                                     'Value of Hides',
+                                     'Expenditure on Feed',
+                                     'Expenditure on Labour',
+                                     'Expenditure on Health',
+                                     'Expenditure on Housing',
+                                     'Expenditure on Capital',
+                                     'Gross Margin')
+        elif 'POULTRY' in species.upper():   # Poultry have value of eggs, do not have manure or hides
+            waterfall_plot_values = ('Value of Offtake',
+                                     'Value of Herd Increase',
+                                     'Value of Eggs consumed',
+                                     'Value of Eggs sold',
+                                     'Expenditure on Feed',
+                                     'Expenditure on Labour',
+                                     'Expenditure on Health',
+                                     'Expenditure on Housing',
+                                     'Expenditure on Capital',
+                                     'Gross Margin')
+        else:
+            waterfall_plot_values = ('Value of Offtake',
+                                     'Value of Herd Increase',
+                                     'Value of Milk',
+                                     'Value of Manure',
+                                     'Value of Hides',
+                                     'Expenditure on Feed',
+                                     'Expenditure on Labour',
+                                     'Expenditure on Health',
+                                     'Expenditure on Housing',
+                                     'Expenditure on Capital',
+                                     'Gross Margin')
 
         options=ecs_item_ahle_options=[]
         for i in waterfall_plot_values:
@@ -5245,12 +5267,9 @@ def update_improvment_factors(compare):
     Output('core-data-ahle-ecs','data'),
     Input('select-species-ecs','value'),
     Input('select-prodsys-ecs','value'),
-    # Input('select-age-ecs','value'),
-    # Input('select-sex-ecs','value'),
     Input('select-agesex-ecs', 'value'),
     # Input('select-year-ecs', 'value'),
     )
-# def update_core_data_ahle_ecs(species, prodsys, age, sex, year):
 def update_core_data_ahle_ecs(species, prodsys, agesex):
     input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_scensmry_yearlyfake.csv'))
 
@@ -5261,22 +5280,6 @@ def update_core_data_ahle_ecs(species, prodsys, agesex):
     # Rename values to match filters
     input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
     input_df=input_df.loc[(input_df['production_system'] == prodsys)]
-
-    # Age filter
-    # if age == 'Adult' or age == "Juvenile" or age == "Neonatal" or age == "Oxen":
-    #     input_df=input_df.loc[(input_df['age_group'] == age)]
-    # elif age == "Overall Age":
-    #     input_df=input_df.loc[(input_df['age_group'] == 'Overall')]
-    # else:
-    #     input_df=input_df
-
-    # Sex filter
-    # if sex == 'Male' or sex == "Female":
-    #     input_df=input_df.loc[(input_df['sex'] == sex)]
-    # elif sex == "Overall Sex":
-    #     input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-    # else:
-    #     input_df=input_df
 
     # Age/sex filter
     input_df=input_df.loc[(input_df['agesex_scenario'] == agesex)]
@@ -5564,7 +5567,11 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, agesex, specie
         prep_df['mean_all_current_growth_50_AHLE']  = prep_df['mean_all_current_growth_50_AHLE_usd']
         prep_df['mean_all_current_growth_75_AHLE']  = prep_df['mean_all_current_growth_75_AHLE_usd']
         prep_df['mean_all_current_growth_100_AHLE'] = prep_df['mean_all_current_growth_100_AHLE_usd']
-
+    
+    if isinstance(year_or_item, list):
+        year_or_item = year_or_item[0]
+    else:
+        year_or_item = year_or_item
     
     # Create longitudinal chart
     if graph_options == "Over Time":
@@ -5586,13 +5593,16 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, agesex, specie
         # Establish x
         x = prep_df['year']
         
-        # Match orange color for AHLE
-        if year_or_item == 'Gross Margin':
+        # Match colors to waterfall values
+        cost  = 'Expenditure'
+        if 'Gross Margin' in year_or_item:
             color = '#F7931D'
+        elif cost in year_or_item:
+            color = '#E84C3D'
         else:
             color = '#3598DB'
 
-        # Create AHLE (dfiierence) value
+        # Create AHLE (difference) value
         if display == "Difference (AHLE)":
             if compare == 'Ideal':
                 y = prep_df['mean_AHLE']
@@ -5727,9 +5737,8 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, agesex, specie
         # prep_df = prep_df[prep_df.year.isin([year_or_item])]
         # prep_df = prep_df.loc[prep_df.apply(lambda x: x.year in year_or_item, axis=1)]
         lst = year_or_item
-        prep_df = prep_df.query('year in @lst')
+        prep_df = prep_df.query('year == @lst')
         
-
     
         # Filters
         if species == "Cattle":     # Cattle have draught
@@ -5774,7 +5783,6 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, agesex, specie
                                      'Gross Margin')
             prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
             measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
-    
     
         x = prep_df['item']
     

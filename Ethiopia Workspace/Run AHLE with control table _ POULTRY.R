@@ -1578,10 +1578,9 @@ remove_cols <- c('AHLE Parameter' ,'Notes')
 ahle_scenarios_cln <- subset(ahle_scenarios, select = !(names(ahle_scenarios) %in% remove_cols)) 
 
 # If specified, limit number of scenarios (columns) used
-#if (cmd_run_first_n_scenarios > 0){
+if (cmd_run_first_n_scenarios > 0){
 	ahle_scenarios_cln <- ahle_scenarios_cln[ ,0:cmd_run_first_n_scenarios]
 }
-
 
 # Loop through scenario columns, calling the function for each
 for (COLNAME in colnames(ahle_scenarios_cln)){

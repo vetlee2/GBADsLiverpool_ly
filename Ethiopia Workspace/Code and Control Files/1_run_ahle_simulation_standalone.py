@@ -127,7 +127,7 @@ r_args = [
     # ,'-1'
 ]
 timerstart()
-run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=99)
+run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
 timerstop()
 
 #%% Run AHLE simulation - Cattle
@@ -142,17 +142,18 @@ r_args = [
     '10'
 
     # Arg 2: Folder location for saving output files
-    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE')
+    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE' ,'2021')
 
     # Arg 3: full path to scenario control file
-    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters CATTLE.xlsx')
+    # ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters CATTLE.xlsx')
+    ,'C:/Users/Justin/Desktop/scenario tables for cattle for year 2020 and 2021/2021_AHLE scenario parameters CATTLE_20230209.xlsx'
 
     # Arg 4: only run the first N scenarios from the control file
     # -1: use all scenarios
     ,'-1'
 ]
 timerstart()
-run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=99)
+run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
 timerstop()
 
 #%% Run AHLE simulation - Poultry
@@ -177,5 +178,5 @@ r_args = [
     ,'-1'
 ]
 timerstart()
-run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=99)
+run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
 timerstop()

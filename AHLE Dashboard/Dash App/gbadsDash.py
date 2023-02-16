@@ -3152,32 +3152,43 @@ gbadsDash.layout = html.Div([
                         ]), # END OF ROW
                         dbc.Row([  # Year for waterfall and Improvement scenarios
                                  
-                            # Year dropdown   
-                            dbc.Col([
-                                html.H6("Year", id='select-year-ecs-title'),
-                                dcc.Dropdown(id='select-year-ecs',
-                                            options=ecs_year_options,
-                                            value=2021,
-                                            clearable = False,
-                                            ),
-                                ]),
+                            # # Year dropdown   
+                            # dbc.Col([
+                            #     html.H6("Year", id='select-year-ecs-title'),
+                            #     dcc.Dropdown(id='select-year-ecs',
+                            #                 options=ecs_year_options,
+                            #                 value=2021,
+                            #                 clearable = False,
+                            #                 ),
+                            #     ]),
                             
-                            # Item
-                            dbc.Col([
-                                html.H6("Item", id='select-item-ahle-ecs-title'),
-                                dcc.Dropdown(id='select-item-ahle-ecs',
-                                              options=ecs_item_ahle_options,
-                                              value='Gross Margin',
-                                              clearable = False,
-                                              ),
-                                ],
-                            ),
+                            # # Item
+                            # dbc.Col([
+                            #     html.H6("Item", id='select-item-ahle-ecs-title'),
+                            #     dcc.Dropdown(id='select-item-ahle-ecs',
+                            #                   options=ecs_item_ahle_options,
+                            #                   value='Gross Margin',
+                            #                   clearable = False,
+                            #                   ),
+                            #     ],
+                            # ),
                             
                             # # Item or Year Control switch
                             # dbc.Col([
                                 
                             #     ], id='select-year-item-switch-ecs',
                             # ),
+                            # Item or Year Control switch
+                            dbc.Col([
+                                html.H6("Year", id='select-year-ecs-title'),
+                                dcc.Dropdown(id='select-year-item-switch-ecs',
+                                        options=ecs_year_options,
+                                        value=2021,
+                                        clearable = False,
+                                        ),
+                                
+                                ]
+                            ),
 
                             # Factor dropdown
                             dbc.Col([
@@ -3187,7 +3198,7 @@ gbadsDash.layout = html.Div([
                                               value='Mortality',
                                               clearable = True,
                                               ),
-                                  ],width=6,
+                                  ],width=4,
                                 ),
 
                             # Reduction
@@ -5131,6 +5142,46 @@ def update_dd4_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_
 #                           ),)
 #     return control
 
+# Switch between Compare and Item select to minimize blank space
+@gbadsDash.callback(
+    Output('select-year-item-switch-ecs','options'),
+    Output('select-year-item-switch-ecs','value'),
+    Output('select-year-ecs-title','children'),
+    # Output('select-item-ecs-title','style'),
+    Input('select-graph-ahle-ecs','value'),
+    )
+def update_year_item_switch(graph):
+    if graph == 'By Year':
+        options=ecs_year_options=[]
+        for i in np.sort(ecs_ahle_summary['year'].unique()):
+            str(ecs_year_options.append({'label':i,'value':(i)}))
+        value=2021,
+        title = 'Year'
+    else:
+        # Keep only items for the waterfall
+        waterfall_plot_values = ('Value of Offtake',
+                                 'Value of Eggs consumed',
+                                 'Value of Eggs sold',
+                                 'Value of Herd Increase',
+                                 'Value of Draught',
+                                 'Value of Milk',
+                                 'Value of Manure',
+                                 'Value of Hides',
+                                 'Expenditure on Feed',
+                                 'Expenditure on Labour',
+                                 'Expenditure on Health',
+                                 'Expenditure on Housing',
+                                 'Expenditure on Capital',
+                                 'Gross Margin')
+
+        options=ecs_item_ahle_options=[]
+        for i in waterfall_plot_values:
+           str(ecs_item_ahle_options.append({'label':i,'value':(i)}))
+        value='Gross Margin',
+        title = 'Item'
+
+    return options, value, title
+
 # # Hide options for Value & Cost graphs when displaying the longitudinal chart
 # @gbadsDash.callback(
 #     Output('select-agesex-ecs','style'),
@@ -5462,7 +5513,7 @@ def update_ecs_attr_data(input_json, currency):
     Output('ecs-ahle-waterfall','figure'),
     Input('core-data-ahle-ecs','data'),
     Input('select-graph-ahle-ecs', 'value'),
-    Input('select-item-ahle-ecs', 'value'),
+    # Input('select-item-ahle-ecs', 'value'),
     Input('select-agesex-ecs', 'value'),
     Input('select-species-ecs','value'),
     Input('select-display-ecs','value'),
@@ -5471,10 +5522,10 @@ def update_ecs_attr_data(input_json, currency):
     Input('select-currency-ecs','value'),
     Input('select-factor-ecs','value'),
     Input('select-improve-ecs','value'),
-    Input('select-year-ecs', 'value'),
+    Input('select-year-item-switch-ecs', 'value'),
     # Input('select-year-ecs', 'n_clicks'),
     )
-def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, item, agesex, species, display, compare, prodsys, currency, impvmnt_factor, impvmnt_value, year):
+def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, agesex, species, display, compare, prodsys, currency, impvmnt_factor, impvmnt_value, year_or_item):
     # Data
     input_df = pd.read_json(input_json, orient='split')
 
@@ -5519,7 +5570,15 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, item, agesex, 
     if graph_options == "Over Time":
         # Apply user filters
         # Filter based on selected item
-        prep_df = prep_df.loc[(prep_df['item'] == item)]
+        # prep_df = prep_df.loc[(prep_df['item'] == year_or_item)]
+        # prep_df = prep_df.loc[prep_df['item'].isin(year_or_item)]
+        # prep_df = prep_df.query(f"item == '{year_or_item}'")
+        # prep_df = prep_df[prep_df.item == year_or_item]
+        # prep_df = prep_df[prep_df.item.isin([year_or_item])]
+        # prep_df = prep_df.loc[prep_df.apply(lambda x: x.item in year_or_item, axis=1)]
+        lst = year_or_item
+        prep_df = prep_df.query('item in @lst')
+        
         
         # Sort data by year
         prep_df = prep_df.sort_values('year')
@@ -5528,7 +5587,7 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, item, agesex, 
         x = prep_df['year']
         
         # Match orange color for AHLE
-        if item == 'Gross Margin':
+        if year_or_item == 'Gross Margin':
             color = '#F7931D'
         else:
             color = '#3598DB'
@@ -5577,7 +5636,7 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, item, agesex, 
 
             ecs_waterfall_fig = make_subplots()
             ecs_waterfall_fig.add_trace(plot_ahle_value)
-            ecs_waterfall_fig.update_layout(title=f'{item} Over Time | {species}, {prodsys} <br><sup>Current vs {compare} Difference (AHLE)</sup><br>',
+            ecs_waterfall_fig.update_layout(title=f'{year_or_item} Over Time | {species}, {prodsys} <br><sup>Current vs {compare} Difference (AHLE)</sup><br>',
                                             yaxis_title=display_currency,
                                             font_size=15,
                                             plot_bgcolor="#ededed",)
@@ -5645,14 +5704,11 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, item, agesex, 
             ecs_waterfall_fig = make_subplots()
             ecs_waterfall_fig.add_trace(plot_compare_value)
             ecs_waterfall_fig.add_trace(plot_current_value)
-            ecs_waterfall_fig.update_layout(title=f'{item} Over Time | {species}, {prodsys} <br><sup>Current & {compare} </sup><br>',
+            ecs_waterfall_fig.update_layout(title=f'{year_or_item} Over Time | {species}, {prodsys} <br><sup>Current & {compare} </sup><br>',
                                             yaxis_title=display_currency,
                                             font_size=15,
                                             plot_bgcolor="#ededed",)
-            # ga_lineplot_fig.update_layout(title_text=f'Current & ideal {print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
-            #                               yaxis_title='US Dollars (2010 constant)',
-            #                               font_size=15,
-            #                               plot_bgcolor="#ededed",)
+
 
             
             
@@ -5664,7 +5720,16 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, item, agesex, 
     if graph_options == "By Year":
         
         # Filter to a specific year
-        prep_df=prep_df.loc[(prep_df['year'] == year)]
+        # prep_df=prep_df.loc[(prep_df['year'] == year_or_item)]
+        # prep_df = prep_df.query(f"year == '{year_or_item}'")
+        # prep_df = prep_df.loc[prep_df['year'].isin(year_or_item)]
+        # prep_df = prep_df[prep_df.year == year_or_item]
+        # prep_df = prep_df[prep_df.year.isin([year_or_item])]
+        # prep_df = prep_df.loc[prep_df.apply(lambda x: x.year in year_or_item, axis=1)]
+        lst = year_or_item
+        prep_df = prep_df.query('year in @lst')
+        
+
     
         # Filters
         if species == "Cattle":     # Cattle have draught

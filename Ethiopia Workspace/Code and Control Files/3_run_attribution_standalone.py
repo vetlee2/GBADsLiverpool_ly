@@ -156,11 +156,14 @@ def cleancolnames(INPUT_DF):
 
 CURRENT_FOLDER = os.getcwd()
 PARENT_FOLDER = os.path.dirname(CURRENT_FOLDER)
+GRANDPARENT_FOLDER = os.path.dirname(PARENT_FOLDER)
 
 # Folder for shared code with Liverpool
 ETHIOPIA_CODE_FOLDER = CURRENT_FOLDER
 ETHIOPIA_OUTPUT_FOLDER = os.path.join(PARENT_FOLDER ,'Program outputs')
 ETHIOPIA_DATA_FOLDER = os.path.join(PARENT_FOLDER ,'Data')
+
+DASH_DATA_FOLDER = os.path.join(GRANDPARENT_FOLDER, 'AHLE Dashboard' ,'Dash App' ,'data')
 
 # Full path to rscript.exe
 r_executable = 'C:\\Program Files\\R\\R-4.2.1\\bin\\x64\\Rscript.exe'
@@ -696,7 +699,7 @@ del healthcost_smallrum['sqrd_sd']
 healthcost_smallrum['lower95'] = healthcost_smallrum['mean'] - 1.96 * healthcost_smallrum['sd']
 healthcost_smallrum['upper95'] = healthcost_smallrum['mean'] + 1.96 * healthcost_smallrum['sd']
 
-# Add to attribution data
+# Add rows to attribution data
 ahle_combo_withattr = pd.concat(
     [ahle_combo_withattr ,healthcost_smallrum]
     ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
@@ -728,7 +731,7 @@ del healthcost_cattle['sqrd_sd']
 healthcost_cattle['lower95'] = healthcost_cattle['mean'] - 1.96 * healthcost_cattle['sd']
 healthcost_cattle['upper95'] = healthcost_cattle['mean'] + 1.96 * healthcost_cattle['sd']
 
-# Add to attribution data
+# Add rows to attribution data
 ahle_combo_withattr = pd.concat(
     [ahle_combo_withattr ,healthcost_cattle]
     ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
@@ -760,7 +763,7 @@ del healthcost_poultry['sqrd_sd']
 healthcost_poultry['lower95'] = healthcost_poultry['mean'] - 1.96 * healthcost_poultry['sd']
 healthcost_poultry['upper95'] = healthcost_poultry['mean'] + 1.96 * healthcost_poultry['sd']
 
-# Add to attribution data
+# Add rows to attribution data
 ahle_combo_withattr = pd.concat(
     [ahle_combo_withattr ,healthcost_poultry]
     ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
@@ -769,41 +772,48 @@ ahle_combo_withattr = pd.concat(
 )
 
 # =============================================================================
-#### Add placeholder for attribution to specific diseases
+#### Add disease-specific placeholder
 # =============================================================================
-# REVISIT: this must be BY SPECIES if you want to use it
-# # Create placeholders
-# diseases_ext = pd.DataFrame({
-#     "cause":'External'
-#     ,"disease":['Cause 1' ,'Cause 2' ,'Cause 3' ,'Cause 4' ,'Cause 5']
-#     })
-# diseases_inf = pd.DataFrame({
-#     "cause":'Infectious'
-#     ,"disease":['Pathogen 1' ,'Pathogen 2' ,'Pathogen 3' ,'Pathogen 4' ,'Pathogen 5']
-#     })
-# diseases_non = pd.DataFrame({
-#     "cause":'Non-infectious'
-#     ,"disease":['Non-inf 1' ,'Non-inf 2' ,'Non-inf 3' ,'Non-inf 4' ,'Non-inf 5']
-#     })
-# diseases = pd.concat(
-#     [diseases_ext ,diseases_inf ,diseases_non]
-#     ,axis=0
-#     ,join='outer'        # 'outer': keep all index values from all data frames
-#     ,ignore_index=True   # True: do not keep index values on concatenation axis
-# )
+# Create placeholder data frame
+diseases_ext = pd.DataFrame({
+    "cause":'External'
+    ,"disease":['Cause A' ,'Cause B' ,'Cause C' ,'Cause D']
+    ,"disease_proportion":[0.25 ,0.25 ,0.25 ,0.25]     # List: proportion of attribution going to each disease. Must add up to 1.
+    }
+)
+diseases_inf = pd.DataFrame({
+    "cause":'Infectious'
+    ,"disease":['Pathogen A' ,'Pathogen B' ,'Pathogen C' ,'Pathogen D']
+    ,"disease_proportion":[0.25 ,0.25 ,0.25 ,0.25]     # List: proportion of attribution going to each disease. Must add up to 1.
+    }
+)
+diseases_non = pd.DataFrame({
+    "cause":'Non-infectious'
+    ,"disease":['Condition A' ,'Condition B' ,'Condition C' ,'Condition D']
+    ,"disease_proportion":[0.25 ,0.25 ,0.25 ,0.25]     # List: proportion of attribution going to each disease. Must add up to 1.
+    }
+)
+diseases = pd.concat(
+    [diseases_ext ,diseases_inf ,diseases_non]
+    ,axis=0
+    ,join='outer'        # 'outer': keep all index values from all data frames
+    ,ignore_index=True   # True: do not keep index values on concatenation axis
+)
 
-# # Merge
-# ahle_combo_withattr = pd.merge(
-#     left=ahle_combo_withattr
-#     ,right=diseases
-#     ,on='cause'
-#     ,how='outer'
-#     )
-# ahle_combo_withattr['median'] = ahle_combo_withattr['median'] / 5
-# ahle_combo_withattr['mean'] = ahle_combo_withattr['mean'] / 5
-# ahle_combo_withattr['sd'] = np.sqrt(ahle_combo_withattr['sd']**2 / 25)
-# ahle_combo_withattr['lower95'] = ahle_combo_withattr['mean'] - (1.96 * ahle_combo_withattr['sd'])
-# ahle_combo_withattr['upper95'] = ahle_combo_withattr['mean'] + (1.96 * ahle_combo_withattr['sd'])
+# Merge
+ahle_combo_withattr = pd.merge(
+    left=ahle_combo_withattr
+    ,right=diseases
+    ,on='cause'
+    ,how='outer'
+    )
+
+# Calculate placeholder values
+ahle_combo_withattr['median'] = ahle_combo_withattr['median'] * ahle_combo_withattr['disease_proportion']
+ahle_combo_withattr['mean'] = ahle_combo_withattr['mean'] * ahle_combo_withattr['disease_proportion']
+ahle_combo_withattr['sd'] = np.sqrt(ahle_combo_withattr['sd']**2 * ahle_combo_withattr['disease_proportion']**2)
+ahle_combo_withattr['lower95'] = ahle_combo_withattr['mean'] - (1.96 * ahle_combo_withattr['sd'])
+ahle_combo_withattr['upper95'] = ahle_combo_withattr['mean'] + (1.96 * ahle_combo_withattr['sd'])
 
 # =============================================================================
 #### Calculate as percent of total
@@ -873,6 +883,13 @@ ahle_combo_withattr = ahle_combo_withattr.reindex(columns=cols_first + cols_othe
 ahle_combo_withattr = ahle_combo_withattr.sort_values(by=cols_first ,ignore_index=True)
 datainfo(ahle_combo_withattr)
 
+# -----------------------------------------------------------------------------
 # Write CSV
-ahle_combo_withattr.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_withattr.csv') ,index=False)
-# ahle_combo_withattr.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_withattr_extra.csv') ,index=False)
+# -----------------------------------------------------------------------------
+# Without disease-specific attribution
+# ahle_combo_withattr.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_withattr.csv') ,index=False)
+# ahle_combo_withattr.to_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr.csv') ,index=False)
+
+# With disease-specific attribution
+ahle_combo_withattr.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_withattr_disease.csv') ,index=False)
+ahle_combo_withattr.to_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv') ,index=False)

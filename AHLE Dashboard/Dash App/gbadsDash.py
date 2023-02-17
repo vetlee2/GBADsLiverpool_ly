@@ -195,7 +195,8 @@ ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry
 ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary2.csv'))
 
 # Attribution Summary
-ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr.csv'))
+# ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr.csv'))
+ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv'))
 
 # -----------------------------------------------------------------------------
 # Global Aggregate
@@ -690,7 +691,9 @@ ecs_hierarchy_attr_options = [{'label': "Cause", 'value': "cause", 'disabled': F
                               {'label': "Production System", 'value': "production_system", 'disabled': False},
                               {'label': "Age Group", 'value': "age_group", 'disabled': False},
                               {'label': "Sex", 'value': "sex", 'disabled': False},
-                              {'label': "AHLE Component", 'value': "ahle_component", 'disabled': False}]
+                              {'label': "AHLE Component", 'value': "ahle_component", 'disabled': False},
+                              {'label': "Disease", 'value': "disease", 'disabled': False}
+                              ]
 
 # Drill down options for hierarchy
 ecs_hierarchy_dd_attr_options = [{'label': i, 'value': i, 'disabled': False} for i in ["None"]]
@@ -726,7 +729,7 @@ waterfall_plot_values = ('Value of Offtake',
 ecs_item_ahle_options=[]
 for i in waterfall_plot_values:
    str(ecs_item_ahle_options.append({'label':i,'value':(i)}))
-   
+
 ecs_item_ahle_options += [{'label': i, 'value': i, 'disabled': False} for i in ["Totals"]]
 
 
@@ -1301,6 +1304,7 @@ def prep_ahle_fortreemap_ecs(INPUT_DF):
        'sex',
        'ahle_component',
        'cause',
+       'disease',
        'mean',
        # 'pct_of_total'
        ]]
@@ -3085,7 +3089,7 @@ gbadsDash.layout = html.Div([
                                 clearable = False,
                                 ),
                     ]),
-                
+
                 ]),
             dbc.Row([
 
@@ -3097,7 +3101,7 @@ gbadsDash.layout = html.Div([
                                 className="card-title",
                                 style={"font-weight": "bold"}),
                         dbc.Row([
-                            
+
                             # Graph
                             dbc.Col([
                                 html.H6("Graph Value & Cost..."),
@@ -3109,7 +3113,7 @@ gbadsDash.layout = html.Div([
                                               ),
                                 ],
                             ),
-                            
+
                             # Display
                             dbc.Col([
                                 html.H6("Display"),
@@ -3121,7 +3125,7 @@ gbadsDash.layout = html.Div([
                                               ),
                                 ],
                             ),
-                            
+
                             # # Item
                             # dbc.Col([
                             #     html.H6("Item", id='select-item-ahle-ecs-title'),
@@ -3144,10 +3148,10 @@ gbadsDash.layout = html.Div([
                             #                   ),
                             #     ], id='select-compare-item-switch',
                             # ),
-                            
+
                             # Item or Compare Control switch
                             dbc.Col([
-                                
+
                                 ], id='select-compare-item-switch',
                             ),
 
@@ -3167,8 +3171,8 @@ gbadsDash.layout = html.Div([
 
                         ]), # END OF ROW
                         dbc.Row([  # Year for waterfall and Improvement scenarios
-                                 
-                            # Year dropdown   
+
+                            # Year dropdown
                             dbc.Col([
                                 html.H6("Year", id='select-year-ecs-title'),
                                 dcc.Dropdown(id='select-year-ecs',
@@ -5186,7 +5190,7 @@ def update_improvment_factors(compare):
         else:
             block = {'display': 'none'} # hide the improvement options
             d['disabled']=True
-            
+
     return options1, block, block, options2, block, block
 
 # ------------------------------------------------------------------------------
@@ -5232,7 +5236,7 @@ def update_core_data_ahle_ecs(species, prodsys, agesex, year):
 
     # Age/sex filter
     input_df=input_df.loc[(input_df['agesex_scenario'] == agesex)]
-    
+
     # Year filter
     input_df=input_df.loc[(input_df['year'] == year)]
 
@@ -5330,7 +5334,7 @@ def update_ecs_ahle_data(input_json ,currency):
     )
 # def update_core_data_attr_ecs(prodsys, age, sex):
 def update_core_data_attr_ecs(prodsys, species):
-    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr.csv'))
+    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr_disease.csv'))
 
     # Production System filter
     # If All production systems, don't filter. Attribution data is not aggregated to that level.
@@ -5481,7 +5485,7 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, item, agesex, 
 
     # Prep the data
     prep_df = prep_ahle_forwaterfall_ecs(input_df)
-    
+
     # # Create longitudinal chart
     # if graph_options == "Over Time":
     #     # Apply user filters
@@ -5559,19 +5563,19 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, item, agesex, 
     #                                       yaxis_title='US Dollars (2010 constant)',
     #                                       font_size=15,
     #                                       plot_bgcolor="#ededed",)
-            
-            
-            
-            
-            
-               
+
+
+
+
+
+
     # Create waterfall chart
     if graph_options == "By Year":
         # If currency is USD, use USD columns
         display_currency = 'Ethiopian Birr'
         if currency == 'USD':
             display_currency = 'USD'
-    
+
             prep_df['mean_current']                     = prep_df['mean_current_usd']
             prep_df['mean_mortality_zero']              = prep_df['mean_mortality_zero_usd']
             prep_df['mean_ideal']                       = prep_df['mean_ideal_usd']
@@ -5599,8 +5603,8 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, item, agesex, 
             prep_df['mean_all_current_growth_50_AHLE']  = prep_df['mean_all_current_growth_50_AHLE_usd']
             prep_df['mean_all_current_growth_75_AHLE']  = prep_df['mean_all_current_growth_75_AHLE_usd']
             prep_df['mean_all_current_growth_100_AHLE'] = prep_df['mean_all_current_growth_100_AHLE_usd']
-    
-    
+
+
         # Filters
         if species == "Cattle":     # Cattle have draught
             waterfall_plot_values = ('Value of Offtake',
@@ -5644,10 +5648,10 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, item, agesex, 
                                      'Gross Margin')
             prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
             measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
-    
-    
+
+
         x = prep_df['item']
-    
+
         # display and Compare filters
         if display == "Difference (AHLE)":
             # Applying the condition
@@ -5683,7 +5687,7 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, item, agesex, 
                     y = prep_df['mean_all_current_growth_75_AHLE']
                 elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
                     y = prep_df['mean_all_current_growth_100_AHLE']
-    
+
             # Create graph
             name = 'AHLE'
             ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
@@ -5727,7 +5731,7 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, item, agesex, 
                                 yanchor="bottom",
                                 y=1.02,)
                     )
-    
+
             elif compare == 'Zero Mortality':
                 y = prep_df['mean_mortality_zero']
                 name = 'Zero Mortality (solid)'
@@ -5760,7 +5764,7 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, item, agesex, 
                                 yanchor="bottom",
                                 y=1.02,)
                     )
-    
+
             else:
                 if impvmnt_factor == 'Mortality' and impvmnt_value == '25%':
                     y = prep_df['mean_all_mort_25_imp']
@@ -5786,7 +5790,7 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, item, agesex, 
                     y = prep_df['mean_current_growth_75_imp_all']
                 elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
                     y = prep_df['mean_current_growth_100_imp_all']
-    
+
                 name = impvmnt_factor + "- " + impvmnt_value + " (solid)"
                 # Create graph
                 ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
@@ -5817,7 +5821,7 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, item, agesex, 
                                 yanchor="bottom",
                                 y=1.02,)
                     )
-    
+
         # Add tooltip
         if currency == 'Birr':
             ecs_waterfall_fig.update_traces(hovertemplate='Category: %{x}'+

@@ -5568,6 +5568,7 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, agesex, specie
         prep_df['mean_all_current_growth_75_AHLE']  = prep_df['mean_all_current_growth_75_AHLE_usd']
         prep_df['mean_all_current_growth_100_AHLE'] = prep_df['mean_all_current_growth_100_AHLE_usd']
     
+    # Item is being read in as a list the first time, ensuring it does not affect the visuals here
     if isinstance(year_or_item, list):
         year_or_item = year_or_item[0]
     else:
@@ -5577,12 +5578,6 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, agesex, specie
     if graph_options == "Over Time":
         # Apply user filters
         # Filter based on selected item
-        # prep_df = prep_df.loc[(prep_df['item'] == year_or_item)]
-        # prep_df = prep_df.loc[prep_df['item'].isin(year_or_item)]
-        # prep_df = prep_df.query(f"item == '{year_or_item}'")
-        # prep_df = prep_df[prep_df.item == year_or_item]
-        # prep_df = prep_df[prep_df.item.isin([year_or_item])]
-        # prep_df = prep_df.loc[prep_df.apply(lambda x: x.item in year_or_item, axis=1)]
         lst = year_or_item
         prep_df = prep_df.query('item in @lst')
         
@@ -5718,28 +5713,15 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, agesex, specie
                                             yaxis_title=display_currency,
                                             font_size=15,
                                             plot_bgcolor="#ededed",)
-
-
-            
-            
-            
-            
             
                
     # Create waterfall chart
     if graph_options == "By Year":
         
         # Filter to a specific year
-        # prep_df=prep_df.loc[(prep_df['year'] == year_or_item)]
-        # prep_df = prep_df.query(f"year == '{year_or_item}'")
-        # prep_df = prep_df.loc[prep_df['year'].isin(year_or_item)]
-        # prep_df = prep_df[prep_df.year == year_or_item]
-        # prep_df = prep_df[prep_df.year.isin([year_or_item])]
-        # prep_df = prep_df.loc[prep_df.apply(lambda x: x.year in year_or_item, axis=1)]
         lst = year_or_item
         prep_df = prep_df.query('year == @lst')
         
-    
         # Filters
         if species == "Cattle":     # Cattle have draught
             waterfall_plot_values = ('Value of Offtake',

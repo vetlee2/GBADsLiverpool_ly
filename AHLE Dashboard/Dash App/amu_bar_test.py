@@ -21,7 +21,10 @@ app.layout = html.Div([
         value="Americas",
         clearable=False,
         ),
-    dcc.Graph(id="update_stacked_bar_amu")
+    html.Div(children=[
+        dcc.Graph(id="update_stacked_bar_amu", style={'display': 'inline-block'}),
+        dcc.Graph(id="update_stacked_bar_amu2", style={'display': 'inline-block'})
+    ])
 ])
 
 #Update Stacked Bar Chart
@@ -37,7 +40,7 @@ app.layout = html.Div([
 def update_stacked_bar_amu(region):
     input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER,'amu2018_combined_tall.csv'))
     
-    stackedbar_df = input_df.query("scope == 'All'")#.query(f"region == '{region}'")
+    stackedbar_df = input_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")#.query(f"region == '{region}'")
     
 
     #x = stackedbar_df['region']
@@ -46,12 +49,6 @@ def update_stacked_bar_amu(region):
     #amu_bar_fig = update_stacked_bar_amu(stackedbar_df, x, y, color)
     amu_bar_fig = px.bar(stackedbar_df, x='region', y='amu_tonnes',
                          color='antimicrobial_class', barmode='stack',
-                         color_discrete_map ={
-                             "Europe": "red",
-                             "Americas": "blue",
-                             "Asia, Far East and Oceania": "green",
-                             "Africa": "yellow",
-                             "Middle East": "magenta"},
                          labels={
                              "region": "Region",
                              "amu_tonnes": "AMU Tonnes",
@@ -59,7 +56,22 @@ def update_stacked_bar_amu(region):
               
     return amu_bar_fig
         
-     
+@app.callback(
+    Output('update_stacked_bar_amu2', 'figure'),
+   Input('dropdown','value'))
+
+def update_stacked_bar_amu2 (region):
+    input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER,'amu2018_combined_tall.csv'))
+    stackedbar_df = amu2018_combined_tall.copy()
+    stackedbar_df = input_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
+    amu_bar_fig2 = px.bar(stackedbar_df, x="region", y="amu_mg_perkgbiomass",
+                         color='antimicrobial_class',
+                         labels={
+                             "region": "Region",
+                             "amu_mg_perkgbiomass": "AMU Mg Per Kg Biomass",
+                             "antimicrobial_class": "Antimicrobial Class"})
+
+    return amu_bar_fig2
 
 if __name__ == '__main__':
     app.run_server(debug=True)

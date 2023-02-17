@@ -3489,7 +3489,7 @@ gbadsDash.layout = html.Div([
 
        dcc.Tab(label="Antimicrobial Usage [WIP]", children =[
            
-            dbc.Row([ # Poultry Stacked Bar
+            dbc.Row([ # AMU Stacked Bar
                 dbc.Spinner(children=[
                 dcc.Graph(id='amu-stacked-bar',
                           style = {"height":"650px"},
@@ -3515,7 +3515,33 @@ gbadsDash.layout = html.Div([
                     ],style={"width":5}
                     ),
 
-       
+                    dbc.Row([ # AMU Stacked Bar
+                        dbc.Spinner(children=[
+                        dcc.Graph(id='amu-stacked-bar2',
+                                  style = {"height":"650px"},
+                                  config = {
+                                      "displayModeBar" : True,
+                                      "displaylogo": False,
+                                      'toImageButtonOptions': {
+                                          'format': 'png', # one of png, svg, jpeg, webp
+                                          'filename': 'GBADs_AMU_Stacked_Bar'
+                                          },
+                                      'modeBarButtonsToRemove': ['zoom',
+                                                                  'zoomIn',
+                                                                  'zoomOut',
+                                                                  'autoScale',
+                                                                  #'resetScale',  # Removes home button
+                                                                  'pan',
+                                                                  'select2d',
+                                                                  'lasso2d']
+                                      })
+                            # End of Spinner
+                            ],size="md", color="#393375", fullscreen=False),
+                            # End of Stacked Bar
+                            ],style={"width":5}
+                            ),
+        
+    
            #### -- DATATABLE
            dbc.Row([
 
@@ -7484,14 +7510,14 @@ def update_ahle_lineplot_ga(input_json ,selected_region ,selected_incgrp ,select
     return ga_lineplot_fig
 
 #### Antimicrobial Use
-#AMU Stacked Bar
+#AMU Stacked Bar by Tonnes
 @gbadsDash.callback(
     Output('amu-stacked-bar', 'figure'),
    Input('select-species-ga','value'),
     )
 def update_stacked_bar_amu (input_select_species):
     stackedbar_df = amu2018_combined_tall.copy()
-    stackedbar_df = stackedbar_df.query("scope == 'All'")
+    stackedbar_df = stackedbar_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
     amu_bar_fig = px.bar(stackedbar_df, x="region", y="amu_tonnes",
                          color='antimicrobial_class',
                          labels={
@@ -7501,7 +7527,21 @@ def update_stacked_bar_amu (input_select_species):
 
     return amu_bar_fig
 
+@gbadsDash.callback(
+    Output('amu-stacked-bar2', 'figure'),
+   Input('select-species-ga','value'),
+    )
+def update_stacked_bar_amu2 (input_select_species):
+    stackedbar_df = amu2018_combined_tall.copy()
+    stackedbar_df = stackedbar_df.query("scope == 'All'")#.query("antimicrobial_class != 'total_antimicrobials'")
+    amu_bar_fig2 = px.bar(stackedbar_df, x="region", y="amu_mg_perkgbiomass",
+                         color='antimicrobial_class',
+                         labels={
+                             "region": "Region",
+                             "amu_mg_perkgbiomass": "AMU Mg Per Kg Biomass",
+                             "antimicrobial_class": "Antimicrobial Class"})
 
+    return amu_bar_fig2
 
 
 # Attribution datatable below graphic

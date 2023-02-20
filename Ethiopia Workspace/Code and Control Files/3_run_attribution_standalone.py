@@ -778,19 +778,19 @@ ahle_combo_withattr = pd.concat(
 diseases_ext = pd.DataFrame({
     "cause":'External'
     ,"disease":['Cause A' ,'Cause B' ,'Cause C' ,'Cause D']
-    ,"disease_proportion":[0.25 ,0.25 ,0.25 ,0.25]     # List: proportion of attribution going to each disease. Must add up to 1.
+    ,"disease_proportion":[0.50 ,0.25 ,0.15 ,0.10]     # List: proportion of attribution going to each disease. Must add up to 1.
     }
 )
 diseases_inf = pd.DataFrame({
     "cause":'Infectious'
     ,"disease":['Pathogen A' ,'Pathogen B' ,'Pathogen C' ,'Pathogen D']
-    ,"disease_proportion":[0.25 ,0.25 ,0.25 ,0.25]     # List: proportion of attribution going to each disease. Must add up to 1.
+    ,"disease_proportion":[0.50 ,0.25 ,0.15 ,0.10]     # List: proportion of attribution going to each disease. Must add up to 1.
     }
 )
 diseases_non = pd.DataFrame({
     "cause":'Non-infectious'
     ,"disease":['Condition A' ,'Condition B' ,'Condition C' ,'Condition D']
-    ,"disease_proportion":[0.25 ,0.25 ,0.25 ,0.25]     # List: proportion of attribution going to each disease. Must add up to 1.
+    ,"disease_proportion":[0.50 ,0.25 ,0.15 ,0.10]     # List: proportion of attribution going to each disease. Must add up to 1.
     }
 )
 diseases = pd.concat(

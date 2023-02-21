@@ -1929,17 +1929,25 @@ def create_ahle_waterfall_ga(input_df, name, measure, x, y):
 
     return waterfall_fig
 
-# TODO: WIPs for AMU page
+
 def create_map_display_amu(input_df):
+    # set countries for graphing
+    # input_df['graphing_country'] = np.where(input_df['region']=='Africa', 'Chad', '')
+    # input_df['graphing_country'] = np.where(input_df['region']=='Americas', 'Guatemala', '')
+    # input_df['graphing_country'] = np.where(input_df['region']=='Asia, Far East and Oceania', 'China', '')
+    # input_df['graphing_country'] = np.where(input_df['region']=='Europe', 'Hungary', '')
+    # input_df['graphing_country'] = np.where(input_df['region']=='Middle East', 'Saudi Arabia', '')
+    
     amu_map_fig = px.scatter_geo(input_df, 
-                                 # locations="iso_alpha", 
+                                 locations="graphing_country", 
                                  color="importance_ctg",
-                                 # hover_name="country", 
+                                 hover_name="region", 
                                  size="biomass_total_kg",
                                  projection="natural earth")
     
     return amu_map_fig
 
+# TODO: WIPs for AMU page
 def create_donut_chart_amu(input_df, value):
     pie_fig = px.pie(input_df, 
                  values=value, # want to use either total biomass or amu mg per kg of biomass
@@ -3536,7 +3544,7 @@ gbadsDash.layout = html.Div([
                dbc.Col([
                    html.H6('Region-country alignment'),
                    dcc.RadioItems(id='Region-country-alignment-amu',
-                                   options=region_structure_options_ga,
+                                   options=region_structure_options,
                                    inputStyle={"margin-right": "10px", # This pulls the words off of the button
                                                "margin-left":"20px"},
                                    value="WOAH",
@@ -3567,33 +3575,57 @@ gbadsDash.layout = html.Div([
             html.Hr(style={'margin-right':'10px',}),
 
            #### -- GRAPHICS
-            dbc.Row([ # AMU Stacked Bar
-                dbc.Spinner(children=[
-                dcc.Graph(id='amu-stacked-bar',
-                          style = {"height":"650px"},
-                          config = {
-                              "displayModeBar" : True,
-                              "displaylogo": False,
-                              'toImageButtonOptions': {
-                                  'format': 'png', # one of png, svg, jpeg, webp
-                                  'filename': 'GBADs_AMU_Stacked_Bar'
-                                  },
-                              'modeBarButtonsToRemove': ['zoom',
-                                                          'zoomIn',
-                                                          'zoomOut',
-                                                          'autoScale',
-                                                          #'resetScale',  # Removes home button
-                                                          'pan',
-                                                          'select2d',
-                                                          'lasso2d']
-                              })
-                    # End of Spinner
-                    ],size="md", color="#393375", fullscreen=False),
-                    # End of Stacked Bar
-                    ],style={"width":5}
-                    ),
+            dbc.Row([ 
+                     dbc.Col([ # Global Aggregation Visual
+                         dbc.Spinner(children=[
+                         dcc.Graph(id='amu-map',
+                                     style = {"height":"650px"},
+                                   config = {
+                                       "displayModeBar" : True,
+                                       "displaylogo": False,
+                                       'toImageButtonOptions': {
+                                           'format': 'png', # one of png, svg, jpeg, webp
+                                           'filename': 'GBADs_Global_AMU_Viz'
+                                           },
+                                       }
+                                   )
+                         # End of Spinner
+                         ],size="md", color="#393375", fullscreen=False),
+                         # End of Map
+                         ]),
 
-                    dbc.Row([ # AMU Stacked Bar
+                 html.Br(),
+                 # END OF FIRST GRAPHICS ROW
+                 ],),
+            
+            dbc.Row([     
+                dbc.Col([# AMU Stacked Bar
+                    dbc.Spinner(children=[
+                    dcc.Graph(id='amu-stacked-bar',
+                              style = {"height":"650px"},
+                              config = {
+                                  "displayModeBar" : True,
+                                  "displaylogo": False,
+                                  'toImageButtonOptions': {
+                                      'format': 'png', # one of png, svg, jpeg, webp
+                                      'filename': 'GBADs_AMU_Stacked_Bar'
+                                      },
+                                  'modeBarButtonsToRemove': ['zoom',
+                                                              'zoomIn',
+                                                              'zoomOut',
+                                                              'autoScale',
+                                                              #'resetScale',  # Removes home button
+                                                              'pan',
+                                                              'select2d',
+                                                              'lasso2d']
+                                  })
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                        # End of Stacked Bar
+                        ],style={"width":5}
+                        ),
+
+                    dbc.Col([ # AMU Stacked Bar
                         dbc.Spinner(children=[
                         dcc.Graph(id='amu-stacked-bar2',
                                   style = {"height":"650px"},
@@ -3618,7 +3650,8 @@ gbadsDash.layout = html.Div([
                             # End of Stacked Bar
                             ],style={"width":5}
                             ),
-        
+                    # END OF FIRST GRAPHICS ROW
+                    ],),
     
            #### -- DATATABLE
            dbc.Row([
@@ -7804,7 +7837,31 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
 
     return ga_lineplot_fig
 
-#### Antimicrobial Use
+#### UPDATE ANTIMICROBIAL USE
+#AMU Map of regions
+@gbadsDash.callback(
+    Output('amu-map', 'figure'),
+    Input('select-species-ga','value'),
+    )
+def update_map_amu (input_select_species):
+    input_df = amu2018_combined_tall.copy()
+    
+    # Filter scope to All
+    input_df = input_df.query("scope == 'All'")
+    
+    # Add graphing country column for map
+    input_df['graphing_country'] = np.where(input_df['region']=='Africa', 'Chad', '')
+    input_df['graphing_country'] = np.where(input_df['region']=='Americas', 'Guatemala', '')
+    input_df['graphing_country'] = np.where(input_df['region']=='Asia, Far East and Oceania', 'China', '')
+    input_df['graphing_country'] = np.where(input_df['region']=='Europe', 'Hungary', '')
+    input_df['graphing_country'] = np.where(input_df['region']=='Middle East', 'Saudi Arabia', '')
+    
+    
+    # Use create map defined above
+    amu_map_fig = create_map_display_amu(input_df)
+    
+    return amu_map_fig
+
 #AMU Stacked Bar by Tonnes
 @gbadsDash.callback(
     Output('amu-stacked-bar', 'figure'),

@@ -7839,28 +7839,28 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
 
 #### UPDATE ANTIMICROBIAL USE
 #AMU Map of regions
-@gbadsDash.callback(
-    Output('amu-map', 'figure'),
-    Input('select-species-ga','value'),
-    )
-def update_map_amu (input_select_species):
-    input_df = amu2018_combined_tall.copy()
+# @gbadsDash.callback(
+#     Output('amu-map', 'figure'),
+#     Input('select-species-ga','value'),
+#     )
+# def update_map_amu (input_select_species):
+#     input_df = amu2018_combined_tall.copy()
     
-    # Filter scope to All
-    input_df = input_df.query("scope == 'All'")
+#     # Filter scope to All
+#     input_df = input_df.query("scope == 'All'")
     
-    # Add graphing country column for map
-    input_df['graphing_country'] = np.where(input_df['region']=='Africa', 'Chad', '')
-    input_df['graphing_country'] = np.where(input_df['region']=='Americas', 'Guatemala', '')
-    input_df['graphing_country'] = np.where(input_df['region']=='Asia, Far East and Oceania', 'China', '')
-    input_df['graphing_country'] = np.where(input_df['region']=='Europe', 'Hungary', '')
-    input_df['graphing_country'] = np.where(input_df['region']=='Middle East', 'Saudi Arabia', '')
+#     # Add graphing country column for map
+#     input_df['graphing_country'] = np.where(input_df['region']=='Africa', 'Chad', '')
+#     input_df['graphing_country'] = np.where(input_df['region']=='Americas', 'Guatemala', '')
+#     input_df['graphing_country'] = np.where(input_df['region']=='Asia, Far East and Oceania', 'China', '')
+#     input_df['graphing_country'] = np.where(input_df['region']=='Europe', 'Hungary', '')
+#     input_df['graphing_country'] = np.where(input_df['region']=='Middle East', 'Saudi Arabia', '')
     
     
-    # Use create map defined above
-    amu_map_fig = create_map_display_amu(input_df)
+#     # Use create map defined above
+#     amu_map_fig = create_map_display_amu(input_df)
     
-    return amu_map_fig
+#     return amu_map_fig
 
 #AMU Stacked Bar by Tonnes
 @gbadsDash.callback(

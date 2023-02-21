@@ -7657,39 +7657,30 @@ def update_ahle_lineplot_ga(input_json ,selected_region ,selected_incgrp ,select
 #AMU Stacked Bar by Tonnes
 @gbadsDash.callback(
     Output('amu-stacked-bar', 'figure'),
-    Input('select-species-ga','value'),
-    #Input('select-graph-amu', 'value'),
+    Input('select-graph-amu','value'),
+    Input('select-graph-amu-tonnes', 'value'),
     )
-def update_stacked_bar_amu (input_select_species):
+def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes):
     stackedbar_df = amu2018_combined_tall.copy()
     stackedbar_df = stackedbar_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
-    amu_bar_fig = px.bar(stackedbar_df, x="region", y="amu_tonnes",
+    
+    x = 'region'
+    
+    if select_graph_amu_tonnes.upper() == 'TONNES':
+        yaxis = 'amu_tonnes'
+        label = "AMU Tonnes"
+    elif select_graph_amu_tonnes.upper() == 'MG PER KG BIOMASS':
+        yaxis = 'amu_mg_perkgbiomass'
+        label = "AMU Mg per Kg Biomass"
+
+    amu_bar_fig = px.bar(stackedbar_df, x=x, y=yaxis,
                          color='antimicrobial_class',
                          labels={
-                             "region": "Region",
-                             "amu_tonnes": "AMU Tonnes",
+                             x: "Region",
+                             yaxis: label,
                              "antimicrobial_class": "Antimicrobial Class"})
-    return amu_bar_fig
-
-@gbadsDash.callback(
-    Output('amu-stacked-bar2','figure'),
-    Input('select-graph-amu','value'),
-    Input('select-graph-amu-tonnes', 'value'))
     
-def update_select_graph_amu(input_csv, amu_tonnes, amu_mg_perkgbiomass):
-    # First read it into a dataframe
-    input_file = "amu2018_combined_tall.csv"
-    stacked_amu_df = pd.read_csv(input_file)
-    stacked_amu_df = (input_file)
-
-
-    x = stacked_amu_df['Region']
-    y = stacked_amu_df[metric]
-
-    if metric.upper() == 'TONNES':
-        yaxis = 'amu_tonnes'
-    elif metric.upper() == 'amu_mg_per_kgbiomass':
-        yaxis = 'amu_mg_per_kgbiomass'
+    return amu_bar_fig
 
 
 # @gbadsDash.callback(

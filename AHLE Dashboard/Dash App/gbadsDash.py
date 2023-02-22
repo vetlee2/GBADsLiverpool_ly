@@ -2012,7 +2012,7 @@ gbadsDash.layout = html.Div([
     dcc.Store(id='core-data-poultry'),
     dcc.Store(id='core-data-swine'),
     dcc.Store(id='core-data-attr-ecs'),
-    dcc.Store(id='core-data-ahle-ecs'),
+    # dcc.Store(id='core-data-ahle-ecs'),
     # dcc.Store(id='core-data-world-ahle'),
     # dcc.Store(id='core-data-world-ahle-abt-ga'),
 
@@ -5544,41 +5544,54 @@ def update_improvment_factors(compare):
 # ------------------------------------------------------------------------------
 #### -- Data
 # ------------------------------------------------------------------------------
-# AHLE Data
-@gbadsDash.callback(
-    Output('core-data-ahle-ecs','data'),
-    Input('select-species-ecs','value'),
-    Input('select-prodsys-ecs','value'),
-    Input('select-agesex-ecs', 'value'),
-    # Input('select-year-ecs', 'value'),
-    )
-def update_core_data_ahle_ecs(species, prodsys, agesex):
-    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_scensmry_yearlyfake.csv'))
+# # AHLE Data
+# @gbadsDash.callback(
+#     Output('core-data-ahle-ecs','data'),
+#     Input('select-species-ecs','value'),
+#     Input('select-prodsys-ecs','value'),
+#     Input('select-agesex-ecs', 'value'),
+#     # Input('select-year-ecs', 'value'),
+#     )
+# def update_core_data_ahle_ecs(species, prodsys, agesex):
+#     input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_scensmry_yearlyfake.csv'))
 
-    # Species filter
-    input_df = input_df.loc[(input_df['species'] == species)]
+#     # Species filter
+#     input_df = input_df.loc[(input_df['species'] == species)]
 
-    # Production System filter
-    # Rename values to match filters
-    input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
-    input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+#     # Production System filter
+#     # Rename values to match filters
+#     input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
+#     input_df=input_df.loc[(input_df['production_system'] == prodsys)]
 
-    # Age/sex filter
-    input_df=input_df.loc[(input_df['agesex_scenario'] == agesex)]
+#     # Age/sex filter
+#     input_df=input_df.loc[(input_df['agesex_scenario'] == agesex)]
 
-    # # Year filter
-    # input_df=input_df.loc[(input_df['year'] == year)]
+#     # # Year filter
+#     # input_df=input_df.loc[(input_df['year'] == year)]
 
-    return input_df.to_json(date_format='iso', orient='split')
+#     return input_df.to_json(date_format='iso', orient='split')
 
 # AHLE datatable below graphic
 @gbadsDash.callback(
     Output('ecs-ahle-datatable', 'children'),
-    Input('core-data-ahle-ecs','data'),
+    # Input('core-data-ahle-ecs','data'),
     Input('select-currency-ecs','value'),
+    Input('select-species-ecs','value'),
+    Input('select-prodsys-ecs','value'),
+    Input('select-agesex-ecs', 'value'),
 )
-def update_ecs_ahle_data(input_json ,currency):
-    input_df = pd.read_json(input_json, orient='split')
+def update_ecs_ahle_data(currency, species, prodsys, agesex):
+    # input_df = pd.read_json(input_json, orient='split')
+    # Read in data and apply filters
+    input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry_yearlyfake.csv'))
+    # Species filter
+    input_df = input_df.loc[(input_df['species'] == species)]
+    # Production System filter
+    # Rename values to match filters
+    input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
+    input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+    # Age/sex filter
+    input_df=input_df.loc[(input_df['agesex_scenario'] == agesex)]
 
     # If currency is USD, use USD columns
     display_currency = 'Birr'
@@ -5663,7 +5676,7 @@ def update_ecs_ahle_data(input_json ,currency):
     )
 # def update_core_data_attr_ecs(prodsys, age, sex):
 def update_core_data_attr_ecs(prodsys, species):
-    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr_disease.csv'))
+    input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv'))
 
     # Production System filter
     # If All production systems, don't filter. Attribution data is not aggregated to that level.
@@ -5796,9 +5809,8 @@ def update_ecs_attr_data(input_json, currency):
 # AHLE Waterfall or Longitudinal Graph
 @gbadsDash.callback(
     Output('ecs-ahle-waterfall','figure'),
-    Input('core-data-ahle-ecs','data'),
+    # Input('core-data-ahle-ecs','data'),
     Input('select-graph-ahle-ecs', 'value'),
-    # Input('select-item-ahle-ecs', 'value'),
     Input('select-agesex-ecs', 'value'),
     Input('select-species-ecs','value'),
     Input('select-display-ecs','value'),
@@ -5808,11 +5820,19 @@ def update_ecs_attr_data(input_json, currency):
     Input('select-factor-ecs','value'),
     Input('select-improve-ecs','value'),
     Input('select-year-item-switch-ecs', 'value'),
-    # Input('select-year-ecs', 'n_clicks'),
     )
-def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, agesex, species, display, compare, prodsys, currency, impvmnt_factor, impvmnt_value, year_or_item):
-    # Data
-    input_df = pd.read_json(input_json, orient='split')
+def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, compare, prodsys, currency, impvmnt_factor, impvmnt_value, year_or_item):
+    # input_df = pd.read_json(input_json, orient='split')
+    # Read in data and apply filters
+    input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry_yearlyfake.csv'))
+    # Species filter
+    input_df = input_df.loc[(input_df['species'] == species)]
+    # Production System filter
+    # Rename values to match filters
+    input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
+    input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+    # Age/sex filter
+    input_df=input_df.loc[(input_df['agesex_scenario'] == agesex)]
 
     # Prep the data
     prep_df = prep_ahle_forwaterfall_ecs(input_df)
@@ -6333,7 +6353,7 @@ def update_attr_treemap_ecs(input_json, prodsys, species, currency,
 def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, impvmnt_value):
 
     # AHLE Summary 2 - for stacked bar
-    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
+    input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary2.csv'))
 
     # Rename values to match filters
     input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})

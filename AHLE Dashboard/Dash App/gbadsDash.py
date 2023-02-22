@@ -7672,12 +7672,20 @@ def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes):
     elif select_graph_amu_tonnes.upper() == 'MG PER KG BIOMASS':
         yaxis = 'amu_mg_perkgbiomass'
         label = "AMU Mg per Kg Biomass"
+        
+    if select_graph_amu.upper() == 'INDIVIDUAL CLASSES':
+           color = 'antimicrobial_class'
+           
+    elif select_graph_amu.upper() == 'IMPORTANCE CATEGORIES':
+           color = 'importance_ctg'
+           
 
     amu_bar_fig = px.bar(stackedbar_df, x=x, y=yaxis,
-                         color='antimicrobial_class',
+                         color=color,
                          labels={
                              x: "Region",
                              yaxis: label,
+                             "importance_ctg": "Importance Category",
                              "antimicrobial_class": "Antimicrobial Class"})
     
     return amu_bar_fig

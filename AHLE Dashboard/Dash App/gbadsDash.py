@@ -7988,18 +7988,27 @@ def update_stacked_bar_amu (input_select_species):
 @gbadsDash.callback(
     Output('amu-donut-chart', 'figure'),
     Input('select-quantity-amu-tonnes','value'),
+    Input('select-region-amu','value'),
     )
-def update_donut_chart_amu (quantity):
+def update_donut_chart_amu (quantity, region):
     input_df = amu2018_combined_tall.copy()
     
     # Filter scope to All and remove nulls from importance category
     input_df = input_df.query("scope == 'All'").query("importance_ctg.notnull()")
     
-    # Use selected value
+    # Use selected quantity value
     if quantity == 'Tonnes':
         value = input_df['amu_tonnes']
     else:
         value = input_df['amu_mg_perkgbiomass']
+        
+    # # Filter by region selected
+    # if region == 'All':
+    #     selected_region = 'Global'
+    # else:
+    #     selected_region = f'{region}'
+    #     input_df = input_df.query(f"region == '{region}'")
+        
     
     # Use create donut chart defined above
     amu_donut_fig = create_donut_chart_amu(input_df, value)

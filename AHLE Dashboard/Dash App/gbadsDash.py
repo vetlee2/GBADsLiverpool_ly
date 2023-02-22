@@ -1951,10 +1951,10 @@ def create_map_display_amu(input_df):
     return amu_map_fig
 
 # TODO: WIPs for AMU page
-def create_donut_chart_amu(input_df, value):
+def create_donut_chart_amu(input_df, value, names):
     pie_fig = px.pie(input_df, 
                  values=value, # want to use either total biomass or amu mg per kg of biomass
-                 names='antimicrobial_class')
+                 names=names)
     
     # show % values inside
     pie_fig.update_traces(textposition='inside')
@@ -3576,7 +3576,7 @@ gbadsDash.layout = html.Div([
                # AMU classification        
                dbc.Col([
                    html.H6("AMU classification"),
-                   dcc.RadioItems(id='select-graph-amu',
+                   dcc.RadioItems(id='select-classification-amu',
                          options=['Individual Classes', 'Importance Categories'],
                          value='Individual Classes',
                          labelStyle={'display': 'block'},
@@ -7970,7 +7970,7 @@ def update_map_amu (region):
 @gbadsDash.callback(
     Output('amu-stacked-bar', 'figure'),
     Input('select-species-ga','value'),
-    #Input('select-graph-amu', 'value'),
+    #Input('select-classification-amu', 'value'),
     )
 def update_stacked_bar_amu (input_select_species):
     stackedbar_df = amu2018_combined_tall.copy()
@@ -7989,8 +7989,9 @@ def update_stacked_bar_amu (input_select_species):
     Output('amu-donut-chart', 'figure'),
     Input('select-quantity-amu-tonnes','value'),
     Input('select-region-amu','value'),
+    Input('select-classification-amu', 'value'),
     )
-def update_donut_chart_amu (quantity, region):
+def update_donut_chart_amu (quantity, region, classification):
     input_df = amu2018_combined_tall.copy()
     
     # Filter scope to All and remove nulls from importance category
@@ -8002,6 +8003,12 @@ def update_donut_chart_amu (quantity, region):
     else:
         value = input_df['amu_mg_perkgbiomass']
         
+    # Use selected classification value
+    if classification == 'Individual Classes':
+        names = input_df['antimicrobial_class']
+    else:
+        names = input_df['importance_ctg']
+        
     # # Filter by region selected
     # if region == 'All':
     #     selected_region = 'Global'
@@ -8011,10 +8018,10 @@ def update_donut_chart_amu (quantity, region):
         
     
     # Use create donut chart defined above
-    amu_donut_fig = create_donut_chart_amu(input_df, value)
+    amu_donut_fig = create_donut_chart_amu(input_df, value, names)
     
     # Add title
-    amu_donut_fig.update_layout(title_text=f'AMU {quantity} by classification',
+    amu_donut_fig.update_layout(title_text=f'AMU {quantity} by {classification}',
                                   font_size=15,
                                   plot_bgcolor="#ededed",
                                   # Add annotations in the center of the donut pies.

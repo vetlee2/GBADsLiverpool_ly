@@ -1931,16 +1931,19 @@ def create_ahle_waterfall_ga(input_df, name, measure, x, y):
 
 
 def create_map_display_amu(input_df):
-    # set countries for graphing
-    # input_df['graphing_country'] = np.where(input_df['region']=='Africa', 'Chad', '')
-    # input_df['graphing_country'] = np.where(input_df['region']=='Americas', 'Guatemala', '')
-    # input_df['graphing_country'] = np.where(input_df['region']=='Asia, Far East and Oceania', 'China', '')
-    # input_df['graphing_country'] = np.where(input_df['region']=='Europe', 'Hungary', '')
-    # input_df['graphing_country'] = np.where(input_df['region']=='Middle East', 'Saudi Arabia', '')
+    # Add graphing country column for map
+    input_df['graphing_country'] = 'TEST'
+    input_df['graphing_country'] = np.where(input_df['region']=='Africa', 'Chad', input_df['graphing_country'])
+    input_df['graphing_country'] = np.where(input_df['region']=='Americas', 'Guatemala', input_df['graphing_country'])
+    input_df['graphing_country'] = np.where(input_df['region']=='Asia, Far East and Oceania', 'China', input_df['graphing_country'])
+    input_df['graphing_country'] = np.where(input_df['region']=='Europe', 'Hungary', input_df['graphing_country'])
+    input_df['graphing_country'] = np.where(input_df['region']=='Middle East', 'Saudi Arabia', input_df['graphing_country'])
+    
     
     amu_map_fig = px.scatter_geo(input_df, 
                                  locations="graphing_country", 
-                                 color="importance_ctg",
+                                 locationmode='country names',
+                                 color="region",
                                  hover_name="region", 
                                  size="biomass_total_kg",
                                  projection="natural earth")
@@ -1948,10 +1951,10 @@ def create_map_display_amu(input_df):
     return amu_map_fig
 
 # TODO: WIPs for AMU page
-def create_donut_chart_amu(input_df, value):
+def create_donut_chart_amu(input_df, value, names):
     pie_fig = px.pie(input_df, 
                  values=value, # want to use either total biomass or amu mg per kg of biomass
-                 names='antimicrobial_class')
+                 names=names)
     
     # show % values inside
     pie_fig.update_traces(textposition='inside')
@@ -3537,7 +3540,7 @@ gbadsDash.layout = html.Div([
         #### Antimicrobial Visual WIP
 
 
-       dcc.Tab(label="Antimicrobial Usage [WIP]", children =[
+       dcc.Tab(label="Antimicrobial Usage (AMU) [WIP]", children =[
 
            #### -- DROPDOWN CONTROLS
            dbc.Row([
@@ -3569,6 +3572,28 @@ gbadsDash.layout = html.Div([
                              "margin-top":"10px",
                              },
                    ),
+               
+               # AMU classification        
+               dbc.Col([
+                   html.H6("AMU classification"),
+                   dcc.RadioItems(id='select-classification-amu',
+                         options=['Individual Classes', 'Importance Categories'],
+                         value='Individual Classes',
+                         labelStyle={'display': 'block'},
+                         inputStyle={"margin-right": "10px"}, 
+                         ),
+                   ]),
+               
+               # Display quantity
+               dbc.Col([
+                   html.H6("AMU total"),
+                   dcc.RadioItems(id='select-quantity-amu-tonnes',
+                         options=['Tonnes', 'mg per kg Biomass'],
+                         value='Tonnes',
+                         labelStyle={'display': 'block'},
+                         inputStyle={"margin-right": "10px"}, 
+                         ),
+                   ]), 
                        
             ], justify='evenly'),
 
@@ -3595,31 +3620,14 @@ gbadsDash.layout = html.Div([
                          # End of Map
                          ]),
 
-                 html.Br(),
+                 
                  # END OF FIRST GRAPHICS ROW
                  ],),
             
-            dbc.Row([
-               dbc.Col([
-                   dcc.RadioItems(id='select-graph-amu',
-                         options=['individual classes', 'importance categories'],
-                         value='individual classes',
-                         labelStyle={'display': 'block'},
-                         inputStyle={"margin-right": "2px"}, 
-                         ),
-                   ], width=3),
-               
-               dbc.Col([
-                   dcc.RadioItems(id='select-graph-amu-tonnes',
-                         options=['tonnes', 'mg per kg biomass'],
-                         value='tonnes',
-                         labelStyle={'display': 'block'},
-                         inputStyle={"margin-right": "2px"}, 
-                         ),
-                   ]),
-              ]),
-           
+            html.Br(),
+                       
             dbc.Row([ # AMU Stacked Bar
+                dbc.Col([
                 dbc.Spinner(children=[
                 dcc.Graph(id='amu-stacked-bar',
                           style = {"height":"650px"},
@@ -3641,9 +3649,40 @@ gbadsDash.layout = html.Div([
                               })
                     # End of Spinner
                     ],size="md", color="#393375", fullscreen=False),
+                
                     # End of Stacked Bar
-                    ],style={"width":5}
-                    ),
+                    ],style={"width":5}),
+            
+                dbc.Col([ # AMU Donut Chart
+                dbc.Spinner(children=[
+                dcc.Graph(id='amu-donut-chart',
+                          style = {"height":"650px"},
+                          config = {
+                              "displayModeBar" : True,
+                              "displaylogo": False,
+                              'toImageButtonOptions': {
+                                  'format': 'png', # one of png, svg, jpeg, webp
+                                  'filename': 'GBADs_AMU_Donut'
+                                  },
+                              'modeBarButtonsToRemove': ['zoom',
+                                                          'zoomIn',
+                                                          'zoomOut',
+                                                          'autoScale',
+                                                          #'resetScale',  # Removes home button
+                                                          'pan',
+                                                          'select2d',
+                                                          'lasso2d']
+                              }
+                          )
+                # End of Spinner
+                ],size="md", color="#393375", fullscreen=False),
+                # End of Waterfall
+                ],style={"width":5}),
+                
+            # END OF SECOND GRAPHICS ROW
+            ],),
+            
+            html.Br(),
 
                     # dbc.Row([ # AMU Stacked Bar
                     #     dbc.Spinner(children=[
@@ -7856,84 +7895,9 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
     return ga_lineplot_fig
 
 #### UPDATE ANTIMICROBIAL USE
-#AMU Map of regions
-# @gbadsDash.callback(
-#     Output('amu-map', 'figure'),
-#     Input('select-species-ga','value'),
-#     )
-# def update_map_amu (input_select_species):
-#     input_df = amu2018_combined_tall.copy()
-    
-#     # Filter scope to All
-#     input_df = input_df.query("scope == 'All'")
-    
-#     # Add graphing country column for map
-#     input_df['graphing_country'] = np.where(input_df['region']=='Africa', 'Chad', '')
-#     input_df['graphing_country'] = np.where(input_df['region']=='Americas', 'Guatemala', '')
-#     input_df['graphing_country'] = np.where(input_df['region']=='Asia, Far East and Oceania', 'China', '')
-#     input_df['graphing_country'] = np.where(input_df['region']=='Europe', 'Hungary', '')
-#     input_df['graphing_country'] = np.where(input_df['region']=='Middle East', 'Saudi Arabia', '')
-    
-    
-#     # Use create map defined above
-#     amu_map_fig = create_map_display_amu(input_df)
-    
-#     return amu_map_fig
-
-#AMU Stacked Bar by Tonnes
-@gbadsDash.callback(
-    Output('amu-stacked-bar', 'figure'),
-    Input('select-graph-amu','value'),
-    Input('select-graph-amu-tonnes', 'value'),
-    )
-def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes):
-    stackedbar_df = amu2018_combined_tall.copy()
-    stackedbar_df = stackedbar_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
-    
-    x = 'region'
-    
-    if select_graph_amu_tonnes.upper() == 'TONNES':
-        yaxis = 'amu_tonnes'
-        label = "AMU Tonnes"
-    elif select_graph_amu_tonnes.upper() == 'MG PER KG BIOMASS':
-        yaxis = 'amu_mg_perkgbiomass'
-        label = "AMU Mg per Kg Biomass"
-        
-    if select_graph_amu.upper() == 'INDIVIDUAL CLASSES':
-           color = 'antimicrobial_class'
-           
-    elif select_graph_amu.upper() == 'IMPORTANCE CATEGORIES':
-           color = 'importance_ctg'
-           
-
-    amu_bar_fig = px.bar(stackedbar_df, x=x, y=yaxis,
-                         color=color,
-                         labels={
-                             x: "Region",
-                             yaxis: label,
-                             "importance_ctg": "Importance Category",
-                             "antimicrobial_class": "Antimicrobial Class"})
-    
-    return amu_bar_fig
-
-
-# @gbadsDash.callback(
-#     Output('amu-stacked-bar2', 'figure'),
-#    Input('select-species-ga','value'),
-#     )
-# def update_stacked_bar_amu2 (input_select_species):
-#     stackedbar_df = amu2018_combined_tall.copy()
-#     stackedbar_df = stackedbar_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
-#     amu_bar_fig2 = px.bar(stackedbar_df, x="region", y="amu_mg_perkgbiomass",
-#                          color='antimicrobial_class',
-#                          labels={
-#                              "region": "Region",
-#                              "amu_mg_perkgbiomass": "AMU Mg Per Kg Biomass",
-#                              "antimicrobial_class": "Antimicrobial Class"})
-
-#     return amu_bar_fig2
-
-
+# ------------------------------------------------------------------------------
+#### -- Data
+# ------------------------------------------------------------------------------
 # Attribution datatable below graphic
 @gbadsDash.callback(
     Output('amu-2018-combined-tall', 'children'),
@@ -7976,6 +7940,118 @@ def update_table_amu (input_select_species):
                 page_action='none',
             )
         ]
+
+# ------------------------------------------------------------------------------
+#### -- Figures
+# ------------------------------------------------------------------------------
+# AMU Map of regions
+@gbadsDash.callback(
+    Output('amu-map', 'figure'),
+    Input('select-region-amu','value'),
+    )
+def update_map_amu (region):
+    input_df = amu2018_combined_tall.copy()
+    
+    # Filter scope to All and remove nulls from importance category
+    input_df = input_df.query("scope == 'All'").query("importance_ctg.notnull()")
+    
+    # Use create map defined above
+    amu_map_fig = create_map_display_amu(input_df)
+    
+    # Add title
+    amu_map_fig.update_layout(title_text='Global Animal Biomass (kg)',
+                                  font_size=15,
+                                  plot_bgcolor="#ededed",)
+    
+    return amu_map_fig
+
+
+#AMU Stacked Bar by Tonnes
+@gbadsDash.callback(
+    Output('amu-stacked-bar', 'figure'),
+    Input('select-graph-amu','value'),
+    Input('select-graph-amu-tonnes', 'value'),
+    )
+def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes):
+    stackedbar_df = amu2018_combined_tall.copy()
+    stackedbar_df = stackedbar_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
+    
+    x = 'region'
+    
+    if select_graph_amu_tonnes.upper() == 'TONNES':
+        yaxis = 'amu_tonnes'
+        label = "AMU Tonnes"
+    elif select_graph_amu_tonnes.upper() == 'MG PER KG BIOMASS':
+        yaxis = 'amu_mg_perkgbiomass'
+        label = "AMU Mg per Kg Biomass"
+        
+    if select_graph_amu.upper() == 'INDIVIDUAL CLASSES':
+           color = 'antimicrobial_class'
+           
+    elif select_graph_amu.upper() == 'IMPORTANCE CATEGORIES':
+           color = 'importance_ctg'
+           
+
+    amu_bar_fig = px.bar(stackedbar_df, x=x, y=yaxis,
+                         color=color,
+                         labels={
+                             x: "Region",
+                             yaxis: label,
+                             "importance_ctg": "Importance Category",
+                             "antimicrobial_class": "Antimicrobial Class"})
+    
+    return amu_bar_fig
+
+# AMU Map of regions
+@gbadsDash.callback(
+    Output('amu-donut-chart', 'figure'),
+    Input('select-quantity-amu-tonnes','value'),
+    Input('select-region-amu','value'),
+    Input('select-classification-amu', 'value'),
+    )
+def update_donut_chart_amu (quantity, region, classification):
+    input_df = amu2018_combined_tall.copy()
+    
+    # Filter scope to All and remove nulls from importance category
+    input_df = input_df.query("scope == 'All'").query("importance_ctg.notnull()")
+    
+    # Use selected quantity value
+    if quantity == 'Tonnes':
+        value = input_df['amu_tonnes']
+    else:
+        value = input_df['amu_mg_perkgbiomass']
+        
+    # Use selected classification value
+    if classification == 'Individual Classes':
+        names = input_df['antimicrobial_class']
+    else:
+        names = input_df['importance_ctg']
+        
+    # # Filter by region selected
+    # if region == 'All':
+    #     selected_region = 'Global'
+    # else:
+    #     selected_region = f'{region}'
+    #     input_df = input_df.query(f"region == '{region}'")
+        
+    
+    # Use create donut chart defined above
+    amu_donut_fig = create_donut_chart_amu(input_df, value, names)
+    
+    # Add title
+    amu_donut_fig.update_layout(title_text=f'AMU {quantity} by {classification}',
+                                  font_size=15,
+                                  plot_bgcolor="#ededed",
+                                  # Add annotations in the center of the donut pies.
+                                  annotations=[dict(text=f'{quantity}', 
+                                                    x=0.5, 
+                                                    y=0.5, 
+                                                    font_size=15, 
+                                                    showarrow=False),
+                                              ],
+                                  )
+    
+    return amu_donut_fig
 
 
 #%% 6. RUN APP

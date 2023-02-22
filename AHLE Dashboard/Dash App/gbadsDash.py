@@ -416,6 +416,23 @@ ga_countries_biomass.dropna(subset=['species'], inplace=True)
 # Antimicrobial Usage
 # -----------------------------------------------------------------------------
 amu2018_combined_tall = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu2018_combined_tall.csv"))
+
+amu_uncertainty_data = pd.DataFrame(
+    {"region":['Africa' ,'Americas' ,'Asia, Far East and Oceania' ,'Europe' ,'Middle East']
+     ,"n_countries":[24 ,19 ,22 ,41 ,3]
+
+     ,"amu_terrestrial_tonnes_min":[1403 ,18753 ,33387 ,7314 ,34]
+     ,"amu_terrestrial_tonnes_mostlikely":[2806 ,29000 ,50080 ,7680 ,198]
+     ,"amu_terrestrial_tonnes_max":[3086 ,31900 ,55088 ,8045 ,218]
+     ,"amu_terrestrial_tonnes_distr":['Pert' ,'Pert' ,'Pert' ,'Uniform' ,'Pert']
+
+     ,"amu_terrestrial_eurospertonne_min":[20476 ,20476 ,20476 ,145075 ,20476]
+     ,"amu_terrestrial_eurospertonne_mostlikely":[176992 ,np.nan ,108806 ,np.nan ,108806]
+     ,"amu_terrestrial_eurospertonne_max":[206007 ,145075 ,123314 ,np.nan ,123314]
+     ,"amu_terrestrial_eurospertonne_distr":['Modified pert; Ƴ=2.5' ,'Uniform' ,'Modified pert; Ƴ=2.5' ,'' ,'Modified pert; Ƴ=2.5']
+     }
+)
+
 # =============================================================================
 #### User options and defaults
 # =============================================================================
@@ -1937,31 +1954,31 @@ def create_map_display_amu(input_df):
     # input_df['graphing_country'] = np.where(input_df['region']=='Asia, Far East and Oceania', 'China', '')
     # input_df['graphing_country'] = np.where(input_df['region']=='Europe', 'Hungary', '')
     # input_df['graphing_country'] = np.where(input_df['region']=='Middle East', 'Saudi Arabia', '')
-    
-    amu_map_fig = px.scatter_geo(input_df, 
-                                 locations="graphing_country", 
+
+    amu_map_fig = px.scatter_geo(input_df,
+                                 locations="graphing_country",
                                  color="importance_ctg",
-                                 hover_name="region", 
+                                 hover_name="region",
                                  size="biomass_total_kg",
                                  projection="natural earth")
-    
+
     return amu_map_fig
 
 # TODO: WIPs for AMU page
 def create_donut_chart_amu(input_df, value):
-    pie_fig = px.pie(input_df, 
+    pie_fig = px.pie(input_df,
                  values=value, # want to use either total biomass or amu mg per kg of biomass
                  names='antimicrobial_class')
-    
+
     # show % values inside
     pie_fig.update_traces(textposition='inside')
     pie_fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide')
-    
+
     # Use `hole` to create a donut-like pie chart
     pie_fig.update_traces(hole=.4, hoverinfo="label+percent+name")
-    
+
     return pie_fig
-    
+
 
 #%% 4. LAYOUT
 ##################################################################################################
@@ -3556,7 +3573,7 @@ gbadsDash.layout = html.Div([
                            "margin-right":"70px",
                            }
                    ),
-               
+
                # Region
                dbc.Col([
                    html.H6("Region"),
@@ -3569,14 +3586,14 @@ gbadsDash.layout = html.Div([
                              "margin-top":"10px",
                              },
                    ),
-                       
+
             ], justify='evenly'),
 
 
             html.Hr(style={'margin-right':'10px',}),
 
            #### -- GRAPHICS
-            dbc.Row([ 
+            dbc.Row([
                      dbc.Col([ # Global Aggregation Visual
                          dbc.Spinner(children=[
                          dcc.Graph(id='amu-map',
@@ -3598,27 +3615,27 @@ gbadsDash.layout = html.Div([
                  html.Br(),
                  # END OF FIRST GRAPHICS ROW
                  ],),
-            
+
             dbc.Row([
                dbc.Col([
                    dcc.RadioItems(id='select-graph-amu',
                          options=['individual classes', 'importance categories'],
                          value='individual classes',
                          labelStyle={'display': 'block'},
-                         inputStyle={"margin-right": "2px"}, 
+                         inputStyle={"margin-right": "2px"},
                          ),
                    ], width=3),
-               
+
                dbc.Col([
                    dcc.RadioItems(id='select-graph-amu-tonnes',
                          options=['tonnes', 'mg per kg biomass'],
                          value='tonnes',
                          labelStyle={'display': 'block'},
-                         inputStyle={"margin-right": "2px"}, 
+                         inputStyle={"margin-right": "2px"},
                          ),
                    ]),
               ]),
-           
+
             dbc.Row([ # AMU Stacked Bar
                 dbc.Spinner(children=[
                 dcc.Graph(id='amu-stacked-bar',
@@ -3670,7 +3687,34 @@ gbadsDash.layout = html.Div([
                     #         # End of Stacked Bar
                     #         ],style={"width":5}
                     #         ),
-    
+
+           # AMU with uncertainty
+           dbc.Row([
+
+               dbc.Spinner(children=[
+                dcc.Graph(id='amu-uncertainty-bar',
+                          style = {"height":"650px"},
+                          config = {
+                              "displayModeBar" : True,
+                              "displaylogo": False,
+                              'toImageButtonOptions': {
+                                  'format': 'png', # one of png, svg, jpeg, webp
+                                  'filename': 'GBADs_AMU_Stacked_Bar'
+                                  },
+                              'modeBarButtonsToRemove': ['zoom',
+                                                          'zoomIn',
+                                                          'zoomOut',
+                                                          'autoScale',
+                                                          #'resetScale',  # Removes home button
+                                                          'pan',
+                                                          'select2d',
+                                                          'lasso2d']
+                              })
+               # End of Spinner
+               ],size="md", color="#393375", fullscreen=False),
+
+           ]),
+
            #### -- DATATABLE
            dbc.Row([
 
@@ -7049,16 +7093,16 @@ def update_overview_table_ga(species, income, region, country):
     input_df = ga.add_vetmed_rates(input_df)
     # Apply AHLE calcs
     input_df = ga.ahle_calcs_adj_outputs(input_df)
-    
+
     # Filter Species
     input_df = input_df.loc[(input_df['species'] == species)]
-    
+
     # Filter Income Group
     if income == 'All':
         input_df = input_df
     else:
         input_df = input_df.loc[(input_df['incomegroup'] == income)]
-        
+
     # Filter Region & country
     if region == "All":
          if country == 'All':
@@ -7116,7 +7160,7 @@ def update_overview_table_ga(species, income, region, country):
              input_df = input_df[input_df['country'].isin(selected)]
          else:
              input_df=input_df.loc[(input_df['country'] == country)]
-            
+
     # Fill in for missing values AHLE
     # input_df['ahle_total_2010usd'] = input_df['ahle_total_2010usd'].fillna(0)
 
@@ -7863,21 +7907,21 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
 #     )
 # def update_map_amu (input_select_species):
 #     input_df = amu2018_combined_tall.copy()
-    
+
 #     # Filter scope to All
 #     input_df = input_df.query("scope == 'All'")
-    
+
 #     # Add graphing country column for map
 #     input_df['graphing_country'] = np.where(input_df['region']=='Africa', 'Chad', '')
 #     input_df['graphing_country'] = np.where(input_df['region']=='Americas', 'Guatemala', '')
 #     input_df['graphing_country'] = np.where(input_df['region']=='Asia, Far East and Oceania', 'China', '')
 #     input_df['graphing_country'] = np.where(input_df['region']=='Europe', 'Hungary', '')
 #     input_df['graphing_country'] = np.where(input_df['region']=='Middle East', 'Saudi Arabia', '')
-    
-    
+
+
 #     # Use create map defined above
 #     amu_map_fig = create_map_display_amu(input_df)
-    
+
 #     return amu_map_fig
 
 #AMU Stacked Bar by Tonnes
@@ -7901,7 +7945,7 @@ def update_stacked_bar_amu (input_select_species):
     Output('amu-stacked-bar2','figure'),
     Input('select-graph-amu','value'),
     Input('select-graph-amu-tonnes', 'value'))
-    
+
 def update_select_graph_amu(input_csv, amu_tonnes, amu_mg_perkgbiomass):
     # First read it into a dataframe
     input_file = "amu2018_combined_tall.csv"
@@ -7933,6 +7977,20 @@ def update_select_graph_amu(input_csv, amu_tonnes, amu_mg_perkgbiomass):
 #                              "antimicrobial_class": "Antimicrobial Class"})
 
 #     return amu_bar_fig2
+
+# Bar chart with uncertainty
+@gbadsDash.callback(
+    Output('amu-uncertainty-bar','figure'),
+    Input('select-graph-amu','value'),
+    )
+def update_uncertainty_bar_amu(dummy_input):
+    fig = px.bar(
+        amu_uncertainty_data
+        ,x="region"
+        ,y="amu_terrestrial_tonnes_mostlikely"
+        ,error_y="amu_terrestrial_tonnes_max", error_y_minus="amu_terrestrial_tonnes_min"
+    )
+    return fig
 
 
 # Attribution datatable below graphic

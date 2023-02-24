@@ -3612,6 +3612,17 @@ gbadsDash.layout = html.Div([
                          ),
                    ]),
 
+               # Display quantity
+               dbc.Col([
+                   html.H6("AMU Stacked"),
+                   dcc.RadioItems(id='select-amu-graph',
+                         options=['Stacked', '100 bar chart'],
+                         value='Stacked',
+                         labelStyle={'display': 'block'},
+                         inputStyle={"margin-right": "10px"},
+                         ),
+                   ]),
+               
             ], justify='evenly'),
 
 
@@ -3669,7 +3680,9 @@ gbadsDash.layout = html.Div([
 
                     # End of Stacked Bar
                     ],style={"width":5}),
-
+                
+        
+                
                 dbc.Col([ # AMU Donut Chart
                 dbc.Spinner(children=[
                 dcc.Graph(id='amu-donut-chart',
@@ -3695,9 +3708,10 @@ gbadsDash.layout = html.Div([
                 ],size="md", color="#393375", fullscreen=False),
                 # End of Waterfall
                 ],style={"width":5}),
+            ]),
 
             # END OF SECOND GRAPHICS ROW
-            ],),
+          
 
             html.Br(),
 
@@ -3752,7 +3766,7 @@ gbadsDash.layout = html.Div([
                # End of Spinner
                ],size="md", color="#393375", fullscreen=False),
 
-           ]),
+    ]),
 
            #### -- DATATABLE
            dbc.Row([
@@ -3772,6 +3786,7 @@ gbadsDash.layout = html.Div([
            ]),
 
             ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
+            
 
 
         #### USER GUIDE TAB
@@ -3787,7 +3802,9 @@ gbadsDash.layout = html.Div([
         ### END OF TABS ###
         ],style={'margin-right':'10px',
                  'margin-left': '10px'} )
+                
         ])
+ 
 
 
 #%% 5. CALLBACKS
@@ -3804,7 +3821,7 @@ gbadsDash.layout = html.Div([
 # ------------------------------------------------------------------------------
 #### -- Controls
 # ------------------------------------------------------------------------------
-# Update regions based on region contry aligment selection:
+#Update regions based on region contry aligment selection:
 @gbadsDash.callback(
     Output(component_id='select-region-poultry', component_property='options'),
     Input(component_id='Region-country-alignment-poultry', component_property='value'),
@@ -8015,8 +8032,9 @@ def update_map_amu (region):
     Output('amu-stacked-bar', 'figure'),
     Input('select-classification-amu','value'),
     Input('select-quantity-amu-tonnes', 'value'),
+    Input('select-amu-graph', 'value'),
     )
-def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes):
+def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes, select_amu_graph):
     stackedbar_df = amu2018_combined_tall.copy()
     stackedbar_df = stackedbar_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
 
@@ -8035,8 +8053,9 @@ def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes):
     elif select_graph_amu.upper() == 'IMPORTANCE CATEGORIES':
            color = 'importance_ctg'
 
-
-    amu_bar_fig = px.bar(stackedbar_df, x=x, y=yaxis,
+# Options to change between graphs
+    if select_amu_graph.upper() == 'STACKED':
+        amu_bar_fig = px.bar(stackedbar_df, x=x, y=yaxis,
                          color=color,
                          labels={
                              x: "Region",
@@ -8044,6 +8063,20 @@ def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes):
                              "importance_ctg": "Importance Category",
                              "antimicrobial_class": "Antimicrobial Class"})
 
+
+    elif select_amu_graph.upper() == '100 BAR CHART':   
+         amu_bar_fig = px.histogram(stackedbar_df,
+             x=x,
+             y=yaxis,
+             color=color,
+             barnorm='percent',
+             text_auto='.1f',
+             labels={
+                x: "Region",
+                yaxis: label,
+                "antimicrobial_class": "Antimicrobial Class"})
+                 
+        
     return amu_bar_fig
 
 # AMU Map of regions

@@ -1952,7 +1952,6 @@ def create_map_display_amu(input_df):
 
     return amu_map_fig
 
-# TODO: WIPs for AMU page
 def create_donut_chart_amu(input_df, value, names):
     pie_fig = px.pie(input_df,
                  values=value, # want to use either total biomass or amu mg per kg of biomass
@@ -1966,6 +1965,16 @@ def create_donut_chart_amu(input_df, value, names):
     pie_fig.update_traces(hole=.4, hoverinfo="label+percent+name")
 
     return pie_fig
+
+def create_tree_map_amu(input_df, value):
+    tree_map_fig = px.treemap(input_df, 
+                              path=[px.Constant("Global"), 'region', 'importance_ctg', 'antimicrobial_class'],
+                              values=value,
+                              color='region',
+                              color_discrete_map={'Africa':'#636FFA', 'Americas':'#EF553B', 'Asia, Far East and Oceania':'#00CC97', 'Europe':'#AB63FA', 'Middle East':'#FFC091'}
+                              )
+    
+    return tree_map_fig
 
 
 #%% 4. LAYOUT
@@ -1996,10 +2005,6 @@ gbadsDash.layout = html.Div([
     #### Data to pass between callbacks
     dcc.Store(id='core-data-poultry'),
     dcc.Store(id='core-data-swine'),
-    dcc.Store(id='core-data-attr-ecs'),
-    dcc.Store(id='core-data-ahle-ecs'),
-    # dcc.Store(id='core-data-world-ahle'),
-    # dcc.Store(id='core-data-world-ahle-abt-ga'),
 
     #### TABS
     dcc.Tabs([
@@ -3574,6 +3579,17 @@ gbadsDash.layout = html.Div([
                              "margin-top":"10px",
                              },
                    ),
+                       
+               # Visualization Switch
+               dbc.Col([
+                   html.H6("Visualization"),
+                   dcc.RadioItems(id='select-viz-switch-amu',
+                                 options=['Map', 'Drilldown'],
+                                 value='Map',
+                                 labelStyle={'display': 'block'},
+                                 inputStyle={"margin-right": "10px"},
+                                 ),
+                   ]),
 
                # AMU classification
                dbc.Col([
@@ -3639,8 +3655,8 @@ gbadsDash.layout = html.Div([
 
             html.Br(),
 
-            dbc.Row([ # AMU Stacked Bar
-                dbc.Col([
+            dbc.Row([ 
+                dbc.Col([ # AMU Stacked Bar
                 dbc.Spinner(children=[
                 dcc.Graph(id='amu-stacked-bar',
                           style = {"height":"650px"},
@@ -5569,41 +5585,26 @@ def update_improvment_factors(compare):
 # ------------------------------------------------------------------------------
 #### -- Data
 # ------------------------------------------------------------------------------
-# AHLE Data
-@gbadsDash.callback(
-    Output('core-data-ahle-ecs','data'),
-    Input('select-species-ecs','value'),
-    Input('select-prodsys-ecs','value'),
-    Input('select-agesex-ecs', 'value'),
-    # Input('select-year-ecs', 'value'),
-    )
-def update_core_data_ahle_ecs(species, prodsys, agesex):
-    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_scensmry_yearlyfake.csv'))
-
-    # Species filter
-    input_df = input_df.loc[(input_df['species'] == species)]
-
-    # Production System filter
-    # Rename values to match filters
-    input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
-    input_df=input_df.loc[(input_df['production_system'] == prodsys)]
-
-    # Age/sex filter
-    input_df=input_df.loc[(input_df['agesex_scenario'] == agesex)]
-
-    # # Year filter
-    # input_df=input_df.loc[(input_df['year'] == year)]
-
-    return input_df.to_json(date_format='iso', orient='split')
 
 # AHLE datatable below graphic
 @gbadsDash.callback(
     Output('ecs-ahle-datatable', 'children'),
-    Input('core-data-ahle-ecs','data'),
     Input('select-currency-ecs','value'),
+    Input('select-species-ecs','value'),
+    Input('select-prodsys-ecs','value'),
+    Input('select-agesex-ecs', 'value'),
 )
-def update_ecs_ahle_data(input_json ,currency):
-    input_df = pd.read_json(input_json, orient='split')
+def update_ecs_ahle_data(currency, species, prodsys, agesex):
+    # Read in data and apply filters
+    input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry_yearlyfake.csv'))
+    # Species filter
+    input_df = input_df.loc[(input_df['species'] == species)]
+    # Production System filter
+    # Rename values to match filters
+    input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
+    input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+    # Age/sex filter
+    input_df=input_df.loc[(input_df['agesex_scenario'] == agesex)]
 
     # If currency is USD, use USD columns
     display_currency = 'Birr'
@@ -5677,26 +5678,22 @@ def update_ecs_ahle_data(input_json ,currency):
             )
         ]
 
-
-# Attribution Data
+# Attribution datatable below graphic
 @gbadsDash.callback(
-    Output('core-data-attr-ecs','data'),
+    Output('ecs-attr-datatable', 'children'),
+    Input('select-currency-ecs','value'),
     Input('select-prodsys-ecs','value'),
     Input('select-species-ecs','value'),
-    # Input('select-age-ecs','value'),
-    # Input('select-sex-ecs','value'),
     )
-# def update_core_data_attr_ecs(prodsys, age, sex):
-def update_core_data_attr_ecs(prodsys, species):
-    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_withattr_disease.csv'))
-
+def update_ecs_attr_data(currency, prodsys, species):
+    # Read in data
+    input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv'))
     # Production System filter
     # If All production systems, don't filter. Attribution data is not aggregated to that level.
     if prodsys == 'All Production Systems':
         input_df=input_df
     else:
         input_df=input_df.loc[(input_df['production_system'] == prodsys)]
-
     # Species filter
     # Goat and Sheep do not appear separately. These get all small ruminants results.
     if species == 'Goat' or species == "Sheep":
@@ -5706,66 +5703,6 @@ def update_core_data_attr_ecs(prodsys, species):
         input_df=input_df.loc[(input_df['species'] == 'All Poultry')]
     else:
         input_df=input_df.loc[(input_df['species'] == species)]
-
-    # Age filter
-    # if age == 'Adult':
-    #     if sex == 'Male':
-    #         input_df=input_df.loc[(input_df['age_group'] == age)]
-    #         input_df=input_df.loc[(input_df['sex'] == sex)]
-    #     elif sex == "Female":
-    #         input_df=input_df.loc[(input_df['age_group'] == age)]
-    #         input_df=input_df.loc[(input_df['sex'] == sex)]
-    #     else:
-    #         input_df=input_df.loc[(input_df['age_group'] == age)]
-    #         input_df=input_df
-    # elif age == "Juvenile":
-    #     if sex == 'Male':
-    #         input_df=input_df.loc[(input_df['age_group'] == age)]
-    #         input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-    #     elif sex == "Female":
-    #         input_df=input_df.loc[(input_df['age_group'] == age)]
-    #         input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-    #     else:
-    #         input_df=input_df.loc[(input_df['age_group'] == age)]
-    #         input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-    # elif age == "Neonatal":
-    #     if sex == 'Male':
-    #         input_df=input_df.loc[(input_df['age_group'] == age)]
-    #         input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-    #     elif sex == "Female":
-    #         input_df=input_df.loc[(input_df['age_group'] == age)]
-    #         input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-    #     else:
-    #         input_df=input_df.loc[(input_df['age_group'] == age)]
-    #         input_df=input_df.loc[(input_df['sex'] == 'Overall')]
-    # else:
-    #     if sex == 'Male':
-    #         input_df=input_df.loc[(input_df['sex'] == sex)]
-    #     elif sex == "Female":
-    #         input_df=input_df.loc[(input_df['sex'] == sex)]
-    #     else:
-    #         input_df=input_df
-
-    # # Attribution filter
-    # if attr == 'External':
-    #     input_df=input_df.loc[(input_df['cause'] == attr)]
-    # elif attr == "Infectious":
-    #     input_df=input_df.loc[(input_df['cause'] == attr)]
-    # elif attr == "Non-infectious":
-    #     input_df=input_df.loc[(input_df['cause'] == attr)]
-    # else:
-    #     input_df=input_df
-
-    return input_df.to_json(date_format='iso', orient='split')
-
-# Attribution datatable below graphic
-@gbadsDash.callback(
-    Output('ecs-attr-datatable', 'children'),
-    Input('core-data-attr-ecs','data'),   # Currently only one breed used, so no inputs needed. But Dash wants an input here.
-    Input('select-currency-ecs','value'),
-    )
-def update_ecs_attr_data(input_json, currency):
-    input_df = pd.read_json(input_json, orient='split')
 
     # If currency is USD, use USD columns
     display_currency = 'Birr'
@@ -5821,9 +5758,7 @@ def update_ecs_attr_data(input_json, currency):
 # AHLE Waterfall or Longitudinal Graph
 @gbadsDash.callback(
     Output('ecs-ahle-waterfall','figure'),
-    Input('core-data-ahle-ecs','data'),
     Input('select-graph-ahle-ecs', 'value'),
-    # Input('select-item-ahle-ecs', 'value'),
     Input('select-agesex-ecs', 'value'),
     Input('select-species-ecs','value'),
     Input('select-display-ecs','value'),
@@ -5833,11 +5768,18 @@ def update_ecs_attr_data(input_json, currency):
     Input('select-factor-ecs','value'),
     Input('select-improve-ecs','value'),
     Input('select-year-item-switch-ecs', 'value'),
-    # Input('select-year-ecs', 'n_clicks'),
     )
-def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, agesex, species, display, compare, prodsys, currency, impvmnt_factor, impvmnt_value, year_or_item):
-    # Data
-    input_df = pd.read_json(input_json, orient='split')
+def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, compare, prodsys, currency, impvmnt_factor, impvmnt_value, year_or_item):
+    # Read in data and apply filters
+    input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry_yearlyfake.csv'))
+    # Species filter
+    input_df = input_df.loc[(input_df['species'] == species)]
+    # Production System filter
+    # Rename values to match filters
+    input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
+    input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+    # Age/sex filter
+    input_df=input_df.loc[(input_df['agesex_scenario'] == agesex)]
 
     # Prep the data
     prep_df = prep_ahle_forwaterfall_ecs(input_df)
@@ -6268,11 +6210,8 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, agesex, specie
 # Attribution Treemap
 @gbadsDash.callback(
     Output('ecs-attr-treemap','figure'),
-    Input('core-data-attr-ecs','data'),
     Input('select-prodsys-ecs','value'),
     Input('select-species-ecs','value'),
-    # Input('select-age-ecs','value'),
-    # Input('select-sex-ecs','value'),
     Input('select-currency-ecs','value'),
     Input('select-top-lvl-attr-ecs','value'),
     Input('select-dd-1-attr-ecs','value'),
@@ -6280,12 +6219,25 @@ def update_ahle_value_and_cost_viz_ecs(input_json, graph_options, agesex, specie
     Input('select-dd-3-attr-ecs','value'),
     Input('select-dd-4-attr-ecs','value'),
     )
-# def update_attr_treemap_ecs(input_json, prodsys, age, sex, currency,
-#                             top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_hierarchy, dd4_hierarchy):
-def update_attr_treemap_ecs(input_json, prodsys, species, currency,
-                            top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_hierarchy, dd4_hierarchy):
+def update_attr_treemap_ecs(prodsys, species, currency, top_lvl_hierarchy, 
+                            dd1_hierarchy, dd2_hierarchy, dd3_hierarchy, dd4_hierarchy):
     # Data
-    input_df = pd.read_json(input_json, orient='split')
+    input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv'))
+    # Production System filter
+    # If All production systems, don't filter. Attribution data is not aggregated to that level.
+    if prodsys == 'All Production Systems':
+        input_df=input_df
+    else:
+        input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+    # Species filter
+    # Goat and Sheep do not appear separately. These get all small ruminants results.
+    if species == 'Goat' or species == "Sheep":
+        input_df=input_df.loc[(input_df['species'] == 'All Small Ruminants')]
+    # Poultry subspecies do not appear separately. These get all poultry results.
+    elif species == 'Poultry hybrid' or species == "Poultry indigenous":
+        input_df=input_df.loc[(input_df['species'] == 'All Poultry')]
+    else:
+        input_df=input_df.loc[(input_df['species'] == species)]
 
     # If currency is USD, use USD columns
     if currency == 'USD':
@@ -6358,7 +6310,7 @@ def update_attr_treemap_ecs(input_json, prodsys, species, currency,
 def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, impvmnt_value):
 
     # AHLE Summary 2 - for stacked bar
-    input_df = pd.read_csv(os.path.join(ECS_PROGRAM_OUTPUT_FOLDER ,'ahle_all_summary2.csv'))
+    input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary2.csv'))
 
     # Rename values to match filters
     input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
@@ -7028,120 +6980,9 @@ def update_species_options_ga(country, region):
 # ------------------------------------------------------------------------------
 #### -- Data
 # ------------------------------------------------------------------------------
-# # Add AHLE calcs to global data
-# # Updates when user changes mortality, morbidity, or vet & med rates
-# @gbadsDash.callback(
-#     Output('core-data-world-ahle','data'),
-#     Input('base-mortality-rate-ga','value'),
-#     # Input('base-morbidity-rate-ga','value'),
-#     # Input('base-vetmed-rate-ga','value'),
-#     )
-# def update_core_data_world_ahle(base_mort_rate):# ,base_morb_rate ,base_vetmed_rate):
-#     world_ahle_withcalcs = ga_countries_biomass.copy()
-#     # Add mortality, morbidity, and vetmed rate columns
-#     world_ahle_withcalcs = ga.add_mortality_rate(world_ahle_withcalcs)
-#     world_ahle_withcalcs = ga.add_morbidity_rate(world_ahle_withcalcs)
-#     world_ahle_withcalcs = ga.add_vetmed_rates(world_ahle_withcalcs)
-
-#     # Apply AHLE calcs
-#     world_ahle_withcalcs = ga.ahle_calcs_adj_outputs(world_ahle_withcalcs)
-
-#     return world_ahle_withcalcs.to_json(date_format='iso', orient='split')
-
-# # World AHLE ABT Data
-# @gbadsDash.callback(
-#     Output('core-data-world-ahle-abt-ga','data'),
-#     Input('select-species-ga','value'),
-#     Input('Region-country-alignment-overview-ga','value'),
-#     Input('select-region-overview-ga', 'value'),
-#     Input('select-country-overview-ga','value'),
-#     Input('select-incomegrp-overview-ga','value'),
-#     )
-# def update_core_data_world_ahle_abt_ga(species,region_country,region,country,income):
-#     input_df = ga_countries_biomass.copy()
-
-#     # # Filter Region & country
-#     # if region == "All":
-#     #     if country == 'All':
-#     #         country = [[v for k,v in d.items()] for d in country_options_ga]
-#     #         country = [a[1] for a in country]
-#     #         input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-#     #     else:
-#     #         input_df=input_df.loc[(input_df['country'] == country)]
-#     # elif region == "Sub-Saharan Africa":
-#     #     if country == 'All':
-#     #         country = [[v for k,v in d.items()] for d in wb_africa_options_ga]
-#     #         country = [a[1] for a in country]
-#     #         input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-#     #     else:
-#     #         input_df=input_df.loc[(input_df['country'] == country)]
-#     # elif region == "East Asia & Pacific":
-#     #     if country == 'All':
-#     #         country = [[v for k,v in d.items()] for d in wb_eap_options_ga]
-#     #         country = [a[1] for a in country]
-#     #         input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-#     #     else:
-#     #         input_df=input_df.loc[(input_df['country'] == country)]
-#     # elif region == "Europe & Central Asia":
-#     #     if country == 'All':
-#     #         country = [[v for k,v in d.items()] for d in wb_eca_options_ga]
-#     #         country = [a[1] for a in country]
-#     #         input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-#     #     else:
-#     #         input_df=input_df.loc[(input_df['country'] == country)]
-#     # elif region == "Latin America & the Caribbean":
-#     #     if country == 'All':
-#     #         country = [[v for k,v in d.items()] for d in wb_lac_options_ga]
-#     #         country = [a[1] for a in country]
-#     #         input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-#     #     else:
-#     #         input_df=input_df.loc[(input_df['country'] == country)]
-#     # elif region == "Middle East & North Africa":
-#     #     if country == 'All':
-#     #         country = [[v for k,v in d.items()] for d in wb_mena_options_ga]
-#     #         country = [a[1] for a in country]
-#     #         input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-#     #     else:
-#     #         input_df=input_df.loc[(input_df['country'] == country)]
-#     # elif region == "North America":
-#     #     if country == 'All':
-#     #         country = [[v for k,v in d.items()] for d in wb_na_options_ga]
-#     #         country = [a[1] for a in country]
-#     #         input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-#     #     else:
-#     #         input_df=input_df.loc[(input_df['country'] == country)]
-#     # else:
-#     #     if country == 'All':
-#     #         country = [[v for k,v in d.items()] for d in wb_southasia_options_ga]
-#     #         country = [a[1] for a in country]
-#     #         input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-#     #     else:
-#     #         input_df=input_df.loc[(input_df['country'] == country)]
-
-#     # # Filter Income Group
-#     # if income == 'All':
-#     #     input_df = input_df
-#     # else:
-#     #     input_df = input_df.loc[(input_df['incomegroup'] == income)]
-
-#     # # Filter Species
-#     # input_df = input_df.loc[(input_df['species'] == species)]
-
-#     # Add mortality, morbidity, and vetmed rate columns
-#     input_df = ga.add_mortality_rate(input_df)
-#     input_df = ga.add_morbidity_rate(input_df)
-#     input_df = ga.add_vetmed_rates(input_df)
-
-#     # Apply AHLE calcs
-#     input_df = ga.ahle_calcs_adj_outputs(input_df)
-
-#     return input_df.to_json(date_format='iso', orient='split')
-
-
 # Attribution datatable below graphic
 @gbadsDash.callback(
     Output('ga-world-abt-datatable', 'children'),
-    # Input('core-data-world-ahle-abt-ga','data'),
     Input('select-species-ga','value'),
     Input('select-incomegrp-overview-ga','value'),
     Input('select-region-overview-ga', 'value'),
@@ -7149,7 +6990,7 @@ def update_species_options_ga(country, region):
     # Input('select-currency-ecs','value'),
     )
 def update_overview_table_ga(species, income, region, country):
-    # input_df = pd.read_json(input_json, orient='split')
+    # Read in data
     input_df = ga_countries_biomass.copy()
     # Add mortality, morbidity, and vetmed rate columns
     input_df = ga.add_mortality_rate(input_df)
@@ -7288,14 +7129,12 @@ def update_overview_table_ga(species, income, region, country):
 
 @gbadsDash.callback(
     Output('ga-detailtab-displaytable', 'children'),
-    # Input('core-data-world-ahle','data'),
     Input('select-region-detail-ga','value'),
     Input('select-incomegrp-detail-ga','value'),
     Input('select-country-detail-ga','value'),
     )
 def update_display_table_ga(selected_region ,selected_incgrp ,selected_country):
     # Read data
-    # input_df = pd.read_json(input_json, orient='split')
     input_df = ga_countries_biomass.copy()
     # Add mortality, morbidity, and vetmed rate columns
     input_df = ga.add_mortality_rate(input_df)
@@ -7535,7 +7374,6 @@ def update_display_table_ga(selected_region ,selected_incgrp ,selected_country):
 # Biomass Map
 @gbadsDash.callback(
    Output('ga-map-or-line-select','figure'),
-   # Input('core-data-world-ahle-abt-ga','data'),
    Input('viz-radio-ga','value'),
    Input('select-species-ga','value'),
    Input('select-country-overview-ga', 'value'),
@@ -7545,9 +7383,7 @@ def update_display_table_ga(selected_region ,selected_incgrp ,selected_country):
    # Input('select-currency-ecs','value'),
    )
 def update_bio_ahle_visual_ga(viz_selection, species, country, region, display, income):
-
    # Data
-   # input_df = pd.read_json(input_json, orient='split')
    input_df = ga_countries_biomass.copy()
    # Add mortality, morbidity, and vetmed rate columns
    input_df = ga.add_mortality_rate(input_df)
@@ -7701,7 +7537,6 @@ def update_bio_ahle_visual_ga(viz_selection, species, country, region, display, 
 # Global AHLE Waterfall
 @gbadsDash.callback(
     Output('ga-ahle-waterfall','figure'),
-    # Input('core-data-world-ahle','data'),
     Input('select-region-detail-ga','value'),
     Input('select-incomegrp-detail-ga','value'),
     Input('select-country-detail-ga','value'),
@@ -7709,8 +7544,7 @@ def update_bio_ahle_visual_ga(viz_selection, species, country, region, display, 
     Input('select-display-ga','value'),
     )
 def update_ahle_waterfall_ga(selected_region ,selected_incgrp ,selected_country ,selected_year, display):
-    # Read core data
-    # input_df = pd.read_json(input_json, orient='split')
+    # Read data
     input_df = ga_countries_biomass.copy()
     # Add mortality, morbidity, and vetmed rate columns
     input_df = ga.add_mortality_rate(input_df)
@@ -7829,7 +7663,6 @@ def update_ahle_waterfall_ga(selected_region ,selected_incgrp ,selected_country 
 # Global AHLE plot over time
 @gbadsDash.callback(
     Output('ga-ahle-over-time','figure'),
-    # Input('core-data-world-ahle','data'),
     Input('select-region-detail-ga','value'),
     Input('select-incomegrp-detail-ga','value'),
     Input('select-country-detail-ga','value'),
@@ -7837,8 +7670,7 @@ def update_ahle_waterfall_ga(selected_region ,selected_incgrp ,selected_country 
     Input('select-display-ga','value'),
     )
 def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,selected_item ,display):
-    # Read core data
-    # input_df = pd.read_json(input_json, orient='split')
+    # Read data
     input_df = ga_countries_biomass.copy()
     # Add mortality, morbidity, and vetmed rate columns
     input_df = ga.add_mortality_rate(input_df)
@@ -7967,7 +7799,7 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
 # ------------------------------------------------------------------------------
 #### -- Data
 # ------------------------------------------------------------------------------
-# Attribution datatable below graphic
+# Datatable below graphics
 @gbadsDash.callback(
     Output('amu-2018-combined-tall', 'children'),
    Input('select-species-ga','value'),
@@ -7975,7 +7807,7 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
 
 def update_table_amu (input_select_species):
     display_data = amu2018_combined_tall.copy()
-
+    
     # Filter out AGP
     display_data = display_data.query("scope != 'AGP'")
 
@@ -8030,24 +7862,48 @@ def update_table_amu (input_select_species):
 # ------------------------------------------------------------------------------
 #### -- Figures
 # ------------------------------------------------------------------------------
-# AMU Map of regions
+# AMU Map or Tree Map by regions
 @gbadsDash.callback(
     Output('amu-map', 'figure'),
-    Input('select-region-amu','value'),
+    Input('select-viz-switch-amu','value'),
+    Input('select-quantity-amu-tonnes','value'),
     )
-def update_map_amu (region):
+def update_map_amu (viz_switch, quantity):
     input_df = amu2018_combined_tall.copy()
 
     # Filter scope to All and remove nulls from importance category
     input_df = input_df.query("scope == 'All'").query("importance_ctg.notnull()")
 
-    # Use create map defined above
-    amu_map_fig = create_map_display_amu(input_df)
+    # Visualization switch between map and tree map
+    if viz_switch == 'Map':
+        # Use create map defined above
+        amu_map_fig = create_map_display_amu(input_df)
+    
+        # Add title
+        amu_map_fig.update_layout(title_text='Global Animal Biomass (kg)',
+                                      font_size=15,
+                                      plot_bgcolor="#ededed",)
+        
+        # Update legend title
+        amu_map_fig.update_layout(legend=dict(
+            title="Region"
+            ))
+        
+    else:
+        # Use selected quantity value
+        if quantity == 'Tonnes':
+            value = input_df['amu_tonnes']
+        else:
+            value = input_df['amu_mg_perkgbiomass']
 
-    # Add title
-    amu_map_fig.update_layout(title_text='Global Animal Biomass (kg)',
-                                  font_size=15,
-                                  plot_bgcolor="#ededed",)
+        # Use create map defined above
+        amu_map_fig = create_tree_map_amu(input_df, value)
+        
+        # Add title
+        amu_map_fig.update_layout(title_text=f'AMU {quantity} Drilldown',
+                                      font_size=15,
+                                      plot_bgcolor="#ededed",
+                                      )
 
     return amu_map_fig
 
@@ -8115,7 +7971,15 @@ def update_donut_chart_amu (quantity, region, classification):
     input_df = amu2018_combined_tall.copy()
 
     # Filter scope to All and remove nulls from importance category
-    input_df = input_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
+    # Filter by region selected
+    if region == 'All':
+        selected_region = 'Global'
+        input_df = input_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
+    else:
+        selected_region = f'{region}'
+        input_df = input_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
+        input_df = input_df.loc[(input_df['region'] == region)]
+    
 
     # Use selected quantity value
     if quantity == 'Tonnes':
@@ -8129,19 +7993,11 @@ def update_donut_chart_amu (quantity, region, classification):
     else:
         names = input_df['importance_ctg']
 
-    # # Filter by region selected
-    # if region == 'All':
-    #     selected_region = 'Global'
-    # else:
-    #     selected_region = f'{region}'
-    #     input_df = input_df.query(f"region == '{region}'")
-
-
     # Use create donut chart defined above
     amu_donut_fig = create_donut_chart_amu(input_df, value, names)
 
     # Add title
-    amu_donut_fig.update_layout(title_text=f'AMU {quantity} by {classification}',
+    amu_donut_fig.update_layout(title_text=f'{selected_region} AMU {quantity} by {classification}',
                                   font_size=15,
                                   plot_bgcolor="#ededed",
                                   # Add annotations in the center of the donut pies.
@@ -8205,6 +8061,8 @@ def update_terrestrial_expenditure_amu(dummy_input):
     )
 
     return fig
+
+
 
 #%% 6. RUN APP
 #############################################################################################################

@@ -8,31 +8,6 @@
 # -----------------------------------------------------------------------------
 amu2018_m_tomerge = amu2018_m.copy()
 
-# Combine classes with low usage into "Other"
-# Note: this means potentially important classes will no longer appear, e.g. 3-4 generation cephalosporins
-classes_grouped_into_other = [
-    'glycopeptides'
-    ,'nitrofurans'
-    ,'other_quinolones'
-    ,'orthosomycins'
-    ,'1_2_gen__cephalosporins'
-    ,'arsenicals'
-    ,'glycophospholipids'
-    ,'3_4_gen_cephalosporins'
-    ,'streptogramins'
-    ,'cephalosporins__all_generations'
-]
-for CLASS in classes_grouped_into_other:
-    amu2018_m_tomerge['antimicrobial_class'] = amu2018_m_tomerge['antimicrobial_class'].replace(to_replace=CLASS ,value='others')
-
-# Sum usage by new class names
-amu2018_m_tomerge = amu2018_m_tomerge.pivot_table(
-	index=['region' ,'scope' ,'number_of_countries' ,'antimicrobial_class']           # Column(s) to make new index
-	,values='amu_tonnes'
-	,aggfunc='sum'
-)
-amu2018_m_tomerge = amu2018_m_tomerge.reset_index()
-
 # -----------------------------------------------------------------------------
 # Combine AM usage and importance
 # -----------------------------------------------------------------------------
@@ -58,7 +33,7 @@ datainfo(amu_importance_tomerge)
 
 # Merge with AMU
 amu2018_combined_tall = pd.merge(
-    left=amu2018_m_tomerge.query("region != 'Global'")
+    left=amu2018_m_tomerge.query("antimicrobial_class != 'total_antimicrobials'").query("region != 'Global'")
     ,right=amu_importance_tomerge[['antimicrobial_class' ,'importance_ctg']]
     ,on='antimicrobial_class'
     ,how='left'
@@ -68,16 +43,37 @@ amu2018_combined_tall = pd.merge(
 amu2018_combined_tall['importance_ctg'] = amu2018_combined_tall['importance_ctg'].fillna('D: Unknown')
 
 # -----------------------------------------------------------------------------
+# Create antimicrobial class groupings
+# -----------------------------------------------------------------------------
+# Group the AM classes that individually make up less than 2% of the global total usage
+# Groupings must still respect importance categories
+amu_total_byclass = amu2018_m_tomerge.query("antimicrobial_class != 'total_antimicrobials'").query("region == 'Global'").query("scope == 'All'")
+global_total_amu_tonnes = amu_total_byclass['amu_tonnes'].sum()
+low_volume_classes = list(amu_total_byclass.query(f"amu_tonnes < {global_total_amu_tonnes} * 0.02")['antimicrobial_class'])
+
+def define_class_group(INPUT_ROW):
+	if INPUT_ROW['antimicrobial_class'] in low_volume_classes:
+		if 'A:' in INPUT_ROW['importance_ctg']:
+			OUTPUT = 'other_critically_important'
+		elif 'B:' in INPUT_ROW['importance_ctg']:
+			OUTPUT = 'other_highly_important'
+		else:
+			OUTPUT = 'other_low_importance'
+	else:
+		OUTPUT = INPUT_ROW['antimicrobial_class']
+	return OUTPUT
+amu2018_combined_tall['antimicrobial_class_group'] = amu2018_combined_tall.apply(define_class_group ,axis=1)
+
+# -----------------------------------------------------------------------------
 # Add biomass data
 # -----------------------------------------------------------------------------
 # Merge
 amu2018_combined_tall = pd.merge(
     left=amu2018_combined_tall
-    ,right=amu2018_biomass[['region' ,'segment' ,'biomass_total_kg' ,'biomass_total_terr_kg']].query("segment == 'Countries reporting AMU data'")
+    ,right=amu2018_biomass.query("segment == 'Countries reporting AMU data'")[['region' ,'biomass_total_kg' ,'biomass_total_terr_kg']]
     ,on='region'
     ,how='left'
 )
-del amu2018_combined_tall['segment']
 
 # Apply appropriate biomass to each row based on scope
 def biomass_for_scope(INPUT_ROW):

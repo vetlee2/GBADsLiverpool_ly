@@ -416,22 +416,7 @@ ga_countries_biomass.dropna(subset=['species'], inplace=True)
 # Antimicrobial Usage
 # -----------------------------------------------------------------------------
 amu2018_combined_tall = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu2018_combined_tall.csv"))
-
-amu_uncertainty_data = pd.DataFrame(
-    {"region":['Africa' ,'Americas' ,'Asia, Far East and Oceania' ,'Europe' ,'Middle East']
-     ,"n_countries":[24 ,19 ,22 ,41 ,3]
-
-     ,"amu_terrestrial_tonnes_min":[1403 ,18753 ,33387 ,7314 ,34]
-     ,"amu_terrestrial_tonnes_mostlikely":[2806 ,29000 ,50080 ,7680 ,198]
-     ,"amu_terrestrial_tonnes_max":[3086 ,31900 ,55088 ,8045 ,218]
-     ,"amu_terrestrial_tonnes_distr":['Pert' ,'Pert' ,'Pert' ,'Uniform' ,'Pert']
-
-     ,"amu_terrestrial_eurospertonne_min":[20476 ,20476 ,20476 ,145075 ,20476]
-     ,"amu_terrestrial_eurospertonne_mostlikely":[176992 ,np.nan ,108806 ,np.nan ,108806]
-     ,"amu_terrestrial_eurospertonne_max":[206007 ,145075 ,123314 ,np.nan ,123314]
-     ,"amu_terrestrial_eurospertonne_distr":['Modified pert; Ƴ=2.5' ,'Uniform' ,'Modified pert; Ƴ=2.5' ,'' ,'Modified pert; Ƴ=2.5']
-     }
-)
+amu_uncertainty_data = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_uncertainty_data.csv"))
 
 # =============================================================================
 #### User options and defaults
@@ -3605,7 +3590,7 @@ gbadsDash.layout = html.Div([
                dbc.Col([
                    html.H6("AMU total"),
                    dcc.RadioItems(id='select-quantity-amu-tonnes',
-                         options=['Tonnes', 'mg per kg Biomass'],
+                         options=['Tonnes', 'Mg per kg biomass'],
                          value='Tonnes',
                          labelStyle={'display': 'block'},
                          inputStyle={"margin-right": "10px"},
@@ -3727,20 +3712,20 @@ gbadsDash.layout = html.Div([
                     #         ],style={"width":5}
                     #         ),
 
-           # AMU with uncertainty
+           # AMU for terrestrial animals, with uncertainty
            dbc.Row([
-
-               dbc.Spinner(children=[
-                dcc.Graph(id='amu-uncertainty-bar',
-                          style = {"height":"650px"},
-                          config = {
-                              "displayModeBar" : True,
-                              "displaylogo": False,
-                              'toImageButtonOptions': {
-                                  'format': 'png', # one of png, svg, jpeg, webp
-                                  'filename': 'GBADs_AMU_Stacked_Bar'
-                                  },
-                              'modeBarButtonsToRemove': ['zoom',
+               dbc.Col([
+                   dbc.Spinner(children=[
+                   dcc.Graph(id='amu-terr-error-usage',
+                             style = {"height":"650px"},
+                             config = {
+                                 "displayModeBar" : True,
+                                 "displaylogo": False,
+                                 'toImageButtonOptions': {
+                                     'format': 'png', # one of png, svg, jpeg, webp
+                                     'filename': 'GBADs_AMU_Terrestrial_Usage'
+                                     },
+                                 'modeBarButtonsToRemove': ['zoom',
                                                           'zoomIn',
                                                           'zoomOut',
                                                           'autoScale',
@@ -3748,10 +3733,33 @@ gbadsDash.layout = html.Div([
                                                           'pan',
                                                           'select2d',
                                                           'lasso2d']
-                              })
-               # End of Spinner
-               ],size="md", color="#393375", fullscreen=False),
-
+                             })
+                   # End of Spinner
+                   ],size="md", color="#393375", fullscreen=False),
+               ]),
+               dbc.Col([
+                   dbc.Spinner(children=[
+                   dcc.Graph(id='amu-terr-error-expenditure',
+                             style = {"height":"650px"},
+                             config = {
+                                 "displayModeBar" : True,
+                                 "displaylogo": False,
+                                 'toImageButtonOptions': {
+                                     'format': 'png', # one of png, svg, jpeg, webp
+                                     'filename': 'GBADs_AMU_Terrestrial_Expenditure'
+                                     },
+                                 'modeBarButtonsToRemove': ['zoom',
+                                                          'zoomIn',
+                                                          'zoomOut',
+                                                          'autoScale',
+                                                          #'resetScale',  # Removes home button
+                                                          'pan',
+                                                          'select2d',
+                                                          'lasso2d']
+                             })
+                   # End of Spinner
+                   ],size="md", color="#393375", fullscreen=False),
+               ]),
            ]),
 
            #### -- DATATABLE
@@ -7949,32 +7957,49 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
     )
 
 def update_table_amu (input_select_species):
-    input_df = amu2018_combined_tall.copy()
+    display_data = amu2018_combined_tall.copy()
 
-    # Format numbers
-    input_df.update(input_df[['amu_tonnes',
-
-                              ]].applymap('{:,.1f}'.format))
+    # Filter out AGP
+    display_data = display_data.query("scope != 'AGP'")
 
     columns_to_display_with_labels = {
        'region':'Region'
        ,'scope':'Scope'
        ,'number_of_countries':'Number of Countries'
+       ,'biomass_total_kg':'Total Biomass (kg)'
        ,'antimicrobial_class': 'Antimicrobial Class'
-       ,'amu_tonnes': 'AMU Tonnes'
-       ,'importance_ctg':'Importance Categories'
+       ,'importance_ctg':'Importance Category'
+       ,'amu_tonnes': 'Total AM Usage (tonnes)'
+       ,'amu_mg_perkgbiomass':'AM Usage (mg per kg biomass)'
     }
 
-    # Subset columns
-    input_df = input_df[list(columns_to_display_with_labels)]
+    # ------------------------------------------------------------------------------
+    # Format data to display in the table
+    # ------------------------------------------------------------------------------
+    # Order does not matter in these lists
+    # Zero decimal places
+    display_data.update(display_data[[
+        'biomass_total_kg'
+    ]].applymap('{:,.0f}'.format))
+
+    # One decimal place
+    display_data.update(display_data[[
+        'amu_tonnes'
+    ]].applymap('{:,.1f}'.format))
+
+    # Two decimal places
+    display_data.update(display_data[[
+        'amu_mg_perkgbiomass'
+    ]].applymap('{:,.2f}'.format))
 
     return [
-            html.H4("Antimicrobial 2018 Combined"),
+            html.H4("Antimicrobial Data 2018"),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 fixed_rows={'headers': True, 'data': 0},
-                data=input_df.to_dict('records'),
+                data=display_data.to_dict('records'),
                 export_format="csv",
+                sort_action='native',
                 style_cell={
                     'font-family':'sans-serif',
                     },
@@ -8057,7 +8082,7 @@ def update_donut_chart_amu (quantity, region, classification):
     input_df = amu2018_combined_tall.copy()
 
     # Filter scope to All and remove nulls from importance category
-    input_df = input_df.query("scope == 'All'").query("importance_ctg.notnull()")
+    input_df = input_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
 
     # Use selected quantity value
     if quantity == 'Tonnes':
@@ -8097,18 +8122,55 @@ def update_donut_chart_amu (quantity, region, classification):
 
     return amu_donut_fig
 
-# Bar chart with uncertainty
+# AMU for terrestrial animals, with uncertainty
 @gbadsDash.callback(
-    Output('amu-uncertainty-bar','figure'),
+    Output('amu-terr-error-usage','figure'),
     Input('select-region-amu','value'),
     )
-def update_uncertainty_bar_amu(dummy_input):
-    fig = px.bar(
+def update_terrestrial_usage_amu(dummy_input):
+    fig = px.scatter(
         amu_uncertainty_data
-        ,x="region"
-        ,y="amu_terrestrial_tonnes_mostlikely"
-        ,error_y="amu_terrestrial_tonnes_max", error_y_minus="amu_terrestrial_tonnes_min"
+    	,x='region'
+    	,y='amu_terrestrial_tonnes_mostlikely'
+    	,error_y='amu_terrestrial_tonnes_errorhigh', error_y_minus="amu_terrestrial_tonnes_errorlow"
+        ,labels={"region":"Region"
+                  ,"amu_terrestrial_tonnes_mostlikely":"AMU Tonnes"
+                  }
     )
+    fig.update_traces(marker_size=20)
+
+    # Add title
+    fig.update_layout(
+        title_text='Antimicrobial Usage Estimates for Terrestrial Species<br><sup>with 95% confidence intervals</sup>'
+        ,font_size=15
+        ,plot_bgcolor="#ededed"
+    )
+
+    return fig
+
+# AM expenditure for terrestrial animals, with uncertainty
+@gbadsDash.callback(
+    Output('amu-terr-error-expenditure','figure'),
+    Input('select-region-amu','value'),
+    )
+def update_terrestrial_expenditure_amu(dummy_input):
+    fig = px.scatter(
+        amu_uncertainty_data
+    	,x='region'
+    	,y='amu_terrestrial_eurospertonne_mostlikely'
+        ,labels={"region":"Region"
+                  ,"amu_terrestrial_eurospertonne_mostlikely":"Price (Euros per tonne)"
+                  }
+    )
+    fig.update_traces(marker_size=20 ,marker_color='red')
+
+    # Add title
+    fig.update_layout(
+        title_text='Antimicrobial Expenditure for Terrestrial Species<br><sup></sup>'
+        ,font_size=15
+        ,plot_bgcolor="#ededed"
+    )
+
     return fig
 
 #%% 6. RUN APP

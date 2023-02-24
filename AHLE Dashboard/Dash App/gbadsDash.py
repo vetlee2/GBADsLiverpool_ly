@@ -1967,7 +1967,6 @@ def create_map_display_amu(input_df):
 
     return amu_map_fig
 
-# TODO: WIPs for AMU page
 def create_donut_chart_amu(input_df, value, names):
     pie_fig = px.pie(input_df,
                  values=value, # want to use either total biomass or amu mg per kg of biomass
@@ -1981,6 +1980,16 @@ def create_donut_chart_amu(input_df, value, names):
     pie_fig.update_traces(hole=.4, hoverinfo="label+percent+name")
 
     return pie_fig
+
+def create_tree_map_amu(input_df, value):
+    tree_map_fig = px.treemap(input_df, 
+                              path=[px.Constant("Global"), 'region', 'importance_ctg', 'antimicrobial_class'],
+                              values=value,
+                              color='region',
+                              color_discrete_map={'Africa':'#636FFA', 'Americas':'#EF553B', 'Asia, Far East and Oceania':'#00CC97', 'Europe':'#AB63FA', 'Middle East':'#FFC091'}
+                              )
+    
+    return tree_map_fig
 
 
 #%% 4. LAYOUT
@@ -3585,6 +3594,17 @@ gbadsDash.layout = html.Div([
                              "margin-top":"10px",
                              },
                    ),
+                       
+               # Visualization Switch
+               dbc.Col([
+                   html.H6("Visualization"),
+                   dcc.RadioItems(id='select-viz-switch-amu',
+                                 options=['Map', 'Drilldown'],
+                                 value='Map',
+                                 labelStyle={'display': 'block'},
+                                 inputStyle={"margin-right": "10px"},
+                                 ),
+                   ]),
 
                # AMU classification
                dbc.Col([
@@ -3639,8 +3659,8 @@ gbadsDash.layout = html.Div([
 
             html.Br(),
 
-            dbc.Row([ # AMU Stacked Bar
-                dbc.Col([
+            dbc.Row([ 
+                dbc.Col([ # AMU Stacked Bar
                 dbc.Spinner(children=[
                 dcc.Graph(id='amu-stacked-bar',
                           style = {"height":"650px"},
@@ -3697,35 +3717,10 @@ gbadsDash.layout = html.Div([
 
             html.Br(),
 
-                    # dbc.Row([ # AMU Stacked Bar
-                    #     dbc.Spinner(children=[
-                    #     dcc.Graph(id='amu-stacked-bar2',
-                    #               style = {"height":"650px"},
-                    #               config = {
-                    #                   "displayModeBar" : True,
-                    #                   "displaylogo": False,
-                    #                   'toImageButtonOptions': {
-                    #                       'format': 'png', # one of png, svg, jpeg, webp
-                    #                       'filename': 'GBADs_AMU_Stacked_Bar'
-                    #                       },
-                    #                   'modeBarButtonsToRemove': ['zoom',
-                    #                                               'zoomIn',
-                    #                                               'zoomOut',
-                    #                                               'autoScale',
-                    #                                               #'resetScale',  # Removes home button
-                    #                                               'pan',
-                    #                                               'select2d',
-                    #                                               'lasso2d']
-                    #                   })
-                    #         # End of Spinner
-                    #         ],size="md", color="#393375", fullscreen=False),
-                    #         # End of Stacked Bar
-                    #         ],style={"width":5}
-                    #         ),
-
-           # AMU with uncertainty
+          
            dbc.Row([
-
+               
+               # AMU with uncertainty
                dbc.Spinner(children=[
                 dcc.Graph(id='amu-uncertainty-bar',
                           style = {"height":"650px"},
@@ -3734,7 +3729,7 @@ gbadsDash.layout = html.Div([
                               "displaylogo": False,
                               'toImageButtonOptions': {
                                   'format': 'png', # one of png, svg, jpeg, webp
-                                  'filename': 'GBADs_AMU_Stacked_Bar'
+                                  'filename': 'GBADs_AMU_Uncertainty'
                                   },
                               'modeBarButtonsToRemove': ['zoom',
                                                           'zoomIn',
@@ -3747,7 +3742,8 @@ gbadsDash.layout = html.Div([
                               })
                # End of Spinner
                ],size="md", color="#393375", fullscreen=False),
-
+        
+           # END OF THRID GRAPHICS ROW
            ]),
 
            #### -- DATATABLE
@@ -7800,24 +7796,48 @@ def update_display_table_amu (input_select_species):
 # ------------------------------------------------------------------------------
 #### -- Figures
 # ------------------------------------------------------------------------------
-# AMU Map of regions
+# AMU Map or Tree Map by regions
 @gbadsDash.callback(
     Output('amu-map', 'figure'),
-    Input('select-region-amu','value'),
+    Input('select-viz-switch-amu','value'),
+    Input('select-quantity-amu-tonnes','value'),
     )
-def update_map_amu (region):
+def update_map_amu (viz_switch, quantity):
     input_df = amu2018_combined_tall.copy()
 
     # Filter scope to All and remove nulls from importance category
     input_df = input_df.query("scope == 'All'").query("importance_ctg.notnull()")
 
-    # Use create map defined above
-    amu_map_fig = create_map_display_amu(input_df)
+    # Visualization switch between map and tree map
+    if viz_switch == 'Map':
+        # Use create map defined above
+        amu_map_fig = create_map_display_amu(input_df)
+    
+        # Add title
+        amu_map_fig.update_layout(title_text='Global Animal Biomass (kg)',
+                                      font_size=15,
+                                      plot_bgcolor="#ededed",)
+        
+        # Update legend title
+        amu_map_fig.update_layout(legend=dict(
+            title="Region"
+            ))
+        
+    else:
+        # Use selected quantity value
+        if quantity == 'Tonnes':
+            value = input_df['amu_tonnes']
+        else:
+            value = input_df['amu_mg_perkgbiomass']
 
-    # Add title
-    amu_map_fig.update_layout(title_text='Global Animal Biomass (kg)',
-                                  font_size=15,
-                                  plot_bgcolor="#ededed",)
+        # Use create map defined above
+        amu_map_fig = create_tree_map_amu(input_df, value)
+        
+        # Add title
+        amu_map_fig.update_layout(title_text=f'AMU {quantity} Drilldown',
+                                      font_size=15,
+                                      plot_bgcolor="#ededed",
+                                      )
 
     return amu_map_fig
 
@@ -7922,6 +7942,8 @@ def update_uncertainty_bar_amu(dummy_input):
         ,error_y="amu_terrestrial_tonnes_max", error_y_minus="amu_terrestrial_tonnes_min"
     )
     return fig
+
+
 
 #%% 6. RUN APP
 #############################################################################################################

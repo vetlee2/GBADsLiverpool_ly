@@ -4,11 +4,42 @@
 #%% Structure: one row per region & antimicrobial
 
 # -----------------------------------------------------------------------------
+# Prepare AM usage
+# -----------------------------------------------------------------------------
+amu2018_m_tomerge = amu2018_m.copy()
+
+# Combine classes with low usage into "Other"
+# Note: this means potentially important classes will no longer appear, e.g. 3-4 generation cephalosporins
+classes_grouped_into_other = [
+    'glycopeptides'
+    ,'nitrofurans'
+    ,'other_quinolones'
+    ,'orthosomycins'
+    ,'1_2_gen__cephalosporins'
+    ,'arsenicals'
+    ,'glycophospholipids'
+    ,'3_4_gen_cephalosporins'
+    ,'streptogramins'
+    ,'cephalosporins__all_generations'
+]
+for CLASS in classes_grouped_into_other:
+    amu2018_m_tomerge['antimicrobial_class'] = amu2018_m_tomerge['antimicrobial_class'].replace(to_replace=CLASS ,value='others')
+
+# Sum usage by new class names
+amu2018_m_tomerge = amu2018_m_tomerge.pivot_table(
+	index=['region' ,'scope' ,'number_of_countries' ,'antimicrobial_class']           # Column(s) to make new index
+	,values='amu_tonnes'
+	,aggfunc='sum'
+)
+amu2018_m_tomerge = amu2018_m_tomerge.reset_index()
+
+# -----------------------------------------------------------------------------
 # Combine AM usage and importance
 # -----------------------------------------------------------------------------
 # Modify antimicrobial names in importance data to match
 amu_importance_tomerge = amu_importance.copy()
 
+# Remove special characters from class names
 amu_importance_tomerge['antimicrobial_class'] = amu_importance_tomerge['antimicrobial_class'].str.lower() \
    .str.strip().str.replace(' ' ,'_' ,regex=False) \
    .str.replace('/' ,'_' ,regex=False).str.replace('\\' ,'_' ,regex=False) \
@@ -16,6 +47,7 @@ amu_importance_tomerge['antimicrobial_class'] = amu_importance_tomerge['antimicr
    .str.replace('-' ,'_' ,regex=False).str.replace('+' ,'_' ,regex=False) \
    .str.replace('.' ,'_' ,regex=False).str.replace(',' ,'_' ,regex=False) \
 
+# Recode classes to match AMU data
 recode_classes = {
     'cephalosporins__all_generations_':'cephalosporins__all_generations'
     ,'sulfonamids':'sulfonamides__including_trimethoprim'
@@ -26,11 +58,14 @@ datainfo(amu_importance_tomerge)
 
 # Merge with AMU
 amu2018_combined_tall = pd.merge(
-    left=amu2018_m.query("region != 'Global'")
+    left=amu2018_m_tomerge.query("region != 'Global'")
     ,right=amu_importance_tomerge[['antimicrobial_class' ,'importance_ctg']]
     ,on='antimicrobial_class'
     ,how='left'
 )
+
+# Fill missing importance with "Unknown"
+amu2018_combined_tall['importance_ctg'] = amu2018_combined_tall['importance_ctg'].fillna('D: Unknown')
 
 # -----------------------------------------------------------------------------
 # Add biomass data

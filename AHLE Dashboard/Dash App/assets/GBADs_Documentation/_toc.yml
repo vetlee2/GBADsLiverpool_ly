@@ -42,12 +42,13 @@ parts:
     #- file: Analysis/Challenges and open issues
   - caption: Ethiopia Case Study
     chapters:
-    - file: Tool/eth_basic_controls.md
-    - file: Tool/eth_value_cost_chart.md
-    - file: Tool/eth_attribution_chart.md
-    - file: Tool/eth_ahle_contrib_chart.md
+    - file: Tool/eth_basic_controls
+    - file: Tool/eth_value_cost_chart
+    - file: Tool/eth_attribution_chart
+    - file: Tool/eth_ahle_contrib_chart
   - caption: References
     chapters:
     - file: References/General
     - file: References/Poultry
     - file: References/Swine
+    - file: References/Ethiopia

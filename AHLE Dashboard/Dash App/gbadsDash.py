@@ -7890,6 +7890,7 @@ def update_map_amu (viz_switch, quantity):
             ))
         
     else:
+        input_df = input_df.query("antimicrobial_class != 'total_antimicrobials'")
         # Use selected quantity value
         if quantity == 'Tonnes':
             value = input_df['amu_tonnes']

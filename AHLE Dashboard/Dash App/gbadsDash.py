@@ -8024,14 +8024,14 @@ def update_terrestrial_usage_amu(dummy_input):
     	,y='amu_terrestrial_tonnes_mostlikely'
     	,error_y='amu_terrestrial_tonnes_errorhigh', error_y_minus="amu_terrestrial_tonnes_errorlow"
         ,labels={"region":"Region"
-                  ,"amu_terrestrial_tonnes_mostlikely":"AMU Tonnes"
+                  ,"amu_terrestrial_tonnes_mostlikely":"Antimicrobial Usage (tonnes)"
                   }
     )
     fig.update_traces(marker_size=20)
 
     # Add title
     fig.update_layout(
-        title_text='Antimicrobial Usage Estimates for Terrestrial Species<br><sup>with 95% confidence intervals</sup>'
+        title_text='Antimicrobial Usage for Terrestrial Species<br><sup>with 95% confidence intervals</sup>'
         ,font_size=15
         ,plot_bgcolor="#ededed"
     )
@@ -8047,16 +8047,17 @@ def update_terrestrial_expenditure_amu(dummy_input):
     fig = px.scatter(
         amu_uncertainty_data
     	,x='region'
-    	,y='amu_terrestrial_eurospertonne_mostlikely'
+    	,y='amu_terrestrial_expenditure_midpoint'
+    	,error_y='amu_terrestrial_expenditure_errorhigh', error_y_minus="amu_terrestrial_expenditure_errorlow"
         ,labels={"region":"Region"
-                  ,"amu_terrestrial_eurospertonne_mostlikely":"Price (Euros per tonne)"
+                  ,"amu_terrestrial_expenditure_midpoint":"Total Expenditure on Antimicrobials (Euros)"
                   }
     )
     fig.update_traces(marker_size=20 ,marker_color='red')
 
     # Add title
     fig.update_layout(
-        title_text='Antimicrobial Expenditure for Terrestrial Species<br><sup></sup>'
+        title_text='Antimicrobial Expenditure for Terrestrial Species<br><sup>with 95% confidence intervals</sup>'
         ,font_size=15
         ,plot_bgcolor="#ededed"
     )

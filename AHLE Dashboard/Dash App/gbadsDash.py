@@ -1952,10 +1952,12 @@ def create_map_display_amu(input_df):
 
     return amu_map_fig
 
-def create_donut_chart_amu(input_df, value, names):
-    pie_fig = px.pie(input_df,
-                 values=value, # want to use either total biomass or amu mg per kg of biomass
-                 names=names)
+def create_donut_chart_amu(input_df, value, names):   
+    
+    pie_fig = go.Figure(data=[go.Pie(labels=names, 
+                                     values=value,
+                                     hovertemplate = "%{label}: <br>%{percent} </br><extra></extra>"
+                                     )])
 
     # show % values inside
     pie_fig.update_traces(textposition='inside')
@@ -1963,16 +1965,23 @@ def create_donut_chart_amu(input_df, value, names):
 
     # Use `hole` to create a donut-like pie chart
     pie_fig.update_traces(hole=.4, hoverinfo="label+percent+name")
-
+    
+    # Sort legend based on data sort rather than pie values
+    pie_fig.update_traces(sort=False) 
+    
     return pie_fig
 
 def create_tree_map_amu(input_df, value):
+    
     tree_map_fig = px.treemap(input_df, 
                               path=[px.Constant("Global"), 'region', 'importance_ctg', 'antimicrobial_class'],
                               values=value,
                               color='region',
-                              color_discrete_map={'Africa':'#636FFA', 'Americas':'#EF553B', 'Asia, Far East and Oceania':'#00CC97', 'Europe':'#AB63FA', 'Middle East':'#FFC091'}
+                              color_discrete_map={'(?)':'lightgrey', 'Africa':'#636FFA', 'Americas':'#EF553B', 'Asia, Far East and Oceania':'#00CC97', 'Europe':'#AB63FA', 'Middle East':'#FFC091'}
                               )
+    
+    # # Add value to bottom leaf node labels
+    # tree_map_fig.data[0].textinfo = 'label+text+value'
     
     return tree_map_fig
 
@@ -7937,14 +7946,17 @@ def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes, select_am
 
 # Options to change between graphs
     if select_amu_graph.upper() == 'STACKED':
-        amu_bar_fig = px.bar(stackedbar_df, x=x, y=yaxis,
-                         color=color,
-                         labels={
-                             x: "Region",
-                             yaxis: label,
-                             "importance_ctg": "Importance Category",
-                             "antimicrobial_class": "Antimicrobial Class"})
-
+        amu_bar_fig = px.histogram(stackedbar_df, 
+                             x=x, 
+                             y=yaxis,
+                             color=color,
+                             labels={
+                                x: "Region",
+                                yaxis: label,
+                                "importance_ctg": "Importance Category",
+                                "antimicrobial_class": "Antimicrobial Class"
+                                })
+        
 
     elif select_amu_graph.upper() == '100 BAR CHART':   
          amu_bar_fig = px.histogram(stackedbar_df,
@@ -7971,6 +7983,7 @@ def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes, select_am
 def update_donut_chart_amu (quantity, region, classification):
     input_df = amu2018_combined_tall.copy()
 
+
     # Filter scope to All and remove nulls from importance category
     # Filter by region selected
     if region == 'All':
@@ -7991,13 +8004,20 @@ def update_donut_chart_amu (quantity, region, classification):
     # Use selected classification value
     if classification == 'Individual Classes':
         names = input_df['antimicrobial_class']
+        sort_by = 'antimicrobial_class'
+        legend_title = 'Antimicrobial Class'
     else:
         names = input_df['importance_ctg']
+        sort_by = 'importance_ctg'
+        legend_title = 'Importance Category'
+        
+    # Sort the data by classification to sync the legends across the visualizations
+    input_df = input_df.sort_values(by=sort_by)
 
     # Use create donut chart defined above
     amu_donut_fig = create_donut_chart_amu(input_df, value, names)
 
-    # Add title
+    # Add title and legend title
     amu_donut_fig.update_layout(title_text=f'{selected_region} AMU {quantity} by {classification}',
                                   font_size=15,
                                   plot_bgcolor="#ededed",
@@ -8008,7 +8028,9 @@ def update_donut_chart_amu (quantity, region, classification):
                                                     font_size=15,
                                                     showarrow=False),
                                               ],
+                                  legend_title_text=f'{legend_title}'
                                   )
+    
 
     return amu_donut_fig
 

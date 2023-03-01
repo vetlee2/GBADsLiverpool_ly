@@ -3544,9 +3544,8 @@ gbadsDash.layout = html.Div([
         ### END OF ETHIOPIA TAB
 
             ], style=ecs_tab_style, selected_style=ecs_tab_selected_style),
-        #### Antimicrobial Visual WIP
 
-
+        #### ANTIMICROBIAL USAGE TAB
        dcc.Tab(label="Antimicrobial Usage (AMU) [WIP]", children =[
 
            #### -- DROPDOWN CONTROLS
@@ -3595,7 +3594,7 @@ gbadsDash.layout = html.Div([
                dbc.Col([
                    html.H6("AMU classification"),
                    dcc.RadioItems(id='select-classification-amu',
-                         options=['Individual Classes', 'Importance Categories'],
+                         options=['Individual Classes', 'WHO Importance Categories'],
                          value='Individual Classes',
                          labelStyle={'display': 'block'},
                          inputStyle={"margin-right": "10px"},
@@ -3794,7 +3793,6 @@ gbadsDash.layout = html.Div([
 
            #### -- DATATABLE
            dbc.Row([
-
                dbc.Spinner(children=[
                dbc.Col([
                    html.Div([  # Core data for AHLE
@@ -3803,6 +3801,19 @@ gbadsDash.layout = html.Div([
 
                html.Br() # Spacer for bottom of page
 
+               ]),# END OF COL
+               # End of Spinner
+               ],size="md", color="#393375", fullscreen=False),
+
+           ]),
+
+           dbc.Row([
+               dbc.Spinner(children=[
+               dbc.Col([
+                   html.Div([  # Core data for AHLE
+                         html.Div(id='amu-uncertainty'),
+                   ], style={'margin-left':"20px"}),
+               html.Br() # Spacer for bottom of page
                ]),# END OF COL
                # End of Spinner
                ],size="md", color="#393375", fullscreen=False),
@@ -7802,10 +7813,9 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
 # Datatable below graphics
 @gbadsDash.callback(
     Output('amu-2018-combined-tall', 'children'),
-   Input('select-species-ga','value'),
+    Input('select-species-ga','value'),
     )
-
-def update_table_amu (input_select_species):
+def update_table_amu(dummy_input):
     display_data = amu2018_combined_tall.copy()
 
     # Filter out AGP
@@ -7856,6 +7866,104 @@ def update_table_amu (input_select_species):
                               'height': '680px',
                               'overflowY': 'auto'},
                 page_action='none',
+            )
+        ]
+
+# Usage and Price uncertainty data
+@gbadsDash.callback(
+    Output('amu-uncertainty', 'children'),
+    Input('select-species-ga','value'),
+    )
+def update_uncertainty_table_amu(dummy_input):
+    display_data = amu_uncertainty_data.copy()
+
+    columns_to_display_with_labels = {
+       'region':'Region',
+       'n_countries':'Number of Countries',
+       'amu_terrestrial_tonnes_min':'AMU tonnes (min)',
+       'amu_terrestrial_tonnes_mostlikely':'AMU tonnes (most likely)',
+       'amu_terrestrial_tonnes_max':'AMU tonnes (max)',
+       # 'amu_terrestrial_tonnes_distr':'',
+       # 'amu_terrestrial_tonnes_distr_lambda':'',
+       'amu_eurospertonne_min':'Euros per tonne (min)',
+       'amu_eurospertonne_mostlikely':'Euros per tonne (most likely)',
+       'amu_eurospertonne_max':'Euros per tonne (max)',
+       # 'amu_eurospertonne_distr':'',
+       # 'amu_eurospertonne_distr_lambda':'',
+       # 'biomass_total_terr_kg':'',
+       'tonnes_ci95_low':'AMU tonnes CI lower',
+       'tonnes_ci95_high':'AMU tonnes CI upper',
+       'price_ci95_low':'Euros per tonne CI lower',
+       'price_ci95_high':'Euros per tonne CI upper',
+       # 'amu_terrestrial_tonnes_errorlow':'',
+       # 'amu_terrestrial_tonnes_errorhigh':'',
+       # 'amu_eurospertonne_errorlow':'',
+       # 'amu_eurospertonne_errorhigh':'',
+       'expenditure_ci95_low':'Expenditure euros CI lower',
+       # 'expenditure_ci95_mid':'',
+       'expenditure_ci95_high':'Expenditure euros CI upper',
+       # 'amu_terrestrial_expenditure_midpoint':'',
+       # 'amu_terrestrial_expenditure_errorlow':'',
+       # 'amu_terrestrial_expenditure_errorhigh':''
+       }
+
+    # ------------------------------------------------------------------------------
+    # Format data to display in the table
+    # ------------------------------------------------------------------------------
+    # Order does not matter in these lists
+    # Zero decimal places
+    display_data.update(display_data[[
+        'n_countries'
+    ]].applymap('{:,.0f}'.format))
+
+    # One decimal place
+    display_data.update(display_data[[
+        'amu_terrestrial_tonnes_min'
+        ,'amu_terrestrial_tonnes_mostlikely'
+        ,'amu_terrestrial_tonnes_max'
+    ]].applymap('{:,.1f}'.format))
+
+    # Two decimal places
+    display_data.update(display_data[[
+       'amu_eurospertonne_min'
+       ,'amu_eurospertonne_mostlikely'
+       ,'amu_eurospertonne_max'
+    ]].applymap('{:,.2f}'.format))
+
+    # ------------------------------------------------------------------------------
+    # Hover-over text
+    # ------------------------------------------------------------------------------
+    column_tooltips = {
+        'amu_terrestrial_tonnes_min':"Source: WOAH"
+        }
+
+    return [
+            html.H4("Terrestrial Antimicrobial Usage and Price Estimates"),
+            dash_table.DataTable(
+                columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+                fixed_rows={'headers': True, 'data': 0},
+                data=display_data.to_dict('records'),
+                export_format="csv",
+                sort_action='native',
+                style_cell={
+                    'font-family':'sans-serif',
+                    },
+                style_table={'overflowX': 'scroll',
+                              'height': '680px',
+                              'overflowY': 'auto'},
+                page_action='none',
+
+                # Hover-over for column headers
+                tooltip_header=column_tooltips,
+                tooltip_delay=1500,
+                tooltip_duration=50000,
+
+                # Underline columns with tooltips
+                style_header_conditional=[{
+                    'if': {'column_id': col},
+                    'textDecoration': 'underline',
+                    'textDecorationStyle': 'dotted',
+                    } for col in list(column_tooltips)],
             )
         ]
 
@@ -7920,42 +8028,41 @@ def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes, select_am
     stackedbar_df = amu2018_combined_tall.copy()
     stackedbar_df = stackedbar_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
 
-    x = 'region'
+    x_var = 'region'
 
     if select_graph_amu_tonnes.upper() == 'TONNES':
-        yaxis = 'amu_tonnes'
-        label = "AMU Tonnes"
+        y_var = 'amu_tonnes'
+        y_label = "AMU Tonnes"
     elif select_graph_amu_tonnes.upper() == 'MG PER KG BIOMASS':
-        yaxis = 'amu_mg_perkgbiomass'
-        label = "AMU Mg per Kg Biomass"
+        y_var = 'amu_mg_perkgbiomass'
+        y_label = "AMU Mg per Kg Biomass"
 
     if select_graph_amu.upper() == 'INDIVIDUAL CLASSES':
-           color = 'antimicrobial_class_group'
-
+        color = 'antimicrobial_class_group'
     elif select_graph_amu.upper() == 'IMPORTANCE CATEGORIES':
-           color = 'importance_ctg'
+        color = 'importance_ctg'
 
     # Options to change between graphs
     if select_amu_graph.upper() == 'STACKED':
-        amu_bar_fig = px.bar(stackedbar_df, x=x, y=yaxis,
+        amu_bar_fig = px.bar(stackedbar_df, x=x_var, y=y_var,
                          color=color,
                          labels={
-                             x: "Region",
-                             yaxis: label,
+                             x_var: "Region",
+                             y_var: y_label,
                              "importance_ctg": "Importance Category",
                              "antimicrobial_class_group": "Antimicrobial Class"})
 
 
     elif select_amu_graph.upper() == '100 BAR CHART':
          amu_bar_fig = px.histogram(stackedbar_df,
-             x=x,
-             y=yaxis,
+             x=x_var,
+             y=y_var,
              color=color,
              barnorm='percent',
              text_auto='.1f',
              labels={
-                x: "Region",
-                yaxis: label,
+                x_var: "Region",
+                y_var: y_label,
                 "antimicrobial_class_group": "Antimicrobial Class"})
 
 
@@ -8018,23 +8125,85 @@ def update_donut_chart_amu (quantity, region, classification):
     Input('select-region-amu','value'),
     )
 def update_terrestrial_usage_amu(dummy_input):
-    fig = px.scatter(
-        amu_uncertainty_data
-    	,x='region'
-    	,y='amu_terrestrial_tonnes_mostlikely'
-    	,error_y='amu_terrestrial_tonnes_errorhigh', error_y_minus="amu_terrestrial_tonnes_errorlow"
-        ,labels={"region":"Region"
-                  ,"amu_terrestrial_tonnes_mostlikely":"Antimicrobial Usage (tonnes)"
-                  }
-    )
-    fig.update_traces(marker_size=20)
+    # Prep data
+    # This is a hack to get the Usage and Price scatterplots separated
+    usage_cols = ['amu_terrestrial_tonnes_min' ,'amu_terrestrial_tonnes_mostlikely' ,'amu_terrestrial_tonnes_max']
+    price_cols = ['amu_eurospertonne_min' ,'amu_eurospertonne_mostlikely' ,'amu_eurospertonne_max']
+    amu_regions = list(amu_uncertainty_data['region'])
 
-    # Add title
-    fig.update_layout(
-        title_text='Antimicrobial Usage for Terrestrial Species<br><sup>with 95% confidence intervals</sup>'
-        ,font_size=15
-        ,plot_bgcolor="#ededed"
+    amu_uncertainty_data_toplot_usage = amu_uncertainty_data.copy()
+    amu_uncertainty_data_toplot_usage[price_cols] = np.nan
+
+    amu_uncertainty_data_toplot_price = amu_uncertainty_data.copy()
+    amu_uncertainty_data_toplot_price[usage_cols] = np.nan
+    amu_uncertainty_data_toplot_price['region'] = amu_uncertainty_data_toplot_price['region'] + '_price'
+
+    amu_uncertainty_data_toplot = pd.concat([amu_uncertainty_data_toplot_usage ,amu_uncertainty_data_toplot_price] ,axis=0 ,ignore_index=True)
+    amu_uncertainty_data_toplot = amu_uncertainty_data_toplot.sort_values(by='region')
+
+    # Create figure with secondary y-axis
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+    # Plot Usage
+    fig.add_trace(
+        go.Scatter(
+         	x=amu_uncertainty_data_toplot['region']
+         	,y=amu_uncertainty_data_toplot['amu_terrestrial_tonnes_mostlikely']
+         	,error_y=dict(
+                type='data'
+                ,symmetric=False
+                ,array=amu_uncertainty_data_toplot['amu_terrestrial_tonnes_errorhigh']
+                ,arrayminus=amu_uncertainty_data_toplot["amu_terrestrial_tonnes_errorlow"]
+            )
+            ,mode='markers'
+            ,name='Usage'
+            ,marker_color='blue'
+        )
+        ,secondary_y=False
     )
+
+    # Plot Price
+    fig.add_trace(
+        go.Scatter(
+         	x=amu_uncertainty_data_toplot['region']
+         	,y=amu_uncertainty_data_toplot['amu_eurospertonne_mostlikely']
+         	,error_y=dict(
+                type='data'
+                ,symmetric=False
+                ,array=amu_uncertainty_data_toplot['amu_eurospertonne_errorhigh']
+                ,arrayminus=amu_uncertainty_data_toplot["amu_eurospertonne_errorlow"]
+            )
+            ,mode='markers'
+            ,name='Price'
+            ,marker_color='green'
+        )
+        ,secondary_y=True
+    )
+
+    # Set size of points
+    fig.update_traces(marker_size=10)
+
+    # Add plot title and axis labels
+    fig.update_layout(
+        title_text='Antimicrobial Usage and Price for Terrestrial Livestock<br><sup>with 95% confidence intervals</sup>'
+        ,font_size=15
+        ,legend_y=1.1
+        ,legend_x=0.6
+        ,legend_orientation='h'
+    )
+    fig.update_xaxes(title_text="Region"
+                     ,tickmode='array'
+                     ,tickvals=amu_regions  # Only show ticks for base regions, not dummy price regions
+                     )
+    fig.update_yaxes(title_text="Antimicrobial Usage (tonnes)"
+                      ,color='blue'
+                      ,secondary_y=False
+                      )
+    fig.update_yaxes(title_text="Antimicrobial Price (euros per tonne)"
+                      ,color='green'
+                      ,secondary_y=True
+                      ,showgrid=False
+                      )
 
     return fig
 
@@ -8053,18 +8222,16 @@ def update_terrestrial_expenditure_amu(dummy_input):
                   ,"amu_terrestrial_expenditure_midpoint":"Total Expenditure on Antimicrobials (Euros)"
                   }
     )
-    fig.update_traces(marker_size=20 ,marker_color='red')
+    fig.update_traces(marker_size=10 ,marker_color='red')
 
     # Add title
     fig.update_layout(
-        title_text='Antimicrobial Expenditure for Terrestrial Species<br><sup>with 95% confidence intervals</sup>'
+        title_text='Antimicrobial Expenditure for Terrestrial Livestock<br><sup>with 95% confidence intervals</sup>'
         ,font_size=15
         ,plot_bgcolor="#ededed"
     )
 
     return fig
-
-
 
 #%% 6. RUN APP
 #############################################################################################################

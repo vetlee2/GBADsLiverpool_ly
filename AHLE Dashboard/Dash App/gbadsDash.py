@@ -1736,12 +1736,6 @@ def create_stacked_bar_swine(input_df, x, y, color):
 
 # Define the attribution treemap
 def create_attr_treemap_ecs(input_df, path):
-    # # Make mean more legible
-    # input_df["humanize_mean"]= input_df['mean'].apply(lambda x: humanize.intword(x))
-
-    # input_df["pct_of_total"]= input_df['pct_of_total'].astype('float')
-
-
     treemap_fig = px.treemap(input_df,
                       # path=[
                       #    'cause',
@@ -1948,7 +1942,13 @@ def create_map_display_amu(input_df):
                                  color="region",
                                  hover_name="region",
                                  size="biomass_total_kg",
-                                 projection="natural earth")
+                                 projection="natural earth",
+                                 custom_data=['region', 'biomass_total_kg']
+                                 # hover_data={
+                                 #     'graphing_country':False, # remove graphing_country from hover data
+                                 #     'biomass_total_kg':':,.0f', # customize hover for size attribute
+                                 #     }
+                                 )
 
     return amu_map_fig
 
@@ -7898,6 +7898,14 @@ def update_map_amu (viz_switch, quantity):
             title="Region"
             ))
         
+        # Update hoverover
+        amu_map_fig.update_traces(hovertemplate=
+                                  "<b>%{customdata[0]}</b><br><br>" +
+                                  "Region: %{customdata[0]}<br>" +
+                                  "Biomass: %{customdata[1]:,.0f}<br>" +
+                                  "<extra></extra>",) 
+
+        
     else:
         input_df = input_df.query("antimicrobial_class != 'total_antimicrobials'")
         # Use selected quantity value
@@ -7940,9 +7948,11 @@ def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes, select_am
 
     if select_graph_amu.upper() == 'INDIVIDUAL CLASSES':
            color = 'antimicrobial_class'
+           stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class']).ngroup()
 
     elif select_graph_amu.upper() == 'IMPORTANCE CATEGORIES':
            color = 'importance_ctg'
+           stackedbar_df['id'] = stackedbar_df.groupby(['importance_ctg']).ngroup()
 
 # Options to change between graphs
     if select_amu_graph.upper() == 'STACKED':
@@ -7957,61 +7967,44 @@ def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes, select_am
                                 "antimicrobial_class": "Antimicrobial Class"
                                 })
 
-        # data = [go.Bar(name=group, 
-        #                x=dfg['region'], 
-        #                y=dfg['amu_tonnes'].astype('float'),) 
-        #         for group, dfg in stackedbar_df.groupby(by=color)]
-
-        # # plot the figure
-        # amu_bar_fig = go.Figure(data)
-        # amu_bar_fig.update_layout({'barmode':'stack', 
-        #                           'title':'Title', 
-        #                           'yaxis_title':label}
-        #                           )
+       
+        # # TODO: WIP for layout adjustments
+        # amu_bar_fig = go.Figure()
         
-        # # # Add button to toggle graph options
-        # # amu_bar_fig.update_layout(
-        # #     updatemenus=[
-        # #         dict(
-        # #             type = "buttons",
-        # #             direction = "left",
-        # #             buttons=list([
-        # #                 dict(
-        # #                     args=[
-        # #                         # Updates to the traces
-        # #                         {},
-        # #                         # Updates to the layout
-        # #                         {"barmode": "stack"}
-        # #                         ],
-        # #                     label="Stacked",
-        # #                     method="restyle"
-        # #                 ),
-        # #                 dict(
-        # #                     args=[
-        # #                         # Updates to the traces
-        # #                         {},
-        # #                         # Updates to the layout
-        # #                         {"barmode": "relative"}
-        # #                         ],
-        # #                     label="100%",
-        # #                     method="restyle"
-        # #                 )
-        # #             ]),
-        # #             pad={"r": 10, "t": 10},
-        # #             showactive=True,
-        # #             x=0.19,
-        # #             xanchor="left",
-        # #             y=1.12,
-        # #             yanchor="top"
-        # #         ),
-        # #     ]
-        # # )
+        # amu_bar_fig.add_trace(go.Bar(
+        #                       x=stackedbar_df['region'],
+        #                       y=stackedbar_df['amu_tonnes'],
+        #                       marker=dict(color = stackedbar_df['id']),
+        #                       ))
+        
+        # amu_bar_fig.update_layout({'title' : 'Stacked Bar'})
+        
+        # amu_bar_fig.layout.update(
+        #    updatemenus = [
+        #       go.layout.Updatemenu(
+        #          type = "buttons", direction = "left", buttons=list(
+        #             [
+        #                dict(args = [{"type":"bar"},
+        #                             {"title":"Stacked Bar"}], label = "Bar", method = "update"),
+        #                dict(args = [{"type":"violin"},
+        #                             {"title":"Violin"}], label = "Violin", method = "update")
+        #             ]
+        #          ),
+        #          pad = {"r": 10, "t": 10},
+        #          showactive = True,
+        #          x = 0.19,
+        #          xanchor = "left",
+        #          y = 1.12,
+        #          yanchor = "top"
+        #       ), 
+        #    ]
+        # )
         
         # # Add annotation
         # amu_bar_fig.update_layout(
         #     annotations=[
         #         dict(text="Graph type:", showarrow=False,
-        #                              x=0, y=1.08, yref="paper", align="left")
+        #                               x=0, y=1.08, yref="paper", align="left")
         #     ]
         # )
         
@@ -8027,20 +8020,6 @@ def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes, select_am
                  x: "Region",
                  yaxis: label,
                  "antimicrobial_class": "Antimicrobial Class"})
-         
-         # data = [go.Bar(name=group, 
-         #                x=dfg['region'], 
-         #                y=dfg['amu_tonnes'].astype('float'),) 
-         #         for group, dfg in stackedbar_df.groupby(by=color)]
-
-         # # plot the figure
-         # amu_bar_fig = go.Figure(data)         
-         # amu_bar_fig.update_layout({'barmode':'relative', 
-         #                           'title':'Title2', 
-         #                           'yaxis_title':label}
-         #                           )
-         
-                 
         
     return amu_bar_fig
 

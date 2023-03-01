@@ -219,7 +219,7 @@ amu_uncertainty_data = pd.DataFrame(
 # Merge in biomass data
 amu_uncertainty_data = pd.merge(
     left=amu_uncertainty_data
-    ,right=amu2018_biomass.query("segment == 'Total Region'")[['region' ,'biomass_total_terr_kg']]
+    ,right=amu2018_biomass.query("segment == 'Countries reporting AMU data'")[['region' ,'biomass_total_kg' ,'biomass_total_terr_kg']]
     ,on='region'
     ,how='left'
 )

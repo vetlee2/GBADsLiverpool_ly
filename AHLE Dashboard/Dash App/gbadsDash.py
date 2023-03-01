@@ -3791,13 +3791,26 @@ gbadsDash.layout = html.Div([
                ]),
            ]),
 
+           #### -- FOOTNOTES
+           dbc.Row([
+               dbc.Col([
+                   html.P("Confidence intervals based on PERT distribution using data from WOAH and Mulchandani et. al. to estimate minimum, maximum, and most likely values."),
+               ]),
+               dbc.Col([
+                    html.P("Expenditure distributions constructed by resampling from usage and price distributions and taking the product."),
+                    # html.P("Expenditure distributions constructed from product of realizations resampled from usage and price distributions."),
+               ]),
+           ], style={'margin-left':"40px", 'font-style': 'italic'}
+           ),
+
+
            #### -- DATATABLE
            dbc.Row([
                dbc.Spinner(children=[
                dbc.Col([
-                   html.Div([  # Core data for AHLE
+                   html.Div([
                          html.Div( id='amu-2018-combined-tall'),
-                   ], style={'margin-left':"20px"}),
+                   ], style={'margin-left':"20px" ,"width":"95%"}),
 
                html.Br() # Spacer for bottom of page
 
@@ -3810,9 +3823,9 @@ gbadsDash.layout = html.Div([
            dbc.Row([
                dbc.Spinner(children=[
                dbc.Col([
-                   html.Div([  # Core data for AHLE
+                   html.Div([
                          html.Div(id='amu-uncertainty'),
-                   ], style={'margin-left':"20px"}),
+                   ], style={'margin-left':"20px" ,"width":"95%"}),
                html.Br() # Spacer for bottom of page
                ]),# END OF COL
                # End of Spinner
@@ -7855,7 +7868,7 @@ def update_table_amu(dummy_input):
             html.H4("Antimicrobial Data 2018"),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
-                fixed_rows={'headers': True, 'data': 0},
+                # fixed_rows={'headers': True, 'data': 0},
                 data=display_data.to_dict('records'),
                 export_format="csv",
                 sort_action='native',
@@ -7880,21 +7893,23 @@ def update_uncertainty_table_amu(dummy_input):
     columns_to_display_with_labels = {
        'region':'Region',
        'n_countries':'Number of Countries',
+       'biomass_total_kg':'Total Biomass (kg)',
+       'biomass_total_terr_kg':'Terrestrial Livestock Biomass (kg)',
+
        'amu_terrestrial_tonnes_min':'AMU tonnes (min)',
        'amu_terrestrial_tonnes_mostlikely':'AMU tonnes (most likely)',
        'amu_terrestrial_tonnes_max':'AMU tonnes (max)',
+       'tonnes_ci95_low':'AMU tonnes CI lower',
+       'tonnes_ci95_high':'AMU tonnes CI upper',
        # 'amu_terrestrial_tonnes_distr':'',
        # 'amu_terrestrial_tonnes_distr_lambda':'',
        'amu_eurospertonne_min':'Euros per tonne (min)',
        'amu_eurospertonne_mostlikely':'Euros per tonne (most likely)',
        'amu_eurospertonne_max':'Euros per tonne (max)',
-       # 'amu_eurospertonne_distr':'',
-       # 'amu_eurospertonne_distr_lambda':'',
-       # 'biomass_total_terr_kg':'',
-       'tonnes_ci95_low':'AMU tonnes CI lower',
-       'tonnes_ci95_high':'AMU tonnes CI upper',
        'price_ci95_low':'Euros per tonne CI lower',
        'price_ci95_high':'Euros per tonne CI upper',
+       # 'amu_eurospertonne_distr':'',
+       # 'amu_eurospertonne_distr_lambda':'',
        # 'amu_terrestrial_tonnes_errorlow':'',
        # 'amu_terrestrial_tonnes_errorhigh':'',
        # 'amu_eurospertonne_errorlow':'',
@@ -7914,13 +7929,17 @@ def update_uncertainty_table_amu(dummy_input):
     # Zero decimal places
     display_data.update(display_data[[
         'n_countries'
+        ,'biomass_total_kg'
+        ,'biomass_total_terr_kg'
+        ,'amu_terrestrial_tonnes_min'
+        ,'amu_terrestrial_tonnes_mostlikely'
+        ,'amu_terrestrial_tonnes_max'
+        ,'tonnes_ci95_low'
+        ,'tonnes_ci95_high'
     ]].applymap('{:,.0f}'.format))
 
     # One decimal place
     display_data.update(display_data[[
-        'amu_terrestrial_tonnes_min'
-        ,'amu_terrestrial_tonnes_mostlikely'
-        ,'amu_terrestrial_tonnes_max'
     ]].applymap('{:,.1f}'.format))
 
     # Two decimal places
@@ -7928,27 +7947,41 @@ def update_uncertainty_table_amu(dummy_input):
        'amu_eurospertonne_min'
        ,'amu_eurospertonne_mostlikely'
        ,'amu_eurospertonne_max'
-    ]].applymap('{:,.2f}'.format))
+       ,'price_ci95_low'
+       ,'price_ci95_high'
+       ,'expenditure_ci95_low'
+       ,'expenditure_ci95_high'
+    ]].applymap('€ {:,.2f}'.format))
 
     # ------------------------------------------------------------------------------
     # Hover-over text
     # ------------------------------------------------------------------------------
     column_tooltips = {
-        'amu_terrestrial_tonnes_min':"Source: WOAH"
+        'amu_terrestrial_tonnes_min':'Estimated from region total AMU tonnes in proportion to (terrestrial biomass) / (total biomass)'
+        ,'amu_terrestrial_tonnes_mostlikely':'Source: Mulchandani et. al.'
+        ,'amu_terrestrial_tonnes_max':'Source: Mulchandani et. al.'
+        ,'tonnes_ci95_low':'Based on PERT distribution'
+        ,'tonnes_ci95_high':'Based on PERT distribution'
+
+        ,'amu_eurospertonne_min':'Source:'
+        ,'amu_eurospertonne_mostlikely':'Source:'
+        ,'amu_eurospertonne_max':'Source:'
+        ,'price_ci95_low':'Based on PERT distribution'
+        ,'price_ci95_high':'Based on PERT distribution'
         }
 
     return [
-            html.H4("Terrestrial Antimicrobial Usage and Price Estimates"),
+            html.H4("Terrestrial Livestock Estimates"),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
-                fixed_rows={'headers': True, 'data': 0},
+                # fixed_rows={'headers': True, 'data': 0},
                 data=display_data.to_dict('records'),
                 export_format="csv",
                 sort_action='native',
                 style_cell={
                     'font-family':'sans-serif',
                     },
-                style_table={'overflowX': 'scroll',
+                style_table={'overflowX':'scroll',
                               'height': '680px',
                               'overflowY': 'auto'},
                 page_action='none',

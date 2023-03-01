@@ -1736,12 +1736,6 @@ def create_stacked_bar_swine(input_df, x, y, color):
 
 # Define the attribution treemap
 def create_attr_treemap_ecs(input_df, path):
-    # # Make mean more legible
-    # input_df["humanize_mean"]= input_df['mean'].apply(lambda x: humanize.intword(x))
-
-    # input_df["pct_of_total"]= input_df['pct_of_total'].astype('float')
-
-
     treemap_fig = px.treemap(input_df,
                       # path=[
                       #    'cause',
@@ -1948,14 +1942,22 @@ def create_map_display_amu(input_df):
                                  color="region",
                                  hover_name="region",
                                  size="biomass_total_kg",
-                                 projection="natural earth")
+                                 projection="natural earth",
+                                 custom_data=['region', 'biomass_total_kg']
+                                 # hover_data={
+                                 #     'graphing_country':False, # remove graphing_country from hover data
+                                 #     'biomass_total_kg':':,.0f', # customize hover for size attribute
+                                 #     }
+                                 )
 
     return amu_map_fig
 
-def create_donut_chart_amu(input_df, value, names):
-    pie_fig = px.pie(input_df,
-                 values=value, # want to use either total biomass or amu mg per kg of biomass
-                 names=names)
+def create_donut_chart_amu(input_df, value, names):   
+    
+    pie_fig = go.Figure(data=[go.Pie(labels=names, 
+                                     values=value,
+                                     hovertemplate = "%{label}: <br>%{percent} </br><extra></extra>"
+                                     )])
 
     # show % values inside
     pie_fig.update_traces(textposition='inside')
@@ -1963,16 +1965,23 @@ def create_donut_chart_amu(input_df, value, names):
 
     # Use `hole` to create a donut-like pie chart
     pie_fig.update_traces(hole=.4, hoverinfo="label+percent+name")
-
+    
+    # Sort legend based on data sort rather than pie values
+    pie_fig.update_traces(sort=False) 
+    
     return pie_fig
 
 def create_tree_map_amu(input_df, value):
     tree_map_fig = px.treemap(input_df,
+
                               path=[px.Constant("Global"), 'region', 'importance_ctg', 'antimicrobial_class'],
                               values=value,
                               color='region',
-                              color_discrete_map={'Africa':'#636FFA', 'Americas':'#EF553B', 'Asia, Far East and Oceania':'#00CC97', 'Europe':'#AB63FA', 'Middle East':'#FFC091'}
+                              color_discrete_map={'(?)':'lightgrey', 'Africa':'#636FFA', 'Americas':'#EF553B', 'Asia, Far East and Oceania':'#00CC97', 'Europe':'#AB63FA', 'Middle East':'#FFC091'}
                               )
+    
+    # # Add value to bottom leaf node labels
+    # tree_map_fig.data[0].textinfo = 'label+text+value'
 
     return tree_map_fig
 
@@ -8029,6 +8038,13 @@ def update_map_amu (viz_switch, quantity):
         amu_map_fig.update_layout(legend=dict(
             title="Region"
             ))
+        
+        # Update hoverover
+        amu_map_fig.update_traces(hovertemplate=
+                                  "<b>%{customdata[0]}</b><br><br>" +
+                                  "Region: %{customdata[0]}<br>" +
+                                  "Biomass: %{customdata[1]:,.0f}<br>" +
+                                  "<extra></extra>",) 
 
     else:
         input_df = input_df.query("antimicrobial_class != 'total_antimicrobials'")
@@ -8072,8 +8088,11 @@ def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes, select_am
 
     if select_graph_amu.upper() == 'INDIVIDUAL CLASSES':
         color = 'antimicrobial_class_group'
+        stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class']).ngroup()
     elif select_graph_amu.upper() == 'IMPORTANCE CATEGORIES':
         color = 'importance_ctg'
+        stackedbar_df['id'] = stackedbar_df.groupby(['importance_ctg']).ngroup()
+
 
     # Options to change between graphs
     if select_amu_graph.upper() == 'STACKED':
@@ -8085,6 +8104,48 @@ def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes, select_am
                              "importance_ctg": "Importance Category",
                              "antimicrobial_class_group": "Antimicrobial Class"})
 
+
+       
+        # # TODO: WIP for layout adjustments
+        # amu_bar_fig = go.Figure()
+        
+        # amu_bar_fig.add_trace(go.Bar(
+        #                       x=stackedbar_df['region'],
+        #                       y=stackedbar_df['amu_tonnes'],
+        #                       marker=dict(color = stackedbar_df['id']),
+        #                       ))
+        
+        # amu_bar_fig.update_layout({'title' : 'Stacked Bar'})
+        
+        # amu_bar_fig.layout.update(
+        #    updatemenus = [
+        #       go.layout.Updatemenu(
+        #          type = "buttons", direction = "left", buttons=list(
+        #             [
+        #                dict(args = [{"type":"bar"},
+        #                             {"title":"Stacked Bar"}], label = "Bar", method = "update"),
+        #                dict(args = [{"type":"violin"},
+        #                             {"title":"Violin"}], label = "Violin", method = "update")
+        #             ]
+        #          ),
+        #          pad = {"r": 10, "t": 10},
+        #          showactive = True,
+        #          x = 0.19,
+        #          xanchor = "left",
+        #          y = 1.12,
+        #          yanchor = "top"
+        #       ), 
+        #    ]
+        # )
+        
+        # # Add annotation
+        # amu_bar_fig.update_layout(
+        #     annotations=[
+        #         dict(text="Graph type:", showarrow=False,
+        #                               x=0, y=1.08, yref="paper", align="left")
+        #     ]
+        # )
+        
 
     elif select_amu_graph.upper() == '100 BAR CHART':
          amu_bar_fig = px.histogram(stackedbar_df,
@@ -8111,6 +8172,7 @@ def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes, select_am
 def update_donut_chart_amu (quantity, region, classification):
     input_df = amu2018_combined_tall.copy()
 
+
     # Filter scope to All and remove nulls from importance category
     # Filter by region selected
     if region == 'All':
@@ -8131,13 +8193,21 @@ def update_donut_chart_amu (quantity, region, classification):
     # Use selected classification value
     if classification == 'Individual Classes':
         names = input_df['antimicrobial_class_group']
+        sort_by = 'antimicrobial_class'
+        legend_title = 'Antimicrobial Class'
+
     else:
         names = input_df['importance_ctg']
+        sort_by = 'importance_ctg'
+        legend_title = 'Importance Category'
+        
+    # Sort the data by classification to sync the legends across the visualizations
+    input_df = input_df.sort_values(by=sort_by)
 
     # Use create donut chart defined above
     amu_donut_fig = create_donut_chart_amu(input_df, value, names)
 
-    # Add title
+    # Add title and legend title
     amu_donut_fig.update_layout(title_text=f'{selected_region} AMU {quantity} by {classification}',
                                   font_size=15,
                                   plot_bgcolor="#ededed",
@@ -8148,7 +8218,9 @@ def update_donut_chart_amu (quantity, region, classification):
                                                     font_size=15,
                                                     showarrow=False),
                                               ],
+                                  legend_title_text=f'{legend_title}'
                                   )
+    
 
     return amu_donut_fig
 

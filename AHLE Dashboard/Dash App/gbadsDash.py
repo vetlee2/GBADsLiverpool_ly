@@ -8097,7 +8097,7 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
 
         
         # Add title
-        amu_bar_fig.update_layout(title_text=f'Regional Bar AMU {quantity} by {classification}',
+        amu_bar_fig.update_layout(title_text=f'Regional AMU {quantity} by {classification}',
                                       font_size=15,
                                       plot_bgcolor="#ededed",
                                       )
@@ -8158,7 +8158,7 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
                 "antimicrobial_class_group": "Antimicrobial Class"})
          
          # Add title
-         amu_bar_fig.update_layout(title_text=f'Regional Relative % Bar AMU {quantity} by {classification}',
+         amu_bar_fig.update_layout(title_text=f'Regional Relative % AMU {quantity} by {classification}',
                                        font_size=15,
                                        plot_bgcolor="#ededed",
                                        )
@@ -8242,7 +8242,7 @@ def update_donut_chart_amu (quantity, region, classification):
     # Move legend to bottom
     amu_donut_fig.update_layout(legend=dict(
         orientation="h",
-        font=dict(size=10),
+        font=dict(size=15),
         bgcolor='rgba(0,0,0,0)', # makes legend background transparent
         # yanchor="bottom",
         y=0.02,

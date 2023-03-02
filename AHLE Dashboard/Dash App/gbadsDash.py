@@ -3554,37 +3554,7 @@ gbadsDash.layout = html.Div([
 
            #### -- DROPDOWN CONTROLS
            dbc.Row([
-               
-               dbc.Col([ # Select Visualizations 
-               dbc.Card([
-                   dbc.CardBody([
-                       html.H5("Select Visualizations",
-                               className="card-title",
-                               style={"font-weight": "bold"}),
-                       
-               dbc.Row([
-               # Visualization Switch
-               dbc.Col([
-                   html.H6("Global Visualization"),
-                   dcc.RadioItems(id='select-viz-switch-amu',
-                                 options=['Drilldown', 'Map'],
-                                 value='Drilldown',
-                                 labelStyle={'display': 'block'},
-                                 inputStyle={"margin-right": "10px"},
-                                 ),
-                   ]),
-               
-               # # Region-country alignment
-               # dbc.Col([
-               #     html.H6('Region-country alignment'),
-               #     dcc.RadioItems(id='Region-country-alignment-amu',
-               #                     options=region_structure_options,
-               #                     inputStyle={"margin-right": "10px", # This pulls the words off of the button
-               #                                 "margin-left":"20px"},
-               #                     value="WOAH",
-               #                     style={"margin-left":'-20px'})
-               #     ]),
-               
+
                # Bar Chart selection
                dbc.Col([
                    html.H6("AMU Bar Chart"),
@@ -3595,23 +3565,6 @@ gbadsDash.layout = html.Div([
                          inputStyle={"margin-right": "10px"},
                          ),
                    ]),
-               
-               # END OF CARD ROW
-               ], justify='evenly'),
-               # END OF VIZ CARD BODY
-               ]),
-               ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF VIZ CARD
-               ]), # END OF FIRST COLUMN
-               
-               
-               dbc.Col([# Visualization options
-               dbc.Card([
-                   dbc.CardBody([
-                       html.H5("Visualizations Options",
-                               className="card-title",
-                               style={"font-weight": "bold"}),
-                       
-               dbc.Row([
                    
                # Display quantity
                dbc.Col([
@@ -3634,6 +3587,17 @@ gbadsDash.layout = html.Div([
                          inputStyle={"margin-right": "10px"},
                          ),
                    ]),
+               
+               # Region-country alignment
+               dbc.Col([
+                   html.H6('Region-country alignment'),
+                   dcc.RadioItems(id='Region-country-alignment-amu',
+                                   options=region_structure_options,
+                                   inputStyle={"margin-right": "10px", # This pulls the words off of the button
+                                               "margin-left":"20px"},
+                                   value="WOAH",
+                                   style={"margin-left":'-20px'})
+                   ]),
 
                # Region
                dbc.Col([
@@ -3645,13 +3609,6 @@ gbadsDash.layout = html.Div([
                                  ),
                    ]),
 
-                           
-               # END OF CARD ROW
-               ], justify='evenly'),
-               # END OF VIZ CARD BODY
-               ]),
-               ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF VIZ CARD
-               ]),
                
         # END OF CONTROLS ROW
         ], justify='evenly'),
@@ -3718,6 +3675,17 @@ gbadsDash.layout = html.Div([
             html.Br(),
 
             dbc.Row([
+                # Visualization Switch
+                dbc.Col([
+                    html.H6("Global Visualization"),
+                    dcc.RadioItems(id='select-viz-switch-amu',
+                                  options=['Drilldown', 'Map'],
+                                  value='Drilldown',
+                                  labelStyle={'display': 'block'},
+                                  inputStyle={"margin-right": "10px"},
+                                  ),
+                    ],  width=1),
+                
                 dbc.Col([ # Global Aggregation Visual
                     dbc.Spinner(children=[
                     dcc.Graph(id='amu-map',
@@ -8263,14 +8231,15 @@ def update_donut_chart_amu (quantity, region, classification):
         bgcolor='rgba(0,0,0,0)', # makes legend background transparent
         # yanchor="bottom",
         y=0.02,
-        xanchor="center",
+        xanchor="left",
         # x=1
         ))
-    
+
     # Adjust margins
     amu_donut_fig.update_layout(
         margin=dict(l=20, r=20, b=40),
         )
+    
    
 
     return amu_donut_fig

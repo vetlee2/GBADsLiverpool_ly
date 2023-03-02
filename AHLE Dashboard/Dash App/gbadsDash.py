@@ -1952,9 +1952,9 @@ def create_map_display_amu(input_df):
 
     return amu_map_fig
 
-def create_donut_chart_amu(input_df, value, names):   
-    
-    pie_fig = go.Figure(data=[go.Pie(labels=names, 
+def create_donut_chart_amu(input_df, value, names):
+
+    pie_fig = go.Figure(data=[go.Pie(labels=names,
                                      values=value,
                                      hovertemplate = "%{label}: <br>%{percent} </br><extra></extra>"
                                      )])
@@ -1965,10 +1965,10 @@ def create_donut_chart_amu(input_df, value, names):
 
     # Use `hole` to create a donut-like pie chart
     pie_fig.update_traces(hole=.4, hoverinfo="label+percent+name")
-    
+
     # Sort legend based on data sort rather than pie values
-    pie_fig.update_traces(sort=False) 
-    
+    pie_fig.update_traces(sort=False)
+
     return pie_fig
 
 def create_tree_map_amu(input_df, value):
@@ -1979,7 +1979,7 @@ def create_tree_map_amu(input_df, value):
                               color='region',
                               color_discrete_map={'(?)':'lightgrey', 'Africa':'#636FFA', 'Americas':'#EF553B', 'Asia, Far East and Oceania':'#00CC97', 'Europe':'#AB63FA', 'Middle East':'#FFC091'}
                               )
-    
+
     # # Add value to bottom leaf node labels
     # tree_map_fig.data[0].textinfo = 'label+text+value'
 
@@ -3603,8 +3603,8 @@ gbadsDash.layout = html.Div([
                dbc.Col([
                    html.H6("AMU classification"),
                    dcc.RadioItems(id='select-classification-amu',
-                         options=['Individual Classes', 'WHO Importance Categories'],
-                         value='Individual Classes',
+                         options=['Top Global' ,'WHO Importance Categories' ,'Individual Classes'],
+                         value='Top Global',
                          labelStyle={'display': 'block'},
                          inputStyle={"margin-right": "10px"},
                          ),
@@ -3803,7 +3803,7 @@ gbadsDash.layout = html.Div([
            #### -- FOOTNOTES
            dbc.Row([
                dbc.Col([
-                   html.P("Confidence intervals based on PERT distribution using data from WOAH and Mulchandani et. al. to estimate minimum, maximum, and most likely values."),
+                   html.P("Confidence intervals based on PERT distribution using data from WOAH to estimate minimum, maximum, and most likely values."),
                ]),
                dbc.Col([
                     html.P("Expenditure distributions constructed by resampling from usage and price distributions and taking the product."),
@@ -7966,15 +7966,15 @@ def update_uncertainty_table_amu(dummy_input):
     # Hover-over text
     # ------------------------------------------------------------------------------
     column_tooltips = {
-        'amu_terrestrial_tonnes_min':'Estimated from region total AMU tonnes in proportion to (terrestrial biomass) / (total biomass)'
-        ,'amu_terrestrial_tonnes_mostlikely':'Source: Mulchandani et. al.'
-        ,'amu_terrestrial_tonnes_max':'Source: Mulchandani et. al.'
-        ,'tonnes_ci95_low':'Based on PERT distribution'
+        # 'amu_terrestrial_tonnes_min':'Estimated from WOAH region total AMU based on terrestrial biomass as proportion of total biomass.'
+        # ,'amu_terrestrial_tonnes_mostlikely':'Source: Mulchandani et. al.'
+        # ,'amu_terrestrial_tonnes_max':'Estimated as 10% higher than most likely value'
+        'tonnes_ci95_low':'Based on PERT distribution'
         ,'tonnes_ci95_high':'Based on PERT distribution'
 
-        ,'amu_eurospertonne_min':'Source:'
-        ,'amu_eurospertonne_mostlikely':'Source:'
-        ,'amu_eurospertonne_max':'Source:'
+        # ,'amu_eurospertonne_min':'Source:'
+        # ,'amu_eurospertonne_mostlikely':'Source:'
+        # ,'amu_eurospertonne_max':'Source:'
         ,'price_ci95_low':'Based on PERT distribution'
         ,'price_ci95_high':'Based on PERT distribution'
         }
@@ -7991,7 +7991,6 @@ def update_uncertainty_table_amu(dummy_input):
                     'font-family':'sans-serif',
                     },
                 style_table={'overflowX':'scroll',
-                              'height': '680px',
                               'overflowY': 'auto'},
                 page_action='none',
 
@@ -8038,13 +8037,13 @@ def update_map_amu (viz_switch, quantity):
         amu_map_fig.update_layout(legend=dict(
             title="Region"
             ))
-        
+
         # Update hoverover
         amu_map_fig.update_traces(hovertemplate=
                                   "<b>%{customdata[0]}</b><br><br>" +
                                   "Region: %{customdata[0]}<br>" +
                                   "Biomass: %{customdata[1]:,.0f}<br>" +
-                                  "<extra></extra>",) 
+                                  "<extra></extra>",)
 
     else:
         input_df = input_df.query("antimicrobial_class != 'total_antimicrobials'")
@@ -8073,7 +8072,7 @@ def update_map_amu (viz_switch, quantity):
     Input('select-quantity-amu-tonnes', 'value'),
     Input('select-amu-graph', 'value'),
     )
-def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes, select_amu_graph):
+def update_stacked_bar_amu (classification, select_graph_amu_tonnes, select_amu_graph):
     stackedbar_df = amu2018_combined_tall.copy()
     stackedbar_df = stackedbar_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
 
@@ -8086,12 +8085,15 @@ def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes, select_am
         y_var = 'amu_mg_perkgbiomass'
         y_label = "AMU Mg per Kg Biomass"
 
-    if select_graph_amu.upper() == 'INDIVIDUAL CLASSES':
+    if classification.upper() == 'INDIVIDUAL CLASSES':
         color = 'antimicrobial_class_group'
         stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class']).ngroup()
-    elif select_graph_amu.upper() == 'IMPORTANCE CATEGORIES':
+    elif classification.upper() == 'WHO IMPORTANCE CATEGORIES':
         color = 'importance_ctg'
         stackedbar_df['id'] = stackedbar_df.groupby(['importance_ctg']).ngroup()
+    elif classification.upper() == 'TOP GLOBAL':
+        color = 'antimicrobial_class_group2'
+        stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class_group2']).ngroup()
 
 
     # Options to change between graphs
@@ -8102,21 +8104,24 @@ def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes, select_am
                              x_var: "Region",
                              y_var: y_label,
                              "importance_ctg": "Importance Category",
-                             "antimicrobial_class_group": "Antimicrobial Class"})
+                             "antimicrobial_class_group": "Antimicrobial Class",
+                             "antimicrobial_class_group2": "Antimicrobial Class"
+                             }
+                         )
 
 
-       
+
         # # TODO: WIP for layout adjustments
         # amu_bar_fig = go.Figure()
-        
+
         # amu_bar_fig.add_trace(go.Bar(
         #                       x=stackedbar_df['region'],
         #                       y=stackedbar_df['amu_tonnes'],
         #                       marker=dict(color = stackedbar_df['id']),
         #                       ))
-        
+
         # amu_bar_fig.update_layout({'title' : 'Stacked Bar'})
-        
+
         # amu_bar_fig.layout.update(
         #    updatemenus = [
         #       go.layout.Updatemenu(
@@ -8134,10 +8139,10 @@ def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes, select_am
         #          xanchor = "left",
         #          y = 1.12,
         #          yanchor = "top"
-        #       ), 
+        #       ),
         #    ]
         # )
-        
+
         # # Add annotation
         # amu_bar_fig.update_layout(
         #     annotations=[
@@ -8145,7 +8150,7 @@ def update_stacked_bar_amu (select_graph_amu, select_graph_amu_tonnes, select_am
         #                               x=0, y=1.08, yref="paper", align="left")
         #     ]
         # )
-        
+
 
     elif select_amu_graph.upper() == '100 BAR CHART':
          amu_bar_fig = px.histogram(stackedbar_df,
@@ -8196,11 +8201,17 @@ def update_donut_chart_amu (quantity, region, classification):
         sort_by = 'antimicrobial_class'
         legend_title = 'Antimicrobial Class'
 
-    else:
+    elif classification == 'WHO Importance Categories':
         names = input_df['importance_ctg']
         sort_by = 'importance_ctg'
         legend_title = 'Importance Category'
-        
+
+    elif classification == 'Top Global':
+        names = input_df['antimicrobial_class_group2']
+        sort_by = 'antimicrobial_class'
+        legend_title = 'Antimicrobial Class'
+
+
     # Sort the data by classification to sync the legends across the visualizations
     input_df = input_df.sort_values(by=sort_by)
 
@@ -8220,7 +8231,7 @@ def update_donut_chart_amu (quantity, region, classification):
                                               ],
                                   legend_title_text=f'{legend_title}'
                                   )
-    
+
 
     return amu_donut_fig
 
@@ -8297,6 +8308,7 @@ def update_terrestrial_usage_amu(dummy_input):
         ,legend_orientation='h'
     )
     fig.update_xaxes(title_text="Region"
+                     ,tickangle=45
                      ,tickmode='array'
                      ,tickvals=amu_regions  # Only show ticks for base regions, not dummy price regions
                      )
@@ -8323,9 +8335,7 @@ def update_terrestrial_expenditure_amu(dummy_input):
     	,x='region'
     	,y='amu_terrestrial_expenditure_midpoint'
     	,error_y='amu_terrestrial_expenditure_errorhigh', error_y_minus="amu_terrestrial_expenditure_errorlow"
-        ,labels={"region":"Region"
-                  ,"amu_terrestrial_expenditure_midpoint":"Total Expenditure on Antimicrobials (Euros)"
-                  }
+        ,labels={"amu_terrestrial_expenditure_midpoint":"Total Expenditure on Antimicrobials (Euros)"}
     )
     fig.update_traces(marker_size=10 ,marker_color='red')
 
@@ -8335,6 +8345,9 @@ def update_terrestrial_expenditure_amu(dummy_input):
         ,font_size=15
         ,plot_bgcolor="#ededed"
     )
+    fig.update_xaxes(title_text="Region"
+                     ,tickangle=45
+                     )
 
     return fig
 

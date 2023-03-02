@@ -60,14 +60,14 @@ pert_distr_ci95_high = (beta_distr_ci95[1] * (10 - 1)) + 1   # Translate from (0
 
 #%% Structure: one row per region & antimicrobial
 
-# -----------------------------------------------------------------------------
-# Prepare AM usage
-# -----------------------------------------------------------------------------
+# =============================================================================
+#### Prepare AM usage
+# =============================================================================
 amu2018_m_tomerge = amu2018_m.copy()
 
-# -----------------------------------------------------------------------------
-# Combine AM usage and importance
-# -----------------------------------------------------------------------------
+# =============================================================================
+#### Combine AM usage and importance
+# =============================================================================
 # Modify antimicrobial names in importance data to match
 amu_importance_tomerge = amu_importance.copy()
 
@@ -99,12 +99,15 @@ amu2018_combined_tall = pd.merge(
 # Fill missing importance with "Unknown"
 amu2018_combined_tall['importance_ctg'] = amu2018_combined_tall['importance_ctg'].fillna('D: Unknown')
 
-# -----------------------------------------------------------------------------
-# Create antimicrobial class groupings
-# -----------------------------------------------------------------------------
+# =============================================================================
+#### Create antimicrobial class groupings
+# =============================================================================
 # Group the AM classes that individually make up less than 2% of the global total usage
 # Groupings must still respect importance categories
 amu_total_byclass = amu2018_m_tomerge.query("antimicrobial_class != 'total_antimicrobials'").query("region == 'Global'").query("scope == 'All'")
+amu_total_byclass['usage_rank_lowis1'] = amu_total_byclass['amu_tonnes'].rank()
+amu_total_byclass['usage_rank_highis1'] = amu_total_byclass['amu_tonnes'].rank(ascending=False)
+
 global_total_amu_tonnes = amu_total_byclass['amu_tonnes'].sum()
 low_volume_classes = list(amu_total_byclass.query(f"amu_tonnes < {global_total_amu_tonnes} * 0.02")['antimicrobial_class'])
 
@@ -121,9 +124,16 @@ def define_class_group(INPUT_ROW):
 	return OUTPUT
 amu2018_combined_tall['antimicrobial_class_group'] = amu2018_combined_tall.apply(define_class_group ,axis=1)
 
-# -----------------------------------------------------------------------------
-# Add biomass data
-# -----------------------------------------------------------------------------
+# Further grouping: top 3 classes by global usage vs. everything else
+# Regardless of importance category
+top3_globally = list(amu_total_byclass.query(f"usage_rank_highis1 <= 3 ")['antimicrobial_class'])
+amu2018_combined_tall['antimicrobial_class_group2'] = 'others'
+amu2018_combined_tall.loc[amu2018_combined_tall['antimicrobial_class'].isin(top3_globally) ,'antimicrobial_class_group2'] = \
+    amu2018_combined_tall['antimicrobial_class']
+
+# =============================================================================
+#### Add biomass data
+# =============================================================================
 # Merge
 amu2018_combined_tall = pd.merge(
     left=amu2018_combined_tall
@@ -147,9 +157,9 @@ del amu2018_combined_tall['biomass_total_terr_kg']
 # Calculate AMU per kg biomass
 amu2018_combined_tall['amu_mg_perkgbiomass'] = (amu2018_combined_tall['amu_tonnes'] / amu2018_combined_tall['biomass_total_kg']) * 1e9
 
-# -----------------------------------------------------------------------------
-# Export
-# -----------------------------------------------------------------------------
+# =============================================================================
+#### Export
+# =============================================================================
 datainfo(amu2018_combined_tall)
 
 amu2018_combined_tall.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_combined_tall.csv') ,index=False)

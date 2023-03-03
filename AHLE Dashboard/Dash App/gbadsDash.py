@@ -3557,37 +3557,37 @@ gbadsDash.layout = html.Div([
 
                # Bar Chart selection
                dbc.Col([
-                   html.H6("AMU Bar Chart"),
+                   html.H6("Regional AMU Bar Display"),
                    dcc.RadioItems(id='select-amu-graph',
-                         options=['Stacked', '100%'],
-                         value='Stacked',
+                         options=['Total', 'Percent'],
+                         value='Total',
                          labelStyle={'display': 'block'},
                          inputStyle={"margin-right": "10px"},
                          ),
                    ]),
-                   
+
                # Display quantity
                dbc.Col([
-                   html.H6("AMU total"),
+                   html.H6("AMU Units"),
                    dcc.RadioItems(id='select-quantity-amu-tonnes',
                          options=['Tonnes', 'Mg per kg biomass'],
                          value='Tonnes',
                          labelStyle={'display': 'block'},
                          inputStyle={"margin-right": "10px"},
                          ),
-                   ]),  
+                   ]),
 
                # AMU classification
                dbc.Col([
-                   html.H6("AMU classification"),
+                   html.H6("Antimicrobial Grouping"),
                    dcc.RadioItems(id='select-classification-amu',
-                         options=['Top Global' ,'WHO Importance Categories' ,'Individual Classes'],
-                         value='Top Global',
+                         options=['Top Global Classes' ,'WHO Importance Categories' ,'Individual Classes'],
+                         value='Top Global Classes',
                          labelStyle={'display': 'block'},
                          inputStyle={"margin-right": "10px"},
                          ),
                    ]),
-               
+
                # Region-country alignment
                dbc.Col([
                    html.H6('Region-country alignment'),
@@ -3609,7 +3609,7 @@ gbadsDash.layout = html.Div([
                                  ),
                    ]),
 
-               
+
         # END OF CONTROLS ROW
         ], justify='evenly'),
 
@@ -3642,7 +3642,7 @@ gbadsDash.layout = html.Div([
 
                          # End of Stacked Bar
                          ]),
-                     
+
                          dbc.Col([ # AMU Donut Chart
                          dbc.Spinner(children=[
                          dcc.Graph(id='amu-donut-chart',
@@ -3685,7 +3685,7 @@ gbadsDash.layout = html.Div([
                                   inputStyle={"margin-right": "10px"},
                                   ),
                     ],  width=1),
-                
+
                 dbc.Col([ # Global Aggregation Visual
                     dbc.Spinner(children=[
                     dcc.Graph(id='amu-map',
@@ -3703,8 +3703,8 @@ gbadsDash.layout = html.Div([
                 ],size="md", color="#393375", fullscreen=False),
                 # End of Map
                 ]),
-                
-             # END OF SECOND GRAPHICS ROW    
+
+             # END OF SECOND GRAPHICS ROW
             ]),
 
 
@@ -8014,27 +8014,27 @@ def update_map_amu (viz_switch, quantity):
             value = input_df['amu_tonnes']
         else:
             value = input_df['amu_mg_perkgbiomass']
-            
+
         customdata = list(pd.DataFrame([f'{quantity}']).to_numpy())
-        
+
 
         # Use create map defined above
         amu_map_fig = create_tree_map_amu(input_df, value)
 
         # Add title
-        amu_map_fig.update_layout(title_text=f'AMU {quantity} Drilldown',
+        amu_map_fig.update_layout(title_text=f'AMU {quantity} Drilldown<br><sup>for countries reporting to WOAH</sup>',
                                       font_size=15,
                                       plot_bgcolor="#ededed",
                                       )
-        
+
         # Update hoverover
         amu_map_fig.update_traces(customdata=customdata,
             hovertemplate=
             "Label = %{label}<br>" +
             "AMU total =  %{value:,.0f}<br>" +
             "Parent = %{parent}" +
-            "<extra></extra>",) 
-     
+            "<extra></extra>",)
+
     # Adjust margins
     amu_map_fig.update_layout(
         margin=dict(l=20, r=20, b=20),
@@ -8071,10 +8071,10 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
         color = 'importance_ctg'
         stackedbar_df['id'] = stackedbar_df.groupby(['importance_ctg']).ngroup()
 
-    elif classification.upper() == 'TOP GLOBAL':
+    elif classification.upper() == 'TOP GLOBAL CLASSES':
         color = 'antimicrobial_class_group2'
         stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class_group2']).ngroup()
-        
+
     # Specify additonal colors
     # Taking the 10 colors from the default 'Plotly' (px.colors.qualitative.Plotly) color sequence and adding to it
     addiitonal_colors = ['#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', '#19D3F3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52',"#C6CAFD", "#F7A799", "#33FFC9"]
@@ -8082,7 +8082,7 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
 
 
     # Options to change between graphs
-    if select_amu_graph.upper() == 'STACKED':
+    if select_amu_graph.upper() == 'TOTAL':
         amu_bar_fig = px.histogram(stackedbar_df, x=x_var, y=y_var,
                          color=color,
                          color_discrete_sequence=addiitonal_colors,
@@ -8095,12 +8095,13 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
                              }
                          )
 
-        
+
         # Add title
-        amu_bar_fig.update_layout(title_text=f'Regional AMU {quantity} by {classification}',
+        amu_bar_fig.update_layout(title_text=f'Regional AMU {quantity} by {classification}<br><sup>for countries reporting to WOAH</sup>',
                                       font_size=15,
                                       plot_bgcolor="#ededed",
                                       )
+        amu_bar_fig.update_yaxes(title_text=f"AMU {quantity}")
 
 
 
@@ -8145,7 +8146,7 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
         # )
 
 
-    elif select_amu_graph.upper() == '100%':
+    elif select_amu_graph.upper() == 'PERCENT':
          amu_bar_fig = px.histogram(stackedbar_df,
              x=x_var,
              y=y_var,
@@ -8156,16 +8157,17 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
                 x_var: "",
                 y_var: y_label,
                 "antimicrobial_class_group": "Antimicrobial Class"})
-         
+
          # Add title
-         amu_bar_fig.update_layout(title_text=f'Regional Relative % AMU {quantity} by {classification}',
+         amu_bar_fig.update_layout(title_text=f'Regional Percent of AMU {quantity} by {classification}<br><sup>for countries reporting to WOAH</sup>',
                                        font_size=15,
                                        plot_bgcolor="#ededed",
                                        )
-         
-    # Remove legend (share with donut chart)    
+         amu_bar_fig.update_yaxes(title_text=f"% of AMU {quantity}")
+
+    # Remove legend (share with donut chart)
     amu_bar_fig.update_layout(showlegend=False)
-    
+
     # Adjust margins
     amu_bar_fig.update_layout(
         margin=dict(l=20, r=20, b=20),
@@ -8213,7 +8215,7 @@ def update_donut_chart_amu (quantity, region, classification):
         sort_by = 'importance_ctg'
         legend_title = 'Importance Category'
 
-    elif classification == 'Top Global':
+    elif classification == 'Top Global Classes':
         names = input_df['antimicrobial_class_group2']
         sort_by = 'antimicrobial_class'
         legend_title = 'Antimicrobial Class'
@@ -8226,7 +8228,7 @@ def update_donut_chart_amu (quantity, region, classification):
     amu_donut_fig = create_donut_chart_amu(input_df, value, names)
 
     # Add title and legend title
-    amu_donut_fig.update_layout(title_text=f'{selected_region} AMU {quantity} by {classification}',
+    amu_donut_fig.update_layout(title_text=f'{selected_region} AMU {quantity} by {classification}<br><sup>for countries reporting to WOAH</sup>',
                                   font_size=15,
                                   plot_bgcolor="#ededed",
                                   # Add annotations in the center of the donut pies.
@@ -8254,8 +8256,8 @@ def update_donut_chart_amu (quantity, region, classification):
     amu_donut_fig.update_layout(
         margin=dict(l=20, r=20, b=40),
         )
-    
-   
+
+
 
     return amu_donut_fig
 

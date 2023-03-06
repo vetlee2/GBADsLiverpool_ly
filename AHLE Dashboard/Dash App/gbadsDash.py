@@ -3238,10 +3238,8 @@ gbadsDash.layout = html.Div([
                             dbc.Col([
                                 html.H6("Year", id='select-year-ecs-title'),
                                 dcc.Dropdown(id='select-year-item-switch-ecs',
-                                        options=ecs_year_options,
-                                        value=2021,
-                                        clearable = False,
-                                        ),
+                                             clearable = False,
+                                             ),
 
                                 ]
                             ),
@@ -5471,7 +5469,7 @@ def update_year_item_switch(graph, species):
         options=ecs_year_options=[]
         for i in np.sort(ecs_ahle_summary['year'].unique()):
             str(ecs_year_options.append({'label':i,'value':(i)}))
-        value=2021,
+        value=2021
         title = 'Year'
     else:
         # Filters Items to display based on species selected
@@ -5515,7 +5513,7 @@ def update_year_item_switch(graph, species):
         options=ecs_item_ahle_options=[]
         for i in waterfall_plot_values:
            str(ecs_item_ahle_options.append({'label':i,'value':(i)}))
-        value='Gross Margin',
+        value='Gross Margin'
         title = 'Item'
 
     return options, value, title

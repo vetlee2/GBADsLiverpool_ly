@@ -1,1 +1,0 @@
-# Mortality and condemns

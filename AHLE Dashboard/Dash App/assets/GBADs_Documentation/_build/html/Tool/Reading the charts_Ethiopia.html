@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Production chart &#8212; AHLE Interactive Dashboard</title>
+    <title>Reading the charts &#8212; AHLE Interactive Dashboard</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -52,8 +52,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="../_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Cost chart" href="Cost%20chart.html" />
-    <link rel="prev" title="Reading the charts" href="Reading%20the%20charts.html" />
+    <link rel="next" title="Value and cost chart" href="eth_value_cost_chart.html" />
+    <link rel="prev" title="Selecting species, production system, currency, and year" href="eth_basic_controls.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -159,7 +159,7 @@ const thebe_selector_output = ".output, .cell_output"
   Major Producers Tabs
  </span>
 </p>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="../Analysis/Overview%20of%20the%20approach.html">
    Overview of the approach
@@ -175,18 +175,18 @@ const thebe_selector_output = ".output, .cell_output"
    Changing inputs
   </a>
  </li>
- <li class="toctree-l1 current active has-children">
+ <li class="toctree-l1 has-children">
   <a class="reference internal" href="Reading%20the%20charts.html">
    Reading the charts
   </a>
-  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
   <label for="toctree-checkbox-1">
    <i class="fas fa-chevron-down">
    </i>
   </label>
-  <ul class="current">
-   <li class="toctree-l2 current active">
-    <a class="current reference internal" href="#">
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Production%20chart.html">
      Production chart
     </a>
    </li>
@@ -289,7 +289,7 @@ const thebe_selector_output = ".output, .cell_output"
   Ethiopia Case Study
  </span>
 </p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="../Analysis/Overview%20of%20the%20approach_Ethiopia.html">
    Overview of the approach
@@ -300,11 +300,11 @@ const thebe_selector_output = ".output, .cell_output"
    Selecting species, production system, currency, and year
   </a>
  </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="Reading%20the%20charts_Ethiopia.html">
+ <li class="toctree-l1 current active has-children">
+  <a class="current reference internal" href="#">
    Reading the charts
   </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
   <label for="toctree-checkbox-5">
    <i class="fas fa-chevron-down">
    </i>
@@ -432,7 +432,7 @@ title="Fullscreen mode"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="../_sources/Tool/Production chart.md"
+        <a href="../_sources/Tool/Reading the charts_Ethiopia.md"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -481,7 +481,7 @@ title="Print to PDF"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Production chart</h1>
+                <h1>Reading the charts</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -493,42 +493,15 @@ title="Print to PDF"
                 
               <div>
                 
-  <section class="tex2jax_ignore mathjax_ignore" id="production-chart">
-<h1>Production chart<a class="headerlink" href="#production-chart" title="Permalink to this headline">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="reading-the-charts">
+<h1>Reading the charts<a class="headerlink" href="#reading-the-charts" title="Permalink to this headline">#</a></h1>
 <p>
-The production chart shows a 5-step waterfall with potential production on the left and realised production on the right, with the middle bars representing the effects of feed and practices and the losses due to the burden of disease.
+The Ethiopia tab shows three charts: the value and cost graph, the attribution chart, and the AHLE contributions by age group.
 </p>
-<figure class="align-default" id="poultry-production-1">
-<img alt="../_images/poultry_production_1.png" src="../_images/poultry_production_1.png" />
-<figcaption>
-<p><span class="caption-number">Fig. 6 </span><span class="caption-text">Example production chart</span><a class="headerlink" href="#poultry-production-1" title="Permalink to this image">#</a></p>
-</figcaption>
-</figure>
 <p>
-The units displayed are determined by the <i>Metric</i> selector in the top row of controls. Options are:
-<ul>
-	<li>Tonnes: metric tonnes of carcass weight</li>
-	<li>US Dollars: value of carcass weight in US dollars according to the carcass price set by the <i>Producer price</i> slider</li>
-	<li>Percent of GDP: value of carcass weight as percent of GDP for the selected country and year</li>
-	<li>Percent of Breed Standard: carcass weight as percent of the breed standard potential</li>
-	<li>Percent of Realized Production: carcass weight as percent of the realised production</li>
-</ul>
-</p>
-<p><b>Breed Standard Potential</b><br />
-The total that would be produced if all the animals placed survived and reached the breed standard weight for the specified days on feed. The breed is determined by the country selected. Days on feed are determined by the <i>Days on feed</i> slider.
-</p>
-<p><b>Effect of Feed & Practices</b><br />
-An adjustment to the breed standard potential based on the feed and practices available in a country. This captures the expected loss or increased growth due to the quality of feed, housing, climate, and other regional factors that are not due to disease. This is determined by the <i>Achievable % of breed standard</i> slider.
-</p>
-<p><b>Mortality & Condemns</b><br />
-The total lost production due to the death of animals. Calculated as the difference between head placed and head slaughtered multiplied by the average carcass weight for the selected country and year.
-</p>
-<p><b>Morbidity</b><br />
-The total lost production due to animals failing to reach their potential weight. Calculated as the remainder required to reach the realised production after accounting for the breed standard potential, the effect of feed and practices, and the mortality.
-</p>
-<p><b>Realised Production</b><br />
-The total actual production for the selected country and year.
-</p>
+See the following pages for information about each chart.
+</p><div class="toctree-wrapper compound">
+</div>
 </section>
 
     <script type="text/x-thebe-config">
@@ -558,17 +531,17 @@ The total actual production for the selected country and year.
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="Reading%20the%20charts.html" title="previous page">
+    <a class='left-prev' id="prev-link" href="eth_basic_controls.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Reading the charts</p>
+            <p class="prev-next-title">Selecting species, production system, currency, and year</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="Cost%20chart.html" title="next page">
+    <a class='right-next' id="next-link" href="eth_value_cost_chart.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Cost chart</p>
+        <p class="prev-next-title">Value and cost chart</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>

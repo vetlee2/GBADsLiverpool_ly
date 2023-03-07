@@ -42,10 +42,14 @@ parts:
     #- file: Analysis/Challenges and open issues
   - caption: Ethiopia Case Study
     chapters:
+    - file: Analysis/Overview of the approach_Ethiopia
     - file: Tool/eth_basic_controls
-    - file: Tool/eth_value_cost_chart
-    - file: Tool/eth_attribution_chart
-    - file: Tool/eth_ahle_contrib_chart
+    - file: Tool/Reading the charts_Ethiopia
+      sections:
+      - file: Tool/eth_value_cost_chart
+      - file: Tool/eth_attribution_chart
+      - file: Tool/eth_ahle_contrib_chart
+    - file: Analysis/Compartmental population model
   - caption: References
     chapters:
     - file: References/General

@@ -45,6 +45,7 @@ def cleancolnames(INPUT_DF):
 # To print df.info() with header for readability, and optionally write data info to text file
 def datainfo(
       INPUT_DF
+      ,MAX_COLS=100
       ,OUTFOLDER=None     # String (opt): folder to output {dataname}_info.txt. If None, no file will be created.
    ):
    funcname = inspect.currentframe().f_code.co_name
@@ -56,7 +57,7 @@ def datainfo(
    divider = ('-'*26) + ('-'*11) + '\n'
    bigdivider = ('='*26) + ('='*11) + '\n'
    print(bigdivider + header + divider)
-   INPUT_DF.info()
+   INPUT_DF.info(max_cols=MAX_COLS)
    print(divider + f"End:       {dataname:>26s}\n" + bigdivider)
 
    if OUTFOLDER:     # If something has been passed to OUTFOLDER parameter
@@ -110,10 +111,11 @@ exchg_data = pd.read_csv(os.path.join(ETHIOPIA_DATA_FOLDER ,'worldbank_inflation
 cleancolnames(exchg_data)
 datainfo(exchg_data)
 
-exchg_data_tomerge = exchg_data.query("country_name == 'Ethiopia'").query("time == 2019")
+exchg_data_tomerge = exchg_data.query("country_name == 'Ethiopia'")
 exchg_data_tomerge = exchg_data_tomerge.rename(columns={'official_exchange_rate__lcu_per_us_dol___period_average___pa_nus_fcrf_':'exchg_rate_lcuperusdol'})
-exchg_data_tomerge['exchg_rate_lcuperusdol'] = exchg_data_tomerge['exchg_rate_lcuperusdol'].astype('float64')                     # Convert a single column. Can replace original or make new column.
-exchg_data_tomerge = exchg_data_tomerge[['country_name' ,'exchg_rate_lcuperusdol']]
+exchg_data_tomerge['exchg_rate_lcuperusdol'] = exchg_data_tomerge['exchg_rate_lcuperusdol'].replace('..' ,np.nan).astype('float64')
+exchg_data_tomerge = exchg_data_tomerge[['country_name' ,'time' ,'exchg_rate_lcuperusdol']]
+datainfo(exchg_data_tomerge)
 
 # Export
 exchg_data_tomerge.to_pickle(os.path.join(ETHIOPIA_DATA_FOLDER ,'wb_exchg_data_processed.pkl.gz'))
@@ -126,6 +128,7 @@ def combine_ahle_scenarios(
         ,input_file_suffixes    # List of strings
         ,label_species          # String: add column 'species' with this label
         ,label_prodsys          # String: add column 'production_system' with this label
+        ,label_year             # Numeric: add column 'year' with this value
       ):
    dfcombined = pd.DataFrame()   # Initialize merged data
 
@@ -144,11 +147,12 @@ def combine_ahle_scenarios(
          dfcombined = pd.merge(left=dfcombined ,right=df, on=['Item' ,'Group'] ,how='outer')
 
    # Add label columns
-   dfcombined['species'] = f'{label_species}'
-   dfcombined['production_system'] = f'{label_prodsys}'
+   dfcombined['species'] = label_species
+   dfcombined['production_system'] = label_prodsys
+   dfcombined['year'] = label_year
 
    # Reorder columns
-   cols_first = ['species' ,'production_system']
+   cols_first = ['species' ,'production_system' ,'year']
    cols_other = [i for i in list(dfcombined) if i not in cols_first]
    dfcombined = dfcombined.reindex(columns=cols_first + cols_other)
 
@@ -160,6 +164,9 @@ def combine_ahle_scenarios(
 # =============================================================================
 #### Small ruminants
 # =============================================================================
+'''
+These scenarios have only been produced for a single year (2021).
+'''
 small_rum_suffixes=[
     'Current'
 
@@ -234,38 +241,42 @@ small_rum_suffixes=[
 ]
 
 ahle_sheep_clm = combine_ahle_scenarios(
-   input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
-   ,input_file_prefix='ahle_CLM_S'
-   ,input_file_suffixes=small_rum_suffixes
-   ,label_species='Sheep'
-   ,label_prodsys='Crop livestock mixed'
+    input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
+    ,input_file_prefix='ahle_CLM_S'
+    ,input_file_suffixes=small_rum_suffixes
+    ,label_species='Sheep'
+    ,label_prodsys='Crop livestock mixed'
+    ,label_year=2021
 )
 datainfo(ahle_sheep_clm)
 
 ahle_sheep_past = combine_ahle_scenarios(
-   input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
-   ,input_file_prefix='ahle_Past_S'
-   ,input_file_suffixes=small_rum_suffixes
-   ,label_species='Sheep'
-   ,label_prodsys='Pastoral'
+    input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
+    ,input_file_prefix='ahle_Past_S'
+    ,input_file_suffixes=small_rum_suffixes
+    ,label_species='Sheep'
+    ,label_prodsys='Pastoral'
+    ,label_year=2021
 )
 datainfo(ahle_sheep_past)
 
 ahle_goat_clm = combine_ahle_scenarios(
-   input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
-   ,input_file_prefix='ahle_CLM_G'
-   ,input_file_suffixes=small_rum_suffixes
-   ,label_species='Goat'
-   ,label_prodsys='Crop livestock mixed'
+    input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
+    ,input_file_prefix='ahle_CLM_G'
+    ,input_file_suffixes=small_rum_suffixes
+    ,label_species='Goat'
+    ,label_prodsys='Crop livestock mixed'
+    ,label_year=2021
 )
 datainfo(ahle_goat_clm)
 
 ahle_goat_past = combine_ahle_scenarios(
-   input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
-   ,input_file_prefix='ahle_Past_G'
-   ,input_file_suffixes=small_rum_suffixes
-   ,label_species='Goat'
-   ,label_prodsys='Pastoral'
+    input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
+    ,input_file_prefix='ahle_Past_G'
+    ,input_file_suffixes=small_rum_suffixes
+    ,label_species='Goat'
+    ,label_prodsys='Pastoral'
+    ,label_year=2021
 )
 datainfo(ahle_goat_past)
 
@@ -278,8 +289,13 @@ ahle_goat_past.columns = ahle_goat_past.columns.str.replace('_all_mortality_zero
 # =============================================================================
 #### Cattle
 # =============================================================================
+'''
+These scenarios have been run for 5 years (2017-2021), so this includes an
+extra loop to import each year and append to a master cattle dataframe.
+'''
 cattle_suffixes = [
     'current'
+
     ,'ideal'
     ,'ideal_AF'
     ,'ideal_AM'
@@ -288,6 +304,7 @@ cattle_suffixes = [
     ,'ideal_NF'
     ,'ideal_NM'
     ,'ideal_O'
+
     ,'mortality_zero'
     ,'mortality_zero_AF'
     ,'mortality_zero_AM'
@@ -296,36 +313,67 @@ cattle_suffixes = [
     ,'mortality_zero_O'
 ]
 
-ahle_cattle_clm = combine_ahle_scenarios(
-    input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE')
-    ,input_file_prefix='ahle_cattle_trial_CLM'
-    ,input_file_suffixes=cattle_suffixes
-    ,label_species='Cattle'
-    ,label_prodsys='Crop livestock mixed'
-)
-datainfo(ahle_cattle_clm)
+ahle_cattle_aslist = []         # Initialize
+for YEAR in range(2017 ,2022):
+    # Import CLM
+    ahle_cattle_clm = combine_ahle_scenarios(
+        input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE' ,f"{YEAR}")
+        ,input_file_prefix='ahle_cattle_trial_CLM'
+        ,input_file_suffixes=cattle_suffixes
+        ,label_species='Cattle'
+        ,label_prodsys='Crop livestock mixed'
+        ,label_year=YEAR
+    )
+    datainfo(ahle_cattle_clm ,120)
 
-ahle_cattle_past = combine_ahle_scenarios(
-    input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE')
-    ,input_file_prefix='ahle_cattle_trial_past'
-    ,input_file_suffixes=cattle_suffixes
-    ,label_species='Cattle'
-    ,label_prodsys='Pastoral'
-)
-datainfo(ahle_cattle_past)
+	# Turn into list and append to master
+    ahle_cattle_clm_aslist = ahle_cattle_clm.to_dict(orient='records')
+    ahle_cattle_aslist.extend(ahle_cattle_clm_aslist)
+    del ahle_cattle_clm_aslist
 
-ahle_cattle_peri = combine_ahle_scenarios(
-    input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE')
-    ,input_file_prefix='ahle_cattle_trial_periurban_dairy'
-    ,input_file_suffixes=cattle_suffixes
-    ,label_species='Cattle'
-    ,label_prodsys='Periurban dairy'
-)
-datainfo(ahle_cattle_peri)
+    # Import pastoral
+    ahle_cattle_past = combine_ahle_scenarios(
+        input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE' ,f"{YEAR}")
+        ,input_file_prefix='ahle_cattle_trial_past'
+        ,input_file_suffixes=cattle_suffixes
+        ,label_species='Cattle'
+        ,label_prodsys='Pastoral'
+        ,label_year=YEAR
+    )
+    datainfo(ahle_cattle_past ,120)
+
+	# Turn into list and append to master
+    ahle_cattle_past_aslist = ahle_cattle_past.to_dict(orient='records')
+    ahle_cattle_aslist.extend(ahle_cattle_past_aslist)
+    del ahle_cattle_past_aslist
+
+    # Import periurban dairy
+    ahle_cattle_peri = combine_ahle_scenarios(
+        input_folder=os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE' ,f"{YEAR}")
+        ,input_file_prefix='ahle_cattle_trial_periurban_dairy'
+        ,input_file_suffixes=cattle_suffixes
+        ,label_species='Cattle'
+        ,label_prodsys='Periurban dairy'
+        ,label_year=YEAR
+    )
+    datainfo(ahle_cattle_peri ,120)
+
+	# Turn into list and append to master
+    ahle_cattle_peri_aslist = ahle_cattle_peri.to_dict(orient='records')
+    ahle_cattle_aslist.extend(ahle_cattle_peri_aslist)
+    del ahle_cattle_peri_aslist
+
+# Convert master list into data frame
+ahle_cattle = pd.DataFrame.from_dict(ahle_cattle_aslist ,orient='columns')
+del ahle_cattle_aslist
+datainfo(ahle_cattle ,120)
 
 # =============================================================================
 #### Poultry
 # =============================================================================
+'''
+These scenarios have only been produced for a single year (2021).
+'''
 poultry_suffixes = [
     'current'
     ,'ideal'
@@ -344,6 +392,7 @@ ahle_poultry_smallholder = combine_ahle_scenarios(
     ,input_file_suffixes=poultry_suffixes
     ,label_species='Poultry hybrid'
     ,label_prodsys='Small holder'
+    ,label_year=2021
 )
 datainfo(ahle_poultry_smallholder)
 
@@ -353,6 +402,7 @@ ahle_poultry_villagehybrid = combine_ahle_scenarios(
     ,input_file_suffixes=poultry_suffixes
     ,label_species='Poultry hybrid'
     ,label_prodsys='Village'
+    ,label_year=2021
 )
 datainfo(ahle_poultry_villagehybrid)
 
@@ -362,6 +412,7 @@ ahle_poultry_villageindig = combine_ahle_scenarios(
     ,input_file_suffixes=poultry_suffixes
     ,label_species='Poultry indigenous'
     ,label_prodsys='Village'
+    ,label_year=2021
 )
 datainfo(ahle_poultry_villageindig)
 
@@ -374,9 +425,7 @@ concat_list = [
     ,ahle_goat_clm
     ,ahle_goat_past
 
-    ,ahle_cattle_clm
-    ,ahle_cattle_past
-    ,ahle_cattle_peri
+    ,ahle_cattle
 
     ,ahle_poultry_smallholder
     ,ahle_poultry_villagehybrid
@@ -449,10 +498,10 @@ check_grossmargin_overall.eval(
     ,inplace=True
 )
 print('\n> Checking the change in Gross Margin for ideal overall vs. individual ideal scenarios')
-print(check_grossmargin_overall[['species' ,'production_system' ,'gmchange_ideal_check']])
+print(check_grossmargin_overall[['species' ,'production_system' ,'year' ,'gmchange_ideal_check']])
 
 print('\n> Checking mortality as proportion of total AHLE')
-print(check_grossmargin_overall[['species' ,'production_system' ,'gmchange_dueto_mortality_prpn']])
+print(check_grossmargin_overall[['species' ,'production_system' ,'year' ,'gmchange_dueto_mortality_prpn']])
 
 # =============================================================================
 #### Change in AHLE when adding health cost to individual sum
@@ -463,7 +512,7 @@ _items_gm_hc = (check_ahle_combo['item'].str.upper() == 'GROSS MARGIN') \
 
 # Pivot items into columns
 check_grossmargin_withhealth = check_ahle_combo.loc[_group_overall].loc[_items_gm_hc].pivot(
-    index=['species' ,'production_system' ,'group' ,'age_group' ,'sex']
+    index=['species' ,'production_system' ,'group' ,'age_group' ,'sex' ,'year']
     ,columns='item'
     ,values=mean_cols
 ).reset_index()
@@ -478,6 +527,7 @@ check_grossmargin_withhealth = check_grossmargin_withhealth.rename(
         ,'group_':'group'
         ,'age_group_':'age_group'
         ,'sex_':'sex'
+        ,'year_':'year'
     }
 )
 
@@ -505,21 +555,21 @@ check_grossmargin_withhealth.eval(
 )
 print('\n> Checking the change in Gross Margin for ideal overall vs. individual ideal scenarios')
 print('> With health cost added to sum of individual ideal scenarios')
-print(check_grossmargin_withhealth[['species' ,'production_system' ,'gmchange_ideal_check_withhealth']])
+print(check_grossmargin_withhealth[['species' ,'production_system' ,'year' ,'gmchange_ideal_check_withhealth']])
 
 # =============================================================================
 #### Sum of agesex groups compared to system total for each item
 # =============================================================================
 # Sum individual agesex groups for each item
 check_agesex_sums = pd.DataFrame(check_ahle_combo.loc[~ _sex_combined]\
-    .groupby(['species' ,'production_system' ,'item'] ,observed=True)['mean_current'].sum())
+    .groupby(['species' ,'production_system' ,'year' ,'item'] ,observed=True)['mean_current'].sum())
 check_agesex_sums.columns = ['mean_current_sumagesex']
 
 # Merge group total for each item
 check_agesex_sums = pd.merge(
     left=check_agesex_sums
-    ,right=check_ahle_combo.loc[_group_overall ,['species' ,'production_system' ,'item' ,'mean_current']]
-    ,on=['species' ,'production_system' ,'item']
+    ,right=check_ahle_combo.loc[_group_overall ,['species' ,'production_system' ,'year' ,'item' ,'mean_current']]
+    ,on=['species' ,'production_system' ,'year' ,'item']
     ,how='left'
 )
 check_agesex_sums = check_agesex_sums.rename(columns={'mean_current':'mean_current_overall'})
@@ -532,9 +582,9 @@ check_agesex_sums.eval(
 )
 print('\n> Checking the sum of individual age/sex compared to the overall for each item')
 print('\nMaximum ratio \n-------------')
-print(check_agesex_sums.groupby(['species' ,'production_system'])['check_ratio'].max())
+print(check_agesex_sums.groupby(['species' ,'production_system' ,'year'])['check_ratio'].max())
 print('\nMinimum ratio \n-------------')
-print(check_agesex_sums.groupby(['species' ,'production_system'])['check_ratio'].min())
+print(check_agesex_sums.groupby(['species' ,'production_system' ,'year'])['check_ratio'].min())
 
 #%% Add group summaries
 '''
@@ -565,7 +615,7 @@ sex_values = list(ahle_combo_indiv['sex'].unique())
 #### Add placeholder items
 # =============================================================================
 # # Get all combinations of key variables without item
-# item_placeholder = ahle_combo_indiv[['species' ,'production_system' ,'group' ,'age_group' ,'sex']].drop_duplicates()
+# item_placeholder = ahle_combo_indiv[['species' ,'production_system' ,'group' ,'age_group' ,'sex' ,'year']].drop_duplicates()
 # item_placeholder['item'] = 'Cost of Infrastructure'
 
 # # Stack placeholder item(s) with individual data
@@ -585,7 +635,7 @@ sex_values = list(ahle_combo_indiv['sex'].unique())
 # =============================================================================
 # Only using MEAN and VARIANCE of each item, as the other statistics cannot
 # be summed.
-keepcols = ['species' ,'production_system' ,'item' ,'group' ,'age_group' ,'sex'] \
+keepcols = ['species' ,'production_system' ,'item' ,'group' ,'age_group' ,'sex' ,'year'] \
     + mean_cols + sd_cols
 
 ahle_combo_withagg = ahle_combo_indiv[keepcols].copy()
@@ -607,7 +657,7 @@ for i ,VARCOL in enumerate(var_cols):
 # -----------------------------------------------------------------------------
 #!!! Must be first sum to avoid double-counting!
 ahle_combo_withagg_sumall = ahle_combo_withagg.pivot_table(
-    index=['species' ,'production_system' ,'item']
+    index=['species' ,'production_system' ,'item' ,'year']
     ,values=mean_cols + var_cols
     ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
 ).reset_index()
@@ -628,7 +678,7 @@ del ahle_combo_withagg_sumall
 # -----------------------------------------------------------------------------
 for AGE_GRP in age_group_values:
     ahle_combo_withagg_sumsexes = ahle_combo_withagg.query(f"age_group == '{AGE_GRP}'").pivot_table(
-        index=['species' ,'production_system' ,'item' ,'age_group']
+        index=['species' ,'production_system' ,'item' ,'age_group' ,'year']
         ,values=mean_cols + var_cols
         ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
     ).reset_index()
@@ -653,7 +703,7 @@ ahle_combo_withagg = ahle_combo_withagg.drop(ahle_combo_withagg.loc[_oxen_combin
 # -----------------------------------------------------------------------------
 for SEX_GRP in sex_values:
     ahle_combo_withagg_sumages = ahle_combo_withagg.query(f"sex == '{SEX_GRP}'").pivot_table(
-        index=['species' ,'production_system' ,'item' ,'sex']
+        index=['species' ,'production_system' ,'item' ,'sex' ,'year']
         ,values=mean_cols + var_cols
         ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
     ).reset_index()
@@ -682,7 +732,7 @@ ahle_combo_withagg = pd.concat(
 
 # De-Dup, keeping new Overall group if it exists
 ahle_combo_withagg = ahle_combo_withagg.drop_duplicates(
-   subset=['species' ,'production_system' ,'item' ,'group']       # List (opt): only consider these columns when identifying duplicates. If None, consider all columns.
+   subset=['species' ,'production_system' ,'item' ,'group' ,'year']       # List (opt): only consider these columns when identifying duplicates. If None, consider all columns.
    ,keep='first'                   # String: which occurrence to keep, 'first' or 'last'
 )
 
@@ -709,7 +759,7 @@ del ahle_combo_withagg_sumprod
 # -----------------------------------------------------------------------------
 # All Small Ruminants
 ahle_combo_withagg_sumspec = ahle_combo_withagg.query("species.str.upper().isin(['SHEEP' ,'GOAT'])").pivot_table(
-   index=['production_system' ,'item' ,'group' ,'age_group' ,'sex']
+   index=['production_system' ,'item' ,'group' ,'age_group' ,'sex' ,'year']
    ,values=mean_cols + var_cols
    ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
 ).reset_index()
@@ -717,7 +767,7 @@ ahle_combo_withagg_sumspec['species'] = 'All Small Ruminants'
 
 # All poultry
 ahle_combo_withagg_sumspec2 = ahle_combo_withagg.query("species.str.contains('poultry' ,case=False ,na=False)").pivot_table(
-   index=['production_system' ,'item' ,'group' ,'age_group' ,'sex']
+   index=['production_system' ,'item' ,'group' ,'age_group' ,'sex' ,'year']
    ,values=mean_cols + var_cols
    ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
 ).reset_index()
@@ -751,7 +801,8 @@ ahle_combo_withagg['country_name'] = 'Ethiopia'     # Add country for joining
 ahle_combo_withagg = pd.merge(
     left=ahle_combo_withagg
     ,right=exchg_data_tomerge
-    ,on='country_name'
+    ,left_on=['country_name' ,'year']
+    ,right_on=['country_name' ,'time']
     ,how='left'
     )
 del ahle_combo_withagg['country_name']
@@ -800,6 +851,7 @@ keepcols = [
     ,'group'
     ,'age_group'
     ,'sex'
+    ,'year'
 
     # In Birr
     ,'mean_current'
@@ -870,7 +922,7 @@ sd_cols = [i for i in list(ahle_combo_withagg) if 'stdev' in i]
 _items_for_ahle = (ahle_combo_withagg['item'].str.upper().isin(['GROSS MARGIN' ,'HEALTH COST']))
 
 ahle_combo_withagg_p = ahle_combo_withagg.loc[_items_for_ahle].pivot(
-    index=['species' ,'production_system' ,'group' ,'age_group' ,'sex']
+    index=['species' ,'production_system' ,'group' ,'age_group' ,'sex' ,'year']
     ,columns='item'
     ,values=mean_cols + sd_cols
 ).reset_index()
@@ -885,6 +937,7 @@ ahle_combo_withagg_p = ahle_combo_withagg_p.rename(
         ,'group_':'group'
         ,'age_group_':'age_group'
         ,'sex_':'sex'
+        ,'year_':'year'
     }
 )
 
@@ -1001,7 +1054,8 @@ ahle_combo_withahle['country_name'] = 'Ethiopia'     # Add country for joining
 ahle_combo_withahle = pd.merge(
     left=ahle_combo_withahle
     ,right=exchg_data_tomerge
-    ,on='country_name'
+    ,left_on=['country_name' ,'year']
+    ,right_on=['country_name' ,'time']
     ,how='left'
     )
 del ahle_combo_withahle['country_name']
@@ -1027,7 +1081,7 @@ datainfo(ahle_combo_withahle)
 
 # Keep only key columns and AHLE calcs
 _ahle_cols = [i for i in list(ahle_combo_withahle) if 'ahle' in i]
-_cols_for_summary = ['species' ,'production_system' ,'group'] + _ahle_cols
+_cols_for_summary = ['species' ,'production_system' ,'group' ,'year'] + _ahle_cols
 
 # For this summary, keep only system total AHLE
 _groups_for_summary = (ahle_combo_withahle['group'].str.upper() == 'OVERALL')
@@ -1057,7 +1111,7 @@ ahle_combo_withahle_smry_checks.eval(
     ,inplace=True
 )
 print('\n> Checking the sum AHLE for individual ideal scenarios against the overall')
-print(ahle_combo_withahle_smry_checks[['species' ,'production_system' ,'sum_ahle_individual_vs_overall']])
+print(ahle_combo_withahle_smry_checks[['species' ,'production_system' ,'year' ,'sum_ahle_individual_vs_overall']])
 
 #%% Create alternative scenario summary
 '''
@@ -1123,8 +1177,9 @@ ahle_combo_scensmry = ahle_combo_scensmry.drop(ahle_combo_scensmry.loc[_droprows
 # =============================================================================
 '''
 Note that current scenario column applies to every row.
-Note also that columns are already populated for the Overall scenario.
+Note also that columns are already populated for the Overall group.
 '''
+# Create a function to fill values of one column with another for a subset of rows
 def fill_column_where(
         DATAFRAME           # Dataframe
         ,LOC                # Dataframe mask e.g. _loc = (df['col'] == 'Value')
@@ -1580,7 +1635,7 @@ for i ,VARCOL in enumerate(var_cols):
 # Create overall production system
 # -----------------------------------------------------------------------------
 ahle_combo_scensmry_sumprod = ahle_combo_scensmry.pivot_table(
-   index=['species' ,'item' ,'agesex_scenario']
+   index=['species' ,'item' ,'agesex_scenario' ,'year']
    ,values=mean_cols + var_cols
    ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
 ).reset_index()
@@ -1599,7 +1654,7 @@ del ahle_combo_scensmry_sumprod
 # -----------------------------------------------------------------------------
 # "All Small Ruminants" for Sheep and Goats
 ahle_combo_scensmry_sumspec1 = ahle_combo_scensmry.query("species.str.upper().isin(['SHEEP' ,'GOAT'])").pivot_table(
-   index=['production_system' ,'item' ,'agesex_scenario']
+   index=['production_system' ,'item' ,'agesex_scenario' ,'year']
    ,values=mean_cols + var_cols
    ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
 ).reset_index()
@@ -1607,7 +1662,7 @@ ahle_combo_scensmry_sumspec1['species'] = 'All Small Ruminants'
 
 # "All poultry"
 ahle_combo_scensmry_sumspec2 = ahle_combo_scensmry.query("species.str.contains('poultry' ,case=False ,na=False)").pivot_table(
-   index=['production_system' ,'item' ,'agesex_scenario']
+   index=['production_system' ,'item' ,'agesex_scenario' ,'year']
    ,values=mean_cols + var_cols
    ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
 ).reset_index()
@@ -1638,7 +1693,8 @@ ahle_combo_scensmry['country_name'] = 'Ethiopia'     # Add country for joining
 ahle_combo_scensmry = pd.merge(
     left=ahle_combo_scensmry
     ,right=exchg_data_tomerge
-    ,on='country_name'
+    ,left_on=['country_name' ,'year']
+    ,right_on=['country_name' ,'time']
     ,how='left'
     )
 del ahle_combo_scensmry['country_name']
@@ -1696,7 +1752,7 @@ sd_cols = [i for i in list(ahle_combo_scensmry) if 'stdev' in i]
 _items_for_ahle = (ahle_combo_scensmry['item'].str.upper() == 'GROSS MARGIN')
 
 ahle_combo_scensmry_p = ahle_combo_scensmry.loc[_items_for_ahle].pivot(
-    index=['species' ,'production_system' ,'agesex_scenario']
+    index=['species' ,'production_system' ,'agesex_scenario' ,'year']
     ,columns='item'
     ,values=mean_cols + sd_cols
 ).reset_index()
@@ -1709,6 +1765,7 @@ ahle_combo_scensmry_p = ahle_combo_scensmry_p.rename(
         'species_':'species'
         ,'production_system_':'production_system'
         ,'agesex_scenario_':'agesex_scenario'
+        ,'year_':'year'
     }
 )
 
@@ -1725,7 +1782,7 @@ group-specific item values in ahle_combo.
 '''
 # Get health cost for each group
 _healthcost_item = (ahle_combo_withagg['item'].str.upper() == 'HEALTH COST')
-_healthcost_cols = ['species' ,'production_system' ,'group' ,'mean_current' ,'stdev_current']
+_healthcost_cols = ['species' ,'production_system' ,'group' ,'year' ,'mean_current' ,'stdev_current']
 current_healthcosts_bygroup = ahle_combo_withagg.loc[_healthcost_item][_healthcost_cols]
 
 # Rename
@@ -1741,7 +1798,7 @@ current_healthcosts_bygroup = current_healthcosts_bygroup.rename(
 ahle_combo_scensmry_p = pd.merge(
     left=ahle_combo_scensmry_p
     ,right=current_healthcosts_bygroup
-    ,on=['species' ,'production_system' ,'agesex_scenario']
+    ,on=['species' ,'production_system' ,'agesex_scenario' ,'year']
     ,how='left'
     )
 datainfo(ahle_combo_scensmry_p)
@@ -1800,7 +1857,8 @@ ahle_combo_scensmry_withahle['country_name'] = 'Ethiopia'     # Add country for 
 ahle_combo_scensmry_withahle = pd.merge(
     left=ahle_combo_scensmry_withahle
     ,right=exchg_data_tomerge
-    ,on='country_name'
+    ,left_on=['country_name' ,'year']
+    ,right_on=['country_name' ,'time']
     ,how='left'
     )
 del ahle_combo_scensmry_withahle['country_name']

@@ -91,13 +91,15 @@ datainfo(amu_importance_tomerge)
 # Merge with AMU
 amu2018_combined_tall = pd.merge(
     left=amu2018_m_tomerge.query("antimicrobial_class != 'total_antimicrobials'").query("region != 'Global'")
-    ,right=amu_importance_tomerge[['antimicrobial_class' ,'importance_ctg']]
+    ,right=amu_importance_tomerge[['antimicrobial_class' ,'who_importance_ctg' ,'woah_importance_ctg' ,'onehealth_importance_ctg']]
     ,on='antimicrobial_class'
     ,how='left'
 )
 
 # Fill missing importance with "Unknown"
-amu2018_combined_tall['importance_ctg'] = amu2018_combined_tall['importance_ctg'].fillna('D: Unknown')
+amu2018_combined_tall['who_importance_ctg'] = amu2018_combined_tall['who_importance_ctg'].fillna('D: Unknown')
+amu2018_combined_tall['woah_importance_ctg'] = amu2018_combined_tall['woah_importance_ctg'].fillna('D: Unknown')
+amu2018_combined_tall['onehealth_importance_ctg'] = amu2018_combined_tall['onehealth_importance_ctg'].fillna('Unknown')
 
 # =============================================================================
 #### Create antimicrobial class groupings
@@ -113,12 +115,10 @@ low_volume_classes = list(amu_total_byclass.query(f"amu_tonnes < {global_total_a
 
 def define_class_group(INPUT_ROW):
 	if INPUT_ROW['antimicrobial_class'] in low_volume_classes:
-		if 'A:' in INPUT_ROW['importance_ctg']:
-			OUTPUT = 'other_critically_important'
-		elif 'B:' in INPUT_ROW['importance_ctg']:
-			OUTPUT = 'other_highly_important'
+		if 'Important' in INPUT_ROW['onehealth_importance_ctg']:
+			OUTPUT = 'other_important'
 		else:
-			OUTPUT = 'other_low_importance'
+			OUTPUT = 'other'
 	else:
 		OUTPUT = INPUT_ROW['antimicrobial_class']
 	return OUTPUT

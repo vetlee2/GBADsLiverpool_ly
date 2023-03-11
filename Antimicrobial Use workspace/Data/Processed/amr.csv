@@ -52,10 +52,10 @@ ARGENTINA,ARG,2014,Aminopenicillins with beta-lactamase inhibitors & E. coli,90,
 ARGENTINA,ARG,2014,Third generation cephalosporins & E. coli,180,0.0,0.003183172,0.017723327,Americas
 ARGENTINA,ARG,2015,Fluoroquinolones & Non-typhoidal Salmonella,12,0.0,0.000204122,0.010370059,Americas
 ARGENTINA,ARG,2016,Fluoroquinolones & Non-typhoidal Salmonella,50,0.0,0.000165252,0.005127672,Americas
-AUSTRALIA,AUS,2004,Aminoglycosides & E. coli,645,0.100293037,0.028586757,0.193113177,Oceania
-AUSTRALIA,AUS,2004,Aminopenicillins & E. coli,645,7.492242374,6.417394573,8.588630077,Oceania
-AUSTRALIA,AUS,2004,Fluoroquinolones & E. coli,1290,0.069758331,0.032431136,0.193133335,Oceania
-AUSTRALIA,AUS,2004,Third generation cephalosporins & E. coli,645,0.0,0.004347572,0.017705236,Oceania
+AUSTRALIA,AUS,2004,Aminoglycosides & E. coli,645,0.100293037,0.028586757,0.193113177,"Asia, Far East and Oceania"
+AUSTRALIA,AUS,2004,Aminopenicillins & E. coli,645,7.492242374,6.417394573,8.588630077,"Asia, Far East and Oceania"
+AUSTRALIA,AUS,2004,Fluoroquinolones & E. coli,1290,0.069758331,0.032431136,0.193133335,"Asia, Far East and Oceania"
+AUSTRALIA,AUS,2004,Third generation cephalosporins & E. coli,645,0.0,0.004347572,0.017705236,"Asia, Far East and Oceania"
 AUSTRIA,AUT,2016,Aminoglycosides & E. coli,170,0.472762343,0.118860056,0.827776316,Europe
 AUSTRIA,AUT,2016,Aminopenicillins & E. coli,170,4.412448533,3.519875115,5.281257997,Europe
 AUSTRIA,AUT,2016,Fluoroquinolones & E. coli,340,6.303497904,5.532824291,7.066967997,Europe
@@ -75,47 +75,47 @@ AUSTRIA,AUT,2019,Aminopenicillins & E. coli,174,8.308472919,6.214844738,10.40535
 AUSTRIA,AUT,2020,Aminoglycosides & E. coli,170,0.472762343,0.120715325,0.830131741,Europe
 AUSTRIA,AUT,2020,Aminopenicillins & E. coli,170,4.648829704,3.74181557,5.567575409,Europe
 AUSTRIA,AUT,2020,Fluoroquinolones & Non-typhoidal Salmonella,257,8.756220824,7.998653987,9.505847425,Europe
-BANGLADESH,BGD,2005,Aminoglycosides & E. coli,17,15.69633063,10.4867959,20.90698042,Asia
-BANGLADESH,BGD,2005,Aminopenicillins & E. coli,17,21.25041685,17.66231071,23.99314724,Asia
-BANGLADESH,BGD,2005,Fluoroquinolones & E. coli,17,12.79854651,7.365743105,18.16506315,Asia
-BANGLADESH,BGD,2006,Aminoglycosides & E. coli,50,18.35263273,15.66419656,21.0603993,Asia
-BANGLADESH,BGD,2006,Aminopenicillins & E. coli,50,14.00595656,10.91186285,17.15899157,Asia
-BANGLADESH,BGD,2006,Fluoroquinolones & E. coli,50,19.80152479,17.38428005,22.21790113,Asia
-BANGLADESH,BGD,2006,Third generation cephalosporins & E. coli,50,16.42077666,13.46028886,19.34022207,Asia
-BANGLADESH,BGD,2007,Aminoglycosides & E. coli,30,12.79854651,8.72350769,16.78289473,Asia
-BANGLADESH,BGD,2007,Fluoroquinolones & E. coli,30,7.24446029,3.506925758,10.96308329,Asia
-BANGLADESH,BGD,2009,Aminoglycosides & E. coli,274,10.12990591,8.691428318,11.55410349,Asia
-BANGLADESH,BGD,2009,Aminopenicillins & E. coli,274,3.440677977,2.546947377,4.341778828,Asia
-BANGLADESH,BGD,2009,Fluoroquinolones & E. coli,274,1.803183182,0.924864658,2.627473585,Asia
-BANGLADESH,BGD,2010,Fluoroquinolones & Non-typhoidal Salmonella,729,6.899959206,6.018179835,7.798184322,Asia
-BANGLADESH,BGD,2011,Aminoglycosides & E. coli,40,81.40588526,77.93414838,84.88062516,Asia
-BANGLADESH,BGD,2011,Aminopenicillins & E. coli,10,75.85179903,75.80606929,75.85051169,Asia
-BANGLADESH,BGD,2011,Fluoroquinolones & E. coli,10,0.0,0.00153889,0.045951898,Asia
-BANGLADESH,BGD,2012,Aminoglycosides & E. coli,36,16.66225867,10.94934105,22.53004829,Asia
-BANGLADESH,BGD,2012,Aminopenicillins & E. coli,36,30.38670469,18.61029845,41.75127485,Asia
-BANGLADESH,BGD,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,23,0.0,0.001078277,0.030269761,Asia
-BANGLADESH,BGD,2012,Fluoroquinolones & E. coli,36,5.554086222,0.409474318,10.80315436,Asia
-BANGLADESH,BGD,2012,Fluoroquinolones & Non-typhoidal Salmonella,8,21.25041685,16.00820955,23.90809314,Asia
-BANGLADESH,BGD,2012,Fluoroquinolones & S. aureus,17,18.20443177,3.604925457,32.37272061,Asia
-BANGLADESH,BGD,2012,Third generation cephalosporins & E. coli,23,0.0,0.000959953,0.030316869,Asia
-BANGLADESH,BGD,2013,Aminoglycosides & E. coli,15,0.0,0.000295989,0.011969411,Asia
-BANGLADESH,BGD,2013,Aminopenicillins & E. coli,15,0.0,0.000447597,0.011841407,Asia
-BANGLADESH,BGD,2013,Fluoroquinolones & E. coli,15,0.0,0.000282732,0.011865658,Asia
-BANGLADESH,BGD,2013,Fluoroquinolones & Non-typhoidal Salmonella,15,0.0,0.000361695,0.011914805,Asia
-BANGLADESH,BGD,2013,Fluoroquinolones & S. aureus,12,12.89480584,0.448955592,28.41329402,Asia
-BANGLADESH,BGD,2013,Macrolides & S. aureus,12,56.88884928,39.55787667,74.47371393,Asia
-BANGLADESH,BGD,2013,Third generation cephalosporins & E. coli,15,0.0,0.000264049,0.011862694,Asia
-BANGLADESH,BGD,2014,Fluoroquinolones & S. aureus,12,0.0,0.000974719,0.041952892,Asia
-BANGLADESH,BGD,2014,Macrolides & S. aureus,12,19.60028978,13.46941288,22.93176485,Asia
-BANGLADESH,BGD,2015,Aminoglycosides & E. coli,60,54.8764118,30.73866649,71.94743266,Asia
-BANGLADESH,BGD,2015,Aminopenicillins & E. coli,60,57.39616389,31.8837937,78.71614228,Asia
-BANGLADESH,BGD,2015,Fluoroquinolones & E. coli,57,12.55110794,2.288902444,31.71441,Asia
-BANGLADESH,BGD,2015,Fluoroquinolones & Non-typhoidal Salmonella,18,1.448892058,0.087489257,3.969943451,Asia
-BANGLADESH,BGD,2015,Third generation cephalosporins & E. coli,7,0.0,0.001896796,0.054813991,Asia
-BANGLADESH,BGD,2016,Aminoglycosides & E. coli,11,6.826661913,0.5074123,19.13467872,Asia
-BANGLADESH,BGD,2016,Aminopenicillins & E. coli,11,41.71848947,21.1185836,62.70167309,Asia
-BANGLADESH,BGD,2016,Fluoroquinolones & E. coli,65,8.517035981,1.770507565,20.86923373,Asia
-BANGLADESH,BGD,2016,Third generation cephalosporins & E. coli,11,20.47998574,1.301708516,39.15393063,Asia
+BANGLADESH,BGD,2005,Aminoglycosides & E. coli,17,15.69633063,10.4867959,20.90698042,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2005,Aminopenicillins & E. coli,17,21.25041685,17.66231071,23.99314724,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2005,Fluoroquinolones & E. coli,17,12.79854651,7.365743105,18.16506315,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2006,Aminoglycosides & E. coli,50,18.35263273,15.66419656,21.0603993,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2006,Aminopenicillins & E. coli,50,14.00595656,10.91186285,17.15899157,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2006,Fluoroquinolones & E. coli,50,19.80152479,17.38428005,22.21790113,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2006,Third generation cephalosporins & E. coli,50,16.42077666,13.46028886,19.34022207,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2007,Aminoglycosides & E. coli,30,12.79854651,8.72350769,16.78289473,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2007,Fluoroquinolones & E. coli,30,7.24446029,3.506925758,10.96308329,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2009,Aminoglycosides & E. coli,274,10.12990591,8.691428318,11.55410349,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2009,Aminopenicillins & E. coli,274,3.440677977,2.546947377,4.341778828,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2009,Fluoroquinolones & E. coli,274,1.803183182,0.924864658,2.627473585,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2010,Fluoroquinolones & Non-typhoidal Salmonella,729,6.899959206,6.018179835,7.798184322,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2011,Aminoglycosides & E. coli,40,81.40588526,77.93414838,84.88062516,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2011,Aminopenicillins & E. coli,10,75.85179903,75.80606929,75.85051169,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2011,Fluoroquinolones & E. coli,10,0.0,0.00153889,0.045951898,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2012,Aminoglycosides & E. coli,36,16.66225867,10.94934105,22.53004829,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2012,Aminopenicillins & E. coli,36,30.38670469,18.61029845,41.75127485,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,23,0.0,0.001078277,0.030269761,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2012,Fluoroquinolones & E. coli,36,5.554086222,0.409474318,10.80315436,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2012,Fluoroquinolones & Non-typhoidal Salmonella,8,21.25041685,16.00820955,23.90809314,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2012,Fluoroquinolones & S. aureus,17,18.20443177,3.604925457,32.37272061,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2012,Third generation cephalosporins & E. coli,23,0.0,0.000959953,0.030316869,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2013,Aminoglycosides & E. coli,15,0.0,0.000295989,0.011969411,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2013,Aminopenicillins & E. coli,15,0.0,0.000447597,0.011841407,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2013,Fluoroquinolones & E. coli,15,0.0,0.000282732,0.011865658,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2013,Fluoroquinolones & Non-typhoidal Salmonella,15,0.0,0.000361695,0.011914805,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2013,Fluoroquinolones & S. aureus,12,12.89480584,0.448955592,28.41329402,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2013,Macrolides & S. aureus,12,56.88884928,39.55787667,74.47371393,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2013,Third generation cephalosporins & E. coli,15,0.0,0.000264049,0.011862694,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2014,Fluoroquinolones & S. aureus,12,0.0,0.000974719,0.041952892,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2014,Macrolides & S. aureus,12,19.60028978,13.46941288,22.93176485,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2015,Aminoglycosides & E. coli,60,54.8764118,30.73866649,71.94743266,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2015,Aminopenicillins & E. coli,60,57.39616389,31.8837937,78.71614228,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2015,Fluoroquinolones & E. coli,57,12.55110794,2.288902444,31.71441,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2015,Fluoroquinolones & Non-typhoidal Salmonella,18,1.448892058,0.087489257,3.969943451,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2015,Third generation cephalosporins & E. coli,7,0.0,0.001896796,0.054813991,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2016,Aminoglycosides & E. coli,11,6.826661913,0.5074123,19.13467872,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2016,Aminopenicillins & E. coli,11,41.71848947,21.1185836,62.70167309,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2016,Fluoroquinolones & E. coli,65,8.517035981,1.770507565,20.86923373,"Asia, Far East and Oceania"
+BANGLADESH,BGD,2016,Third generation cephalosporins & E. coli,11,20.47998574,1.301708516,39.15393063,"Asia, Far East and Oceania"
 BELGIUM,BEL,2016,Aminoglycosides & E. coli,663,2.610196456,1.442291688,3.921778041,Europe
 BELGIUM,BEL,2016,Aminopenicillins & E. coli,663,50.48375309,46.2461887,54.3832867,Europe
 BELGIUM,BEL,2016,Fluoroquinolones & E. coli,1989,19.70510689,17.98624949,21.40939289,Europe
@@ -137,7 +137,7 @@ BELGIUM,BEL,2019,Fluoroquinolones & Non-typhoidal Salmonella,103,1.206172744,0.0
 BELGIUM,BEL,2020,Aminoglycosides & E. coli,503,3.874402526,2.028364968,5.65723393,Europe
 BELGIUM,BEL,2020,Aminopenicillins & E. coli,503,61.11857986,56.39498822,65.88054633,Europe
 BELGIUM,BEL,2020,Fluoroquinolones & Non-typhoidal Salmonella,232,7.936256491,6.558593911,9.340492095,Europe
-BHUTAN,BTN,2007,Fluoroquinolones & Non-typhoidal Salmonella,52,0.249972144,0.014833431,0.707554269,Asia
+BHUTAN,BTN,2007,Fluoroquinolones & Non-typhoidal Salmonella,52,0.249972144,0.014833431,0.707554269,"Asia, Far East and Oceania"
 BOLIVIA (PLURINATIONAL STATE OF),BOL,2009,Aminoglycosides & E. coli,21,32.02335279,25.71245795,38.40232406,Americas
 BOLIVIA (PLURINATIONAL STATE OF),BOL,2009,Aminopenicillins & E. coli,21,34.00010297,28.46441512,39.21725132,Americas
 BOLIVIA (PLURINATIONAL STATE OF),BOL,2009,Fluoroquinolones & E. coli,21,17.00005148,9.130358802,24.88161153,Americas
@@ -253,11 +253,11 @@ BULGARIA,BGR,2020,Aminopenicillins & E. coli,100,29.37182196,25.01324337,33.8908
 BULGARIA,BGR,2020,Fluoroquinolones & Non-typhoidal Salmonella,29,16.88035745,11.0947927,22.61052519,Europe
 BURKINA FASO,BFA,2010,Fluoroquinolones & Non-typhoidal Salmonella,416,0.0,0.002698061,0.016828877,Africa
 BURKINA FASO,BFA,2012,Fluoroquinolones & Non-typhoidal Salmonella,56,0.0,0.000691255,0.021561923,Africa
-CAMBODIA,KHM,2007,Fluoroquinolones & Non-typhoidal Salmonella,201,0.154789247,0.011275263,0.296661886,Asia
-CAMBODIA,KHM,2017,Aminoglycosides & E. coli,261,5.840617941,4.674513396,6.992369627,Asia
-CAMBODIA,KHM,2017,Aminopenicillins & E. coli,261,17.52185382,16.34588735,18.69195859,Asia
-CAMBODIA,KHM,2017,Fluoroquinolones & E. coli,261,13.78385834,12.46274113,15.12156663,Asia
-CAMBODIA,KHM,2017,Third generation cephalosporins & E. coli,261,1.168123588,0.591630493,1.754769674,Asia
+CAMBODIA,KHM,2007,Fluoroquinolones & Non-typhoidal Salmonella,201,0.154789247,0.011275263,0.296661886,"Asia, Far East and Oceania"
+CAMBODIA,KHM,2017,Aminoglycosides & E. coli,261,5.840617941,4.674513396,6.992369627,"Asia, Far East and Oceania"
+CAMBODIA,KHM,2017,Aminopenicillins & E. coli,261,17.52185382,16.34588735,18.69195859,"Asia, Far East and Oceania"
+CAMBODIA,KHM,2017,Fluoroquinolones & E. coli,261,13.78385834,12.46274113,15.12156663,"Asia, Far East and Oceania"
+CAMBODIA,KHM,2017,Third generation cephalosporins & E. coli,261,1.168123588,0.591630493,1.754769674,"Asia, Far East and Oceania"
 CAMEROON,CMR,2007,Fluoroquinolones & Non-typhoidal Salmonella,103,0.0,0.000129658,0.00398116,Africa
 CANADA,CAN,2014,Aminoglycosides & E. coli,4341,20.83859785,19.27486842,22.36630514,Americas
 CANADA,CAN,2014,Aminopenicillins & E. coli,4341,20.68566022,19.34041354,22.01310116,Americas
@@ -297,126 +297,126 @@ CHAD,TCD,2012,Fluoroquinolones & Non-typhoidal Salmonella,57,0.0,2.3e-06,9.95e-0
 CHILE,CHL,2002,Aminoglycosides & E. coli,122,0.336413513,0.019287734,0.898485058,Americas
 CHILE,CHL,2002,Fluoroquinolones & E. coli,122,7.737510799,5.373087518,10.12712559,Americas
 CHILE,CHL,2002,Third generation cephalosporins & E. coli,122,0.336413513,0.020871193,0.913511021,Americas
-CHINA,CHN,2000,Aminoglycosides & E. coli,1779,23.49763706,21.26567696,25.83768223,Asia
-CHINA,CHN,2000,Aminopenicillins & E. coli,1319,59.31998929,56.18170863,62.14473913,Asia
-CHINA,CHN,2000,Fluoroquinolones & E. coli,1319,26.66468782,23.86356077,29.40283924,Asia
-CHINA,CHN,2002,Fluoroquinolones & S. aureus,26,3.004492891,0.707427276,5.268424785,Asia
-CHINA,CHN,2002,Macrolides & S. aureus,26,3.63701771,1.191106276,6.068051453,Asia
-CHINA,CHN,2003,Fluoroquinolones & S. aureus,26,3.004492891,0.735646117,5.298228732,Asia
-CHINA,CHN,2003,Macrolides & S. aureus,26,3.795148915,1.292123287,6.259100417,Asia
-CHINA,CHN,2004,Aminoglycosides & E. coli,40,34.82295219,33.31927982,35.47649411,Asia
-CHINA,CHN,2004,Aminopenicillins & E. coli,40,27.71622726,23.3738133,32.08217155,Asia
-CHINA,CHN,2004,Fluoroquinolones & E. coli,40,31.98026222,28.8658229,35.11309303,Asia
-CHINA,CHN,2004,Third generation cephalosporins & E. coli,40,0.0,0.000309028,0.010791729,Asia
-CHINA,CHN,2005,Aminoglycosides & E. coli,10,24.32662742,1.545889081,46.84678202,Asia
-CHINA,CHN,2005,Aminopenicillins & E. coli,6,15.81312048,15.80073669,15.81276592,Asia
-CHINA,CHN,2005,Fluoroquinolones & E. coli,60,36.48994113,25.19774145,38.99242032,Asia
-CHINA,CHN,2005,Fluoroquinolones & Non-typhoidal Salmonella,50,21.00577922,10.47428721,31.45444342,Asia
-CHINA,CHN,2005,Fluoroquinolones & S. aureus,34,1.423180843,0.082235171,2.821113684,Asia
-CHINA,CHN,2005,Macrolides & S. aureus,34,6.483379397,3.991796875,8.961415322,Asia
-CHINA,CHN,2005,Third generation cephalosporins & E. coli,6,0.0,0.000280548,0.012266686,Asia
-CHINA,CHN,2006,Aminoglycosides & E. coli,1397,52.75640737,44.41214759,60.93845596,Asia
-CHINA,CHN,2006,Aminopenicillins & E. coli,1397,67.25066934,58.70140249,75.39308206,Asia
-CHINA,CHN,2006,Aminopenicillins with beta-lactamase inhibitors & E. coli,309,44.68960683,39.71873532,49.60487467,Asia
-CHINA,CHN,2006,Fluoroquinolones & E. coli,2794,27.14444394,20.46378465,33.4241256,Asia
-CHINA,CHN,2006,Fluoroquinolones & Non-typhoidal Salmonella,78,0.973065097,0.060512773,2.411646851,Asia
-CHINA,CHN,2006,Fluoroquinolones & S. aureus,244,39.01251119,38.20743291,39.79536665,Asia
-CHINA,CHN,2006,Macrolides & S. aureus,244,44.86336577,43.90598429,45.78093473,Asia
-CHINA,CHN,2006,Third generation cephalosporins & E. coli,1390,21.7473337,18.61405727,24.92096779,Asia
-CHINA,CHN,2007,Aminoglycosides & E. coli,1591,56.23821935,53.98306193,58.480038,Asia
-CHINA,CHN,2007,Aminopenicillins & E. coli,1100,65.54548444,64.61057006,66.38404412,Asia
-CHINA,CHN,2007,Aminopenicillins with beta-lactamase inhibitors & E. coli,989,58.50418486,55.66366326,61.40588961,Asia
-CHINA,CHN,2007,Fluoroquinolones & E. coli,7955,77.72044142,76.85323107,78.52572984,Asia
-CHINA,CHN,2007,Fluoroquinolones & S. aureus,104,7.013781293,1.535656617,15.11200227,Asia
-CHINA,CHN,2007,Macrolides & S. aureus,104,57.84564963,46.4919696,67.32732038,Asia
-CHINA,CHN,2007,Third generation cephalosporins & E. coli,699,7.78797482,6.046908065,9.689437381,Asia
-CHINA,CHN,2008,Aminoglycosides & E. coli,1379,47.77757225,45.76672586,49.71119212,Asia
-CHINA,CHN,2008,Aminopenicillins & E. coli,1379,87.93380335,86.1805908,89.74935547,Asia
-CHINA,CHN,2008,Aminopenicillins with beta-lactamase inhibitors & E. coli,751,44.33627926,41.83000362,46.99263479,Asia
-CHINA,CHN,2008,Fluoroquinolones & E. coli,1998,31.45589936,29.90716111,33.27383803,Asia
-CHINA,CHN,2008,Fluoroquinolones & Non-typhoidal Salmonella,787,26.3769199,22.90011643,31.09217937,Asia
-CHINA,CHN,2008,Fluoroquinolones & S. aureus,178,0.835963279,0.415571146,1.421699757,Asia
-CHINA,CHN,2008,Macrolides & S. aureus,178,6.095158405,4.890590161,7.201461512,Asia
-CHINA,CHN,2008,Third generation cephalosporins & E. coli,602,2.588353157,1.74998522,3.421722441,Asia
-CHINA,CHN,2009,Aminoglycosides & E. coli,676,55.74627608,51.97729725,59.58255209,Asia
-CHINA,CHN,2009,Aminopenicillins & E. coli,770,60.4998756,56.18386275,64.88277543,Asia
-CHINA,CHN,2009,Aminopenicillins with beta-lactamase inhibitors & E. coli,211,29.65762387,20.92339705,38.40901538,Asia
-CHINA,CHN,2009,Fluoroquinolones & E. coli,4110,53.06727093,51.27703146,55.14932618,Asia
-CHINA,CHN,2009,Fluoroquinolones & Non-typhoidal Salmonella,997,9.970805136,8.691853398,11.98661187,Asia
-CHINA,CHN,2009,Fluoroquinolones & S. aureus,671,68.00545512,65.19351559,71.08792929,Asia
-CHINA,CHN,2009,Macrolides & S. aureus,664,76.82953636,74.33786312,79.48741032,Asia
-CHINA,CHN,2009,Third generation cephalosporins & E. coli,354,13.92610785,11.37756275,17.1122753,Asia
-CHINA,CHN,2010,Aminoglycosides & E. coli,2074,24.05283277,22.33640212,25.93682686,Asia
-CHINA,CHN,2010,Aminopenicillins & E. coli,2008,65.93004763,63.3181499,68.49133594,Asia
-CHINA,CHN,2010,Aminopenicillins with beta-lactamase inhibitors & E. coli,2003,62.95813521,61.18581572,65.27776054,Asia
-CHINA,CHN,2010,Fluoroquinolones & E. coli,5112,43.24077899,41.86696679,44.80158623,Asia
-CHINA,CHN,2010,Fluoroquinolones & Non-typhoidal Salmonella,227,14.65241932,11.65375002,21.27954103,Asia
-CHINA,CHN,2010,Fluoroquinolones & S. aureus,181,29.51340719,25.38991374,33.80857812,Asia
-CHINA,CHN,2010,Macrolides & S. aureus,181,41.61920786,37.88715882,45.64542585,Asia
-CHINA,CHN,2010,Third generation cephalosporins & E. coli,933,30.60532578,27.34086768,34.16595989,Asia
-CHINA,CHN,2011,Aminoglycosides & E. coli,1233,53.24676778,50.50092002,55.74178441,Asia
-CHINA,CHN,2011,Aminopenicillins & E. coli,1057,70.55091749,67.95418088,73.23970965,Asia
-CHINA,CHN,2011,Aminopenicillins with beta-lactamase inhibitors & E. coli,477,36.76077811,31.42313337,42.04871658,Asia
-CHINA,CHN,2011,Fluoroquinolones & E. coli,8925,38.74308813,37.88738572,39.66207785,Asia
-CHINA,CHN,2011,Fluoroquinolones & Non-typhoidal Salmonella,2393,20.65049436,19.10162282,22.51445498,Asia
-CHINA,CHN,2011,Fluoroquinolones & S. aureus,720,50.30918208,46.17026938,55.39277045,Asia
-CHINA,CHN,2011,Macrolides & S. aureus,724,77.73925239,73.44027929,81.80686391,Asia
-CHINA,CHN,2011,Third generation cephalosporins & E. coli,777,30.3927201,27.93441073,33.2484538,Asia
-CHINA,CHN,2012,Aminoglycosides & E. coli,3984,33.64265439,32.57349399,35.20325612,Asia
-CHINA,CHN,2012,Aminopenicillins & E. coli,3925,67.4341598,65.83111017,69.08706125,Asia
-CHINA,CHN,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,2166,36.9958765,35.17885464,39.27857843,Asia
-CHINA,CHN,2012,Fluoroquinolones & E. coli,8046,33.73448066,32.81322238,34.80059614,Asia
-CHINA,CHN,2012,Fluoroquinolones & Non-typhoidal Salmonella,1749,8.325853134,7.023070697,10.3813439,Asia
-CHINA,CHN,2012,Fluoroquinolones & S. aureus,227,44.14566793,32.70850703,53.21174178,Asia
-CHINA,CHN,2012,Macrolides & S. aureus,174,71.69109521,60.74008583,79.02737611,Asia
-CHINA,CHN,2012,Third generation cephalosporins & E. coli,1810,28.55133334,27.27456937,30.48813313,Asia
-CHINA,CHN,2013,Aminoglycosides & E. coli,8398,48.00694158,46.98609691,49.12263559,Asia
-CHINA,CHN,2013,Aminopenicillins & E. coli,6849,69.93924261,68.75856701,71.10333272,Asia
-CHINA,CHN,2013,Aminopenicillins with beta-lactamase inhibitors & E. coli,7062,61.67169242,60.86577815,62.79044268,Asia
-CHINA,CHN,2013,Fluoroquinolones & E. coli,10346,45.01289517,44.06426893,45.959218,Asia
-CHINA,CHN,2013,Fluoroquinolones & Non-typhoidal Salmonella,2116,9.791988616,9.12160217,10.57078837,Asia
-CHINA,CHN,2013,Fluoroquinolones & S. aureus,673,65.72273341,60.63341461,70.8315616,Asia
-CHINA,CHN,2013,Macrolides & S. aureus,625,84.74040398,80.87135326,88.59215261,Asia
-CHINA,CHN,2013,Third generation cephalosporins & E. coli,815,24.67468755,22.96460921,26.77222795,Asia
-CHINA,CHN,2014,Aminoglycosides & E. coli,6739,43.83146211,42.82474771,45.07272815,Asia
-CHINA,CHN,2014,Aminopenicillins & E. coli,6725,74.07924264,72.92495219,75.250991,Asia
-CHINA,CHN,2014,Aminopenicillins with beta-lactamase inhibitors & E. coli,4684,50.24388063,48.45248958,52.27690077,Asia
-CHINA,CHN,2014,Fluoroquinolones & E. coli,26904,47.33189255,46.76787135,47.95821379,Asia
-CHINA,CHN,2014,Fluoroquinolones & Non-typhoidal Salmonella,2252,23.46355064,21.70417511,25.29601187,Asia
-CHINA,CHN,2014,Fluoroquinolones & S. aureus,513,68.10997796,63.95902402,72.69502104,Asia
-CHINA,CHN,2014,Macrolides & S. aureus,450,65.70414082,59.02885917,73.29864743,Asia
-CHINA,CHN,2014,Third generation cephalosporins & E. coli,2619,32.56981193,30.42361421,34.60296792,Asia
-CHINA,CHN,2015,Aminoglycosides & E. coli,2942,52.71481267,51.06704024,54.6343452,Asia
-CHINA,CHN,2015,Aminopenicillins & E. coli,2814,72.74164173,71.42851969,74.08797061,Asia
-CHINA,CHN,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,1252,45.07279262,42.9779246,47.00583059,Asia
-CHINA,CHN,2015,Fluoroquinolones & E. coli,8793,39.90816814,38.99271452,40.91050424,Asia
-CHINA,CHN,2015,Fluoroquinolones & Non-typhoidal Salmonella,1386,22.03717448,19.90839134,25.45223847,Asia
-CHINA,CHN,2015,Fluoroquinolones & S. aureus,1191,30.9109394,28.32722085,33.49386179,Asia
-CHINA,CHN,2015,Macrolides & S. aureus,1245,77.74622014,75.35161843,79.76394608,Asia
-CHINA,CHN,2015,Third generation cephalosporins & E. coli,1574,34.16982012,32.59610874,35.67510181,Asia
-CHINA,CHN,2016,Aminoglycosides & E. coli,5588,33.50635506,32.23020983,34.8725271,Asia
-CHINA,CHN,2016,Aminopenicillins & E. coli,5469,75.2332923,74.10463052,76.31498908,Asia
-CHINA,CHN,2016,Aminopenicillins with beta-lactamase inhibitors & E. coli,2504,71.41561938,69.65770851,72.96685579,Asia
-CHINA,CHN,2016,Fluoroquinolones & E. coli,5517,44.97448555,43.58671776,46.50091526,Asia
-CHINA,CHN,2016,Fluoroquinolones & Non-typhoidal Salmonella,2850,25.50239873,23.22619052,28.51832331,Asia
-CHINA,CHN,2016,Fluoroquinolones & S. aureus,496,34.93292482,30.33831192,39.60315752,Asia
-CHINA,CHN,2016,Macrolides & S. aureus,489,67.37978259,62.79475673,72.32778873,Asia
-CHINA,CHN,2016,Third generation cephalosporins & E. coli,4257,40.74250585,39.19793542,42.21375492,Asia
-CHINA,CHN,2017,Aminoglycosides & E. coli,762,17.92193083,16.12259038,19.71737345,Asia
-CHINA,CHN,2017,Aminopenicillins & E. coli,713,47.36356827,46.82576357,47.88990836,Asia
-CHINA,CHN,2017,Aminopenicillins with beta-lactamase inhibitors & E. coli,239,0.617896336,0.036360386,1.279743885,Asia
-CHINA,CHN,2017,Fluoroquinolones & E. coli,344,20.49801228,18.07098628,22.92169934,Asia
-CHINA,CHN,2017,Fluoroquinolones & Non-typhoidal Salmonella,998,48.8922179,46.50204435,51.36294498,Asia
-CHINA,CHN,2017,Fluoroquinolones & S. aureus,117,28.43752249,20.2801491,37.27484791,Asia
-CHINA,CHN,2017,Macrolides & S. aureus,92,53.40188674,40.62958106,66.7363897,Asia
-CHINA,CHN,2017,Third generation cephalosporins & E. coli,310,10.89212972,8.682446871,13.20533547,Asia
-CHINA,CHN,2018,Aminoglycosides & E. coli,838,52.0869648,48.69142178,55.925404,Asia
-CHINA,CHN,2018,Aminopenicillins & E. coli,747,80.55918964,77.7484896,83.57317374,Asia
-CHINA,CHN,2018,Fluoroquinolones & E. coli,963,46.17685317,42.1728285,50.17562604,Asia
-CHINA,CHN,2018,Fluoroquinolones & Non-typhoidal Salmonella,1226,26.79133832,22.25036143,32.87654318,Asia
-CHINA,CHN,2018,Third generation cephalosporins & E. coli,446,48.82997719,45.10395683,52.61418368,Asia
-CHINA,CHN,2019,Aminoglycosides & E. coli,5,9.730650967,0.626776874,26.07725873,Asia
-CHINA,CHN,2019,Fluoroquinolones & Non-typhoidal Salmonella,67,2.189396468,0.104471593,4.516292829,Asia
+CHINA,CHN,2000,Aminoglycosides & E. coli,1779,23.49763706,21.26567696,25.83768223,"Asia, Far East and Oceania"
+CHINA,CHN,2000,Aminopenicillins & E. coli,1319,59.31998929,56.18170863,62.14473913,"Asia, Far East and Oceania"
+CHINA,CHN,2000,Fluoroquinolones & E. coli,1319,26.66468782,23.86356077,29.40283924,"Asia, Far East and Oceania"
+CHINA,CHN,2002,Fluoroquinolones & S. aureus,26,3.004492891,0.707427276,5.268424785,"Asia, Far East and Oceania"
+CHINA,CHN,2002,Macrolides & S. aureus,26,3.63701771,1.191106276,6.068051453,"Asia, Far East and Oceania"
+CHINA,CHN,2003,Fluoroquinolones & S. aureus,26,3.004492891,0.735646117,5.298228732,"Asia, Far East and Oceania"
+CHINA,CHN,2003,Macrolides & S. aureus,26,3.795148915,1.292123287,6.259100417,"Asia, Far East and Oceania"
+CHINA,CHN,2004,Aminoglycosides & E. coli,40,34.82295219,33.31927982,35.47649411,"Asia, Far East and Oceania"
+CHINA,CHN,2004,Aminopenicillins & E. coli,40,27.71622726,23.3738133,32.08217155,"Asia, Far East and Oceania"
+CHINA,CHN,2004,Fluoroquinolones & E. coli,40,31.98026222,28.8658229,35.11309303,"Asia, Far East and Oceania"
+CHINA,CHN,2004,Third generation cephalosporins & E. coli,40,0.0,0.000309028,0.010791729,"Asia, Far East and Oceania"
+CHINA,CHN,2005,Aminoglycosides & E. coli,10,24.32662742,1.545889081,46.84678202,"Asia, Far East and Oceania"
+CHINA,CHN,2005,Aminopenicillins & E. coli,6,15.81312048,15.80073669,15.81276592,"Asia, Far East and Oceania"
+CHINA,CHN,2005,Fluoroquinolones & E. coli,60,36.48994113,25.19774145,38.99242032,"Asia, Far East and Oceania"
+CHINA,CHN,2005,Fluoroquinolones & Non-typhoidal Salmonella,50,21.00577922,10.47428721,31.45444342,"Asia, Far East and Oceania"
+CHINA,CHN,2005,Fluoroquinolones & S. aureus,34,1.423180843,0.082235171,2.821113684,"Asia, Far East and Oceania"
+CHINA,CHN,2005,Macrolides & S. aureus,34,6.483379397,3.991796875,8.961415322,"Asia, Far East and Oceania"
+CHINA,CHN,2005,Third generation cephalosporins & E. coli,6,0.0,0.000280548,0.012266686,"Asia, Far East and Oceania"
+CHINA,CHN,2006,Aminoglycosides & E. coli,1397,52.75640737,44.41214759,60.93845596,"Asia, Far East and Oceania"
+CHINA,CHN,2006,Aminopenicillins & E. coli,1397,67.25066934,58.70140249,75.39308206,"Asia, Far East and Oceania"
+CHINA,CHN,2006,Aminopenicillins with beta-lactamase inhibitors & E. coli,309,44.68960683,39.71873532,49.60487467,"Asia, Far East and Oceania"
+CHINA,CHN,2006,Fluoroquinolones & E. coli,2794,27.14444394,20.46378465,33.4241256,"Asia, Far East and Oceania"
+CHINA,CHN,2006,Fluoroquinolones & Non-typhoidal Salmonella,78,0.973065097,0.060512773,2.411646851,"Asia, Far East and Oceania"
+CHINA,CHN,2006,Fluoroquinolones & S. aureus,244,39.01251119,38.20743291,39.79536665,"Asia, Far East and Oceania"
+CHINA,CHN,2006,Macrolides & S. aureus,244,44.86336577,43.90598429,45.78093473,"Asia, Far East and Oceania"
+CHINA,CHN,2006,Third generation cephalosporins & E. coli,1390,21.7473337,18.61405727,24.92096779,"Asia, Far East and Oceania"
+CHINA,CHN,2007,Aminoglycosides & E. coli,1591,56.23821935,53.98306193,58.480038,"Asia, Far East and Oceania"
+CHINA,CHN,2007,Aminopenicillins & E. coli,1100,65.54548444,64.61057006,66.38404412,"Asia, Far East and Oceania"
+CHINA,CHN,2007,Aminopenicillins with beta-lactamase inhibitors & E. coli,989,58.50418486,55.66366326,61.40588961,"Asia, Far East and Oceania"
+CHINA,CHN,2007,Fluoroquinolones & E. coli,7955,77.72044142,76.85323107,78.52572984,"Asia, Far East and Oceania"
+CHINA,CHN,2007,Fluoroquinolones & S. aureus,104,7.013781293,1.535656617,15.11200227,"Asia, Far East and Oceania"
+CHINA,CHN,2007,Macrolides & S. aureus,104,57.84564963,46.4919696,67.32732038,"Asia, Far East and Oceania"
+CHINA,CHN,2007,Third generation cephalosporins & E. coli,699,7.78797482,6.046908065,9.689437381,"Asia, Far East and Oceania"
+CHINA,CHN,2008,Aminoglycosides & E. coli,1379,47.77757225,45.76672586,49.71119212,"Asia, Far East and Oceania"
+CHINA,CHN,2008,Aminopenicillins & E. coli,1379,87.93380335,86.1805908,89.74935547,"Asia, Far East and Oceania"
+CHINA,CHN,2008,Aminopenicillins with beta-lactamase inhibitors & E. coli,751,44.33627926,41.83000362,46.99263479,"Asia, Far East and Oceania"
+CHINA,CHN,2008,Fluoroquinolones & E. coli,1998,31.45589936,29.90716111,33.27383803,"Asia, Far East and Oceania"
+CHINA,CHN,2008,Fluoroquinolones & Non-typhoidal Salmonella,787,26.3769199,22.90011643,31.09217937,"Asia, Far East and Oceania"
+CHINA,CHN,2008,Fluoroquinolones & S. aureus,178,0.835963279,0.415571146,1.421699757,"Asia, Far East and Oceania"
+CHINA,CHN,2008,Macrolides & S. aureus,178,6.095158405,4.890590161,7.201461512,"Asia, Far East and Oceania"
+CHINA,CHN,2008,Third generation cephalosporins & E. coli,602,2.588353157,1.74998522,3.421722441,"Asia, Far East and Oceania"
+CHINA,CHN,2009,Aminoglycosides & E. coli,676,55.74627608,51.97729725,59.58255209,"Asia, Far East and Oceania"
+CHINA,CHN,2009,Aminopenicillins & E. coli,770,60.4998756,56.18386275,64.88277543,"Asia, Far East and Oceania"
+CHINA,CHN,2009,Aminopenicillins with beta-lactamase inhibitors & E. coli,211,29.65762387,20.92339705,38.40901538,"Asia, Far East and Oceania"
+CHINA,CHN,2009,Fluoroquinolones & E. coli,4110,53.06727093,51.27703146,55.14932618,"Asia, Far East and Oceania"
+CHINA,CHN,2009,Fluoroquinolones & Non-typhoidal Salmonella,997,9.970805136,8.691853398,11.98661187,"Asia, Far East and Oceania"
+CHINA,CHN,2009,Fluoroquinolones & S. aureus,671,68.00545512,65.19351559,71.08792929,"Asia, Far East and Oceania"
+CHINA,CHN,2009,Macrolides & S. aureus,664,76.82953636,74.33786312,79.48741032,"Asia, Far East and Oceania"
+CHINA,CHN,2009,Third generation cephalosporins & E. coli,354,13.92610785,11.37756275,17.1122753,"Asia, Far East and Oceania"
+CHINA,CHN,2010,Aminoglycosides & E. coli,2074,24.05283277,22.33640212,25.93682686,"Asia, Far East and Oceania"
+CHINA,CHN,2010,Aminopenicillins & E. coli,2008,65.93004763,63.3181499,68.49133594,"Asia, Far East and Oceania"
+CHINA,CHN,2010,Aminopenicillins with beta-lactamase inhibitors & E. coli,2003,62.95813521,61.18581572,65.27776054,"Asia, Far East and Oceania"
+CHINA,CHN,2010,Fluoroquinolones & E. coli,5112,43.24077899,41.86696679,44.80158623,"Asia, Far East and Oceania"
+CHINA,CHN,2010,Fluoroquinolones & Non-typhoidal Salmonella,227,14.65241932,11.65375002,21.27954103,"Asia, Far East and Oceania"
+CHINA,CHN,2010,Fluoroquinolones & S. aureus,181,29.51340719,25.38991374,33.80857812,"Asia, Far East and Oceania"
+CHINA,CHN,2010,Macrolides & S. aureus,181,41.61920786,37.88715882,45.64542585,"Asia, Far East and Oceania"
+CHINA,CHN,2010,Third generation cephalosporins & E. coli,933,30.60532578,27.34086768,34.16595989,"Asia, Far East and Oceania"
+CHINA,CHN,2011,Aminoglycosides & E. coli,1233,53.24676778,50.50092002,55.74178441,"Asia, Far East and Oceania"
+CHINA,CHN,2011,Aminopenicillins & E. coli,1057,70.55091749,67.95418088,73.23970965,"Asia, Far East and Oceania"
+CHINA,CHN,2011,Aminopenicillins with beta-lactamase inhibitors & E. coli,477,36.76077811,31.42313337,42.04871658,"Asia, Far East and Oceania"
+CHINA,CHN,2011,Fluoroquinolones & E. coli,8925,38.74308813,37.88738572,39.66207785,"Asia, Far East and Oceania"
+CHINA,CHN,2011,Fluoroquinolones & Non-typhoidal Salmonella,2393,20.65049436,19.10162282,22.51445498,"Asia, Far East and Oceania"
+CHINA,CHN,2011,Fluoroquinolones & S. aureus,720,50.30918208,46.17026938,55.39277045,"Asia, Far East and Oceania"
+CHINA,CHN,2011,Macrolides & S. aureus,724,77.73925239,73.44027929,81.80686391,"Asia, Far East and Oceania"
+CHINA,CHN,2011,Third generation cephalosporins & E. coli,777,30.3927201,27.93441073,33.2484538,"Asia, Far East and Oceania"
+CHINA,CHN,2012,Aminoglycosides & E. coli,3984,33.64265439,32.57349399,35.20325612,"Asia, Far East and Oceania"
+CHINA,CHN,2012,Aminopenicillins & E. coli,3925,67.4341598,65.83111017,69.08706125,"Asia, Far East and Oceania"
+CHINA,CHN,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,2166,36.9958765,35.17885464,39.27857843,"Asia, Far East and Oceania"
+CHINA,CHN,2012,Fluoroquinolones & E. coli,8046,33.73448066,32.81322238,34.80059614,"Asia, Far East and Oceania"
+CHINA,CHN,2012,Fluoroquinolones & Non-typhoidal Salmonella,1749,8.325853134,7.023070697,10.3813439,"Asia, Far East and Oceania"
+CHINA,CHN,2012,Fluoroquinolones & S. aureus,227,44.14566793,32.70850703,53.21174178,"Asia, Far East and Oceania"
+CHINA,CHN,2012,Macrolides & S. aureus,174,71.69109521,60.74008583,79.02737611,"Asia, Far East and Oceania"
+CHINA,CHN,2012,Third generation cephalosporins & E. coli,1810,28.55133334,27.27456937,30.48813313,"Asia, Far East and Oceania"
+CHINA,CHN,2013,Aminoglycosides & E. coli,8398,48.00694158,46.98609691,49.12263559,"Asia, Far East and Oceania"
+CHINA,CHN,2013,Aminopenicillins & E. coli,6849,69.93924261,68.75856701,71.10333272,"Asia, Far East and Oceania"
+CHINA,CHN,2013,Aminopenicillins with beta-lactamase inhibitors & E. coli,7062,61.67169242,60.86577815,62.79044268,"Asia, Far East and Oceania"
+CHINA,CHN,2013,Fluoroquinolones & E. coli,10346,45.01289517,44.06426893,45.959218,"Asia, Far East and Oceania"
+CHINA,CHN,2013,Fluoroquinolones & Non-typhoidal Salmonella,2116,9.791988616,9.12160217,10.57078837,"Asia, Far East and Oceania"
+CHINA,CHN,2013,Fluoroquinolones & S. aureus,673,65.72273341,60.63341461,70.8315616,"Asia, Far East and Oceania"
+CHINA,CHN,2013,Macrolides & S. aureus,625,84.74040398,80.87135326,88.59215261,"Asia, Far East and Oceania"
+CHINA,CHN,2013,Third generation cephalosporins & E. coli,815,24.67468755,22.96460921,26.77222795,"Asia, Far East and Oceania"
+CHINA,CHN,2014,Aminoglycosides & E. coli,6739,43.83146211,42.82474771,45.07272815,"Asia, Far East and Oceania"
+CHINA,CHN,2014,Aminopenicillins & E. coli,6725,74.07924264,72.92495219,75.250991,"Asia, Far East and Oceania"
+CHINA,CHN,2014,Aminopenicillins with beta-lactamase inhibitors & E. coli,4684,50.24388063,48.45248958,52.27690077,"Asia, Far East and Oceania"
+CHINA,CHN,2014,Fluoroquinolones & E. coli,26904,47.33189255,46.76787135,47.95821379,"Asia, Far East and Oceania"
+CHINA,CHN,2014,Fluoroquinolones & Non-typhoidal Salmonella,2252,23.46355064,21.70417511,25.29601187,"Asia, Far East and Oceania"
+CHINA,CHN,2014,Fluoroquinolones & S. aureus,513,68.10997796,63.95902402,72.69502104,"Asia, Far East and Oceania"
+CHINA,CHN,2014,Macrolides & S. aureus,450,65.70414082,59.02885917,73.29864743,"Asia, Far East and Oceania"
+CHINA,CHN,2014,Third generation cephalosporins & E. coli,2619,32.56981193,30.42361421,34.60296792,"Asia, Far East and Oceania"
+CHINA,CHN,2015,Aminoglycosides & E. coli,2942,52.71481267,51.06704024,54.6343452,"Asia, Far East and Oceania"
+CHINA,CHN,2015,Aminopenicillins & E. coli,2814,72.74164173,71.42851969,74.08797061,"Asia, Far East and Oceania"
+CHINA,CHN,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,1252,45.07279262,42.9779246,47.00583059,"Asia, Far East and Oceania"
+CHINA,CHN,2015,Fluoroquinolones & E. coli,8793,39.90816814,38.99271452,40.91050424,"Asia, Far East and Oceania"
+CHINA,CHN,2015,Fluoroquinolones & Non-typhoidal Salmonella,1386,22.03717448,19.90839134,25.45223847,"Asia, Far East and Oceania"
+CHINA,CHN,2015,Fluoroquinolones & S. aureus,1191,30.9109394,28.32722085,33.49386179,"Asia, Far East and Oceania"
+CHINA,CHN,2015,Macrolides & S. aureus,1245,77.74622014,75.35161843,79.76394608,"Asia, Far East and Oceania"
+CHINA,CHN,2015,Third generation cephalosporins & E. coli,1574,34.16982012,32.59610874,35.67510181,"Asia, Far East and Oceania"
+CHINA,CHN,2016,Aminoglycosides & E. coli,5588,33.50635506,32.23020983,34.8725271,"Asia, Far East and Oceania"
+CHINA,CHN,2016,Aminopenicillins & E. coli,5469,75.2332923,74.10463052,76.31498908,"Asia, Far East and Oceania"
+CHINA,CHN,2016,Aminopenicillins with beta-lactamase inhibitors & E. coli,2504,71.41561938,69.65770851,72.96685579,"Asia, Far East and Oceania"
+CHINA,CHN,2016,Fluoroquinolones & E. coli,5517,44.97448555,43.58671776,46.50091526,"Asia, Far East and Oceania"
+CHINA,CHN,2016,Fluoroquinolones & Non-typhoidal Salmonella,2850,25.50239873,23.22619052,28.51832331,"Asia, Far East and Oceania"
+CHINA,CHN,2016,Fluoroquinolones & S. aureus,496,34.93292482,30.33831192,39.60315752,"Asia, Far East and Oceania"
+CHINA,CHN,2016,Macrolides & S. aureus,489,67.37978259,62.79475673,72.32778873,"Asia, Far East and Oceania"
+CHINA,CHN,2016,Third generation cephalosporins & E. coli,4257,40.74250585,39.19793542,42.21375492,"Asia, Far East and Oceania"
+CHINA,CHN,2017,Aminoglycosides & E. coli,762,17.92193083,16.12259038,19.71737345,"Asia, Far East and Oceania"
+CHINA,CHN,2017,Aminopenicillins & E. coli,713,47.36356827,46.82576357,47.88990836,"Asia, Far East and Oceania"
+CHINA,CHN,2017,Aminopenicillins with beta-lactamase inhibitors & E. coli,239,0.617896336,0.036360386,1.279743885,"Asia, Far East and Oceania"
+CHINA,CHN,2017,Fluoroquinolones & E. coli,344,20.49801228,18.07098628,22.92169934,"Asia, Far East and Oceania"
+CHINA,CHN,2017,Fluoroquinolones & Non-typhoidal Salmonella,998,48.8922179,46.50204435,51.36294498,"Asia, Far East and Oceania"
+CHINA,CHN,2017,Fluoroquinolones & S. aureus,117,28.43752249,20.2801491,37.27484791,"Asia, Far East and Oceania"
+CHINA,CHN,2017,Macrolides & S. aureus,92,53.40188674,40.62958106,66.7363897,"Asia, Far East and Oceania"
+CHINA,CHN,2017,Third generation cephalosporins & E. coli,310,10.89212972,8.682446871,13.20533547,"Asia, Far East and Oceania"
+CHINA,CHN,2018,Aminoglycosides & E. coli,838,52.0869648,48.69142178,55.925404,"Asia, Far East and Oceania"
+CHINA,CHN,2018,Aminopenicillins & E. coli,747,80.55918964,77.7484896,83.57317374,"Asia, Far East and Oceania"
+CHINA,CHN,2018,Fluoroquinolones & E. coli,963,46.17685317,42.1728285,50.17562604,"Asia, Far East and Oceania"
+CHINA,CHN,2018,Fluoroquinolones & Non-typhoidal Salmonella,1226,26.79133832,22.25036143,32.87654318,"Asia, Far East and Oceania"
+CHINA,CHN,2018,Third generation cephalosporins & E. coli,446,48.82997719,45.10395683,52.61418368,"Asia, Far East and Oceania"
+CHINA,CHN,2019,Aminoglycosides & E. coli,5,9.730650967,0.626776874,26.07725873,"Asia, Far East and Oceania"
+CHINA,CHN,2019,Fluoroquinolones & Non-typhoidal Salmonella,67,2.189396468,0.104471593,4.516292829,"Asia, Far East and Oceania"
 COLOMBIA,COL,2008,Macrolides & S. aureus,289,0.666194446,0.033522562,1.398463047,Americas
 COLOMBIA,COL,2009,Aminoglycosides & E. coli,165,2.391430018,1.285057274,3.467619587,Americas
 COLOMBIA,COL,2009,Aminopenicillins & E. coli,165,10.62857786,8.733933775,12.50749561,Americas
@@ -463,25 +463,25 @@ CROATIA,HRV,2020,Aminopenicillins & E. coli,85,14.19724532,11.35710838,16.961859
 CROATIA,HRV,2020,Fluoroquinolones & Non-typhoidal Salmonella,171,16.74012198,14.90433763,18.62944501,Europe
 CUBA,CUB,2015,Fluoroquinolones & S. aureus,17,8.00850832,4.245982109,11.60818299,Americas
 CUBA,CUB,2015,Macrolides & S. aureus,17,8.00850832,4.246370828,11.43628001,Americas
-CYPRUS,CYP,2016,Aminoglycosides & E. coli,85,3.55175397,1.320721352,5.816618174,Asia
-CYPRUS,CYP,2016,Aminopenicillins & E. coli,85,29.74593949,26.62342244,32.86136752,Asia
-CYPRUS,CYP,2016,Fluoroquinolones & E. coli,85,30.18990874,27.14865506,33.22996703,Asia
-CYPRUS,CYP,2016,Fluoroquinolones & Non-typhoidal Salmonella,50,29.43516102,26.50479534,32.54404172,Asia
-CYPRUS,CYP,2016,Third generation cephalosporins & E. coli,85,1.775876985,0.175354764,3.382914377,Asia
-CYPRUS,CYP,2017,Aminoglycosides & E. coli,57,3.482784615,0.694292748,6.276431288,Asia
-CYPRUS,CYP,2017,Aminopenicillins & E. coli,57,25.07604923,20.27231731,29.85716545,Asia
-CYPRUS,CYP,2017,Fluoroquinolones & E. coli,57,8.358683075,4.417900612,12.36958811,Asia
-CYPRUS,CYP,2017,Third generation cephalosporins & E. coli,57,0.0,0.000219694,0.010104277,Asia
-CYPRUS,CYP,2018,Aminoglycosides & E. coli,101,2.989099875,1.117712465,4.867988757,Asia
-CYPRUS,CYP,2018,Aminopenicillins & E. coli,101,24.66007397,21.36444318,27.95885999,Asia
-CYPRUS,CYP,2018,Fluoroquinolones & E. coli,202,32.13282366,30.09013359,34.12303203,Asia
-CYPRUS,CYP,2018,Fluoroquinolones & Non-typhoidal Salmonella,45,28.51269159,25.15868263,32.02332949,Asia
-CYPRUS,CYP,2018,Third generation cephalosporins & E. coli,101,2.989099875,1.089607587,4.850260221,Asia
-CYPRUS,CYP,2019,Aminoglycosides & E. coli,34,1.167757194,0.108323854,3.345615321,Asia
-CYPRUS,CYP,2019,Aminopenicillins & E. coli,34,29.19392986,23.61761289,34.75320142,Asia
-CYPRUS,CYP,2020,Aminoglycosides & E. coli,99,2.668300015,0.844421861,4.496501602,Asia
-CYPRUS,CYP,2020,Aminopenicillins & E. coli,99,30.87604303,28.17687191,33.60568351,Asia
-CYPRUS,CYP,2020,Fluoroquinolones & Non-typhoidal Salmonella,47,16.0584621,10.39700155,21.32874012,Asia
+CYPRUS,CYP,2016,Aminoglycosides & E. coli,85,3.55175397,1.320721352,5.816618174,Europe
+CYPRUS,CYP,2016,Aminopenicillins & E. coli,85,29.74593949,26.62342244,32.86136752,Europe
+CYPRUS,CYP,2016,Fluoroquinolones & E. coli,85,30.18990874,27.14865506,33.22996703,Europe
+CYPRUS,CYP,2016,Fluoroquinolones & Non-typhoidal Salmonella,50,29.43516102,26.50479534,32.54404172,Europe
+CYPRUS,CYP,2016,Third generation cephalosporins & E. coli,85,1.775876985,0.175354764,3.382914377,Europe
+CYPRUS,CYP,2017,Aminoglycosides & E. coli,57,3.482784615,0.694292748,6.276431288,Europe
+CYPRUS,CYP,2017,Aminopenicillins & E. coli,57,25.07604923,20.27231731,29.85716545,Europe
+CYPRUS,CYP,2017,Fluoroquinolones & E. coli,57,8.358683075,4.417900612,12.36958811,Europe
+CYPRUS,CYP,2017,Third generation cephalosporins & E. coli,57,0.0,0.000219694,0.010104277,Europe
+CYPRUS,CYP,2018,Aminoglycosides & E. coli,101,2.989099875,1.117712465,4.867988757,Europe
+CYPRUS,CYP,2018,Aminopenicillins & E. coli,101,24.66007397,21.36444318,27.95885999,Europe
+CYPRUS,CYP,2018,Fluoroquinolones & E. coli,202,32.13282366,30.09013359,34.12303203,Europe
+CYPRUS,CYP,2018,Fluoroquinolones & Non-typhoidal Salmonella,45,28.51269159,25.15868263,32.02332949,Europe
+CYPRUS,CYP,2018,Third generation cephalosporins & E. coli,101,2.989099875,1.089607587,4.850260221,Europe
+CYPRUS,CYP,2019,Aminoglycosides & E. coli,34,1.167757194,0.108323854,3.345615321,Europe
+CYPRUS,CYP,2019,Aminopenicillins & E. coli,34,29.19392986,23.61761289,34.75320142,Europe
+CYPRUS,CYP,2020,Aminoglycosides & E. coli,99,2.668300015,0.844421861,4.496501602,Europe
+CYPRUS,CYP,2020,Aminopenicillins & E. coli,99,30.87604303,28.17687191,33.60568351,Europe
+CYPRUS,CYP,2020,Fluoroquinolones & Non-typhoidal Salmonella,47,16.0584621,10.39700155,21.32874012,Europe
 CZECHIA,CZE,2016,Aminoglycosides & E. coli,227,0.239660106,0.014148956,0.550183571,Europe
 CZECHIA,CZE,2016,Aminopenicillins & E. coli,227,9.586404231,7.972144116,11.22369678,Europe
 CZECHIA,CZE,2016,Fluoroquinolones & E. coli,681,18.09433799,17.09434274,19.12008339,Europe
@@ -782,207 +782,207 @@ ICELAND,ISL,2019,Fluoroquinolones & Non-typhoidal Salmonella,10,0.0,0.000329609,
 ICELAND,ISL,2020,Aminoglycosides & E. coli,85,0.385134554,0.030625969,1.099113068,Europe
 ICELAND,ISL,2020,Aminopenicillins & E. coli,85,2.310807322,0.598326531,4.01977253,Europe
 ICELAND,ISL,2020,Fluoroquinolones & Non-typhoidal Salmonella,20,1.636821853,0.13621871,4.568827296,Europe
-INDIA,IND,2000,Aminoglycosides & E. coli,99,11.65478156,9.090062443,13.96425705,Asia
-INDIA,IND,2000,Aminopenicillins & E. coli,99,15.2491328,13.03602919,17.4921723,Asia
-INDIA,IND,2000,Fluoroquinolones & E. coli,92,7.588523091,5.518619281,9.672664849,Asia
-INDIA,IND,2000,Fluoroquinolones & Non-typhoidal Salmonella,80,4.496357587,2.690898043,6.304160231,Asia
-INDIA,IND,2000,Third generation cephalosporins & E. coli,41,17.64699483,14.54138823,20.76603491,Asia
-INDIA,IND,2001,Aminoglycosides & E. coli,223,23.13605686,19.85121951,26.34089455,Asia
-INDIA,IND,2001,Aminopenicillins & E. coli,79,0.0,0.000465918,0.016068799,Asia
-INDIA,IND,2001,Fluoroquinolones & E. coli,223,0.958180094,0.261074577,2.195741623,Asia
-INDIA,IND,2002,Aminoglycosides & E. coli,25,71.22472033,65.73235876,73.9218705,Asia
-INDIA,IND,2002,Aminopenicillins & E. coli,25,56.38623693,44.45857751,68.29451551,Asia
-INDIA,IND,2002,Fluoroquinolones & E. coli,25,38.58005685,25.1892985,52.17265346,Asia
-INDIA,IND,2002,Fluoroquinolones & S. aureus,5,14.8384834,1.099329161,39.91272034,Asia
-INDIA,IND,2003,Aminoglycosides & E. coli,103,3.594370494,0.818473417,6.647412041,Asia
-INDIA,IND,2003,Aminopenicillins & E. coli,100,29.6769668,22.86035265,36.47561148,Asia
-INDIA,IND,2003,Fluoroquinolones & E. coli,103,0.713111581,0.043533147,1.84159991,Asia
-INDIA,IND,2003,Fluoroquinolones & Non-typhoidal Salmonella,13,0.0,0.001406904,0.039447938,Asia
-INDIA,IND,2004,Aminoglycosides & E. coli,103,40.06949068,23.09264893,57.57585715,Asia
-INDIA,IND,2004,Aminopenicillins & E. coli,81,15.22959828,12.22666063,18.24507349,Asia
-INDIA,IND,2004,Fluoroquinolones & E. coli,267,15.13592416,13.88528588,16.64244988,Asia
-INDIA,IND,2004,Macrolides & S. aureus,59,14.8384834,7.679718704,21.90630116,Asia
-INDIA,IND,2004,Third generation cephalosporins & E. coli,40,25.21658337,11.40102767,39.45709251,Asia
-INDIA,IND,2005,Aminoglycosides & E. coli,408,54.17528172,49.27069533,59.03117788,Asia
-INDIA,IND,2005,Aminopenicillins & E. coli,393,43.63960056,38.66180443,48.65717609,Asia
-INDIA,IND,2005,Aminopenicillins with beta-lactamase inhibitors & E. coli,226,30.41889097,25.845378,34.91185916,Asia
-INDIA,IND,2005,Fluoroquinolones & E. coli,379,16.35234433,13.19190916,19.92593853,Asia
-INDIA,IND,2005,Fluoroquinolones & Non-typhoidal Salmonella,92,0.725218966,0.037607385,1.533863863,Asia
-INDIA,IND,2005,Fluoroquinolones & S. aureus,236,29.32172345,25.05327916,33.59266497,Asia
-INDIA,IND,2005,Macrolides & S. aureus,218,45.70320954,41.59053829,49.7121429,Asia
-INDIA,IND,2006,Aminoglycosides & E. coli,164,10.92060205,8.441301254,15.25405146,Asia
-INDIA,IND,2006,Aminopenicillins & E. coli,110,78.65969562,69.09491568,88.15839219,Asia
-INDIA,IND,2006,Fluoroquinolones & E. coli,110,7.577455334,3.114725102,13.11990021,Asia
-INDIA,IND,2006,Third generation cephalosporins & E. coli,164,20.37795998,16.22205828,25.43946569,Asia
-INDIA,IND,2007,Aminoglycosides & E. coli,258,89.58800656,85.34542269,92.99925442,Asia
-INDIA,IND,2007,Aminopenicillins & E. coli,426,83.83973621,81.97873379,85.60993251,Asia
-INDIA,IND,2007,Fluoroquinolones & E. coli,1158,15.22682347,14.16571286,17.37631737,Asia
-INDIA,IND,2007,Fluoroquinolones & Non-typhoidal Salmonella,30,0.0,0.000230159,0.008404899,Asia
-INDIA,IND,2007,Fluoroquinolones & S. aureus,154,23.82412785,17.71475438,29.97981299,Asia
-INDIA,IND,2007,Macrolides & S. aureus,102,9.186106899,7.01345111,11.38400802,Asia
-INDIA,IND,2007,Third generation cephalosporins & E. coli,37,20.21242063,8.467926526,31.78503046,Asia
-INDIA,IND,2008,Aminoglycosides & E. coli,459,41.49807626,36.81975759,45.81016021,Asia
-INDIA,IND,2008,Aminopenicillins & E. coli,380,55.61168603,50.64689837,60.37855458,Asia
-INDIA,IND,2008,Aminopenicillins with beta-lactamase inhibitors & E. coli,102,29.34237355,21.7182665,36.43934165,Asia
-INDIA,IND,2008,Fluoroquinolones & E. coli,1850,3.969116096,2.874368095,5.214657502,Asia
-INDIA,IND,2008,Fluoroquinolones & Non-typhoidal Salmonella,47,6.285231036,2.720035912,9.827969561,Asia
-INDIA,IND,2008,Fluoroquinolones & S. aureus,223,15.04475828,10.79937736,19.03353052,Asia
-INDIA,IND,2008,Macrolides & S. aureus,24,33.01562557,26.72390495,36.82220607,Asia
-INDIA,IND,2008,Third generation cephalosporins & E. coli,323,3.810665644,1.973690922,6.734418956,Asia
-INDIA,IND,2009,Aminoglycosides & E. coli,842,52.67349947,49.46243473,55.82727206,Asia
-INDIA,IND,2009,Aminopenicillins & E. coli,816,55.1905895,51.58227514,58.87628669,Asia
-INDIA,IND,2009,Aminopenicillins with beta-lactamase inhibitors & E. coli,12,19.29002842,1.924915082,36.64806219,Asia
-INDIA,IND,2009,Fluoroquinolones & E. coli,730,35.03861007,32.00943873,39.15729114,Asia
-INDIA,IND,2009,Fluoroquinolones & Non-typhoidal Salmonella,114,1.125997868,0.348594491,2.074626897,Asia
-INDIA,IND,2009,Fluoroquinolones & S. aureus,154,6.234090105,2.927300742,10.0027542,Asia
-INDIA,IND,2009,Macrolides & S. aureus,1824,10.84291261,9.744455909,11.83285717,Asia
-INDIA,IND,2009,Third generation cephalosporins & E. coli,788,18.0181663,14.82241102,21.1298547,Asia
-INDIA,IND,2010,Aminoglycosides & E. coli,603,49.46474875,44.99649063,54.23418281,Asia
-INDIA,IND,2010,Aminopenicillins & E. coli,585,62.34074347,57.99687909,66.44308282,Asia
-INDIA,IND,2010,Fluoroquinolones & E. coli,585,23.6967913,20.3922569,27.5427439,Asia
-INDIA,IND,2010,Fluoroquinolones & Non-typhoidal Salmonella,138,67.09165283,59.31018916,75.01348599,Asia
-INDIA,IND,2010,Fluoroquinolones & S. aureus,85,16.96510888,11.61518316,23.26813749,Asia
-INDIA,IND,2010,Macrolides & S. aureus,81,2.757026854,0.195587832,5.586257876,Asia
-INDIA,IND,2010,Third generation cephalosporins & E. coli,513,57.73758695,53.00470808,62.49578963,Asia
-INDIA,IND,2011,Aminoglycosides & E. coli,1455,44.87053158,42.29294661,47.58450577,Asia
-INDIA,IND,2011,Aminopenicillins & E. coli,1544,60.1364517,58.05101035,62.11054768,Asia
-INDIA,IND,2011,Aminopenicillins with beta-lactamase inhibitors & E. coli,757,37.13904248,33.56697752,40.81259851,Asia
-INDIA,IND,2011,Fluoroquinolones & E. coli,11095,31.80310402,30.94215145,32.76446808,Asia
-INDIA,IND,2011,Fluoroquinolones & Non-typhoidal Salmonella,255,7.998264593,7.514706806,8.573731269,Asia
-INDIA,IND,2011,Fluoroquinolones & S. aureus,92,42.74128371,35.4759059,49.96148561,Asia
-INDIA,IND,2011,Third generation cephalosporins & E. coli,1679,36.09313534,33.66706649,38.32102589,Asia
-INDIA,IND,2012,Aminoglycosides & E. coli,302,38.88980495,33.5123225,44.97969193,Asia
-INDIA,IND,2012,Aminopenicillins & E. coli,267,66.64049494,61.81868601,70.89047598,Asia
-INDIA,IND,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,27,60.56299522,53.52633327,67.59900205,Asia
-INDIA,IND,2012,Fluoroquinolones & E. coli,2548,32.99851377,31.11789892,34.41906202,Asia
-INDIA,IND,2012,Fluoroquinolones & Non-typhoidal Salmonella,121,0.980170479,0.666795657,1.338721662,Asia
-INDIA,IND,2012,Fluoroquinolones & S. aureus,259,27.53970374,23.46644623,30.87884003,Asia
-INDIA,IND,2012,Macrolides & S. aureus,200,41.2702778,36.27878063,45.97432944,Asia
-INDIA,IND,2012,Third generation cephalosporins & E. coli,136,39.09866494,31.18328499,47.28094768,Asia
-INDIA,IND,2013,Aminoglycosides & E. coli,1140,44.53046551,41.7588166,47.57769337,Asia
-INDIA,IND,2013,Aminopenicillins & E. coli,1077,63.80175424,60.95630183,66.77665427,Asia
-INDIA,IND,2013,Aminopenicillins with beta-lactamase inhibitors & E. coli,322,43.57697963,38.00980639,49.69054613,Asia
-INDIA,IND,2013,Fluoroquinolones & E. coli,3550,35.14761345,33.0997595,37.89268157,Asia
-INDIA,IND,2013,Fluoroquinolones & Non-typhoidal Salmonella,183,19.33917242,18.02648044,20.6770963,Asia
-INDIA,IND,2013,Fluoroquinolones & S. aureus,280,16.59132719,13.02354353,20.36902352,Asia
-INDIA,IND,2013,Macrolides & S. aureus,130,27.33872216,21.70255243,34.08465584,Asia
-INDIA,IND,2013,Third generation cephalosporins & E. coli,828,36.04251286,32.40605466,39.64605675,Asia
-INDIA,IND,2014,Aminoglycosides & E. coli,1697,10.28153347,5.320699425,14.91732144,Asia
-INDIA,IND,2014,Aminopenicillins & E. coli,1639,61.15954028,53.47422126,68.7638647,Asia
-INDIA,IND,2014,Aminopenicillins with beta-lactamase inhibitors & E. coli,48,91.4007451,81.89956081,95.71869904,Asia
-INDIA,IND,2014,Fluoroquinolones & E. coli,1711,32.29835614,26.32261022,37.87850355,Asia
-INDIA,IND,2014,Fluoroquinolones & Non-typhoidal Salmonella,192,3.661386574,2.816887545,4.49696919,Asia
-INDIA,IND,2014,Fluoroquinolones & S. aureus,252,15.76390549,11.43215385,19.8927732,Asia
-INDIA,IND,2014,Macrolides & S. aureus,483,13.01973699,10.51215619,15.56251413,Asia
-INDIA,IND,2014,Third generation cephalosporins & E. coli,1678,23.8179111,20.63212269,27.24569639,Asia
-INDIA,IND,2015,Aminoglycosides & E. coli,1274,31.76007453,29.56193829,33.92457697,Asia
-INDIA,IND,2015,Aminopenicillins & E. coli,1035,41.18537295,38.07912894,44.34290243,Asia
-INDIA,IND,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,106,15.58040757,10.1516066,21.03435925,Asia
-INDIA,IND,2015,Fluoroquinolones & E. coli,2295,10.90328122,9.979056206,12.07795324,Asia
-INDIA,IND,2015,Fluoroquinolones & S. aureus,348,5.896797048,3.858295449,7.811216293,Asia
-INDIA,IND,2015,Macrolides & S. aureus,348,53.3160456,50.34105017,56.19280269,Asia
-INDIA,IND,2015,Third generation cephalosporins & E. coli,1068,34.01413263,31.02229198,37.16406577,Asia
-INDIA,IND,2016,Aminoglycosides & E. coli,81,0.980170479,0.813871894,1.147606332,Asia
-INDIA,IND,2016,Aminopenicillins & E. coli,175,25.31664252,18.68278121,31.9968811,Asia
-INDIA,IND,2016,Aminopenicillins with beta-lactamase inhibitors & E. coli,94,8.903090041,4.345905386,13.59416209,Asia
-INDIA,IND,2016,Fluoroquinolones & S. aureus,476,30.32895481,25.66670077,35.28530332,Asia
-INDIA,IND,2016,Macrolides & S. aureus,221,17.37493567,12.03023874,22.51178391,Asia
-INDIA,IND,2016,Third generation cephalosporins & E. coli,310,65.13636032,58.0258637,72.32214168,Asia
-INDIA,IND,2017,Fluoroquinolones & Non-typhoidal Salmonella,27,22.48178794,20.2459419,24.05612533,Asia
-INDIA,IND,2018,Aminoglycosides & E. coli,12,43.03160187,23.50296219,62.57077084,Asia
-INDIA,IND,2018,Aminopenicillins with beta-lactamase inhibitors & E. coli,12,61.57970612,46.3806067,73.37647435,Asia
-INDIA,IND,2018,Fluoroquinolones & E. coli,24,0.0,0.004425638,0.036377623,Asia
-INDIA,IND,2018,Third generation cephalosporins & E. coli,12,68.25702365,57.27371281,73.84964649,Asia
-INDONESIA,IDN,2012,Aminoglycosides & E. coli,5,7.330399512,0.340183659,19.64442525,Asia
-INDONESIA,IDN,2012,Aminopenicillins & E. coli,5,29.32159805,16.89311421,36.13273158,Asia
-INDONESIA,IDN,2013,Aminoglycosides & E. coli,53,7.976433157,2.694582066,13.23512831,Asia
-INDONESIA,IDN,2014,Aminoglycosides & E. coli,86,0.0,0.000219362,0.007648326,Asia
-INDONESIA,IDN,2014,Aminopenicillins & E. coli,86,34.81939768,33.23477126,36.40254685,Asia
-INDONESIA,IDN,2014,Fluoroquinolones & E. coli,86,0.0,0.000203212,0.007643566,Asia
-INDONESIA,IDN,2015,Aminoglycosides & E. coli,19,30.78767795,25.01680902,36.25013211,Asia
-INDONESIA,IDN,2015,Aminopenicillins & E. coli,19,36.65199756,36.63601914,36.65151473,Asia
-INDONESIA,IDN,2015,Third generation cephalosporins & E. coli,19,36.65199756,36.63591509,36.65148087,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2002,Fluoroquinolones & Non-typhoidal Salmonella,30,0.0,0.000535714,0.022117315,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2003,Macrolides & S. aureus,10,24.15408977,6.023663532,42.25894898,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2004,Aminoglycosides & E. coli,545,40.53291198,34.72421074,44.87291353,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2004,Aminopenicillins & E. coli,528,62.92776018,62.34617057,63.40944991,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2004,Fluoroquinolones & E. coli,528,53.71106803,51.88850159,55.51138598,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2006,Aminoglycosides & E. coli,1203,13.45293082,12.08711887,14.74829593,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2006,Aminopenicillins & E. coli,1203,31.72727454,29.96452619,33.50508157,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2006,Fluoroquinolones & Non-typhoidal Salmonella,80,2.186196353,0.405939713,4.005572539,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2007,Aminoglycosides & E. coli,1100,22.88282188,21.21602528,24.62733208,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2007,Aminopenicillins & E. coli,1100,19.06901824,17.42906988,20.68931445,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2007,Fluoroquinolones & Non-typhoidal Salmonella,123,5.720705471,2.66455588,8.801325445,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2008,Aminoglycosides & E. coli,1100,26.69662553,24.95210774,28.47656668,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2008,Aminopenicillins & E. coli,1100,18.4333843,16.80522662,20.04265134,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2008,Fluoroquinolones & S. aureus,14,0.0,0.00068727,0.018725192,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2009,Aminoglycosides & E. coli,1136,38.13803647,36.39596123,39.87314546,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2009,Aminopenicillins & E. coli,1100,19.06901824,17.42602368,20.70364621,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2009,Fluoroquinolones & E. coli,36,0.0,0.000303237,0.011638924,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2009,Fluoroquinolones & S. aureus,9,0.0,0.000889564,0.023188683,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2009,Third generation cephalosporins & E. coli,36,0.0,0.000380002,0.01151103,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2010,Aminoglycosides & E. coli,1157,52.57577197,51.42884523,53.70804228,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2010,Aminopenicillins & E. coli,1157,14.50366123,13.07328935,15.9784784,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2010,Fluoroquinolones & E. coli,105,24.15408977,18.49309794,29.65506048,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2010,Fluoroquinolones & Non-typhoidal Salmonella,107,0.0,0.00039482,0.011725029,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2010,Macrolides & S. aureus,43,14.57464235,9.512721699,19.64287074,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2011,Aminoglycosides & E. coli,2147,59.49383213,57.62877265,61.46313898,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2011,Aminopenicillins & E. coli,2138,30.42014153,28.82996907,31.99709657,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2011,Aminopenicillins with beta-lactamase inhibitors & E. coli,9,36.43660588,36.41344443,36.43591204,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2011,Fluoroquinolones & E. coli,986,42.01870869,37.00481674,47.19214957,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2011,Fluoroquinolones & Non-typhoidal Salmonella,14,10.5666157,2.561048671,18.73263883,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2011,Macrolides & S. aureus,25,4.372392705,0.19799679,8.849184957,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2011,Third generation cephalosporins & E. coli,92,6.841158655,3.157561238,10.52537907,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2012,Aminoglycosides & E. coli,318,3.813803647,2.251183599,5.387109871,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2012,Aminopenicillins & E. coli,80,40.0449383,33.71936249,46.33584584,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,80,11.44141094,6.27342143,16.42959495,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2012,Fluoroquinolones & E. coli,398,4.446243448,2.883763126,6.135055793,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2012,Fluoroquinolones & Non-typhoidal Salmonella,37,1.906901824,0.15098567,5.195435573,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2013,Aminoglycosides & E. coli,444,14.61958065,12.2608619,16.99846738,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2013,Aminopenicillins & E. coli,444,49.57944741,47.22262625,51.8983459,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2013,Fluoroquinolones & E. coli,444,38.77367041,36.03340397,41.51871531,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2013,Fluoroquinolones & Non-typhoidal Salmonella,61,0.0,0.000353591,0.015596733,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2013,Fluoroquinolones & S. aureus,55,34.95986677,27.03411701,42.98538804,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2013,Macrolides & S. aureus,55,36.86676859,28.9839074,44.77584926,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2013,Third generation cephalosporins & E. coli,444,3.813803647,2.495005295,5.150883271,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2014,Aminoglycosides & E. coli,71,16.02184275,11.92174175,20.00384688,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2014,Aminopenicillins & E. coli,71,36.43660588,36.42649641,36.43550668,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2014,Fluoroquinolones & E. coli,11,26.59872229,17.67338912,35.68031195,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2014,Fluoroquinolones & Non-typhoidal Salmonella,141,2.170934384,0.303733437,4.064440212,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2014,Fluoroquinolones & S. aureus,98,9.10915147,6.15922299,12.05440599,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2014,Macrolides & S. aureus,98,11.29534782,8.070827514,14.40886639,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2014,Third generation cephalosporins & E. coli,11,23.31942776,13.36092397,33.11026441,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2015,Aminoglycosides & E. coli,140,74.85430414,66.41845196,81.72403212,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2015,Aminopenicillins & E. coli,206,58.19289212,52.75610283,64.22526947,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,100,48.32423283,39.14148552,57.81628796,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2015,Fluoroquinolones & E. coli,110,25.55432914,16.37773131,33.48830151,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2015,Fluoroquinolones & Non-typhoidal Salmonella,245,29.87479524,26.08964576,33.70526655,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2015,Third generation cephalosporins & E. coli,140,16.61199366,10.96833884,23.65661887,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2016,Aminoglycosides & E. coli,154,21.44643948,15.67583069,27.46023405,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2016,Aminopenicillins & E. coli,154,33.50835831,27.53366634,39.43002546,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2016,Aminopenicillins with beta-lactamase inhibitors & E. coli,54,18.44771861,14.47019201,22.48186908,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2016,Fluoroquinolones & E. coli,308,61.41878607,57.65044639,64.48049586,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2016,Fluoroquinolones & S. aureus,57,0.0,0.000216237,0.009287745,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2016,Macrolides & S. aureus,57,16.7608387,12.37578658,21.24670297,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2016,Third generation cephalosporins & E. coli,154,19.36008882,14.19419911,24.76528337,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2017,Fluoroquinolones & S. aureus,32,39.71267882,21.46225971,58.25081912,Asia
-IRAN (ISLAMIC REPUBLIC OF),IRN,2017,Macrolides & S. aureus,32,29.53450912,12.48649856,47.15704504,Asia
-IRAQ,IRQ,2011,Aminoglycosides & E. coli,25,31.07287859,23.2529454,39.01966427,Asia
-IRAQ,IRQ,2011,Aminopenicillins & E. coli,25,40.21196053,34.69174085,45.34863486,Asia
-IRAQ,IRQ,2011,Fluoroquinolones & E. coli,25,18.27816388,9.849511871,26.63734739,Asia
-IRAQ,IRQ,2011,Fluoroquinolones & Non-typhoidal Salmonella,38,27.87419992,21.2272446,34.58614888,Asia
-IRAQ,IRQ,2012,Aminopenicillins & E. coli,145,44.7815015,43.78206727,45.65587004,Asia
-IRAQ,IRQ,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,145,15.5364393,12.21178522,18.85098428,Asia
-IRAQ,IRQ,2012,Third generation cephalosporins & E. coli,290,39.29805234,37.4122535,41.05445963,Asia
-IRAQ,IRQ,2013,Fluoroquinolones & S. aureus,48,5.973504933,1.462598953,10.54006456,Asia
-IRAQ,IRQ,2013,Macrolides & S. aureus,48,5.973504933,1.42549568,10.59580046,Asia
-IRAQ,IRQ,2014,Aminoglycosides & E. coli,31,31.49666238,22.36363505,40.38630178,Asia
-IRAQ,IRQ,2014,Aminopenicillins & E. coli,31,54.3045903,54.28597256,54.30388616,Asia
-IRAQ,IRQ,2014,Fluoroquinolones & E. coli,62,0.0,0.002475866,0.017184729,Asia
-IRAQ,IRQ,2014,Fluoroquinolones & Non-typhoidal Salmonella,21,13.25166881,4.934848023,21.57983777,Asia
-IRAQ,IRQ,2016,Fluoroquinolones & Non-typhoidal Salmonella,21,0.0,0.000519478,0.01911651,Asia
-IRAQ,IRQ,2018,Fluoroquinolones & S. aureus,11,2.284770485,0.184678459,7.913805821,Asia
-IRAQ,IRQ,2018,Macrolides & S. aureus,11,19.64902617,7.041543978,32.51942263,Asia
+INDIA,IND,2000,Aminoglycosides & E. coli,99,11.65478156,9.090062443,13.96425705,"Asia, Far East and Oceania"
+INDIA,IND,2000,Aminopenicillins & E. coli,99,15.2491328,13.03602919,17.4921723,"Asia, Far East and Oceania"
+INDIA,IND,2000,Fluoroquinolones & E. coli,92,7.588523091,5.518619281,9.672664849,"Asia, Far East and Oceania"
+INDIA,IND,2000,Fluoroquinolones & Non-typhoidal Salmonella,80,4.496357587,2.690898043,6.304160231,"Asia, Far East and Oceania"
+INDIA,IND,2000,Third generation cephalosporins & E. coli,41,17.64699483,14.54138823,20.76603491,"Asia, Far East and Oceania"
+INDIA,IND,2001,Aminoglycosides & E. coli,223,23.13605686,19.85121951,26.34089455,"Asia, Far East and Oceania"
+INDIA,IND,2001,Aminopenicillins & E. coli,79,0.0,0.000465918,0.016068799,"Asia, Far East and Oceania"
+INDIA,IND,2001,Fluoroquinolones & E. coli,223,0.958180094,0.261074577,2.195741623,"Asia, Far East and Oceania"
+INDIA,IND,2002,Aminoglycosides & E. coli,25,71.22472033,65.73235876,73.9218705,"Asia, Far East and Oceania"
+INDIA,IND,2002,Aminopenicillins & E. coli,25,56.38623693,44.45857751,68.29451551,"Asia, Far East and Oceania"
+INDIA,IND,2002,Fluoroquinolones & E. coli,25,38.58005685,25.1892985,52.17265346,"Asia, Far East and Oceania"
+INDIA,IND,2002,Fluoroquinolones & S. aureus,5,14.8384834,1.099329161,39.91272034,"Asia, Far East and Oceania"
+INDIA,IND,2003,Aminoglycosides & E. coli,103,3.594370494,0.818473417,6.647412041,"Asia, Far East and Oceania"
+INDIA,IND,2003,Aminopenicillins & E. coli,100,29.6769668,22.86035265,36.47561148,"Asia, Far East and Oceania"
+INDIA,IND,2003,Fluoroquinolones & E. coli,103,0.713111581,0.043533147,1.84159991,"Asia, Far East and Oceania"
+INDIA,IND,2003,Fluoroquinolones & Non-typhoidal Salmonella,13,0.0,0.001406904,0.039447938,"Asia, Far East and Oceania"
+INDIA,IND,2004,Aminoglycosides & E. coli,103,40.06949068,23.09264893,57.57585715,"Asia, Far East and Oceania"
+INDIA,IND,2004,Aminopenicillins & E. coli,81,15.22959828,12.22666063,18.24507349,"Asia, Far East and Oceania"
+INDIA,IND,2004,Fluoroquinolones & E. coli,267,15.13592416,13.88528588,16.64244988,"Asia, Far East and Oceania"
+INDIA,IND,2004,Macrolides & S. aureus,59,14.8384834,7.679718704,21.90630116,"Asia, Far East and Oceania"
+INDIA,IND,2004,Third generation cephalosporins & E. coli,40,25.21658337,11.40102767,39.45709251,"Asia, Far East and Oceania"
+INDIA,IND,2005,Aminoglycosides & E. coli,408,54.17528172,49.27069533,59.03117788,"Asia, Far East and Oceania"
+INDIA,IND,2005,Aminopenicillins & E. coli,393,43.63960056,38.66180443,48.65717609,"Asia, Far East and Oceania"
+INDIA,IND,2005,Aminopenicillins with beta-lactamase inhibitors & E. coli,226,30.41889097,25.845378,34.91185916,"Asia, Far East and Oceania"
+INDIA,IND,2005,Fluoroquinolones & E. coli,379,16.35234433,13.19190916,19.92593853,"Asia, Far East and Oceania"
+INDIA,IND,2005,Fluoroquinolones & Non-typhoidal Salmonella,92,0.725218966,0.037607385,1.533863863,"Asia, Far East and Oceania"
+INDIA,IND,2005,Fluoroquinolones & S. aureus,236,29.32172345,25.05327916,33.59266497,"Asia, Far East and Oceania"
+INDIA,IND,2005,Macrolides & S. aureus,218,45.70320954,41.59053829,49.7121429,"Asia, Far East and Oceania"
+INDIA,IND,2006,Aminoglycosides & E. coli,164,10.92060205,8.441301254,15.25405146,"Asia, Far East and Oceania"
+INDIA,IND,2006,Aminopenicillins & E. coli,110,78.65969562,69.09491568,88.15839219,"Asia, Far East and Oceania"
+INDIA,IND,2006,Fluoroquinolones & E. coli,110,7.577455334,3.114725102,13.11990021,"Asia, Far East and Oceania"
+INDIA,IND,2006,Third generation cephalosporins & E. coli,164,20.37795998,16.22205828,25.43946569,"Asia, Far East and Oceania"
+INDIA,IND,2007,Aminoglycosides & E. coli,258,89.58800656,85.34542269,92.99925442,"Asia, Far East and Oceania"
+INDIA,IND,2007,Aminopenicillins & E. coli,426,83.83973621,81.97873379,85.60993251,"Asia, Far East and Oceania"
+INDIA,IND,2007,Fluoroquinolones & E. coli,1158,15.22682347,14.16571286,17.37631737,"Asia, Far East and Oceania"
+INDIA,IND,2007,Fluoroquinolones & Non-typhoidal Salmonella,30,0.0,0.000230159,0.008404899,"Asia, Far East and Oceania"
+INDIA,IND,2007,Fluoroquinolones & S. aureus,154,23.82412785,17.71475438,29.97981299,"Asia, Far East and Oceania"
+INDIA,IND,2007,Macrolides & S. aureus,102,9.186106899,7.01345111,11.38400802,"Asia, Far East and Oceania"
+INDIA,IND,2007,Third generation cephalosporins & E. coli,37,20.21242063,8.467926526,31.78503046,"Asia, Far East and Oceania"
+INDIA,IND,2008,Aminoglycosides & E. coli,459,41.49807626,36.81975759,45.81016021,"Asia, Far East and Oceania"
+INDIA,IND,2008,Aminopenicillins & E. coli,380,55.61168603,50.64689837,60.37855458,"Asia, Far East and Oceania"
+INDIA,IND,2008,Aminopenicillins with beta-lactamase inhibitors & E. coli,102,29.34237355,21.7182665,36.43934165,"Asia, Far East and Oceania"
+INDIA,IND,2008,Fluoroquinolones & E. coli,1850,3.969116096,2.874368095,5.214657502,"Asia, Far East and Oceania"
+INDIA,IND,2008,Fluoroquinolones & Non-typhoidal Salmonella,47,6.285231036,2.720035912,9.827969561,"Asia, Far East and Oceania"
+INDIA,IND,2008,Fluoroquinolones & S. aureus,223,15.04475828,10.79937736,19.03353052,"Asia, Far East and Oceania"
+INDIA,IND,2008,Macrolides & S. aureus,24,33.01562557,26.72390495,36.82220607,"Asia, Far East and Oceania"
+INDIA,IND,2008,Third generation cephalosporins & E. coli,323,3.810665644,1.973690922,6.734418956,"Asia, Far East and Oceania"
+INDIA,IND,2009,Aminoglycosides & E. coli,842,52.67349947,49.46243473,55.82727206,"Asia, Far East and Oceania"
+INDIA,IND,2009,Aminopenicillins & E. coli,816,55.1905895,51.58227514,58.87628669,"Asia, Far East and Oceania"
+INDIA,IND,2009,Aminopenicillins with beta-lactamase inhibitors & E. coli,12,19.29002842,1.924915082,36.64806219,"Asia, Far East and Oceania"
+INDIA,IND,2009,Fluoroquinolones & E. coli,730,35.03861007,32.00943873,39.15729114,"Asia, Far East and Oceania"
+INDIA,IND,2009,Fluoroquinolones & Non-typhoidal Salmonella,114,1.125997868,0.348594491,2.074626897,"Asia, Far East and Oceania"
+INDIA,IND,2009,Fluoroquinolones & S. aureus,154,6.234090105,2.927300742,10.0027542,"Asia, Far East and Oceania"
+INDIA,IND,2009,Macrolides & S. aureus,1824,10.84291261,9.744455909,11.83285717,"Asia, Far East and Oceania"
+INDIA,IND,2009,Third generation cephalosporins & E. coli,788,18.0181663,14.82241102,21.1298547,"Asia, Far East and Oceania"
+INDIA,IND,2010,Aminoglycosides & E. coli,603,49.46474875,44.99649063,54.23418281,"Asia, Far East and Oceania"
+INDIA,IND,2010,Aminopenicillins & E. coli,585,62.34074347,57.99687909,66.44308282,"Asia, Far East and Oceania"
+INDIA,IND,2010,Fluoroquinolones & E. coli,585,23.6967913,20.3922569,27.5427439,"Asia, Far East and Oceania"
+INDIA,IND,2010,Fluoroquinolones & Non-typhoidal Salmonella,138,67.09165283,59.31018916,75.01348599,"Asia, Far East and Oceania"
+INDIA,IND,2010,Fluoroquinolones & S. aureus,85,16.96510888,11.61518316,23.26813749,"Asia, Far East and Oceania"
+INDIA,IND,2010,Macrolides & S. aureus,81,2.757026854,0.195587832,5.586257876,"Asia, Far East and Oceania"
+INDIA,IND,2010,Third generation cephalosporins & E. coli,513,57.73758695,53.00470808,62.49578963,"Asia, Far East and Oceania"
+INDIA,IND,2011,Aminoglycosides & E. coli,1455,44.87053158,42.29294661,47.58450577,"Asia, Far East and Oceania"
+INDIA,IND,2011,Aminopenicillins & E. coli,1544,60.1364517,58.05101035,62.11054768,"Asia, Far East and Oceania"
+INDIA,IND,2011,Aminopenicillins with beta-lactamase inhibitors & E. coli,757,37.13904248,33.56697752,40.81259851,"Asia, Far East and Oceania"
+INDIA,IND,2011,Fluoroquinolones & E. coli,11095,31.80310402,30.94215145,32.76446808,"Asia, Far East and Oceania"
+INDIA,IND,2011,Fluoroquinolones & Non-typhoidal Salmonella,255,7.998264593,7.514706806,8.573731269,"Asia, Far East and Oceania"
+INDIA,IND,2011,Fluoroquinolones & S. aureus,92,42.74128371,35.4759059,49.96148561,"Asia, Far East and Oceania"
+INDIA,IND,2011,Third generation cephalosporins & E. coli,1679,36.09313534,33.66706649,38.32102589,"Asia, Far East and Oceania"
+INDIA,IND,2012,Aminoglycosides & E. coli,302,38.88980495,33.5123225,44.97969193,"Asia, Far East and Oceania"
+INDIA,IND,2012,Aminopenicillins & E. coli,267,66.64049494,61.81868601,70.89047598,"Asia, Far East and Oceania"
+INDIA,IND,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,27,60.56299522,53.52633327,67.59900205,"Asia, Far East and Oceania"
+INDIA,IND,2012,Fluoroquinolones & E. coli,2548,32.99851377,31.11789892,34.41906202,"Asia, Far East and Oceania"
+INDIA,IND,2012,Fluoroquinolones & Non-typhoidal Salmonella,121,0.980170479,0.666795657,1.338721662,"Asia, Far East and Oceania"
+INDIA,IND,2012,Fluoroquinolones & S. aureus,259,27.53970374,23.46644623,30.87884003,"Asia, Far East and Oceania"
+INDIA,IND,2012,Macrolides & S. aureus,200,41.2702778,36.27878063,45.97432944,"Asia, Far East and Oceania"
+INDIA,IND,2012,Third generation cephalosporins & E. coli,136,39.09866494,31.18328499,47.28094768,"Asia, Far East and Oceania"
+INDIA,IND,2013,Aminoglycosides & E. coli,1140,44.53046551,41.7588166,47.57769337,"Asia, Far East and Oceania"
+INDIA,IND,2013,Aminopenicillins & E. coli,1077,63.80175424,60.95630183,66.77665427,"Asia, Far East and Oceania"
+INDIA,IND,2013,Aminopenicillins with beta-lactamase inhibitors & E. coli,322,43.57697963,38.00980639,49.69054613,"Asia, Far East and Oceania"
+INDIA,IND,2013,Fluoroquinolones & E. coli,3550,35.14761345,33.0997595,37.89268157,"Asia, Far East and Oceania"
+INDIA,IND,2013,Fluoroquinolones & Non-typhoidal Salmonella,183,19.33917242,18.02648044,20.6770963,"Asia, Far East and Oceania"
+INDIA,IND,2013,Fluoroquinolones & S. aureus,280,16.59132719,13.02354353,20.36902352,"Asia, Far East and Oceania"
+INDIA,IND,2013,Macrolides & S. aureus,130,27.33872216,21.70255243,34.08465584,"Asia, Far East and Oceania"
+INDIA,IND,2013,Third generation cephalosporins & E. coli,828,36.04251286,32.40605466,39.64605675,"Asia, Far East and Oceania"
+INDIA,IND,2014,Aminoglycosides & E. coli,1697,10.28153347,5.320699425,14.91732144,"Asia, Far East and Oceania"
+INDIA,IND,2014,Aminopenicillins & E. coli,1639,61.15954028,53.47422126,68.7638647,"Asia, Far East and Oceania"
+INDIA,IND,2014,Aminopenicillins with beta-lactamase inhibitors & E. coli,48,91.4007451,81.89956081,95.71869904,"Asia, Far East and Oceania"
+INDIA,IND,2014,Fluoroquinolones & E. coli,1711,32.29835614,26.32261022,37.87850355,"Asia, Far East and Oceania"
+INDIA,IND,2014,Fluoroquinolones & Non-typhoidal Salmonella,192,3.661386574,2.816887545,4.49696919,"Asia, Far East and Oceania"
+INDIA,IND,2014,Fluoroquinolones & S. aureus,252,15.76390549,11.43215385,19.8927732,"Asia, Far East and Oceania"
+INDIA,IND,2014,Macrolides & S. aureus,483,13.01973699,10.51215619,15.56251413,"Asia, Far East and Oceania"
+INDIA,IND,2014,Third generation cephalosporins & E. coli,1678,23.8179111,20.63212269,27.24569639,"Asia, Far East and Oceania"
+INDIA,IND,2015,Aminoglycosides & E. coli,1274,31.76007453,29.56193829,33.92457697,"Asia, Far East and Oceania"
+INDIA,IND,2015,Aminopenicillins & E. coli,1035,41.18537295,38.07912894,44.34290243,"Asia, Far East and Oceania"
+INDIA,IND,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,106,15.58040757,10.1516066,21.03435925,"Asia, Far East and Oceania"
+INDIA,IND,2015,Fluoroquinolones & E. coli,2295,10.90328122,9.979056206,12.07795324,"Asia, Far East and Oceania"
+INDIA,IND,2015,Fluoroquinolones & S. aureus,348,5.896797048,3.858295449,7.811216293,"Asia, Far East and Oceania"
+INDIA,IND,2015,Macrolides & S. aureus,348,53.3160456,50.34105017,56.19280269,"Asia, Far East and Oceania"
+INDIA,IND,2015,Third generation cephalosporins & E. coli,1068,34.01413263,31.02229198,37.16406577,"Asia, Far East and Oceania"
+INDIA,IND,2016,Aminoglycosides & E. coli,81,0.980170479,0.813871894,1.147606332,"Asia, Far East and Oceania"
+INDIA,IND,2016,Aminopenicillins & E. coli,175,25.31664252,18.68278121,31.9968811,"Asia, Far East and Oceania"
+INDIA,IND,2016,Aminopenicillins with beta-lactamase inhibitors & E. coli,94,8.903090041,4.345905386,13.59416209,"Asia, Far East and Oceania"
+INDIA,IND,2016,Fluoroquinolones & S. aureus,476,30.32895481,25.66670077,35.28530332,"Asia, Far East and Oceania"
+INDIA,IND,2016,Macrolides & S. aureus,221,17.37493567,12.03023874,22.51178391,"Asia, Far East and Oceania"
+INDIA,IND,2016,Third generation cephalosporins & E. coli,310,65.13636032,58.0258637,72.32214168,"Asia, Far East and Oceania"
+INDIA,IND,2017,Fluoroquinolones & Non-typhoidal Salmonella,27,22.48178794,20.2459419,24.05612533,"Asia, Far East and Oceania"
+INDIA,IND,2018,Aminoglycosides & E. coli,12,43.03160187,23.50296219,62.57077084,"Asia, Far East and Oceania"
+INDIA,IND,2018,Aminopenicillins with beta-lactamase inhibitors & E. coli,12,61.57970612,46.3806067,73.37647435,"Asia, Far East and Oceania"
+INDIA,IND,2018,Fluoroquinolones & E. coli,24,0.0,0.004425638,0.036377623,"Asia, Far East and Oceania"
+INDIA,IND,2018,Third generation cephalosporins & E. coli,12,68.25702365,57.27371281,73.84964649,"Asia, Far East and Oceania"
+INDONESIA,IDN,2012,Aminoglycosides & E. coli,5,7.330399512,0.340183659,19.64442525,"Asia, Far East and Oceania"
+INDONESIA,IDN,2012,Aminopenicillins & E. coli,5,29.32159805,16.89311421,36.13273158,"Asia, Far East and Oceania"
+INDONESIA,IDN,2013,Aminoglycosides & E. coli,53,7.976433157,2.694582066,13.23512831,"Asia, Far East and Oceania"
+INDONESIA,IDN,2014,Aminoglycosides & E. coli,86,0.0,0.000219362,0.007648326,"Asia, Far East and Oceania"
+INDONESIA,IDN,2014,Aminopenicillins & E. coli,86,34.81939768,33.23477126,36.40254685,"Asia, Far East and Oceania"
+INDONESIA,IDN,2014,Fluoroquinolones & E. coli,86,0.0,0.000203212,0.007643566,"Asia, Far East and Oceania"
+INDONESIA,IDN,2015,Aminoglycosides & E. coli,19,30.78767795,25.01680902,36.25013211,"Asia, Far East and Oceania"
+INDONESIA,IDN,2015,Aminopenicillins & E. coli,19,36.65199756,36.63601914,36.65151473,"Asia, Far East and Oceania"
+INDONESIA,IDN,2015,Third generation cephalosporins & E. coli,19,36.65199756,36.63591509,36.65148087,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2002,Fluoroquinolones & Non-typhoidal Salmonella,30,0.0,0.000535714,0.022117315,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2003,Macrolides & S. aureus,10,24.15408977,6.023663532,42.25894898,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2004,Aminoglycosides & E. coli,545,40.53291198,34.72421074,44.87291353,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2004,Aminopenicillins & E. coli,528,62.92776018,62.34617057,63.40944991,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2004,Fluoroquinolones & E. coli,528,53.71106803,51.88850159,55.51138598,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2006,Aminoglycosides & E. coli,1203,13.45293082,12.08711887,14.74829593,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2006,Aminopenicillins & E. coli,1203,31.72727454,29.96452619,33.50508157,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2006,Fluoroquinolones & Non-typhoidal Salmonella,80,2.186196353,0.405939713,4.005572539,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2007,Aminoglycosides & E. coli,1100,22.88282188,21.21602528,24.62733208,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2007,Aminopenicillins & E. coli,1100,19.06901824,17.42906988,20.68931445,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2007,Fluoroquinolones & Non-typhoidal Salmonella,123,5.720705471,2.66455588,8.801325445,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2008,Aminoglycosides & E. coli,1100,26.69662553,24.95210774,28.47656668,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2008,Aminopenicillins & E. coli,1100,18.4333843,16.80522662,20.04265134,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2008,Fluoroquinolones & S. aureus,14,0.0,0.00068727,0.018725192,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2009,Aminoglycosides & E. coli,1136,38.13803647,36.39596123,39.87314546,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2009,Aminopenicillins & E. coli,1100,19.06901824,17.42602368,20.70364621,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2009,Fluoroquinolones & E. coli,36,0.0,0.000303237,0.011638924,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2009,Fluoroquinolones & S. aureus,9,0.0,0.000889564,0.023188683,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2009,Third generation cephalosporins & E. coli,36,0.0,0.000380002,0.01151103,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2010,Aminoglycosides & E. coli,1157,52.57577197,51.42884523,53.70804228,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2010,Aminopenicillins & E. coli,1157,14.50366123,13.07328935,15.9784784,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2010,Fluoroquinolones & E. coli,105,24.15408977,18.49309794,29.65506048,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2010,Fluoroquinolones & Non-typhoidal Salmonella,107,0.0,0.00039482,0.011725029,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2010,Macrolides & S. aureus,43,14.57464235,9.512721699,19.64287074,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2011,Aminoglycosides & E. coli,2147,59.49383213,57.62877265,61.46313898,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2011,Aminopenicillins & E. coli,2138,30.42014153,28.82996907,31.99709657,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2011,Aminopenicillins with beta-lactamase inhibitors & E. coli,9,36.43660588,36.41344443,36.43591204,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2011,Fluoroquinolones & E. coli,986,42.01870869,37.00481674,47.19214957,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2011,Fluoroquinolones & Non-typhoidal Salmonella,14,10.5666157,2.561048671,18.73263883,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2011,Macrolides & S. aureus,25,4.372392705,0.19799679,8.849184957,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2011,Third generation cephalosporins & E. coli,92,6.841158655,3.157561238,10.52537907,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2012,Aminoglycosides & E. coli,318,3.813803647,2.251183599,5.387109871,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2012,Aminopenicillins & E. coli,80,40.0449383,33.71936249,46.33584584,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,80,11.44141094,6.27342143,16.42959495,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2012,Fluoroquinolones & E. coli,398,4.446243448,2.883763126,6.135055793,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2012,Fluoroquinolones & Non-typhoidal Salmonella,37,1.906901824,0.15098567,5.195435573,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2013,Aminoglycosides & E. coli,444,14.61958065,12.2608619,16.99846738,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2013,Aminopenicillins & E. coli,444,49.57944741,47.22262625,51.8983459,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2013,Fluoroquinolones & E. coli,444,38.77367041,36.03340397,41.51871531,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2013,Fluoroquinolones & Non-typhoidal Salmonella,61,0.0,0.000353591,0.015596733,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2013,Fluoroquinolones & S. aureus,55,34.95986677,27.03411701,42.98538804,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2013,Macrolides & S. aureus,55,36.86676859,28.9839074,44.77584926,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2013,Third generation cephalosporins & E. coli,444,3.813803647,2.495005295,5.150883271,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2014,Aminoglycosides & E. coli,71,16.02184275,11.92174175,20.00384688,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2014,Aminopenicillins & E. coli,71,36.43660588,36.42649641,36.43550668,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2014,Fluoroquinolones & E. coli,11,26.59872229,17.67338912,35.68031195,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2014,Fluoroquinolones & Non-typhoidal Salmonella,141,2.170934384,0.303733437,4.064440212,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2014,Fluoroquinolones & S. aureus,98,9.10915147,6.15922299,12.05440599,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2014,Macrolides & S. aureus,98,11.29534782,8.070827514,14.40886639,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2014,Third generation cephalosporins & E. coli,11,23.31942776,13.36092397,33.11026441,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2015,Aminoglycosides & E. coli,140,74.85430414,66.41845196,81.72403212,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2015,Aminopenicillins & E. coli,206,58.19289212,52.75610283,64.22526947,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,100,48.32423283,39.14148552,57.81628796,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2015,Fluoroquinolones & E. coli,110,25.55432914,16.37773131,33.48830151,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2015,Fluoroquinolones & Non-typhoidal Salmonella,245,29.87479524,26.08964576,33.70526655,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2015,Third generation cephalosporins & E. coli,140,16.61199366,10.96833884,23.65661887,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2016,Aminoglycosides & E. coli,154,21.44643948,15.67583069,27.46023405,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2016,Aminopenicillins & E. coli,154,33.50835831,27.53366634,39.43002546,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2016,Aminopenicillins with beta-lactamase inhibitors & E. coli,54,18.44771861,14.47019201,22.48186908,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2016,Fluoroquinolones & E. coli,308,61.41878607,57.65044639,64.48049586,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2016,Fluoroquinolones & S. aureus,57,0.0,0.000216237,0.009287745,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2016,Macrolides & S. aureus,57,16.7608387,12.37578658,21.24670297,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2016,Third generation cephalosporins & E. coli,154,19.36008882,14.19419911,24.76528337,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2017,Fluoroquinolones & S. aureus,32,39.71267882,21.46225971,58.25081912,"Asia, Far East and Oceania"
+IRAN (ISLAMIC REPUBLIC OF),IRN,2017,Macrolides & S. aureus,32,29.53450912,12.48649856,47.15704504,"Asia, Far East and Oceania"
+IRAQ,IRQ,2011,Aminoglycosides & E. coli,25,31.07287859,23.2529454,39.01966427,Middle East
+IRAQ,IRQ,2011,Aminopenicillins & E. coli,25,40.21196053,34.69174085,45.34863486,Middle East
+IRAQ,IRQ,2011,Fluoroquinolones & E. coli,25,18.27816388,9.849511871,26.63734739,Middle East
+IRAQ,IRQ,2011,Fluoroquinolones & Non-typhoidal Salmonella,38,27.87419992,21.2272446,34.58614888,Middle East
+IRAQ,IRQ,2012,Aminopenicillins & E. coli,145,44.7815015,43.78206727,45.65587004,Middle East
+IRAQ,IRQ,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,145,15.5364393,12.21178522,18.85098428,Middle East
+IRAQ,IRQ,2012,Third generation cephalosporins & E. coli,290,39.29805234,37.4122535,41.05445963,Middle East
+IRAQ,IRQ,2013,Fluoroquinolones & S. aureus,48,5.973504933,1.462598953,10.54006456,Middle East
+IRAQ,IRQ,2013,Macrolides & S. aureus,48,5.973504933,1.42549568,10.59580046,Middle East
+IRAQ,IRQ,2014,Aminoglycosides & E. coli,31,31.49666238,22.36363505,40.38630178,Middle East
+IRAQ,IRQ,2014,Aminopenicillins & E. coli,31,54.3045903,54.28597256,54.30388616,Middle East
+IRAQ,IRQ,2014,Fluoroquinolones & E. coli,62,0.0,0.002475866,0.017184729,Middle East
+IRAQ,IRQ,2014,Fluoroquinolones & Non-typhoidal Salmonella,21,13.25166881,4.934848023,21.57983777,Middle East
+IRAQ,IRQ,2016,Fluoroquinolones & Non-typhoidal Salmonella,21,0.0,0.000519478,0.01911651,Middle East
+IRAQ,IRQ,2018,Fluoroquinolones & S. aureus,11,2.284770485,0.184678459,7.913805821,Middle East
+IRAQ,IRQ,2018,Macrolides & S. aureus,11,19.64902617,7.041543978,32.51942263,Middle East
 IRELAND,IRL,2016,Aminoglycosides & E. coli,170,0.089462987,0.007609752,0.207158959,Europe
 IRELAND,IRL,2016,Aminopenicillins & E. coli,170,4.965195773,4.44820872,5.475309909,Europe
 IRELAND,IRL,2016,Fluoroquinolones & E. coli,510,2.59442662,2.255665281,2.930072679,Europe
@@ -1004,17 +1004,17 @@ IRELAND,IRL,2019,Fluoroquinolones & Non-typhoidal Salmonella,62,0.158517868,0.01
 IRELAND,IRL,2020,Aminoglycosides & E. coli,170,0.0,3.38e-05,0.001117208,Europe
 IRELAND,IRL,2020,Aminopenicillins & E. coli,170,3.802176943,3.253349015,4.352269704,Europe
 IRELAND,IRL,2020,Fluoroquinolones & Non-typhoidal Salmonella,6,1.267392315,0.089708511,3.454512141,Europe
-ISRAEL,ISR,2002,Aminoglycosides & E. coli,44,16.72182804,13.27341681,20.07149004,Asia
-ISRAEL,ISR,2002,Aminopenicillins & E. coli,44,12.66805155,9.15668243,16.23392675,Asia
-ISRAEL,ISR,2002,Fluoroquinolones & E. coli,44,10.38780227,6.870375433,13.84178818,Asia
-ISRAEL,ISR,2002,Third generation cephalosporins & E. coli,44,1.266805155,0.054976502,2.824177991,Asia
-ISRAEL,ISR,2007,Fluoroquinolones & Non-typhoidal Salmonella,80,10.94820883,5.510381645,16.41004068,Asia
-ISRAEL,ISR,2009,Aminoglycosides & E. coli,66,59.12032767,52.52428403,65.6192072,Asia
-ISRAEL,ISR,2009,Aminopenicillins & E. coli,66,61.30996944,55.24500704,67.49734485,Asia
-ISRAEL,ISR,2009,Fluoroquinolones & E. coli,66,53.28128296,45.88998309,60.65314489,Asia
-ISRAEL,ISR,2013,Aminoglycosides & E. coli,287,20.26888247,19.15040232,21.39960744,Asia
-ISRAEL,ISR,2013,Aminopenicillins with beta-lactamase inhibitors & E. coli,287,20.26888247,19.17513585,21.3953213,Asia
-ISRAEL,ISR,2013,Fluoroquinolones & E. coli,574,19.00207732,18.02366099,19.93070147,Asia
+ISRAEL,ISR,2002,Aminoglycosides & E. coli,44,16.72182804,13.27341681,20.07149004,Europe
+ISRAEL,ISR,2002,Aminopenicillins & E. coli,44,12.66805155,9.15668243,16.23392675,Europe
+ISRAEL,ISR,2002,Fluoroquinolones & E. coli,44,10.38780227,6.870375433,13.84178818,Europe
+ISRAEL,ISR,2002,Third generation cephalosporins & E. coli,44,1.266805155,0.054976502,2.824177991,Europe
+ISRAEL,ISR,2007,Fluoroquinolones & Non-typhoidal Salmonella,80,10.94820883,5.510381645,16.41004068,Europe
+ISRAEL,ISR,2009,Aminoglycosides & E. coli,66,59.12032767,52.52428403,65.6192072,Europe
+ISRAEL,ISR,2009,Aminopenicillins & E. coli,66,61.30996944,55.24500704,67.49734485,Europe
+ISRAEL,ISR,2009,Fluoroquinolones & E. coli,66,53.28128296,45.88998309,60.65314489,Europe
+ISRAEL,ISR,2013,Aminoglycosides & E. coli,287,20.26888247,19.15040232,21.39960744,Europe
+ISRAEL,ISR,2013,Aminopenicillins with beta-lactamase inhibitors & E. coli,287,20.26888247,19.17513585,21.3953213,Europe
+ISRAEL,ISR,2013,Fluoroquinolones & E. coli,574,19.00207732,18.02366099,19.93070147,Europe
 ITALY,ITA,2016,Aminoglycosides & E. coli,341,1.811787779,0.952526681,2.654827778,Europe
 ITALY,ITA,2016,Aminopenicillins & E. coli,341,27.08145944,25.70298366,28.51737504,Europe
 ITALY,ITA,2016,Fluoroquinolones & E. coli,1023,23.36252663,22.35612046,24.3928823,Europe
@@ -1040,39 +1040,39 @@ JAMAICA,JAM,2001,Aminoglycosides & E. coli,34,69.89381136,62.9032525,76.53700193
 JAMAICA,JAM,2001,Aminopenicillins & E. coli,34,16.12934108,6.107975282,25.97642002,Americas
 JAMAICA,JAM,2001,Aminopenicillins with beta-lactamase inhibitors & E. coli,34,2.304191583,0.173179458,6.527974625,Americas
 JAMAICA,JAM,2001,Fluoroquinolones & E. coli,34,6.91257475,0.46401336,13.96764894,Americas
-JAPAN,JPN,2014,Aminoglycosides & E. coli,1307,24.92533918,22.43645084,27.42981674,Asia
-JAPAN,JPN,2014,Aminopenicillins & E. coli,1307,26.07821209,23.44023314,28.86670263,Asia
-JAPAN,JPN,2014,Fluoroquinolones & E. coli,2614,5.521018599,4.497538965,6.606005489,Asia
-JAPAN,JPN,2014,Fluoroquinolones & Non-typhoidal Salmonella,128,0.0,0.000314366,0.009609342,Asia
-JAPAN,JPN,2014,Third generation cephalosporins & E. coli,1307,1.617998199,0.846399758,2.481098074,Asia
-JAPAN,JPN,2015,Aminoglycosides & E. coli,1108,24.5698883,21.57051268,27.46391599,Asia
-JAPAN,JPN,2015,Aminopenicillins & E. coli,1108,27.3278108,24.19651996,30.22938584,Asia
-JAPAN,JPN,2015,Fluoroquinolones & E. coli,2216,3.759198598,2.774939879,4.88725091,Asia
-JAPAN,JPN,2015,Fluoroquinolones & Non-typhoidal Salmonella,123,0.0,0.000238837,0.009776349,Asia
-JAPAN,JPN,2015,Third generation cephalosporins & E. coli,1108,0.960652498,0.238418209,1.766963823,Asia
-JAPAN,JPN,2016,Aminoglycosides & E. coli,506,38.7388617,33.96257847,43.72925831,Asia
-JAPAN,JPN,2016,Aminopenicillins & E. coli,506,28.66574291,23.74735689,33.52305987,Asia
-JAPAN,JPN,2016,Fluoroquinolones & E. coli,1518,6.587697334,4.871312676,8.347306226,Asia
-JAPAN,JPN,2016,Fluoroquinolones & Non-typhoidal Salmonella,104,0.0,0.000180206,0.010604463,Asia
-JAPAN,JPN,2016,Third generation cephalosporins & E. coli,1012,3.529315413,2.016589222,5.237026163,Asia
-JAPAN,JPN,2017,Aminoglycosides & E. coli,485,15.34096073,12.02056313,18.87654363,Asia
-JAPAN,JPN,2017,Aminopenicillins & E. coli,485,29.29279995,24.42391244,34.23240932,Asia
-JAPAN,JPN,2017,Fluoroquinolones & E. coli,970,6.816827358,4.491860684,9.152476129,Asia
-JAPAN,JPN,2017,Fluoroquinolones & Non-typhoidal Salmonella,112,0.0,0.000245791,0.010285325,Asia
-JAPAN,JPN,2017,Third generation cephalosporins & E. coli,485,2.978182181,1.237375213,5.009260945,Asia
-JORDAN,JOR,2006,Fluoroquinolones & S. aureus,86,9.302047836,8.092528528,10.49737888,Asia
-JORDAN,JOR,2006,Macrolides & S. aureus,86,9.957121627,8.835269096,11.07983729,Asia
-JORDAN,JOR,2010,Aminoglycosides & E. coli,63,0.655073791,0.03426038,1.333787349,Asia
-JORDAN,JOR,2010,Aminopenicillins & E. coli,63,0.0,7.65e-05,0.003163849,Asia
-JORDAN,JOR,2010,Fluoroquinolones & E. coli,126,0.0,0.000361982,0.002907915,Asia
-JORDAN,JOR,2012,Fluoroquinolones & Non-typhoidal Salmonella,33,0.0,8.92e-05,0.004340829,Asia
-JORDAN,JOR,2015,Aminoglycosides & E. coli,520,1.179132824,0.87787074,1.48777893,Asia
-JORDAN,JOR,2015,Aminopenicillins & E. coli,520,4.585516539,4.078378281,5.085380391,Asia
-JORDAN,JOR,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,520,2.489280407,2.065371828,2.910219393,Asia
-JORDAN,JOR,2015,Fluoroquinolones & E. coli,520,0.524059033,0.313397886,0.731229895,Asia
-JORDAN,JOR,2015,Third generation cephalosporins & E. coli,520,0.393044275,0.207423071,0.574358711,Asia
-JORDAN,JOR,2016,Fluoroquinolones & S. aureus,53,0.262029517,0.021491094,0.736733499,Asia
-JORDAN,JOR,2016,Macrolides & S. aureus,53,3.930442748,2.399026582,5.432497621,Asia
+JAPAN,JPN,2014,Aminoglycosides & E. coli,1307,24.92533918,22.43645084,27.42981674,"Asia, Far East and Oceania"
+JAPAN,JPN,2014,Aminopenicillins & E. coli,1307,26.07821209,23.44023314,28.86670263,"Asia, Far East and Oceania"
+JAPAN,JPN,2014,Fluoroquinolones & E. coli,2614,5.521018599,4.497538965,6.606005489,"Asia, Far East and Oceania"
+JAPAN,JPN,2014,Fluoroquinolones & Non-typhoidal Salmonella,128,0.0,0.000314366,0.009609342,"Asia, Far East and Oceania"
+JAPAN,JPN,2014,Third generation cephalosporins & E. coli,1307,1.617998199,0.846399758,2.481098074,"Asia, Far East and Oceania"
+JAPAN,JPN,2015,Aminoglycosides & E. coli,1108,24.5698883,21.57051268,27.46391599,"Asia, Far East and Oceania"
+JAPAN,JPN,2015,Aminopenicillins & E. coli,1108,27.3278108,24.19651996,30.22938584,"Asia, Far East and Oceania"
+JAPAN,JPN,2015,Fluoroquinolones & E. coli,2216,3.759198598,2.774939879,4.88725091,"Asia, Far East and Oceania"
+JAPAN,JPN,2015,Fluoroquinolones & Non-typhoidal Salmonella,123,0.0,0.000238837,0.009776349,"Asia, Far East and Oceania"
+JAPAN,JPN,2015,Third generation cephalosporins & E. coli,1108,0.960652498,0.238418209,1.766963823,"Asia, Far East and Oceania"
+JAPAN,JPN,2016,Aminoglycosides & E. coli,506,38.7388617,33.96257847,43.72925831,"Asia, Far East and Oceania"
+JAPAN,JPN,2016,Aminopenicillins & E. coli,506,28.66574291,23.74735689,33.52305987,"Asia, Far East and Oceania"
+JAPAN,JPN,2016,Fluoroquinolones & E. coli,1518,6.587697334,4.871312676,8.347306226,"Asia, Far East and Oceania"
+JAPAN,JPN,2016,Fluoroquinolones & Non-typhoidal Salmonella,104,0.0,0.000180206,0.010604463,"Asia, Far East and Oceania"
+JAPAN,JPN,2016,Third generation cephalosporins & E. coli,1012,3.529315413,2.016589222,5.237026163,"Asia, Far East and Oceania"
+JAPAN,JPN,2017,Aminoglycosides & E. coli,485,15.34096073,12.02056313,18.87654363,"Asia, Far East and Oceania"
+JAPAN,JPN,2017,Aminopenicillins & E. coli,485,29.29279995,24.42391244,34.23240932,"Asia, Far East and Oceania"
+JAPAN,JPN,2017,Fluoroquinolones & E. coli,970,6.816827358,4.491860684,9.152476129,"Asia, Far East and Oceania"
+JAPAN,JPN,2017,Fluoroquinolones & Non-typhoidal Salmonella,112,0.0,0.000245791,0.010285325,"Asia, Far East and Oceania"
+JAPAN,JPN,2017,Third generation cephalosporins & E. coli,485,2.978182181,1.237375213,5.009260945,"Asia, Far East and Oceania"
+JORDAN,JOR,2006,Fluoroquinolones & S. aureus,86,9.302047836,8.092528528,10.49737888,Middle East
+JORDAN,JOR,2006,Macrolides & S. aureus,86,9.957121627,8.835269096,11.07983729,Middle East
+JORDAN,JOR,2010,Aminoglycosides & E. coli,63,0.655073791,0.03426038,1.333787349,Middle East
+JORDAN,JOR,2010,Aminopenicillins & E. coli,63,0.0,7.65e-05,0.003163849,Middle East
+JORDAN,JOR,2010,Fluoroquinolones & E. coli,126,0.0,0.000361982,0.002907915,Middle East
+JORDAN,JOR,2012,Fluoroquinolones & Non-typhoidal Salmonella,33,0.0,8.92e-05,0.004340829,Middle East
+JORDAN,JOR,2015,Aminoglycosides & E. coli,520,1.179132824,0.87787074,1.48777893,Middle East
+JORDAN,JOR,2015,Aminopenicillins & E. coli,520,4.585516539,4.078378281,5.085380391,Middle East
+JORDAN,JOR,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,520,2.489280407,2.065371828,2.910219393,Middle East
+JORDAN,JOR,2015,Fluoroquinolones & E. coli,520,0.524059033,0.313397886,0.731229895,Middle East
+JORDAN,JOR,2015,Third generation cephalosporins & E. coli,520,0.393044275,0.207423071,0.574358711,Middle East
+JORDAN,JOR,2016,Fluoroquinolones & S. aureus,53,0.262029517,0.021491094,0.736733499,Middle East
+JORDAN,JOR,2016,Macrolides & S. aureus,53,3.930442748,2.399026582,5.432497621,Middle East
 KENYA,KEN,2002,Macrolides & S. aureus,402,12.83028985,9.821163305,15.7870257,Africa
 KENYA,KEN,2007,Aminoglycosides & E. coli,70,0.273875639,0.0146486,0.574682517,Africa
 KENYA,KEN,2007,Aminopenicillins & E. coli,70,2.259474023,1.539779874,2.971685099,Africa
@@ -1092,10 +1092,10 @@ KENYA,KEN,2014,Third generation cephalosporins & E. coli,934,0.06846891,0.021980
 KENYA,KEN,2016,Aminopenicillins & E. coli,128,47.65536228,40.09493224,55.19447845,Africa
 KENYA,KEN,2016,Third generation cephalosporins & E. coli,128,33.90862316,26.51355283,41.14667692,Africa
 KENYA,KEN,2018,Third generation cephalosporins & E. coli,162,50.40471011,43.75610579,57.07681184,Africa
-KUWAIT,KWT,2005,Fluoroquinolones & Non-typhoidal Salmonella,173,0.949035995,0.061644012,2.291492144,Asia
-LAO PEOPLE'S DEMOCRATIC REPUBLIC,LAO,2007,Fluoroquinolones & Non-typhoidal Salmonella,59,0.0,0.000203692,0.006724073,Asia
-LAO PEOPLE'S DEMOCRATIC REPUBLIC,LAO,2011,Fluoroquinolones & Non-typhoidal Salmonella,50,0.0,0.003834935,0.028618268,Asia
-LAO PEOPLE'S DEMOCRATIC REPUBLIC,LAO,2012,Aminoglycosides & E. coli,4,6.708754137,0.423485813,17.54794245,Asia
+KUWAIT,KWT,2005,Fluoroquinolones & Non-typhoidal Salmonella,173,0.949035995,0.061644012,2.291492144,Middle East
+LAO PEOPLE'S DEMOCRATIC REPUBLIC,LAO,2007,Fluoroquinolones & Non-typhoidal Salmonella,59,0.0,0.000203692,0.006724073,"Asia, Far East and Oceania"
+LAO PEOPLE'S DEMOCRATIC REPUBLIC,LAO,2011,Fluoroquinolones & Non-typhoidal Salmonella,50,0.0,0.003834935,0.028618268,"Asia, Far East and Oceania"
+LAO PEOPLE'S DEMOCRATIC REPUBLIC,LAO,2012,Aminoglycosides & E. coli,4,6.708754137,0.423485813,17.54794245,"Asia, Far East and Oceania"
 LATVIA,LVA,2016,Aminoglycosides & E. coli,100,0.287974192,0.019077006,0.823630172,Europe
 LATVIA,LVA,2016,Aminopenicillins & E. coli,100,13.24681284,10.58387443,15.89546055,Europe
 LATVIA,LVA,2016,Fluoroquinolones & E. coli,200,20.15819345,18.08278306,22.25605542,Europe
@@ -1116,35 +1116,35 @@ LATVIA,LVA,2019,Fluoroquinolones & Non-typhoidal Salmonella,12,0.0,0.003912802,0
 LATVIA,LVA,2020,Aminoglycosides & E. coli,150,0.0,6.84e-05,0.004508447,Europe
 LATVIA,LVA,2020,Aminopenicillins & E. coli,150,11.90293327,9.731471572,14.09200999,Europe
 LATVIA,LVA,2020,Fluoroquinolones & Non-typhoidal Salmonella,21,1.919827947,0.123374954,5.220101706,Europe
-LEBANON,LBN,2002,Aminoglycosides & E. coli,9,12.43362385,9.685972755,13.87432379,Asia
-LEBANON,LBN,2002,Third generation cephalosporins & E. coli,9,0.0,0.000191607,0.008884859,Asia
-LEBANON,LBN,2004,Aminoglycosides & E. coli,94,6.98518194,5.618843556,8.320514666,Asia
-LEBANON,LBN,2004,Aminopenicillins & E. coli,94,10.05866199,8.859871782,11.28304135,Asia
-LEBANON,LBN,2004,Fluoroquinolones & E. coli,94,6.286663746,4.951808027,7.617083068,Asia
-LEBANON,LBN,2004,Third generation cephalosporins & E. coli,94,4.330812803,3.086084246,5.588635352,Asia
-LEBANON,LBN,2009,Aminoglycosides & E. coli,82,23.17659291,15.36520294,31.02985613,Asia
-LEBANON,LBN,2009,Aminopenicillins with beta-lactamase inhibitors & E. coli,82,3.43356932,0.201618418,6.848906993,Asia
-LEBANON,LBN,2009,Fluoroquinolones & E. coli,82,34.3356932,25.59958525,43.08158902,Asia
-LEBANON,LBN,2009,Third generation cephalosporins & E. coli,82,0.0,0.000522568,0.018196891,Asia
-LEBANON,LBN,2012,Aminoglycosides & E. coli,75,12.29392021,11.29828965,13.26682784,Asia
-LEBANON,LBN,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,75,13.97036388,13.96726484,13.9703142,Asia
-LEBANON,LBN,2012,Third generation cephalosporins & E. coli,75,13.55125296,13.03528767,13.9469626,Asia
-LEBANON,LBN,2014,Fluoroquinolones & Non-typhoidal Salmonella,49,1.536740027,0.379755525,2.702927282,Asia
-LEBANON,LBN,2015,Aminoglycosides & E. coli,217,60.08746309,55.20265188,65.05510441,Asia
-LEBANON,LBN,2015,Aminopenicillins & E. coli,217,85.83923299,85.82801403,85.83891993,Asia
-LEBANON,LBN,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,217,30.04373155,24.89837138,35.24492037,Asia
-LEBANON,LBN,2015,Fluoroquinolones & E. coli,217,53.22032445,47.93097817,58.5071806,Asia
-LEBANON,LBN,2015,Third generation cephalosporins & E. coli,217,77.25530969,73.99032997,80.50035197,Asia
-LEBANON,LBN,2017,Aminoglycosides & E. coli,105,0.079969315,0.063191954,0.096859202,Asia
-LEBANON,LBN,2017,Aminopenicillins & E. coli,105,0.186595067,0.181831487,0.190157375,Asia
-LEBANON,LBN,2017,Aminopenicillins with beta-lactamase inhibitors & E. coli,105,0.08758544,0.071016236,0.104740069,Asia
-LEBANON,LBN,2017,Fluoroquinolones & E. coli,105,0.148514441,0.134082897,0.162829694,Asia
-LEBANON,LBN,2017,Third generation cephalosporins & E. coli,105,0.127570097,0.111105434,0.143961004,Asia
-LEBANON,LBN,2018,Aminoglycosides & E. coli,88,68.67138639,61.87513183,75.45757643,Asia
-LEBANON,LBN,2018,Aminopenicillins & E. coli,88,85.83923299,85.82159627,85.8385946,Asia
-LEBANON,LBN,2018,Aminopenicillins with beta-lactamase inhibitors & E. coli,88,48.06997047,39.5541729,56.44352523,Asia
-LEBANON,LBN,2018,Fluoroquinolones & E. coli,88,78.11370202,73.26140647,82.9288288,Asia
-LEBANON,LBN,2018,Third generation cephalosporins & E. coli,88,65.23781707,57.97427737,72.42589369,Asia
+LEBANON,LBN,2002,Aminoglycosides & E. coli,9,12.43362385,9.685972755,13.87432379,Middle East
+LEBANON,LBN,2002,Third generation cephalosporins & E. coli,9,0.0,0.000191607,0.008884859,Middle East
+LEBANON,LBN,2004,Aminoglycosides & E. coli,94,6.98518194,5.618843556,8.320514666,Middle East
+LEBANON,LBN,2004,Aminopenicillins & E. coli,94,10.05866199,8.859871782,11.28304135,Middle East
+LEBANON,LBN,2004,Fluoroquinolones & E. coli,94,6.286663746,4.951808027,7.617083068,Middle East
+LEBANON,LBN,2004,Third generation cephalosporins & E. coli,94,4.330812803,3.086084246,5.588635352,Middle East
+LEBANON,LBN,2009,Aminoglycosides & E. coli,82,23.17659291,15.36520294,31.02985613,Middle East
+LEBANON,LBN,2009,Aminopenicillins with beta-lactamase inhibitors & E. coli,82,3.43356932,0.201618418,6.848906993,Middle East
+LEBANON,LBN,2009,Fluoroquinolones & E. coli,82,34.3356932,25.59958525,43.08158902,Middle East
+LEBANON,LBN,2009,Third generation cephalosporins & E. coli,82,0.0,0.000522568,0.018196891,Middle East
+LEBANON,LBN,2012,Aminoglycosides & E. coli,75,12.29392021,11.29828965,13.26682784,Middle East
+LEBANON,LBN,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,75,13.97036388,13.96726484,13.9703142,Middle East
+LEBANON,LBN,2012,Third generation cephalosporins & E. coli,75,13.55125296,13.03528767,13.9469626,Middle East
+LEBANON,LBN,2014,Fluoroquinolones & Non-typhoidal Salmonella,49,1.536740027,0.379755525,2.702927282,Middle East
+LEBANON,LBN,2015,Aminoglycosides & E. coli,217,60.08746309,55.20265188,65.05510441,Middle East
+LEBANON,LBN,2015,Aminopenicillins & E. coli,217,85.83923299,85.82801403,85.83891993,Middle East
+LEBANON,LBN,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,217,30.04373155,24.89837138,35.24492037,Middle East
+LEBANON,LBN,2015,Fluoroquinolones & E. coli,217,53.22032445,47.93097817,58.5071806,Middle East
+LEBANON,LBN,2015,Third generation cephalosporins & E. coli,217,77.25530969,73.99032997,80.50035197,Middle East
+LEBANON,LBN,2017,Aminoglycosides & E. coli,105,0.079969315,0.063191954,0.096859202,Middle East
+LEBANON,LBN,2017,Aminopenicillins & E. coli,105,0.186595067,0.181831487,0.190157375,Middle East
+LEBANON,LBN,2017,Aminopenicillins with beta-lactamase inhibitors & E. coli,105,0.08758544,0.071016236,0.104740069,Middle East
+LEBANON,LBN,2017,Fluoroquinolones & E. coli,105,0.148514441,0.134082897,0.162829694,Middle East
+LEBANON,LBN,2017,Third generation cephalosporins & E. coli,105,0.127570097,0.111105434,0.143961004,Middle East
+LEBANON,LBN,2018,Aminoglycosides & E. coli,88,68.67138639,61.87513183,75.45757643,Middle East
+LEBANON,LBN,2018,Aminopenicillins & E. coli,88,85.83923299,85.82159627,85.8385946,Middle East
+LEBANON,LBN,2018,Aminopenicillins with beta-lactamase inhibitors & E. coli,88,48.06997047,39.5541729,56.44352523,Middle East
+LEBANON,LBN,2018,Fluoroquinolones & E. coli,88,78.11370202,73.26140647,82.9288288,Middle East
+LEBANON,LBN,2018,Third generation cephalosporins & E. coli,88,65.23781707,57.97427737,72.42589369,Middle East
 LITHUANIA,LTU,2016,Aminoglycosides & E. coli,100,12.68982306,9.493270725,15.96250586,Europe
 LITHUANIA,LTU,2016,Aminopenicillins & E. coli,100,36.2566373,36.24972086,36.25643916,Europe
 LITHUANIA,LTU,2016,Fluoroquinolones & E. coli,200,33.35610632,31.848794,34.83800024,Europe
@@ -1168,29 +1168,29 @@ LUXEMBOURG,LUX,2017,Fluoroquinolones & E. coli,44,0.335361466,0.025793761,0.9581
 LUXEMBOURG,LUX,2017,Third generation cephalosporins & E. coli,44,0.335361466,0.020654508,0.962359534,Europe
 LUXEMBOURG,LUX,2019,Aminoglycosides & E. coli,37,0.0,0.000113391,0.004633029,Europe
 LUXEMBOURG,LUX,2019,Aminopenicillins & E. coli,37,6.779739915,4.54958259,9.01393681,Europe
-MALAYSIA,MYS,2005,Aminoglycosides & E. coli,146,35.63062263,26.38551064,44.68475366,Asia
-MALAYSIA,MYS,2005,Aminopenicillins & E. coli,146,21.65542767,13.73731414,29.62693065,Asia
-MALAYSIA,MYS,2005,Fluoroquinolones & E. coli,146,8.404613466,2.824314264,13.79564546,Asia
-MALAYSIA,MYS,2008,Fluoroquinolones & Non-typhoidal Salmonella,32,3.47828372,2.187837344,4.761090687,Asia
-MALAYSIA,MYS,2011,Aminoglycosides & E. coli,55,63.10937386,51.85013458,73.38362302,Asia
-MALAYSIA,MYS,2011,Aminopenicillins & E. coli,55,62.5351778,51.57290972,73.25914003,Asia
-MALAYSIA,MYS,2011,Aminopenicillins with beta-lactamase inhibitors & E. coli,7,7.905190272,7.899514683,7.905073474,Asia
-MALAYSIA,MYS,2011,Fluoroquinolones & E. coli,55,43.12979397,31.57717868,55.08900143,Asia
-MALAYSIA,MYS,2011,Fluoroquinolones & Non-typhoidal Salmonella,6,69.75829177,45.92981452,83.18960893,Asia
-MALAYSIA,MYS,2011,Fluoroquinolones & S. aureus,96,34.45891521,26.68706248,42.30807176,Asia
-MALAYSIA,MYS,2011,Macrolides & S. aureus,96,82.36521197,80.12744876,83.96849303,Asia
-MALAYSIA,MYS,2011,Third generation cephalosporins & E. coli,7,0.0,0.000178893,0.005763133,Asia
-MALAYSIA,MYS,2012,Aminoglycosides & E. coli,91,3.361845386,0.205544814,6.575158739,Asia
-MALAYSIA,MYS,2012,Aminopenicillins & E. coli,91,31.09706982,23.16870974,39.11302755,Asia
-MALAYSIA,MYS,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,91,9.245074813,4.226641252,14.36414452,Asia
-MALAYSIA,MYS,2012,Fluoroquinolones & E. coli,91,8.404613466,3.502772596,13.29101354,Asia
-MALAYSIA,MYS,2012,Fluoroquinolones & Non-typhoidal Salmonella,8,0.0,0.002057559,0.056769954,Asia
-MALAYSIA,MYS,2012,Third generation cephalosporins & E. coli,91,5.883229426,1.712401803,10.02638939,Asia
-MALAYSIA,MYS,2013,Fluoroquinolones & S. aureus,60,0.0,3.87e-05,0.00199422,Asia
-MALAYSIA,MYS,2013,Macrolides & S. aureus,60,0.643894005,0.11822087,1.173656902,Asia
-MALAYSIA,MYS,2014,Fluoroquinolones & Non-typhoidal Salmonella,11,22.69245636,1.546200456,43.71558943,Asia
-MALAYSIA,MYS,2015,Fluoroquinolones & Non-typhoidal Salmonella,23,1.770708515,0.484436389,3.026914689,Asia
-MALAYSIA,MYS,2016,Fluoroquinolones & Non-typhoidal Salmonella,17,0.0,0.001021757,0.039378448,Asia
+MALAYSIA,MYS,2005,Aminoglycosides & E. coli,146,35.63062263,26.38551064,44.68475366,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2005,Aminopenicillins & E. coli,146,21.65542767,13.73731414,29.62693065,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2005,Fluoroquinolones & E. coli,146,8.404613466,2.824314264,13.79564546,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2008,Fluoroquinolones & Non-typhoidal Salmonella,32,3.47828372,2.187837344,4.761090687,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2011,Aminoglycosides & E. coli,55,63.10937386,51.85013458,73.38362302,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2011,Aminopenicillins & E. coli,55,62.5351778,51.57290972,73.25914003,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2011,Aminopenicillins with beta-lactamase inhibitors & E. coli,7,7.905190272,7.899514683,7.905073474,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2011,Fluoroquinolones & E. coli,55,43.12979397,31.57717868,55.08900143,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2011,Fluoroquinolones & Non-typhoidal Salmonella,6,69.75829177,45.92981452,83.18960893,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2011,Fluoroquinolones & S. aureus,96,34.45891521,26.68706248,42.30807176,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2011,Macrolides & S. aureus,96,82.36521197,80.12744876,83.96849303,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2011,Third generation cephalosporins & E. coli,7,0.0,0.000178893,0.005763133,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2012,Aminoglycosides & E. coli,91,3.361845386,0.205544814,6.575158739,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2012,Aminopenicillins & E. coli,91,31.09706982,23.16870974,39.11302755,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,91,9.245074813,4.226641252,14.36414452,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2012,Fluoroquinolones & E. coli,91,8.404613466,3.502772596,13.29101354,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2012,Fluoroquinolones & Non-typhoidal Salmonella,8,0.0,0.002057559,0.056769954,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2012,Third generation cephalosporins & E. coli,91,5.883229426,1.712401803,10.02638939,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2013,Fluoroquinolones & S. aureus,60,0.0,3.87e-05,0.00199422,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2013,Macrolides & S. aureus,60,0.643894005,0.11822087,1.173656902,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2014,Fluoroquinolones & Non-typhoidal Salmonella,11,22.69245636,1.546200456,43.71558943,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2015,Fluoroquinolones & Non-typhoidal Salmonella,23,1.770708515,0.484436389,3.026914689,"Asia, Far East and Oceania"
+MALAYSIA,MYS,2016,Fluoroquinolones & Non-typhoidal Salmonella,17,0.0,0.001021757,0.039378448,"Asia, Far East and Oceania"
 MALTA,MLT,2016,Aminoglycosides & E. coli,31,2.866747685,0.170908583,6.518648204,Europe
 MALTA,MLT,2016,Aminopenicillins & E. coli,31,24.36735532,16.97917611,31.71220673,Europe
 MALTA,MLT,2016,Fluoroquinolones & E. coli,31,30.10085069,23.17721879,37.05716804,Europe
@@ -1254,13 +1254,13 @@ MOROCCO,MAR,2006,Macrolides & S. aureus,40,3.755411933,0.440080111,7.087275125,A
 MOROCCO,MAR,2011,Fluoroquinolones & Non-typhoidal Salmonella,39,13.9399345,6.06348404,23.27722619,Africa
 MOROCCO,MAR,2012,Fluoroquinolones & Non-typhoidal Salmonella,44,14.01559222,6.847546374,21.07767609,Africa
 MOROCCO,MAR,2015,Fluoroquinolones & Non-typhoidal Salmonella,28,17.23865273,3.906138845,33.41738845,Africa
-MYANMAR,MMR,2015,Fluoroquinolones & Non-typhoidal Salmonella,138,2.59614331,1.286786793,3.881468488,Asia
+MYANMAR,MMR,2015,Fluoroquinolones & Non-typhoidal Salmonella,138,2.59614331,1.286786793,3.881468488,"Asia, Far East and Oceania"
 NAMIBIA,NAM,2009,Fluoroquinolones & Non-typhoidal Salmonella,81,0.0,0.000481296,0.020524792,Africa
-NEPAL,NPL,2008,Fluoroquinolones & Non-typhoidal Salmonella,8,9.786342595,3.31904295,16.2039248,Asia
-NEPAL,NPL,2009,Aminopenicillins & E. coli,20,17.61541667,15.13744401,19.46854279,Asia
-NEPAL,NPL,2013,Fluoroquinolones & Non-typhoidal Salmonella,16,93.26557039,93.20723028,93.25922912,Asia
-NEPAL,NPL,2013,Fluoroquinolones & S. aureus,119,2.210786556,0.097515224,4.313652642,Asia
-NEPAL,NPL,2017,Fluoroquinolones & Non-typhoidal Salmonella,26,9.003435187,5.423992369,12.6001901,Asia
+NEPAL,NPL,2008,Fluoroquinolones & Non-typhoidal Salmonella,8,9.786342595,3.31904295,16.2039248,"Asia, Far East and Oceania"
+NEPAL,NPL,2009,Aminopenicillins & E. coli,20,17.61541667,15.13744401,19.46854279,"Asia, Far East and Oceania"
+NEPAL,NPL,2013,Fluoroquinolones & Non-typhoidal Salmonella,16,93.26557039,93.20723028,93.25922912,"Asia, Far East and Oceania"
+NEPAL,NPL,2013,Fluoroquinolones & S. aureus,119,2.210786556,0.097515224,4.313652642,"Asia, Far East and Oceania"
+NEPAL,NPL,2017,Fluoroquinolones & Non-typhoidal Salmonella,26,9.003435187,5.423992369,12.6001901,"Asia, Far East and Oceania"
 NETHERLANDS,NLD,2016,Aminoglycosides & E. coli,1226,1.701562378,1.014202629,2.403096706,Europe
 NETHERLANDS,NLD,2016,Aminopenicillins & E. coli,1226,25.60812815,22.84915023,28.2696308,Europe
 NETHERLANDS,NLD,2016,Fluoroquinolones & E. coli,2452,10.02341062,9.057027291,11.04306163,Europe
@@ -1283,12 +1283,12 @@ NETHERLANDS,NLD,2019,Aminopenicillins & E. coli,913,27.01261847,23.81291747,30.1
 NETHERLANDS,NLD,2019,Fluoroquinolones & Non-typhoidal Salmonella,23,1.772263108,0.084433141,5.010270243,Europe
 NETHERLANDS,NLD,2020,Aminoglycosides & E. coli,907,2.137934751,1.21815766,3.14873234,Europe
 NETHERLANDS,NLD,2020,Aminopenicillins & E. coli,907,29.46244972,26.15885615,32.71066399,Europe
-NEW ZEALAND,NZL,2010,Aminoglycosides & E. coli,909,38.21611245,33.71408587,42.69196618,Oceania
-NEW ZEALAND,NZL,2010,Aminopenicillins & E. coli,909,20.78449772,16.94687311,24.66341874,Oceania
-NEW ZEALAND,NZL,2010,Aminopenicillins with beta-lactamase inhibitors & E. coli,909,0.852880448,0.061867035,1.769084605,Oceania
-NEW ZEALAND,NZL,2010,Fluoroquinolones & E. coli,909,0.0,0.000996405,0.010577322,Oceania
-NEW ZEALAND,NZL,2010,Fluoroquinolones & Non-typhoidal Salmonella,25,0.0,0.001265446,0.03767032,Oceania
-NEW ZEALAND,NZL,2010,Third generation cephalosporins & E. coli,909,0.0,0.000769307,0.010519457,Oceania
+NEW ZEALAND,NZL,2010,Aminoglycosides & E. coli,909,38.21611245,33.71408587,42.69196618,"Asia, Far East and Oceania"
+NEW ZEALAND,NZL,2010,Aminopenicillins & E. coli,909,20.78449772,16.94687311,24.66341874,"Asia, Far East and Oceania"
+NEW ZEALAND,NZL,2010,Aminopenicillins with beta-lactamase inhibitors & E. coli,909,0.852880448,0.061867035,1.769084605,"Asia, Far East and Oceania"
+NEW ZEALAND,NZL,2010,Fluoroquinolones & E. coli,909,0.0,0.000996405,0.010577322,"Asia, Far East and Oceania"
+NEW ZEALAND,NZL,2010,Fluoroquinolones & Non-typhoidal Salmonella,25,0.0,0.001265446,0.03767032,"Asia, Far East and Oceania"
+NEW ZEALAND,NZL,2010,Third generation cephalosporins & E. coli,909,0.0,0.000769307,0.010519457,"Asia, Far East and Oceania"
 NICARAGUA,NIC,2012,Third generation cephalosporins & E. coli,13,19.97860918,19.96799468,19.97838051,Americas
 NIGERIA,NGA,2006,Aminopenicillins & E. coli,162,30.51221113,30.50619287,30.51138135,Africa
 NIGERIA,NGA,2006,Fluoroquinolones & E. coli,1248,12.25787917,11.76358282,12.71597195,Africa
@@ -1365,41 +1365,41 @@ NORWAY,NOR,2019,Aminoglycosides & E. coli,599,0.235979216,0.070045512,0.63809083
 NORWAY,NOR,2019,Aminopenicillins & E. coli,599,2.022871867,0.951428238,3.02750359,Europe
 NORWAY,NOR,2020,Aminoglycosides & E. coli,247,0.0,0.000103909,0.003448634,Europe
 NORWAY,NOR,2020,Aminopenicillins & E. coli,247,0.567903379,0.106092589,1.029637175,Europe
-PAKISTAN,PAK,2007,Fluoroquinolones & Non-typhoidal Salmonella,23,0.0,0.00256407,0.020191985,Asia
-PAKISTAN,PAK,2012,Aminoglycosides & E. coli,88,25.62109338,21.88884872,29.3722908,Asia
-PAKISTAN,PAK,2012,Aminopenicillins & E. coli,88,37.44621341,35.7439585,39.17737338,Asia
-PAKISTAN,PAK,2012,Fluoroquinolones & E. coli,88,14.5843147,10.79454449,18.25495709,Asia
-PAKISTAN,PAK,2012,Third generation cephalosporins & E. coli,88,10.24843735,6.835380177,13.6832587,Asia
-PAKISTAN,PAK,2013,Aminoglycosides & E. coli,199,81.56905064,75.93606344,86.62613315,Asia
-PAKISTAN,PAK,2013,Aminopenicillins & E. coli,199,89.69326932,85.04153587,92.67647357,Asia
-PAKISTAN,PAK,2013,Fluoroquinolones & E. coli,199,46.29909865,38.04262979,54.50708175,Asia
-PAKISTAN,PAK,2013,Third generation cephalosporins & E. coli,126,3.547536007,1.697760944,5.423872801,Asia
-PAKISTAN,PAK,2014,Aminoglycosides & E. coli,37,2.524288886,0.124574657,7.020543856,Asia
-PAKISTAN,PAK,2014,Aminopenicillins with beta-lactamase inhibitors & E. coli,37,100.0,99.95363866,99.98965378,Asia
-PAKISTAN,PAK,2014,Fluoroquinolones & E. coli,37,57.40579423,42.37752707,72.93149449,Asia
-PAKISTAN,PAK,2014,Third generation cephalosporins & E. coli,37,55.59403025,39.25300064,72.24668877,Asia
-PAKISTAN,PAK,2015,Fluoroquinolones & Non-typhoidal Salmonella,35,21.28521604,15.11728291,27.46394342,Asia
-PAKISTAN,PAK,2016,Aminoglycosides & E. coli,120,33.11033607,30.42233262,35.7756804,Asia
-PAKISTAN,PAK,2016,Aminopenicillins & E. coli,120,96.84663466,94.83053261,98.84939605,Asia
-PAKISTAN,PAK,2016,Aminopenicillins with beta-lactamase inhibitors & E. coli,120,74.77307728,71.26031837,78.30812406,Asia
-PAKISTAN,PAK,2016,Fluoroquinolones & E. coli,60,0.0,0.004719963,0.021889075,Asia
-PAKISTAN,PAK,2016,Fluoroquinolones & S. aureus,377,32.18875394,28.72454978,35.12020429,Asia
-PAKISTAN,PAK,2016,Macrolides & S. aureus,71,2.703677677,0.697130553,5.283884588,Asia
-PAKISTAN,PAK,2016,Third generation cephalosporins & E. coli,100,18.92019204,15.27891101,22.62693006,Asia
-PAKISTAN,PAK,2017,Fluoroquinolones & S. aureus,123,0.0,0.0019186,0.013344834,Asia
+PAKISTAN,PAK,2007,Fluoroquinolones & Non-typhoidal Salmonella,23,0.0,0.00256407,0.020191985,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2012,Aminoglycosides & E. coli,88,25.62109338,21.88884872,29.3722908,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2012,Aminopenicillins & E. coli,88,37.44621341,35.7439585,39.17737338,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2012,Fluoroquinolones & E. coli,88,14.5843147,10.79454449,18.25495709,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2012,Third generation cephalosporins & E. coli,88,10.24843735,6.835380177,13.6832587,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2013,Aminoglycosides & E. coli,199,81.56905064,75.93606344,86.62613315,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2013,Aminopenicillins & E. coli,199,89.69326932,85.04153587,92.67647357,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2013,Fluoroquinolones & E. coli,199,46.29909865,38.04262979,54.50708175,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2013,Third generation cephalosporins & E. coli,126,3.547536007,1.697760944,5.423872801,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2014,Aminoglycosides & E. coli,37,2.524288886,0.124574657,7.020543856,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2014,Aminopenicillins with beta-lactamase inhibitors & E. coli,37,100.0,99.95363866,99.98965378,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2014,Fluoroquinolones & E. coli,37,57.40579423,42.37752707,72.93149449,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2014,Third generation cephalosporins & E. coli,37,55.59403025,39.25300064,72.24668877,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2015,Fluoroquinolones & Non-typhoidal Salmonella,35,21.28521604,15.11728291,27.46394342,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2016,Aminoglycosides & E. coli,120,33.11033607,30.42233262,35.7756804,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2016,Aminopenicillins & E. coli,120,96.84663466,94.83053261,98.84939605,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2016,Aminopenicillins with beta-lactamase inhibitors & E. coli,120,74.77307728,71.26031837,78.30812406,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2016,Fluoroquinolones & E. coli,60,0.0,0.004719963,0.021889075,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2016,Fluoroquinolones & S. aureus,377,32.18875394,28.72454978,35.12020429,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2016,Macrolides & S. aureus,71,2.703677677,0.697130553,5.283884588,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2016,Third generation cephalosporins & E. coli,100,18.92019204,15.27891101,22.62693006,"Asia, Far East and Oceania"
+PAKISTAN,PAK,2017,Fluoroquinolones & S. aureus,123,0.0,0.0019186,0.013344834,"Asia, Far East and Oceania"
 PERU,PER,2009,Aminoglycosides & E. coli,38,76.2235558,62.20664358,88.72304781,Americas
 PERU,PER,2009,Aminopenicillins & E. coli,38,76.6715711,62.80839113,90.22953871,Americas
 PERU,PER,2009,Fluoroquinolones & E. coli,38,17.46319297,5.458192583,32.98327052,Americas
 PERU,PER,2009,Third generation cephalosporins & E. coli,38,0.0,0.007002167,0.047089682,Americas
-PHILIPPINES,PHL,2014,Aminoglycosides & E. coli,40,17.27464261,11.88429196,22.57093353,Asia
-PHILIPPINES,PHL,2014,Aminopenicillins & E. coli,40,22.31308003,17.15434868,27.47045107,Asia
-PHILIPPINES,PHL,2014,Fluoroquinolones & E. coli,80,10.07687485,6.251395429,14.0878812,Asia
-PHILIPPINES,PHL,2014,Fluoroquinolones & Non-typhoidal Salmonella,183,2.159330326,0.990537984,3.321719215,Asia
-PHILIPPINES,PHL,2014,Third generation cephalosporins & E. coli,40,0.0,0.00030545,0.010749582,Asia
-PHILIPPINES,PHL,2015,Aminoglycosides & E. coli,40,38.9184713,31.97573484,45.81828292,Asia
-PHILIPPINES,PHL,2015,Aminopenicillins & E. coli,40,47.98167694,43.31758667,52.641105,Asia
-PHILIPPINES,PHL,2015,Fluoroquinolones & E. coli,120,45.31602822,41.66396488,49.34206355,Asia
-PHILIPPINES,PHL,2015,Third generation cephalosporins & E. coli,40,10.66259488,4.356162904,17.01336853,Asia
+PHILIPPINES,PHL,2014,Aminoglycosides & E. coli,40,17.27464261,11.88429196,22.57093353,"Asia, Far East and Oceania"
+PHILIPPINES,PHL,2014,Aminopenicillins & E. coli,40,22.31308003,17.15434868,27.47045107,"Asia, Far East and Oceania"
+PHILIPPINES,PHL,2014,Fluoroquinolones & E. coli,80,10.07687485,6.251395429,14.0878812,"Asia, Far East and Oceania"
+PHILIPPINES,PHL,2014,Fluoroquinolones & Non-typhoidal Salmonella,183,2.159330326,0.990537984,3.321719215,"Asia, Far East and Oceania"
+PHILIPPINES,PHL,2014,Third generation cephalosporins & E. coli,40,0.0,0.00030545,0.010749582,"Asia, Far East and Oceania"
+PHILIPPINES,PHL,2015,Aminoglycosides & E. coli,40,38.9184713,31.97573484,45.81828292,"Asia, Far East and Oceania"
+PHILIPPINES,PHL,2015,Aminopenicillins & E. coli,40,47.98167694,43.31758667,52.641105,"Asia, Far East and Oceania"
+PHILIPPINES,PHL,2015,Fluoroquinolones & E. coli,120,45.31602822,41.66396488,49.34206355,"Asia, Far East and Oceania"
+PHILIPPINES,PHL,2015,Third generation cephalosporins & E. coli,40,10.66259488,4.356162904,17.01336853,"Asia, Far East and Oceania"
 POLAND,POL,2016,Aminoglycosides & E. coli,173,4.123057334,2.301945343,5.944467255,Europe
 POLAND,POL,2016,Aminopenicillins & E. coli,173,40.71519117,38.94795817,42.48078454,Europe
 POLAND,POL,2016,Fluoroquinolones & E. coli,692,40.199809,39.12852923,41.31996194,Europe
@@ -1442,109 +1442,109 @@ PORTUGAL,PRT,2019,Fluoroquinolones & Non-typhoidal Salmonella,17,0.0,0.000397964
 PORTUGAL,PRT,2020,Aminoglycosides & E. coli,156,3.265949038,1.756976172,4.743384895,Europe
 PORTUGAL,PRT,2020,Aminopenicillins & E. coli,156,21.77299359,19.35001574,24.17913666,Europe
 PORTUGAL,PRT,2020,Fluoroquinolones & Non-typhoidal Salmonella,32,0.0,0.001392747,0.014604626,Europe
-QATAR,QAT,2017,Aminopenicillins & E. coli,90,65.11417279,57.33024169,72.76613962,Asia
-QATAR,QAT,2017,Aminopenicillins with beta-lactamase inhibitors & E. coli,90,89.19749698,89.17943309,89.19699952,Asia
-QATAR,QAT,2017,Fluoroquinolones & E. coli,90,35.67899879,26.92594131,44.2421864,Asia
-QATAR,QAT,2017,Third generation cephalosporins & E. coli,90,2.675924909,0.216826954,5.673616494,Asia
-REPUBLIC OF KOREA,KOR,2010,Aminoglycosides & E. coli,300,54.14676181,48.00914421,60.03225979,Asia
-REPUBLIC OF KOREA,KOR,2010,Aminopenicillins & E. coli,300,43.94248612,38.39876317,49.63689669,Asia
-REPUBLIC OF KOREA,KOR,2010,Aminopenicillins with beta-lactamase inhibitors & E. coli,300,1.246693746,0.565175814,2.807103505,Asia
-REPUBLIC OF KOREA,KOR,2010,Fluoroquinolones & E. coli,300,25.38212719,21.64694964,29.71603471,Asia
-REPUBLIC OF KOREA,KOR,2010,Fluoroquinolones & E. faecalis,300,20.76985485,16.7931767,25.15915351,Asia
-REPUBLIC OF KOREA,KOR,2010,Fluoroquinolones & E. faecium,300,34.39356486,28.91949129,39.7801192,Asia
-REPUBLIC OF KOREA,KOR,2010,Fluoroquinolones & Non-typhoidal Salmonella,300,0.0,0.007345809,0.020241435,Asia
-REPUBLIC OF KOREA,KOR,2010,Fluoroquinolones & S. aureus,150,8.316019885,4.280072746,12.82046892,Asia
-REPUBLIC OF KOREA,KOR,2010,Macrolides & S. aureus,150,23.22255821,16.34154177,30.14242374,Asia
-REPUBLIC OF KOREA,KOR,2011,Aminoglycosides & E. coli,300,55.08380427,48.93359939,61.38877405,Asia
-REPUBLIC OF KOREA,KOR,2011,Aminopenicillins & E. coli,300,44.7750769,39.1819727,50.15566109,Asia
-REPUBLIC OF KOREA,KOR,2011,Aminopenicillins with beta-lactamase inhibitors & E. coli,300,0.942624629,0.625721387,2.439041535,Asia
-REPUBLIC OF KOREA,KOR,2011,Fluoroquinolones & E. coli,300,26.17115281,22.339587,30.72230556,Asia
-REPUBLIC OF KOREA,KOR,2011,Fluoroquinolones & E. faecalis,300,23.62999195,19.03779606,28.07831631,Asia
-REPUBLIC OF KOREA,KOR,2011,Fluoroquinolones & E. faecium,300,31.96198578,27.31255979,37.05170041,Asia
-REPUBLIC OF KOREA,KOR,2011,Fluoroquinolones & Non-typhoidal Salmonella,300,0.0,0.007528822,0.020257953,Asia
-REPUBLIC OF KOREA,KOR,2011,Fluoroquinolones & S. aureus,150,14.40020985,8.759032748,20.38327711,Asia
-REPUBLIC OF KOREA,KOR,2011,Macrolides & S. aureus,150,21.40376211,14.30164511,28.89884706,Asia
-REPUBLIC OF KOREA,KOR,2012,Aminoglycosides & E. coli,300,50.88417357,45.32658126,57.26689899,Asia
-REPUBLIC OF KOREA,KOR,2012,Aminopenicillins & E. coli,300,44.68057153,38.97759323,50.42534425,Asia
-REPUBLIC OF KOREA,KOR,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,300,1.544486081,0.847890111,3.362261183,Asia
-REPUBLIC OF KOREA,KOR,2012,Fluoroquinolones & E. coli,300,27.35641223,23.73450122,31.6240079,Asia
-REPUBLIC OF KOREA,KOR,2012,Fluoroquinolones & E. faecalis,300,21.06711617,16.46948613,25.76367743,Asia
-REPUBLIC OF KOREA,KOR,2012,Fluoroquinolones & E. faecium,300,30.45156651,25.78692446,35.29413829,Asia
-REPUBLIC OF KOREA,KOR,2012,Fluoroquinolones & Non-typhoidal Salmonella,300,0.0,0.00762227,0.020424247,Asia
-REPUBLIC OF KOREA,KOR,2012,Fluoroquinolones & S. aureus,150,13.9556503,8.831312819,19.76080694,Asia
-REPUBLIC OF KOREA,KOR,2012,Macrolides & S. aureus,150,19.79706955,13.11198906,26.71533693,Asia
-REPUBLIC OF KOREA,KOR,2013,Aminoglycosides & E. coli,450,55.58439406,50.96047712,60.63633872,Asia
-REPUBLIC OF KOREA,KOR,2013,Aminopenicillins & E. coli,450,47.80899382,43.22354871,52.12733354,Asia
-REPUBLIC OF KOREA,KOR,2013,Aminopenicillins with beta-lactamase inhibitors & E. coli,450,4.284021846,2.564517877,6.605613787,Asia
-REPUBLIC OF KOREA,KOR,2013,Fluoroquinolones & E. coli,900,28.63733676,26.3442262,31.16504259,Asia
-REPUBLIC OF KOREA,KOR,2013,Fluoroquinolones & E. faecalis,300,23.14808815,18.13970007,28.25752679,Asia
-REPUBLIC OF KOREA,KOR,2013,Fluoroquinolones & E. faecium,300,34.46633749,29.70240065,39.14041814,Asia
-REPUBLIC OF KOREA,KOR,2013,Fluoroquinolones & Non-typhoidal Salmonella,300,0.295030293,0.035699003,0.905991364,Asia
-REPUBLIC OF KOREA,KOR,2013,Fluoroquinolones & S. aureus,150,24.20013062,16.84241139,31.3875817,Asia
-REPUBLIC OF KOREA,KOR,2013,Macrolides & S. aureus,150,24.59662554,17.64087115,31.67884315,Asia
-REPUBLIC OF KOREA,KOR,2014,Aminoglycosides & E. coli,450,41.91230845,37.29483218,46.47258275,Asia
-REPUBLIC OF KOREA,KOR,2014,Aminopenicillins & E. coli,450,51.31852353,46.62864882,56.04584043,Asia
-REPUBLIC OF KOREA,KOR,2014,Aminopenicillins with beta-lactamase inhibitors & E. coli,450,4.666017294,3.033169518,7.099566273,Asia
-REPUBLIC OF KOREA,KOR,2014,Fluoroquinolones & E. coli,900,34.40448755,31.71531525,37.18287844,Asia
-REPUBLIC OF KOREA,KOR,2014,Fluoroquinolones & E. faecalis,300,19.84157888,15.43644125,24.56615276,Asia
-REPUBLIC OF KOREA,KOR,2014,Fluoroquinolones & E. faecium,300,32.27709772,27.43805455,37.28621508,Asia
-REPUBLIC OF KOREA,KOR,2014,Fluoroquinolones & Non-typhoidal Salmonella,300,2.781017361,1.335881487,5.017930735,Asia
-REPUBLIC OF KOREA,KOR,2014,Fluoroquinolones & S. aureus,150,25.30190394,19.0728209,32.79655784,Asia
-REPUBLIC OF KOREA,KOR,2014,Macrolides & S. aureus,150,20.63087945,14.0680328,27.83177627,Asia
-REPUBLIC OF KOREA,KOR,2015,Aminoglycosides & E. coli,300,52.85556847,46.53420405,58.66475867,Asia
-REPUBLIC OF KOREA,KOR,2015,Aminopenicillins & E. coli,300,48.67399319,42.90994049,54.2977779,Asia
-REPUBLIC OF KOREA,KOR,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,300,1.88369513,0.833325782,3.71400073,Asia
-REPUBLIC OF KOREA,KOR,2015,Fluoroquinolones & E. coli,600,32.46403058,29.75566811,35.51121487,Asia
-REPUBLIC OF KOREA,KOR,2015,Fluoroquinolones & E. faecalis,300,22.06727927,17.81270697,26.87194217,Asia
-REPUBLIC OF KOREA,KOR,2015,Fluoroquinolones & E. faecium,300,38.90767588,34.53754295,43.9261772,Asia
-REPUBLIC OF KOREA,KOR,2015,Fluoroquinolones & Non-typhoidal Salmonella,300,0.468577523,0.173395047,1.401043406,Asia
-REPUBLIC OF KOREA,KOR,2015,Fluoroquinolones & S. aureus,150,24.47960572,17.61164383,31.73549035,Asia
-REPUBLIC OF KOREA,KOR,2015,Macrolides & S. aureus,150,23.75701336,16.67299282,30.9817242,Asia
-REPUBLIC OF KOREA,KOR,2016,Aminoglycosides & E. coli,450,47.48672647,42.75346338,52.25943455,Asia
-REPUBLIC OF KOREA,KOR,2016,Aminopenicillins & E. coli,450,45.22186182,40.53154493,49.22622759,Asia
-REPUBLIC OF KOREA,KOR,2016,Aminopenicillins with beta-lactamase inhibitors & E. coli,450,4.908494476,3.206431486,7.618138156,Asia
-REPUBLIC OF KOREA,KOR,2016,Fluoroquinolones & E. coli,900,25.07670017,22.4482303,27.75079843,Asia
-REPUBLIC OF KOREA,KOR,2016,Fluoroquinolones & E. faecalis,300,25.40116663,20.36901095,30.73366653,Asia
-REPUBLIC OF KOREA,KOR,2016,Fluoroquinolones & E. faecium,300,44.15724779,38.12501104,49.87111848,Asia
-REPUBLIC OF KOREA,KOR,2016,Fluoroquinolones & Non-typhoidal Salmonella,300,0.2256114,0.034799561,0.764034736,Asia
-REPUBLIC OF KOREA,KOR,2016,Fluoroquinolones & S. aureus,150,33.89514472,26.60945546,40.98435948,Asia
-REPUBLIC OF KOREA,KOR,2016,Macrolides & S. aureus,150,43.0133626,34.95374858,51.58258071,Asia
-REPUBLIC OF KOREA,KOR,2017,Aminoglycosides & E. coli,450,51.82154074,47.34124942,56.5375502,Asia
-REPUBLIC OF KOREA,KOR,2017,Aminopenicillins & E. coli,450,51.9878333,47.7508853,56.02490451,Asia
-REPUBLIC OF KOREA,KOR,2017,Aminopenicillins with beta-lactamase inhibitors & E. coli,450,2.631347116,1.682849342,4.640084101,Asia
-REPUBLIC OF KOREA,KOR,2017,Fluoroquinolones & E. coli,900,28.8117871,26.51727547,31.61631003,Asia
-REPUBLIC OF KOREA,KOR,2017,Fluoroquinolones & E. faecalis,300,20.351192,16.12691537,25.31498442,Asia
-REPUBLIC OF KOREA,KOR,2017,Fluoroquinolones & E. faecium,300,33.25723913,28.59033506,37.76629958,Asia
-REPUBLIC OF KOREA,KOR,2017,Fluoroquinolones & Non-typhoidal Salmonella,150,0.4512228,0.046421248,1.194153384,Asia
-REPUBLIC OF KOREA,KOR,2017,Fluoroquinolones & S. aureus,100,24.39418208,18.4478701,30.34230264,Asia
-REPUBLIC OF KOREA,KOR,2017,Macrolides & S. aureus,100,25.48728404,18.64622021,32.42520849,Asia
-REPUBLIC OF KOREA,KOR,2017,Third generation cephalosporins & E. coli,900,2.915088049,2.521805221,4.716041454,Asia
-REPUBLIC OF KOREA,KOR,2018,Aminoglycosides & E. coli,450,47.32286681,42.75339467,52.46084558,Asia
-REPUBLIC OF KOREA,KOR,2018,Aminopenicillins & E. coli,450,50.94399573,47.08773616,54.91558293,Asia
-REPUBLIC OF KOREA,KOR,2018,Aminopenicillins with beta-lactamase inhibitors & E. coli,450,2.475160656,1.445096196,4.393959553,Asia
-REPUBLIC OF KOREA,KOR,2018,Fluoroquinolones & E. coli,900,27.35696732,25.20475878,30.15432422,Asia
-REPUBLIC OF KOREA,KOR,2018,Fluoroquinolones & E. faecalis,300,18.84784476,14.77379635,23.64348436,Asia
-REPUBLIC OF KOREA,KOR,2018,Fluoroquinolones & E. faecium,300,27.9425805,22.85160002,33.09474174,Asia
-REPUBLIC OF KOREA,KOR,2018,Fluoroquinolones & Non-typhoidal Salmonella,200,1.155366024,0.241206783,2.499568823,Asia
-REPUBLIC OF KOREA,KOR,2018,Fluoroquinolones & S. aureus,150,20.25042916,13.87887793,27.23774495,Asia
-REPUBLIC OF KOREA,KOR,2018,Macrolides & S. aureus,150,20.04505265,13.22645836,27.07308255,Asia
-REPUBLIC OF KOREA,KOR,2018,Third generation cephalosporins & E. coli,450,1.228862034,0.824278962,2.580136769,Asia
-REPUBLIC OF KOREA,KOR,2019,Aminoglycosides & E. coli,300,50.09286001,44.36024352,55.88470707,Asia
-REPUBLIC OF KOREA,KOR,2019,Aminopenicillins & E. coli,300,52.86418157,47.84598858,58.09690299,Asia
-REPUBLIC OF KOREA,KOR,2019,Aminopenicillins with beta-lactamase inhibitors & E. coli,300,1.556291667,0.798190723,3.40035925,Asia
-REPUBLIC OF KOREA,KOR,2019,Fluoroquinolones & E. faecalis,300,21.6960134,17.2745279,26.57609155,Asia
-REPUBLIC OF KOREA,KOR,2019,Fluoroquinolones & E. faecium,300,37.66881241,32.57264459,42.72812268,Asia
-REPUBLIC OF KOREA,KOR,2019,Fluoroquinolones & Non-typhoidal Salmonella,200,3.432219098,1.769514375,5.949938682,Asia
-REPUBLIC OF KOREA,KOR,2019,Fluoroquinolones & S. aureus,100,19.18564425,12.42572572,25.80060084,Asia
-REPUBLIC OF KOREA,KOR,2019,Macrolides & S. aureus,100,15.47173351,9.470983777,21.67591167,Asia
-REPUBLIC OF KOREA,KOR,2020,Aminoglycosides & E. coli,450,52.84281245,47.48957765,57.74304629,Asia
-REPUBLIC OF KOREA,KOR,2020,Aminopenicillins & E. coli,450,56.08058211,51.89744738,59.85700703,Asia
-REPUBLIC OF KOREA,KOR,2020,Aminopenicillins with beta-lactamase inhibitors & E. coli,450,2.665471684,1.962636497,4.808576639,Asia
-REPUBLIC OF KOREA,KOR,2020,Fluoroquinolones & E. faecalis,250,31.0878635,25.54549999,37.24249121,Asia
-REPUBLIC OF KOREA,KOR,2020,Fluoroquinolones & E. faecium,350,33.11182663,28.51707567,37.85300705,Asia
-REPUBLIC OF KOREA,KOR,2020,Fluoroquinolones & Non-typhoidal Salmonella,200,2.16961721,0.905763742,4.223479905,Asia
-REPUBLIC OF KOREA,KOR,2020,Fluoroquinolones & S. aureus,150,32.21511514,24.34865409,39.99162156,Asia
-REPUBLIC OF KOREA,KOR,2020,Macrolides & S. aureus,150,34.41750075,26.08979429,43.26980619,Asia
+QATAR,QAT,2017,Aminopenicillins & E. coli,90,65.11417279,57.33024169,72.76613962,Middle East
+QATAR,QAT,2017,Aminopenicillins with beta-lactamase inhibitors & E. coli,90,89.19749698,89.17943309,89.19699952,Middle East
+QATAR,QAT,2017,Fluoroquinolones & E. coli,90,35.67899879,26.92594131,44.2421864,Middle East
+QATAR,QAT,2017,Third generation cephalosporins & E. coli,90,2.675924909,0.216826954,5.673616494,Middle East
+REPUBLIC OF KOREA,KOR,2010,Aminoglycosides & E. coli,300,54.14676181,48.00914421,60.03225979,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2010,Aminopenicillins & E. coli,300,43.94248612,38.39876317,49.63689669,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2010,Aminopenicillins with beta-lactamase inhibitors & E. coli,300,1.246693746,0.565175814,2.807103505,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2010,Fluoroquinolones & E. coli,300,25.38212719,21.64694964,29.71603471,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2010,Fluoroquinolones & E. faecalis,300,20.76985485,16.7931767,25.15915351,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2010,Fluoroquinolones & E. faecium,300,34.39356486,28.91949129,39.7801192,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2010,Fluoroquinolones & Non-typhoidal Salmonella,300,0.0,0.007345809,0.020241435,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2010,Fluoroquinolones & S. aureus,150,8.316019885,4.280072746,12.82046892,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2010,Macrolides & S. aureus,150,23.22255821,16.34154177,30.14242374,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2011,Aminoglycosides & E. coli,300,55.08380427,48.93359939,61.38877405,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2011,Aminopenicillins & E. coli,300,44.7750769,39.1819727,50.15566109,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2011,Aminopenicillins with beta-lactamase inhibitors & E. coli,300,0.942624629,0.625721387,2.439041535,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2011,Fluoroquinolones & E. coli,300,26.17115281,22.339587,30.72230556,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2011,Fluoroquinolones & E. faecalis,300,23.62999195,19.03779606,28.07831631,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2011,Fluoroquinolones & E. faecium,300,31.96198578,27.31255979,37.05170041,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2011,Fluoroquinolones & Non-typhoidal Salmonella,300,0.0,0.007528822,0.020257953,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2011,Fluoroquinolones & S. aureus,150,14.40020985,8.759032748,20.38327711,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2011,Macrolides & S. aureus,150,21.40376211,14.30164511,28.89884706,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2012,Aminoglycosides & E. coli,300,50.88417357,45.32658126,57.26689899,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2012,Aminopenicillins & E. coli,300,44.68057153,38.97759323,50.42534425,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,300,1.544486081,0.847890111,3.362261183,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2012,Fluoroquinolones & E. coli,300,27.35641223,23.73450122,31.6240079,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2012,Fluoroquinolones & E. faecalis,300,21.06711617,16.46948613,25.76367743,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2012,Fluoroquinolones & E. faecium,300,30.45156651,25.78692446,35.29413829,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2012,Fluoroquinolones & Non-typhoidal Salmonella,300,0.0,0.00762227,0.020424247,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2012,Fluoroquinolones & S. aureus,150,13.9556503,8.831312819,19.76080694,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2012,Macrolides & S. aureus,150,19.79706955,13.11198906,26.71533693,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2013,Aminoglycosides & E. coli,450,55.58439406,50.96047712,60.63633872,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2013,Aminopenicillins & E. coli,450,47.80899382,43.22354871,52.12733354,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2013,Aminopenicillins with beta-lactamase inhibitors & E. coli,450,4.284021846,2.564517877,6.605613787,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2013,Fluoroquinolones & E. coli,900,28.63733676,26.3442262,31.16504259,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2013,Fluoroquinolones & E. faecalis,300,23.14808815,18.13970007,28.25752679,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2013,Fluoroquinolones & E. faecium,300,34.46633749,29.70240065,39.14041814,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2013,Fluoroquinolones & Non-typhoidal Salmonella,300,0.295030293,0.035699003,0.905991364,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2013,Fluoroquinolones & S. aureus,150,24.20013062,16.84241139,31.3875817,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2013,Macrolides & S. aureus,150,24.59662554,17.64087115,31.67884315,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2014,Aminoglycosides & E. coli,450,41.91230845,37.29483218,46.47258275,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2014,Aminopenicillins & E. coli,450,51.31852353,46.62864882,56.04584043,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2014,Aminopenicillins with beta-lactamase inhibitors & E. coli,450,4.666017294,3.033169518,7.099566273,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2014,Fluoroquinolones & E. coli,900,34.40448755,31.71531525,37.18287844,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2014,Fluoroquinolones & E. faecalis,300,19.84157888,15.43644125,24.56615276,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2014,Fluoroquinolones & E. faecium,300,32.27709772,27.43805455,37.28621508,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2014,Fluoroquinolones & Non-typhoidal Salmonella,300,2.781017361,1.335881487,5.017930735,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2014,Fluoroquinolones & S. aureus,150,25.30190394,19.0728209,32.79655784,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2014,Macrolides & S. aureus,150,20.63087945,14.0680328,27.83177627,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2015,Aminoglycosides & E. coli,300,52.85556847,46.53420405,58.66475867,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2015,Aminopenicillins & E. coli,300,48.67399319,42.90994049,54.2977779,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,300,1.88369513,0.833325782,3.71400073,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2015,Fluoroquinolones & E. coli,600,32.46403058,29.75566811,35.51121487,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2015,Fluoroquinolones & E. faecalis,300,22.06727927,17.81270697,26.87194217,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2015,Fluoroquinolones & E. faecium,300,38.90767588,34.53754295,43.9261772,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2015,Fluoroquinolones & Non-typhoidal Salmonella,300,0.468577523,0.173395047,1.401043406,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2015,Fluoroquinolones & S. aureus,150,24.47960572,17.61164383,31.73549035,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2015,Macrolides & S. aureus,150,23.75701336,16.67299282,30.9817242,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2016,Aminoglycosides & E. coli,450,47.48672647,42.75346338,52.25943455,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2016,Aminopenicillins & E. coli,450,45.22186182,40.53154493,49.22622759,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2016,Aminopenicillins with beta-lactamase inhibitors & E. coli,450,4.908494476,3.206431486,7.618138156,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2016,Fluoroquinolones & E. coli,900,25.07670017,22.4482303,27.75079843,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2016,Fluoroquinolones & E. faecalis,300,25.40116663,20.36901095,30.73366653,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2016,Fluoroquinolones & E. faecium,300,44.15724779,38.12501104,49.87111848,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2016,Fluoroquinolones & Non-typhoidal Salmonella,300,0.2256114,0.034799561,0.764034736,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2016,Fluoroquinolones & S. aureus,150,33.89514472,26.60945546,40.98435948,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2016,Macrolides & S. aureus,150,43.0133626,34.95374858,51.58258071,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2017,Aminoglycosides & E. coli,450,51.82154074,47.34124942,56.5375502,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2017,Aminopenicillins & E. coli,450,51.9878333,47.7508853,56.02490451,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2017,Aminopenicillins with beta-lactamase inhibitors & E. coli,450,2.631347116,1.682849342,4.640084101,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2017,Fluoroquinolones & E. coli,900,28.8117871,26.51727547,31.61631003,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2017,Fluoroquinolones & E. faecalis,300,20.351192,16.12691537,25.31498442,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2017,Fluoroquinolones & E. faecium,300,33.25723913,28.59033506,37.76629958,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2017,Fluoroquinolones & Non-typhoidal Salmonella,150,0.4512228,0.046421248,1.194153384,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2017,Fluoroquinolones & S. aureus,100,24.39418208,18.4478701,30.34230264,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2017,Macrolides & S. aureus,100,25.48728404,18.64622021,32.42520849,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2017,Third generation cephalosporins & E. coli,900,2.915088049,2.521805221,4.716041454,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2018,Aminoglycosides & E. coli,450,47.32286681,42.75339467,52.46084558,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2018,Aminopenicillins & E. coli,450,50.94399573,47.08773616,54.91558293,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2018,Aminopenicillins with beta-lactamase inhibitors & E. coli,450,2.475160656,1.445096196,4.393959553,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2018,Fluoroquinolones & E. coli,900,27.35696732,25.20475878,30.15432422,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2018,Fluoroquinolones & E. faecalis,300,18.84784476,14.77379635,23.64348436,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2018,Fluoroquinolones & E. faecium,300,27.9425805,22.85160002,33.09474174,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2018,Fluoroquinolones & Non-typhoidal Salmonella,200,1.155366024,0.241206783,2.499568823,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2018,Fluoroquinolones & S. aureus,150,20.25042916,13.87887793,27.23774495,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2018,Macrolides & S. aureus,150,20.04505265,13.22645836,27.07308255,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2018,Third generation cephalosporins & E. coli,450,1.228862034,0.824278962,2.580136769,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2019,Aminoglycosides & E. coli,300,50.09286001,44.36024352,55.88470707,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2019,Aminopenicillins & E. coli,300,52.86418157,47.84598858,58.09690299,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2019,Aminopenicillins with beta-lactamase inhibitors & E. coli,300,1.556291667,0.798190723,3.40035925,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2019,Fluoroquinolones & E. faecalis,300,21.6960134,17.2745279,26.57609155,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2019,Fluoroquinolones & E. faecium,300,37.66881241,32.57264459,42.72812268,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2019,Fluoroquinolones & Non-typhoidal Salmonella,200,3.432219098,1.769514375,5.949938682,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2019,Fluoroquinolones & S. aureus,100,19.18564425,12.42572572,25.80060084,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2019,Macrolides & S. aureus,100,15.47173351,9.470983777,21.67591167,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2020,Aminoglycosides & E. coli,450,52.84281245,47.48957765,57.74304629,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2020,Aminopenicillins & E. coli,450,56.08058211,51.89744738,59.85700703,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2020,Aminopenicillins with beta-lactamase inhibitors & E. coli,450,2.665471684,1.962636497,4.808576639,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2020,Fluoroquinolones & E. faecalis,250,31.0878635,25.54549999,37.24249121,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2020,Fluoroquinolones & E. faecium,350,33.11182663,28.51707567,37.85300705,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2020,Fluoroquinolones & Non-typhoidal Salmonella,200,2.16961721,0.905763742,4.223479905,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2020,Fluoroquinolones & S. aureus,150,32.21511514,24.34865409,39.99162156,"Asia, Far East and Oceania"
+REPUBLIC OF KOREA,KOR,2020,Macrolides & S. aureus,150,34.41750075,26.08979429,43.26980619,"Asia, Far East and Oceania"
 ROMANIA,ROU,2016,Aminoglycosides & E. coli,840,8.475573091,7.217166067,9.707165338,Europe
 ROMANIA,ROU,2016,Aminopenicillins & E. coli,840,30.77001535,29.13994651,32.39590695,Europe
 ROMANIA,ROU,2016,Fluoroquinolones & E. coli,3360,46.18573162,45.59570049,46.77748513,Europe
@@ -1567,17 +1567,17 @@ ROMANIA,ROU,2020,Aminoglycosides & E. coli,168,8.905493463,6.14661099,11.7233443
 ROMANIA,ROU,2020,Aminopenicillins & E. coli,168,32.55111404,28.96643166,36.09684151,Europe
 ROMANIA,ROU,2020,Fluoroquinolones & Non-typhoidal Salmonella,233,31.2199688,28.00143115,34.48010963,Europe
 RWANDA,RWA,2015,Aminoglycosides & E. coli,241,16.67764506,15.64100945,17.69476263,Africa
-SAUDI ARABIA,SAU,2009,Aminoglycosides & E. coli,37,5.434320775,0.277814115,12.05320422,Asia
-SAUDI ARABIA,SAU,2009,Aminopenicillins & E. coli,37,71.5518902,60.29126722,82.82952052,Asia
-SAUDI ARABIA,SAU,2015,Aminoglycosides & E. coli,180,19.02012271,13.98684988,24.23760197,Asia
-SAUDI ARABIA,SAU,2015,Aminopenicillins & E. coli,180,46.19172659,39.92349065,52.49560297,Asia
-SAUDI ARABIA,SAU,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,180,0.905720129,0.032772144,2.164299239,Asia
-SAUDI ARABIA,SAU,2015,Fluoroquinolones & E. coli,360,53.43748762,48.38688402,58.58627552,Asia
-SAUDI ARABIA,SAU,2015,Third generation cephalosporins & E. coli,180,0.905720129,0.061161473,2.160268077,Asia
+SAUDI ARABIA,SAU,2009,Aminoglycosides & E. coli,37,5.434320775,0.277814115,12.05320422,Middle East
+SAUDI ARABIA,SAU,2009,Aminopenicillins & E. coli,37,71.5518902,60.29126722,82.82952052,Middle East
+SAUDI ARABIA,SAU,2015,Aminoglycosides & E. coli,180,19.02012271,13.98684988,24.23760197,Middle East
+SAUDI ARABIA,SAU,2015,Aminopenicillins & E. coli,180,46.19172659,39.92349065,52.49560297,Middle East
+SAUDI ARABIA,SAU,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,180,0.905720129,0.032772144,2.164299239,Middle East
+SAUDI ARABIA,SAU,2015,Fluoroquinolones & E. coli,360,53.43748762,48.38688402,58.58627552,Middle East
+SAUDI ARABIA,SAU,2015,Third generation cephalosporins & E. coli,180,0.905720129,0.061161473,2.160268077,Middle East
 SENEGAL,SEN,2003,Fluoroquinolones & Non-typhoidal Salmonella,247,0.63865314,0.044707199,1.387817824,Africa
 SENEGAL,SEN,2004,Fluoroquinolones & Non-typhoidal Salmonella,569,0.651554538,0.213311624,1.603531266,Africa
 SENEGAL,SEN,2008,Fluoroquinolones & Non-typhoidal Salmonella,149,0.332227968,0.022014536,0.844754066,Africa
-SINGAPORE,SGP,2016,Fluoroquinolones & Non-typhoidal Salmonella,52,3.997059945,0.283224093,9.096136715,Asia
+SINGAPORE,SGP,2016,Fluoroquinolones & Non-typhoidal Salmonella,52,3.997059945,0.283224093,9.096136715,"Asia, Far East and Oceania"
 SLOVAKIA,SVK,2016,Aminoglycosides & E. coli,85,0.416875921,0.030581237,1.196907256,Europe
 SLOVAKIA,SVK,2016,Aminopenicillins & E. coli,85,23.34505157,19.94150655,26.74982529,Europe
 SLOVAKIA,SVK,2016,Fluoroquinolones & E. coli,170,30.84881814,28.87919281,32.74349427,Europe
@@ -1668,8 +1668,8 @@ SPAIN,ESP,2019,Aminoglycosides & E. coli,340,3.957082477,1.945964604,5.986591305
 SPAIN,ESP,2019,Aminopenicillins & E. coli,340,44.7792641,40.92986325,48.76389223,Europe
 SPAIN,ESP,2019,Fluoroquinolones & Non-typhoidal Salmonella,536,23.7677156,19.86443588,28.24876745,Europe
 SPAIN,ESP,2020,Fluoroquinolones & Non-typhoidal Salmonella,294,8.296772677,7.311745628,9.312567113,Europe
-SRI LANKA,LKA,2013,Fluoroquinolones & Non-typhoidal Salmonella,12,0.0,0.00077862,0.037364128,Asia
-SRI LANKA,LKA,2017,Fluoroquinolones & S. aureus,77,80.36297834,73.24409497,87.30850925,Asia
+SRI LANKA,LKA,2013,Fluoroquinolones & Non-typhoidal Salmonella,12,0.0,0.00077862,0.037364128,"Asia, Far East and Oceania"
+SRI LANKA,LKA,2017,Fluoroquinolones & S. aureus,77,80.36297834,73.24409497,87.30850925,"Asia, Far East and Oceania"
 SUDAN,SDN,2005,Aminoglycosides & E. coli,5,18.57290471,1.197734984,50.0647559,Africa
 SUDAN,SDN,2005,Aminopenicillins & E. coli,5,37.14580942,2.301884508,75.02189879,Africa
 SUDAN,SDN,2005,Macrolides & S. aureus,8,35.28851895,6.042260277,65.07006744,Africa
@@ -1715,49 +1715,49 @@ SWITZERLAND,CHE,2019,Aminoglycosides & E. coli,388,2.477012466,1.02291358,4.0648
 SWITZERLAND,CHE,2019,Aminopenicillins & E. coli,388,17.61887757,14.04270567,21.2259479,Europe
 SWITZERLAND,CHE,2020,Aminoglycosides & E. coli,208,0.276404725,0.013878496,0.568489984,Europe
 SWITZERLAND,CHE,2020,Aminopenicillins & E. coli,208,3.777531248,2.799592531,4.752037161,Europe
-THAILAND,THA,2001,Fluoroquinolones & Non-typhoidal Salmonella,62,0.0,0.003025848,0.040462816,Asia
-THAILAND,THA,2003,Fluoroquinolones & Non-typhoidal Salmonella,370,0.0,0.003550304,0.01863101,Asia
-THAILAND,THA,2005,Aminopenicillins with beta-lactamase inhibitors & E. coli,460,0.652823665,0.092059668,1.225539475,Asia
-THAILAND,THA,2005,Fluoroquinolones & E. coli,460,36.55812522,33.79712025,39.33700051,Asia
-THAILAND,THA,2005,Third generation cephalosporins & E. coli,460,0.652823665,0.090168533,1.21227489,Asia
-THAILAND,THA,2007,Aminoglycosides & E. coli,60,17.91631049,6.759784169,26.81039608,Asia
-THAILAND,THA,2007,Aminopenicillins & E. coli,60,60.49969964,42.95929334,71.34359431,Asia
-THAILAND,THA,2007,Fluoroquinolones & E. coli,57,5.875412981,0.842246941,10.98274334,Asia
-THAILAND,THA,2008,Macrolides & S. aureus,21,15.7505545,7.136553473,20.57673288,Asia
-THAILAND,THA,2010,Aminoglycosides & E. coli,38,19.32068019,17.59685845,20.88598165,Asia
-THAILAND,THA,2010,Aminopenicillins & E. coli,38,14.28050275,11.32833682,17.17514481,Asia
-THAILAND,THA,2010,Fluoroquinolones & E. coli,38,0.420014787,0.054372703,1.326972284,Asia
-THAILAND,THA,2010,Fluoroquinolones & Non-typhoidal Salmonella,87,0.202765759,0.017166861,0.616837377,Asia
-THAILAND,THA,2011,Aminoglycosides & E. coli,169,35.30766892,26.35052786,44.32049262,Asia
-THAILAND,THA,2011,Aminopenicillins & E. coli,169,66.53399143,58.37169314,75.03918366,Asia
-THAILAND,THA,2011,Aminopenicillins with beta-lactamase inhibitors & E. coli,169,4.546964168,0.658202275,8.882313672,Asia
-THAILAND,THA,2011,Fluoroquinolones & E. coli,169,10.96119339,4.917476414,16.85748785,Asia
-THAILAND,THA,2011,Fluoroquinolones & Non-typhoidal Salmonella,30,0.0,0.004482652,0.040331345,Asia
-THAILAND,THA,2011,Fluoroquinolones & S. aureus,6,21.00073934,20.98433196,21.00037131,Asia
-THAILAND,THA,2011,Macrolides & S. aureus,14,9.015317386,4.77846039,11.17823237,Asia
-THAILAND,THA,2011,Third generation cephalosporins & E. coli,169,1.470051754,0.584431181,2.386085591,Asia
-THAILAND,THA,2013,Aminoglycosides & E. coli,143,47.00330385,42.40973845,51.56173928,Asia
-THAILAND,THA,2013,Aminopenicillins & E. coli,143,65.28236646,65.27186722,65.28209539,Asia
-THAILAND,THA,2013,Aminopenicillins with beta-lactamase inhibitors & E. coli,143,54.18436416,50.3617551,57.94770044,Asia
-THAILAND,THA,2013,Fluoroquinolones & E. coli,286,41.12789087,37.17537556,44.94455714,Asia
-THAILAND,THA,2013,Fluoroquinolones & Non-typhoidal Salmonella,284,0.299482374,0.043929473,0.564156477,Asia
-THAILAND,THA,2013,Third generation cephalosporins & E. coli,286,60.71260081,58.55691016,62.79726599,Asia
-THAILAND,THA,2014,Aminoglycosides & E. coli,437,8.868040288,7.713167385,9.971951173,Asia
-THAILAND,THA,2014,Aminopenicillins & E. coli,437,24.3841024,22.78885143,25.98078658,Asia
-THAILAND,THA,2014,Aminopenicillins with beta-lactamase inhibitors & E. coli,391,1.579620828,0.934072976,2.223588019,Asia
-THAILAND,THA,2014,Fluoroquinolones & E. coli,550,2.066042091,1.217680088,2.956856374,Asia
-THAILAND,THA,2014,Third generation cephalosporins & E. coli,782,9.118899084,8.289115485,9.98294026,Asia
-THAILAND,THA,2015,Aminoglycosides & E. coli,246,67.81053055,54.9975072,76.93777695,Asia
-THAILAND,THA,2015,Aminopenicillins & E. coli,210,17.40061259,16.32346486,18.32628276,Asia
-THAILAND,THA,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,90,0.490017251,0.034820759,1.104643525,Asia
-THAILAND,THA,2015,Fluoroquinolones & E. coli,549,50.21474924,42.30934076,58.18156536,Asia
-THAILAND,THA,2015,Fluoroquinolones & Non-typhoidal Salmonella,187,1.695645882,0.142718783,3.867748024,Asia
-THAILAND,THA,2015,Third generation cephalosporins & E. coli,486,1.750061611,1.141682672,2.346222421,Asia
-THAILAND,THA,2016,Aminoglycosides & E. coli,21,5.875412981,0.404676092,16.37620249,Asia
-THAILAND,THA,2016,Fluoroquinolones & E. coli,33,47.65612752,36.6789504,58.26639592,Asia
-THAILAND,THA,2016,Third generation cephalosporins & E. coli,28,25.82132132,12.68832822,37.94261558,Asia
-THAILAND,THA,2017,Aminoglycosides & E. coli,125,77.50911831,71.14365551,84.24090647,Asia
-THAILAND,THA,2017,Fluoroquinolones & Non-typhoidal Salmonella,106,4.546964168,0.800432136,9.523296951,Asia
+THAILAND,THA,2001,Fluoroquinolones & Non-typhoidal Salmonella,62,0.0,0.003025848,0.040462816,"Asia, Far East and Oceania"
+THAILAND,THA,2003,Fluoroquinolones & Non-typhoidal Salmonella,370,0.0,0.003550304,0.01863101,"Asia, Far East and Oceania"
+THAILAND,THA,2005,Aminopenicillins with beta-lactamase inhibitors & E. coli,460,0.652823665,0.092059668,1.225539475,"Asia, Far East and Oceania"
+THAILAND,THA,2005,Fluoroquinolones & E. coli,460,36.55812522,33.79712025,39.33700051,"Asia, Far East and Oceania"
+THAILAND,THA,2005,Third generation cephalosporins & E. coli,460,0.652823665,0.090168533,1.21227489,"Asia, Far East and Oceania"
+THAILAND,THA,2007,Aminoglycosides & E. coli,60,17.91631049,6.759784169,26.81039608,"Asia, Far East and Oceania"
+THAILAND,THA,2007,Aminopenicillins & E. coli,60,60.49969964,42.95929334,71.34359431,"Asia, Far East and Oceania"
+THAILAND,THA,2007,Fluoroquinolones & E. coli,57,5.875412981,0.842246941,10.98274334,"Asia, Far East and Oceania"
+THAILAND,THA,2008,Macrolides & S. aureus,21,15.7505545,7.136553473,20.57673288,"Asia, Far East and Oceania"
+THAILAND,THA,2010,Aminoglycosides & E. coli,38,19.32068019,17.59685845,20.88598165,"Asia, Far East and Oceania"
+THAILAND,THA,2010,Aminopenicillins & E. coli,38,14.28050275,11.32833682,17.17514481,"Asia, Far East and Oceania"
+THAILAND,THA,2010,Fluoroquinolones & E. coli,38,0.420014787,0.054372703,1.326972284,"Asia, Far East and Oceania"
+THAILAND,THA,2010,Fluoroquinolones & Non-typhoidal Salmonella,87,0.202765759,0.017166861,0.616837377,"Asia, Far East and Oceania"
+THAILAND,THA,2011,Aminoglycosides & E. coli,169,35.30766892,26.35052786,44.32049262,"Asia, Far East and Oceania"
+THAILAND,THA,2011,Aminopenicillins & E. coli,169,66.53399143,58.37169314,75.03918366,"Asia, Far East and Oceania"
+THAILAND,THA,2011,Aminopenicillins with beta-lactamase inhibitors & E. coli,169,4.546964168,0.658202275,8.882313672,"Asia, Far East and Oceania"
+THAILAND,THA,2011,Fluoroquinolones & E. coli,169,10.96119339,4.917476414,16.85748785,"Asia, Far East and Oceania"
+THAILAND,THA,2011,Fluoroquinolones & Non-typhoidal Salmonella,30,0.0,0.004482652,0.040331345,"Asia, Far East and Oceania"
+THAILAND,THA,2011,Fluoroquinolones & S. aureus,6,21.00073934,20.98433196,21.00037131,"Asia, Far East and Oceania"
+THAILAND,THA,2011,Macrolides & S. aureus,14,9.015317386,4.77846039,11.17823237,"Asia, Far East and Oceania"
+THAILAND,THA,2011,Third generation cephalosporins & E. coli,169,1.470051754,0.584431181,2.386085591,"Asia, Far East and Oceania"
+THAILAND,THA,2013,Aminoglycosides & E. coli,143,47.00330385,42.40973845,51.56173928,"Asia, Far East and Oceania"
+THAILAND,THA,2013,Aminopenicillins & E. coli,143,65.28236646,65.27186722,65.28209539,"Asia, Far East and Oceania"
+THAILAND,THA,2013,Aminopenicillins with beta-lactamase inhibitors & E. coli,143,54.18436416,50.3617551,57.94770044,"Asia, Far East and Oceania"
+THAILAND,THA,2013,Fluoroquinolones & E. coli,286,41.12789087,37.17537556,44.94455714,"Asia, Far East and Oceania"
+THAILAND,THA,2013,Fluoroquinolones & Non-typhoidal Salmonella,284,0.299482374,0.043929473,0.564156477,"Asia, Far East and Oceania"
+THAILAND,THA,2013,Third generation cephalosporins & E. coli,286,60.71260081,58.55691016,62.79726599,"Asia, Far East and Oceania"
+THAILAND,THA,2014,Aminoglycosides & E. coli,437,8.868040288,7.713167385,9.971951173,"Asia, Far East and Oceania"
+THAILAND,THA,2014,Aminopenicillins & E. coli,437,24.3841024,22.78885143,25.98078658,"Asia, Far East and Oceania"
+THAILAND,THA,2014,Aminopenicillins with beta-lactamase inhibitors & E. coli,391,1.579620828,0.934072976,2.223588019,"Asia, Far East and Oceania"
+THAILAND,THA,2014,Fluoroquinolones & E. coli,550,2.066042091,1.217680088,2.956856374,"Asia, Far East and Oceania"
+THAILAND,THA,2014,Third generation cephalosporins & E. coli,782,9.118899084,8.289115485,9.98294026,"Asia, Far East and Oceania"
+THAILAND,THA,2015,Aminoglycosides & E. coli,246,67.81053055,54.9975072,76.93777695,"Asia, Far East and Oceania"
+THAILAND,THA,2015,Aminopenicillins & E. coli,210,17.40061259,16.32346486,18.32628276,"Asia, Far East and Oceania"
+THAILAND,THA,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,90,0.490017251,0.034820759,1.104643525,"Asia, Far East and Oceania"
+THAILAND,THA,2015,Fluoroquinolones & E. coli,549,50.21474924,42.30934076,58.18156536,"Asia, Far East and Oceania"
+THAILAND,THA,2015,Fluoroquinolones & Non-typhoidal Salmonella,187,1.695645882,0.142718783,3.867748024,"Asia, Far East and Oceania"
+THAILAND,THA,2015,Third generation cephalosporins & E. coli,486,1.750061611,1.141682672,2.346222421,"Asia, Far East and Oceania"
+THAILAND,THA,2016,Aminoglycosides & E. coli,21,5.875412981,0.404676092,16.37620249,"Asia, Far East and Oceania"
+THAILAND,THA,2016,Fluoroquinolones & E. coli,33,47.65612752,36.6789504,58.26639592,"Asia, Far East and Oceania"
+THAILAND,THA,2016,Third generation cephalosporins & E. coli,28,25.82132132,12.68832822,37.94261558,"Asia, Far East and Oceania"
+THAILAND,THA,2017,Aminoglycosides & E. coli,125,77.50911831,71.14365551,84.24090647,"Asia, Far East and Oceania"
+THAILAND,THA,2017,Fluoroquinolones & Non-typhoidal Salmonella,106,4.546964168,0.800432136,9.523296951,"Asia, Far East and Oceania"
 TUNISIA,TUN,2006,Aminoglycosides & E. coli,147,62.66812394,50.66147855,75.08685434,Africa
 TUNISIA,TUN,2006,Aminopenicillins & E. coli,110,33.8392901,26.45969723,41.4984411,Africa
 TUNISIA,TUN,2006,Aminopenicillins with beta-lactamase inhibitors & E. coli,110,2.718015269,0.719600339,5.596440823,Africa
@@ -1794,42 +1794,42 @@ TUNISIA,TUN,2014,Fluoroquinolones & S. aureus,15,0.0,0.000422247,0.012442574,Afr
 TUNISIA,TUN,2014,Macrolides & S. aureus,15,3.277021121,0.143470593,7.379384552,Africa
 TUNISIA,TUN,2015,Fluoroquinolones & E. coli,37,74.7454199,74.72177792,74.74506694,Africa
 TUNISIA,TUN,2015,Third generation cephalosporins & E. coli,37,74.7454199,74.72192892,74.74485715,Africa
-TÜRKIYE,TUR,2005,Fluoroquinolones & Non-typhoidal Salmonella,110,0.823919797,0.050414915,1.846118624,Asia
-TÜRKIYE,TUR,2008,Fluoroquinolones & S. aureus,154,7.644521321,4.72938455,10.61948133,Asia
-TÜRKIYE,TUR,2008,Macrolides & S. aureus,154,11.17276193,7.717994867,14.61292324,Asia
-TÜRKIYE,TUR,2009,Fluoroquinolones & S. aureus,64,0.0,0.000325857,0.01402712,Asia
-TÜRKIYE,TUR,2009,Macrolides & S. aureus,64,5.880401016,1.732170824,10.08008356,Asia
-TÜRKIYE,TUR,2010,Macrolides & S. aureus,112,15.87708274,11.36953374,20.43564237,Asia
-TÜRKIYE,TUR,2012,Aminoglycosides & E. coli,120,71.30231573,63.93330486,77.33359488,Asia
-TÜRKIYE,TUR,2012,Aminopenicillins & E. coli,120,94.70763909,91.45362757,97.96584837,Asia
-TÜRKIYE,TUR,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,25,23.06975431,15.59669338,30.54267847,Asia
-TÜRKIYE,TUR,2012,Fluoroquinolones & E. coli,120,33.29899746,22.8540485,43.13243415,Asia
-TÜRKIYE,TUR,2012,Fluoroquinolones & Non-typhoidal Salmonella,96,2.883719289,0.864025468,4.911736167,Asia
-TÜRKIYE,TUR,2012,Fluoroquinolones & S. aureus,70,0.0,0.000390562,0.013499271,Asia
-TÜRKIYE,TUR,2012,Macrolides & S. aureus,70,27.04984467,20.51479769,33.47959575,Asia
-TÜRKIYE,TUR,2012,Third generation cephalosporins & E. coli,202,39.27094358,37.85069544,40.72972072,Asia
-TÜRKIYE,TUR,2013,Aminoglycosides & E. coli,26,47.63124823,39.22960604,56.06430773,Asia
-TÜRKIYE,TUR,2013,Aminopenicillins & E. coli,26,58.80401016,58.78203215,58.80347677,Asia
-TÜRKIYE,TUR,2013,Aminopenicillins with beta-lactamase inhibitors & E. coli,26,27.63788478,17.18415838,38.39934414,Asia
-TÜRKIYE,TUR,2013,Fluoroquinolones & E. coli,78,14.11296244,7.95601306,20.3041768,Asia
-TÜRKIYE,TUR,2014,Aminoglycosides & E. coli,320,30.76180946,23.10664873,44.7279261,Asia
-TÜRKIYE,TUR,2014,Aminopenicillins & E. coli,320,33.2736841,31.59110597,34.97520997,Asia
-TÜRKIYE,TUR,2014,Aminopenicillins with beta-lactamase inhibitors & E. coli,308,8.239197968,6.52906998,10.02990037,Asia
-TÜRKIYE,TUR,2014,Fluoroquinolones & E. coli,1248,30.50087709,29.4852095,31.60819591,Asia
-TÜRKIYE,TUR,2014,Fluoroquinolones & S. aureus,17,7.056481219,0.428181035,15.69548424,Asia
-TÜRKIYE,TUR,2014,Macrolides & S. aureus,17,21.16944366,8.40824532,34.09195006,Asia
-TÜRKIYE,TUR,2014,Third generation cephalosporins & E. coli,640,3.168922295,2.515244615,3.873544245,Asia
-TÜRKIYE,TUR,2015,Aminopenicillins & E. coli,136,36.14284713,31.31485241,40.96732982,Asia
-TÜRKIYE,TUR,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,136,27.50384622,22.46634036,32.72759821,Asia
-TÜRKIYE,TUR,2015,Fluoroquinolones & Non-typhoidal Salmonella,4,14.70100254,0.687188436,38.848757,Asia
-TÜRKIYE,TUR,2016,Aminoglycosides & E. coli,66,16.88371929,7.026708121,29.39054673,Asia
-TÜRKIYE,TUR,2016,Aminopenicillins & E. coli,66,100.0,99.96321369,99.9957091,Asia
-TÜRKIYE,TUR,2016,Aminopenicillins with beta-lactamase inhibitors & E. coli,66,4.119598984,0.954595898,7.351258788,Asia
-TÜRKIYE,TUR,2016,Fluoroquinolones & E. coli,264,24.71427563,21.79055965,30.9914413,Asia
-TÜRKIYE,TUR,2016,Third generation cephalosporins & E. coli,132,95.05979949,88.12488608,97.5563669,Asia
-TÜRKIYE,TUR,2017,Aminopenicillins & E. coli,4,30.89699238,13.92938542,40.49925865,Asia
-TÜRKIYE,TUR,2017,Fluoroquinolones & E. coli,16,30.89699238,19.24289277,35.39200864,Asia
-TÜRKIYE,TUR,2017,Third generation cephalosporins & E. coli,8,10.29899746,3.413358248,24.54047729,Asia
+TÜRKIYE,TUR,2005,Fluoroquinolones & Non-typhoidal Salmonella,110,0.823919797,0.050414915,1.846118624,Europe
+TÜRKIYE,TUR,2008,Fluoroquinolones & S. aureus,154,7.644521321,4.72938455,10.61948133,Europe
+TÜRKIYE,TUR,2008,Macrolides & S. aureus,154,11.17276193,7.717994867,14.61292324,Europe
+TÜRKIYE,TUR,2009,Fluoroquinolones & S. aureus,64,0.0,0.000325857,0.01402712,Europe
+TÜRKIYE,TUR,2009,Macrolides & S. aureus,64,5.880401016,1.732170824,10.08008356,Europe
+TÜRKIYE,TUR,2010,Macrolides & S. aureus,112,15.87708274,11.36953374,20.43564237,Europe
+TÜRKIYE,TUR,2012,Aminoglycosides & E. coli,120,71.30231573,63.93330486,77.33359488,Europe
+TÜRKIYE,TUR,2012,Aminopenicillins & E. coli,120,94.70763909,91.45362757,97.96584837,Europe
+TÜRKIYE,TUR,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,25,23.06975431,15.59669338,30.54267847,Europe
+TÜRKIYE,TUR,2012,Fluoroquinolones & E. coli,120,33.29899746,22.8540485,43.13243415,Europe
+TÜRKIYE,TUR,2012,Fluoroquinolones & Non-typhoidal Salmonella,96,2.883719289,0.864025468,4.911736167,Europe
+TÜRKIYE,TUR,2012,Fluoroquinolones & S. aureus,70,0.0,0.000390562,0.013499271,Europe
+TÜRKIYE,TUR,2012,Macrolides & S. aureus,70,27.04984467,20.51479769,33.47959575,Europe
+TÜRKIYE,TUR,2012,Third generation cephalosporins & E. coli,202,39.27094358,37.85069544,40.72972072,Europe
+TÜRKIYE,TUR,2013,Aminoglycosides & E. coli,26,47.63124823,39.22960604,56.06430773,Europe
+TÜRKIYE,TUR,2013,Aminopenicillins & E. coli,26,58.80401016,58.78203215,58.80347677,Europe
+TÜRKIYE,TUR,2013,Aminopenicillins with beta-lactamase inhibitors & E. coli,26,27.63788478,17.18415838,38.39934414,Europe
+TÜRKIYE,TUR,2013,Fluoroquinolones & E. coli,78,14.11296244,7.95601306,20.3041768,Europe
+TÜRKIYE,TUR,2014,Aminoglycosides & E. coli,320,30.76180946,23.10664873,44.7279261,Europe
+TÜRKIYE,TUR,2014,Aminopenicillins & E. coli,320,33.2736841,31.59110597,34.97520997,Europe
+TÜRKIYE,TUR,2014,Aminopenicillins with beta-lactamase inhibitors & E. coli,308,8.239197968,6.52906998,10.02990037,Europe
+TÜRKIYE,TUR,2014,Fluoroquinolones & E. coli,1248,30.50087709,29.4852095,31.60819591,Europe
+TÜRKIYE,TUR,2014,Fluoroquinolones & S. aureus,17,7.056481219,0.428181035,15.69548424,Europe
+TÜRKIYE,TUR,2014,Macrolides & S. aureus,17,21.16944366,8.40824532,34.09195006,Europe
+TÜRKIYE,TUR,2014,Third generation cephalosporins & E. coli,640,3.168922295,2.515244615,3.873544245,Europe
+TÜRKIYE,TUR,2015,Aminopenicillins & E. coli,136,36.14284713,31.31485241,40.96732982,Europe
+TÜRKIYE,TUR,2015,Aminopenicillins with beta-lactamase inhibitors & E. coli,136,27.50384622,22.46634036,32.72759821,Europe
+TÜRKIYE,TUR,2015,Fluoroquinolones & Non-typhoidal Salmonella,4,14.70100254,0.687188436,38.848757,Europe
+TÜRKIYE,TUR,2016,Aminoglycosides & E. coli,66,16.88371929,7.026708121,29.39054673,Europe
+TÜRKIYE,TUR,2016,Aminopenicillins & E. coli,66,100.0,99.96321369,99.9957091,Europe
+TÜRKIYE,TUR,2016,Aminopenicillins with beta-lactamase inhibitors & E. coli,66,4.119598984,0.954595898,7.351258788,Europe
+TÜRKIYE,TUR,2016,Fluoroquinolones & E. coli,264,24.71427563,21.79055965,30.9914413,Europe
+TÜRKIYE,TUR,2016,Third generation cephalosporins & E. coli,132,95.05979949,88.12488608,97.5563669,Europe
+TÜRKIYE,TUR,2017,Aminopenicillins & E. coli,4,30.89699238,13.92938542,40.49925865,Europe
+TÜRKIYE,TUR,2017,Fluoroquinolones & E. coli,16,30.89699238,19.24289277,35.39200864,Europe
+TÜRKIYE,TUR,2017,Third generation cephalosporins & E. coli,8,10.29899746,3.413358248,24.54047729,Europe
 UGANDA,UGA,2012,Fluoroquinolones & Non-typhoidal Salmonella,53,0.0,5.12e-05,0.001974136,Africa
 UGANDA,UGA,2013,Fluoroquinolones & Non-typhoidal Salmonella,143,3.268615486,2.783777142,3.751851168,Africa
 UGANDA,UGA,2013,Fluoroquinolones & S. aureus,41,0.0,0.000643714,0.025572839,Africa
@@ -2041,29 +2041,29 @@ VENEZUELA (BOLIVARIAN REPUBLIC OF),VEN,2015,Aminoglycosides & E. coli,1,0.281000
 VENEZUELA (BOLIVARIAN REPUBLIC OF),VEN,2015,Aminopenicillins & E. coli,1,0.281000538,0.067822193,2.395517446,Americas
 VENEZUELA (BOLIVARIAN REPUBLIC OF),VEN,2015,Fluoroquinolones & E. coli,2,0.281000538,0.270696835,2.221328412,Americas
 VENEZUELA (BOLIVARIAN REPUBLIC OF),VEN,2015,Third generation cephalosporins & E. coli,1,0.281000538,0.061728752,2.39848358,Americas
-VIET NAM,VNM,2004,Aminoglycosides & E. coli,79,51.32915034,39.76030637,63.42071819,Asia
-VIET NAM,VNM,2004,Aminopenicillins & E. coli,79,54.69991176,42.10812132,66.24104347,Asia
-VIET NAM,VNM,2004,Aminopenicillins with beta-lactamase inhibitors & E. coli,79,2.664457244,0.154749892,5.293604013,Asia
-VIET NAM,VNM,2004,Fluoroquinolones & E. coli,79,17.45821813,9.100528321,26.4513001,Asia
-VIET NAM,VNM,2004,Fluoroquinolones & Non-typhoidal Salmonella,82,0.0,0.006238368,0.032173169,Asia
-VIET NAM,VNM,2009,Fluoroquinolones & Non-typhoidal Salmonella,63,0.589915663,0.035614348,1.387156865,Asia
-VIET NAM,VNM,2012,Aminoglycosides & E. coli,594,3.794703222,2.235612371,5.281116023,Asia
-VIET NAM,VNM,2012,Aminopenicillins & E. coli,594,22.34134294,19.15184808,25.56251314,Asia
-VIET NAM,VNM,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,594,1.264901074,0.37015361,2.192914774,Asia
-VIET NAM,VNM,2012,Fluoroquinolones & E. coli,594,0.803361446,0.19258107,1.536403412,Asia
-VIET NAM,VNM,2012,Third generation cephalosporins & E. coli,594,0.803361446,0.19435117,1.520789306,Asia
-VIET NAM,VNM,2013,Aminoglycosides & E. coli,1007,24.08241094,18.99496222,29.65196749,Asia
-VIET NAM,VNM,2013,Aminopenicillins & E. coli,1004,75.71583458,74.99550843,76.42513535,Asia
-VIET NAM,VNM,2013,Aminopenicillins with beta-lactamase inhibitors & E. coli,895,16.40744724,15.34279344,17.47263972,Asia
-VIET NAM,VNM,2013,Fluoroquinolones & E. coli,1004,23.40052834,19.01086266,27.96527693,Asia
-VIET NAM,VNM,2013,Fluoroquinolones & Non-typhoidal Salmonella,192,35.81161367,29.51324888,42.31786111,Asia
-VIET NAM,VNM,2013,Third generation cephalosporins & E. coli,1004,8.931135106,4.801716551,13.05547943,Asia
-VIET NAM,VNM,2014,Aminoglycosides & E. coli,340,78.97718168,71.0741343,86.99415011,Asia
-VIET NAM,VNM,2014,Aminopenicillins & E. coli,340,99.73413859,99.39067333,99.96546412,Asia
-VIET NAM,VNM,2014,Fluoroquinolones & E. coli,370,48.61187151,39.6690448,57.52131887,Asia
-VIET NAM,VNM,2014,Third generation cephalosporins & E. coli,338,82.77882125,77.32475591,87.77535504,Asia
-VIET NAM,VNM,2015,Fluoroquinolones & Non-typhoidal Salmonella,252,7.178258167,3.724974595,10.5315419,Asia
-VIET NAM,VNM,2015,Third generation cephalosporins & E. coli,254,27.23083807,24.60329809,29.87673967,Asia
+VIET NAM,VNM,2004,Aminoglycosides & E. coli,79,51.32915034,39.76030637,63.42071819,"Asia, Far East and Oceania"
+VIET NAM,VNM,2004,Aminopenicillins & E. coli,79,54.69991176,42.10812132,66.24104347,"Asia, Far East and Oceania"
+VIET NAM,VNM,2004,Aminopenicillins with beta-lactamase inhibitors & E. coli,79,2.664457244,0.154749892,5.293604013,"Asia, Far East and Oceania"
+VIET NAM,VNM,2004,Fluoroquinolones & E. coli,79,17.45821813,9.100528321,26.4513001,"Asia, Far East and Oceania"
+VIET NAM,VNM,2004,Fluoroquinolones & Non-typhoidal Salmonella,82,0.0,0.006238368,0.032173169,"Asia, Far East and Oceania"
+VIET NAM,VNM,2009,Fluoroquinolones & Non-typhoidal Salmonella,63,0.589915663,0.035614348,1.387156865,"Asia, Far East and Oceania"
+VIET NAM,VNM,2012,Aminoglycosides & E. coli,594,3.794703222,2.235612371,5.281116023,"Asia, Far East and Oceania"
+VIET NAM,VNM,2012,Aminopenicillins & E. coli,594,22.34134294,19.15184808,25.56251314,"Asia, Far East and Oceania"
+VIET NAM,VNM,2012,Aminopenicillins with beta-lactamase inhibitors & E. coli,594,1.264901074,0.37015361,2.192914774,"Asia, Far East and Oceania"
+VIET NAM,VNM,2012,Fluoroquinolones & E. coli,594,0.803361446,0.19258107,1.536403412,"Asia, Far East and Oceania"
+VIET NAM,VNM,2012,Third generation cephalosporins & E. coli,594,0.803361446,0.19435117,1.520789306,"Asia, Far East and Oceania"
+VIET NAM,VNM,2013,Aminoglycosides & E. coli,1007,24.08241094,18.99496222,29.65196749,"Asia, Far East and Oceania"
+VIET NAM,VNM,2013,Aminopenicillins & E. coli,1004,75.71583458,74.99550843,76.42513535,"Asia, Far East and Oceania"
+VIET NAM,VNM,2013,Aminopenicillins with beta-lactamase inhibitors & E. coli,895,16.40744724,15.34279344,17.47263972,"Asia, Far East and Oceania"
+VIET NAM,VNM,2013,Fluoroquinolones & E. coli,1004,23.40052834,19.01086266,27.96527693,"Asia, Far East and Oceania"
+VIET NAM,VNM,2013,Fluoroquinolones & Non-typhoidal Salmonella,192,35.81161367,29.51324888,42.31786111,"Asia, Far East and Oceania"
+VIET NAM,VNM,2013,Third generation cephalosporins & E. coli,1004,8.931135106,4.801716551,13.05547943,"Asia, Far East and Oceania"
+VIET NAM,VNM,2014,Aminoglycosides & E. coli,340,78.97718168,71.0741343,86.99415011,"Asia, Far East and Oceania"
+VIET NAM,VNM,2014,Aminopenicillins & E. coli,340,99.73413859,99.39067333,99.96546412,"Asia, Far East and Oceania"
+VIET NAM,VNM,2014,Fluoroquinolones & E. coli,370,48.61187151,39.6690448,57.52131887,"Asia, Far East and Oceania"
+VIET NAM,VNM,2014,Third generation cephalosporins & E. coli,338,82.77882125,77.32475591,87.77535504,"Asia, Far East and Oceania"
+VIET NAM,VNM,2015,Fluoroquinolones & Non-typhoidal Salmonella,252,7.178258167,3.724974595,10.5315419,"Asia, Far East and Oceania"
+VIET NAM,VNM,2015,Third generation cephalosporins & E. coli,254,27.23083807,24.60329809,29.87673967,"Asia, Far East and Oceania"
 ZAMBIA,ZMB,2005,Aminoglycosides & E. coli,83,1.621913545,0.097162941,3.95271121,Africa
 ZAMBIA,ZMB,2005,Aminopenicillins & E. coli,83,6.487654179,1.997942466,10.90069974,Africa
 ZAMBIA,ZMB,2013,Aminoglycosides & E. coli,138,5.954371189,4.192849069,8.751585207,Africa

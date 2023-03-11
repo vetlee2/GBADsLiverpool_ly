@@ -1969,7 +1969,7 @@ def create_donut_chart_amu(input_df, value, names):
 
 def create_tree_map_amu(input_df, value):
     tree_map_fig = px.treemap(input_df,
-                              path=[px.Constant("Global"), 'region', 'importance_ctg', 'antimicrobial_class'],
+                              path=[px.Constant("Global"), 'region', 'who_importance_ctg', 'antimicrobial_class'],
                               values=value,
                               color='region',
                               color_discrete_map={'(?)':'lightgrey', 'Africa':'#636FFA', 'Americas':'#EF553B', 'Asia, Far East and Oceania':'#00CC97', 'Europe':'#AB63FA', 'Middle East':'#FFC091'},
@@ -3579,7 +3579,13 @@ gbadsDash.layout = html.Div([
                dbc.Col([
                    html.H6("Antimicrobial Grouping"),
                    dcc.RadioItems(id='select-classification-amu',
-                         options=['Top Global Classes' ,'WHO Importance Categories' ,'Individual Classes'],
+                         options=[
+                             'Top Global Classes'
+                             ,'WHO Importance Categories'
+                             ,'WOAH Importance Categories'
+                             ,'OneHealth Importance Categories'
+                             ,'Individual Classes'
+                             ],
                          value='Top Global Classes',
                          labelStyle={'display': 'block'},
                          inputStyle={"margin-right": "10px"},
@@ -7807,7 +7813,9 @@ def update_table_amu(dummy_input):
        ,'number_of_countries':'Number of Countries'
        ,'biomass_total_kg':'Total Biomass (kg)'
        ,'antimicrobial_class': 'Antimicrobial Class'
-       ,'importance_ctg':'Importance Category'
+       ,'who_importance_ctg':'WHO Importance Category'
+       ,'woah_importance_ctg':'WOAH Importance Category'
+       ,'onehealth_importance_ctg':'OneHealth Importance Category'
        ,'amu_tonnes': 'Total AM Usage (tonnes)'
        ,'amu_mg_perkgbiomass':'AM Usage (mg per kg biomass)'
     }
@@ -7979,7 +7987,7 @@ def update_map_amu (viz_switch, quantity):
     input_df = amu2018_combined_tall.copy()
 
     # Filter scope to All and remove nulls from importance category
-    input_df = input_df.query("scope == 'All'").query("importance_ctg.notnull()")
+    input_df = input_df.query("scope == 'All'")
 
     # Visualization switch between map and tree map
     if viz_switch == 'Map':
@@ -8062,13 +8070,18 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
         y_var = 'amu_mg_perkgbiomass'
         y_label = "AMU Mg per Kg Biomass"
 
-    if classification.upper() == 'INDIVIDUAL CLASSES':
+    if classification.upper() == 'WHO IMPORTANCE CATEGORIES':
+        color = 'who_importance_ctg'
+        stackedbar_df['id'] = stackedbar_df.groupby(['who_importance_ctg']).ngroup()
+    elif classification.upper() == 'WOAH IMPORTANCE CATEGORIES':
+        color = 'woah_importance_ctg'
+        stackedbar_df['id'] = stackedbar_df.groupby(['woah_importance_ctg']).ngroup()
+    elif classification.upper() == 'ONEHEALTH IMPORTANCE CATEGORIES':
+        color = 'onehealth_importance_ctg'
+        stackedbar_df['id'] = stackedbar_df.groupby(['onehealth_importance_ctg']).ngroup()
+    elif classification.upper() == 'INDIVIDUAL CLASSES':
         color = 'antimicrobial_class_group'
         stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class']).ngroup()
-    elif classification.upper() == 'WHO IMPORTANCE CATEGORIES':
-        color = 'importance_ctg'
-        stackedbar_df['id'] = stackedbar_df.groupby(['importance_ctg']).ngroup()
-
     elif classification.upper() == 'TOP GLOBAL CLASSES':
         color = 'antimicrobial_class_group2'
         stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class_group2']).ngroup()
@@ -8076,8 +8089,6 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
     # Specify additonal colors
     # Taking the 10 colors from the default 'Plotly' (px.colors.qualitative.Plotly) color sequence and adding to it
     addiitonal_colors = ['#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', '#19D3F3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52',"#C6CAFD", "#F7A799", "#33FFC9"]
-
-
 
     # Options to change between graphs
     if select_amu_graph.upper() == 'TOTAL':
@@ -8087,7 +8098,9 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
                          labels={
                              x_var: "",
                              y_var: y_label,
-                             "importance_ctg": "Importance Category",
+                             "who_importance_ctg": "WHO Importance Category",
+                             "woah_importance_ctg": "WOAH Importance Category",
+                             "onehealth_importance_ctg": "OneHealth Importance Category",
                              "antimicrobial_class_group": "Antimicrobial Class",
                              "antimicrobial_class_group2": "Antimicrobial Class"
                              }
@@ -8209,9 +8222,19 @@ def update_donut_chart_amu (quantity, region, classification):
         legend_title = 'Antimicrobial Class'
 
     elif classification == 'WHO Importance Categories':
-        names = input_df['importance_ctg']
-        sort_by = 'importance_ctg'
-        legend_title = 'Importance Category'
+        names = input_df['who_importance_ctg']
+        sort_by = 'who_importance_ctg'
+        legend_title = 'WHO Importance Category'
+
+    elif classification == 'WOAH Importance Categories':
+        names = input_df['woah_importance_ctg']
+        sort_by = 'woah_importance_ctg'
+        legend_title = 'WOAH Importance Category'
+
+    elif classification == 'OneHealth Importance Categories':
+        names = input_df['onehealth_importance_ctg']
+        sort_by = 'onehealth_importance_ctg'
+        legend_title = 'OneHealth Importance Category'
 
     elif classification == 'Top Global Classes':
         names = input_df['antimicrobial_class_group2']

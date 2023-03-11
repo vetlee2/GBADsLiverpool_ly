@@ -2,7 +2,7 @@
 '''
 Importing and exploring the antimicrobial data
 '''
-#%% Import Antimicrobial Usage 2018 report
+#%% Import WOAH 2018 report
 
 input_amu_report_file = os.path.join(RAWDATA_FOLDER ,'AMU_2018_6th report_GBADs.xlsx')
 
@@ -477,10 +477,11 @@ datainfo(amu2018_biomass)
 # Export
 amu2018_biomass.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_biomass.csv') ,index=False)
 
-#%% Import list of important antibiotics
+#%% Import antimicrobial importance categories
 
 amu_importance = pd.read_excel(
-    os.path.join(RAWDATA_FOLDER ,'WHO CIA and HIA.xlsx')
+    os.path.join(RAWDATA_FOLDER ,'Classification of AM per priority.xlsx')
+	,skiprows=1
 )
 cleancolnames(amu_importance)
 
@@ -492,15 +493,30 @@ amu_importance = amu_importance.astype('str')
 
 # Combine categories into single column
 def combine_importance(INPUT_ROW):
-    if 'Y' in INPUT_ROW['critically_important_antimicrobials'].upper():
-        OUTPUT = 'A: Critically Important'
-    elif 'Y' in INPUT_ROW['highly_important_antimicrobials'].upper():
-        OUTPUT = 'B: Highly Important'
+    # WHO categories
+    if 'Y' in INPUT_ROW['who_critically_important_antimicrobials'].upper():
+        who_ctg = 'A: Critically Important'
+    elif 'Y' in INPUT_ROW['who_highly_important_antimicrobials'].upper():
+        who_ctg = 'B: Highly Important'
     else:
-        OUTPUT = 'C: Other'
-    return OUTPUT
-amu_importance['importance_ctg'] = amu_importance.apply(combine_importance ,axis=1)      # Apply to each row of the dataframe (axis=1)
+        who_ctg = 'C: Other'
 
+    # WOAH categories
+    if 'Y' in INPUT_ROW['woah__critically_important'].upper():
+        woah_ctg = 'A: Critically Important'
+    elif 'Y' in INPUT_ROW['woah_highly_important'].upper():
+        woah_ctg = 'B: Highly Important'
+    else:
+        woah_ctg = 'C: Other'
+
+    # One Health categories
+    if 'Y' in INPUT_ROW['one_health'].upper():
+        onehealth_ctg = 'Important'
+    else:
+        onehealth_ctg = 'Other'
+
+    return pd.Series([who_ctg ,woah_ctg ,onehealth_ctg])
+amu_importance[['who_importance_ctg' ,'woah_importance_ctg' ,'onehealth_importance_ctg']] = amu_importance.apply(combine_importance ,axis=1)      # Apply to each row of the dataframe (axis=1)
 datainfo(amu_importance)
 
 #%% Import price data
@@ -546,6 +562,137 @@ datainfo(woah_regions)
 
 woah_regions['world_region'].unique()
 
+#%% Import data from Mulchandani
+
+amu_mulch = pd.read_csv(os.path.join(RAWDATA_FOLDER ,'UsebyCountry_Code_GBADs.csv'))
+cleancolnames(amu_mulch)
+del amu_mulch['unnamed:_0']
+datainfo(amu_mulch)
+
+# =============================================================================
+#### Create regional sums
+# =============================================================================
+# -----------------------------------------------------------------------------
+# Add WOAH regions
+# -----------------------------------------------------------------------------
+woah_regions_formulch = woah_regions.copy()
+woah_regions_formulch = woah_regions_formulch.rename(columns={'world_region':'woah_region'})
+
+woah_regions_formulch['country_tomatch'] = woah_regions_formulch['country'].str.upper()
+amu_mulch['country_tomatch'] = amu_mulch['country'].str.upper()
+
+# Rename countries to match
+# Some minor countries and territories get renamed to their parent country - all I care about is the region
+# Using FIJI as a catch-all for Oceania
+# Using JAMAICA as a catch-all for Carribbean (Americas)
+# Using VENEZUELA as a catch-all for South America (Americas)
+# Using SOUTH AFRICA as a catch-all for Africa
+rename_countries_mulch = {
+    "CÔTE D'IVOIRE":"COTE D'IVOIRE"
+    ,'CENTRAL AFRICAN REPUBLIC':"CENTRAL AFRICAN (REP.)"
+    ,'CONGO':"CONGO (REP. OF THE)"
+    ,'DEMOCRATIC REPUBLIC OF THE CONGO':"CONGO (DEM. REP. OF THE)"
+    ,'RÉUNION':"REUNION"
+    ,'SAINT HELENA, ASCENSION AND TRISTAN DA CUNHA':"SOUTH AFRICA"
+    ,'SAO TOME AND PRINCIPE':"SOUTH AFRICA"
+    ,'SEYCHELLES':"SOUTH AFRICA"
+    ,'SUDAN (FORMER)':"SUDAN"
+    ,'SWAZILAND':"SOUTH AFRICA"
+    ,'UNITED REPUBLIC OF TANZANIA':"TANZANIA"
+    ,'WESTERN SAHARA':"SOUTH AFRICA"
+    ,'SOUTH SUDAN':"SUDAN"
+    ,'BRUNEI DARUSSALAM':"FIJI"
+    ,'CHINA, HONG KONG SAR':"CHINA (PEOPLE'S REP. OF)"
+    ,'CHINA, MACAO SAR':"CHINA (PEOPLE'S REP. OF)"
+    ,'CHINA, MAINLAND':"CHINA (PEOPLE'S REP. OF)"
+    ,'CHINA, TAIWAN PROVINCE OF':"TAIPEI (CHINESE)"
+    ,"DEMOCRATIC PEOPLE'S REPUBLIC OF KOREA":"KOREA (DEM PEOPLE'S REP. OF)"
+    ,'IRAN (ISLAMIC REPUBLIC OF)':"IRAN"
+    ,"LAO PEOPLE'S DEMOCRATIC REPUBLIC":"LAOS"
+    ,'OCCUPIED PALESTINIAN TERRITORY':"PALESTINE"
+    ,'REPUBLIC OF KOREA':"KOREA (REP. OF)"
+    ,'SYRIAN ARAB REPUBLIC':"SYRIA"
+    ,'TIMOR-LESTE':"TIMOR LESTE"
+    ,'TURKEY':"TÜRKIYE"
+    ,'VIET NAM':"VIETNAM"
+    ,'CZECHIA':"CZECH REPUBLIC"
+    ,'FAROE ISLANDS':"DENMARK"
+    ,'GIBRALTAR':"UNITED KINGDOM"
+    ,'HOLY SEE':"ITALY"
+    ,'MONACO':"FRANCE"
+    ,'REPUBLIC OF MOLDOVA':"MOLDOVA"
+    ,'RUSSIAN FEDERATION':"RUSSIA"
+    ,'THE FORMER YUGOSLAV REPUBLIC OF MACEDONIA':"CROATIA"
+    ,'UNITED KINGDOM OF GREAT BRITAIN AND NORTHERN IRELAND':"UNITED KINGDOM"
+    ,'BERMUDA':"JAMAICA"
+    ,'GREENLAND':"DENMARK"
+    ,'SAINT PIERRE AND MIQUELON':"FRANCE"
+    ,'AMERICAN SAMOA':"UNITED STATES OF AMERICA"
+    ,'COOK ISLANDS':"FIJI"
+    ,'GUAM':"UNITED STATES OF AMERICA"
+    ,'KIRIBATI':"FIJI"
+    ,'MARSHALL ISLANDS':"FIJI"
+    ,'MICRONESIA (FEDERATED STATES OF)':"MICRONESIA (FED. STATES OF)"
+    ,'NAURU':"FIJI"
+    ,'NIUE':"FIJI"
+    ,'NORTHERN MARIANA ISLANDS':"FIJI"
+    ,'PALAU':"FIJI"
+    ,'SAMOA':"FIJI"
+    ,'SOLOMON ISLANDS':"FIJI"
+    ,'TOKELAU':"FIJI"
+    ,'TONGA':"FIJI"
+    ,'TUVALU':"FIJI"
+    ,'WALLIS AND FUTUNA ISLANDS':"FIJI"
+    ,'ANGUILLA':"JAMAICA"
+    ,'ANTIGUA AND BARBUDA':"JAMAICA"
+    ,'ARUBA':"JAMAICA"
+    ,'BAHAMAS':"JAMAICA"
+    ,'BOLIVIA (PLURINATIONAL STATE OF)':"BOLIVIA"
+    ,'BRITISH VIRGIN ISLANDS':"JAMAICA"
+    ,'DOMINICA':"DOMINICAN (REP.)"
+    ,'DOMINICAN REPUBLIC':"DOMINICAN (REP.)"
+    ,'FALKLAND ISLANDS (MALVINAS)':"VENEZUELA"
+    ,'GRENADA':"JAMAICA"
+    ,'GUADELOUPE':"JAMAICA"
+    ,'MONTSERRAT':"JAMAICA"
+    ,'NETHERLANDS ANTILLES':"JAMAICA"
+    ,'PUERTO RICO':"UNITED STATES OF AMERICA"
+    ,'SAINT KITTS AND NEVIS':"JAMAICA"
+    ,'SAINT LUCIA':"JAMAICA"
+    ,'SAINT VINCENT AND THE GRENADINES':"JAMAICA"
+    ,'SURINAME':"VENEZUELA"
+    ,'TURKS AND CAICOS ISLANDS':"JAMAICA"
+    ,'UNITED STATES VIRGIN ISLANDS':"UNITED STATES OF AMERICA"
+    ,'VENEZUELA (BOLIVARIAN REPUBLIC OF)':"VENEZUELA"
+}
+amu_mulch['country_tomatch'] = amu_mulch['country_tomatch'].replace(rename_countries_mulch)
+
+# Merge
+amu_mulch_withrgn = pd.merge(
+    left=amu_mulch
+    ,right=woah_regions_formulch
+    ,on='country_tomatch'
+    ,how='left'
+    ,indicator=True
+)
+print(amu_mulch_withrgn['_merge'].value_counts())
+amu_mulch_withrgn = amu_mulch_withrgn.drop(columns=['country_tomatch' ,'_merge'])
+datainfo(amu_mulch_withrgn)
+
+# -----------------------------------------------------------------------------
+# Sum to region level
+# -----------------------------------------------------------------------------
+amu_mulch_regional = amu_mulch_withrgn.pivot_table(
+    index='woah_region'
+	,values=['tonnes2020' ,'tonnes2030' ,'pcu__kg__2020' ,'pcu__kg__2030']
+	,aggfunc='sum'
+)
+
+# Recalculate usage per PCU
+amu_mulch_regional['mgpcu_2020'] = amu_mulch_regional['tonnes2020'] * 1e9 / amu_mulch_regional['pcu__kg__2020']
+amu_mulch_regional['mgpcu_2030'] = amu_mulch_regional['tonnes2030'] * 1e9 / amu_mulch_regional['pcu__kg__2030']
+datainfo(amu_mulch_regional)
+
 #%% Import AMR data
 
 amr = pd.read_csv(os.path.join(RAWDATA_FOLDER ,'SBM_JSA_AMR_livestock.csv'))
@@ -557,19 +704,21 @@ amr = pd.read_csv(os.path.join(RAWDATA_FOLDER ,'SBM_JSA_AMR_livestock.csv'))
 # =============================================================================
 #### Add WOAH regions
 # =============================================================================
+woah_regions_foramr = woah_regions.copy()
+
 amr['location_name'] = amr['location_name'].str.upper()
-woah_regions['country'] = woah_regions['country'].str.upper()
+woah_regions_foramr['country'] = woah_regions_foramr['country'].str.upper()
 
 # import difflib
 # amr['country_fuzzy'] = amr['map_id'].apply(
-#     lambda x: difflib.get_close_matches(x, woah_regions['country'] ,cutoff=0.2)[0]
+#     lambda x: difflib.get_close_matches(x, woah_regions_foramr['country'] ,cutoff=0.2)[0]
 # )
 # check_countrymatch = amr[['map_id' ,'country_fuzzy']].value_counts()
 
-# woah_regions['iso3_fuzzy'] = woah_regions['country'].apply(
+# woah_regions_foramr['iso3_fuzzy'] = woah_regions_foramr['country'].apply(
 #     lambda x: difflib.get_close_matches(x, amr['map_id'] ,cutoff=0.1)[0]
 # )
-# check_countrymatch = woah_regions[['country' ,'iso3_fuzzy']].value_counts()
+# check_countrymatch = woah_regions_foramr[['country' ,'iso3_fuzzy']].value_counts()
 
 datainfo(amr)
 
@@ -578,13 +727,13 @@ rename_countries_woah = {
     "CHINA (PEOPLE'S REP. OF)":"CHINA"
     ,"KOREA (REP. OF)":"KOREA"
     }
-woah_regions['country_tomatch'] = woah_regions['country'].replace(rename_countries_woah)
+woah_regions_foramr['country_tomatch'] = woah_regions_foramr['country'].replace(rename_countries_woah)
 
 woah_add_countries = pd.DataFrame(
     {"country_tomatch":"GRENADA" ,"world_region":"Americas"}
     ,index=[0]
     )
-woah_regions = pd.concat([woah_regions ,woah_add_countries])
+woah_regions_foramr = pd.concat([woah_regions_foramr ,woah_add_countries])
 
 rename_countries_amr = {
     "BOLIVIA (PLURINATIONAL STATE OF)":"BOLIVIA"
@@ -601,7 +750,7 @@ amr['country_tomatch'] = amr['location_name'].replace(rename_countries_amr)
 # Merge
 amr_withrgn = pd.merge(
     left=amr
-    ,right=woah_regions
+    ,right=woah_regions_foramr
     ,on='country_tomatch'
     ,how='left'
     ,indicator=True

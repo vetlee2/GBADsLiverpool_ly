@@ -521,6 +521,32 @@ datainfo(amu_importance)
 
 #%% Import price data
 
+# Reading from the spreadsheet Sara assembled
+# See her commentsin the spreadsheet for sources and calculations
+# Note AMU usage data in the same spreadsheet is recreated separately in combine_and_process.py
+amu_prices = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER ,'Burden - slider inputs.xlsx')
+	,skiprows=2                 # List: row numbers to skip. Integer: count of rows to skip at start of file
+    ,nrows=5                    # Total number of rows to read
+)
+cleancolnames(amu_prices)
+
+keep_rename_columns = {
+    "unnamed:_1":"region_with_count"
+    ,"data_point_1":"am_price_eurospertonne_low"
+    ,"data_point_2":"am_price_eurospertonne_mid"
+    ,"data_point_3":"am_price_eurospertonne_high"
+    }
+amu_prices = amu_prices[list(keep_rename_columns)].rename(columns=keep_rename_columns)
+
+amu_prices[['region' ,'count']] = amu_prices['region_with_count'].str.split('(' ,expand=True)
+amu_prices['region'] = amu_prices['region'].str.strip(' ')
+amu_prices = amu_prices.drop(columns=['region_with_count' ,'count'])
+datainfo(amu_prices)
+
+'''
+EARLY PARTIAL DATA
+REPLACED WITH Burden - slider inputs.xlsx
 # =============================================================================
 #### Raw price data
 # =============================================================================
@@ -553,7 +579,7 @@ amu_prices_ext = pd.read_excel(
 cleancolnames(amu_prices_ext)
 
 datainfo(amu_prices_ext)
-
+'''
 #%% Import WOAH regions and countries
 
 woah_regions = pd.read_csv(os.path.join(GLBL_RAWDATA_FOLDER ,'WOAH regions and countries.csv'))
@@ -678,20 +704,6 @@ amu_mulch_withrgn = pd.merge(
 print(amu_mulch_withrgn['_merge'].value_counts())
 amu_mulch_withrgn = amu_mulch_withrgn.drop(columns=['country_tomatch' ,'_merge'])
 datainfo(amu_mulch_withrgn)
-
-# -----------------------------------------------------------------------------
-# Sum to region level
-# -----------------------------------------------------------------------------
-amu_mulch_regional = amu_mulch_withrgn.pivot_table(
-    index='woah_region'
-	,values=['tonnes2020' ,'tonnes2030' ,'pcu__kg__2020' ,'pcu__kg__2030']
-	,aggfunc='sum'
-)
-
-# Recalculate usage per PCU
-amu_mulch_regional['mgpcu_2020'] = amu_mulch_regional['tonnes2020'] * 1e9 / amu_mulch_regional['pcu__kg__2020']
-amu_mulch_regional['mgpcu_2030'] = amu_mulch_regional['tonnes2030'] * 1e9 / amu_mulch_regional['pcu__kg__2030']
-datainfo(amu_mulch_regional)
 
 #%% Import AMR data
 

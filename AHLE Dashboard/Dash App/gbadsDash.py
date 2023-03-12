@@ -416,6 +416,7 @@ ga_countries_biomass.dropna(subset=['species'], inplace=True)
 # Antimicrobial Usage
 # -----------------------------------------------------------------------------
 amu2018_combined_tall = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu2018_combined_tall.csv"))
+amu_combined_regional = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_combined_regional.csv"))
 amu_uncertainty_data = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_uncertainty_data.csv"))
 
 # =============================================================================
@@ -3710,9 +3711,116 @@ gbadsDash.layout = html.Div([
 
              # END OF SECOND GRAPHICS ROW
             ]),
-
-
             html.Br(),
+
+           # Usage and Price Sliders with Expenditure chart
+           dbc.Row([
+               dbc.Col([
+                   dbc.Card([
+                       dbc.CardBody([
+                           html.H4("Region Total Usage and Price",
+                                   className="card-title",
+                                   style={"font-weight": "bold"}
+                                   ),
+                           dbc.Row([    # Region names
+                               dbc.Col([html.H5("Africa")]),
+                               dbc.Col([html.H5("Americas")]),
+                               dbc.Col([html.H5("Asia, Far East and Oceania")]),
+                               dbc.Col([html.H5("Europe")]),
+                               dbc.Col([html.H5("Middle East")]),
+                               ]),
+                           dbc.Spinner(children=[
+                           dbc.Row([
+                               dbc.Col([
+                                   html.H6("Usage"),
+                                   daq.Slider(
+                                       id='am-usage-slider-africa',
+                                       handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Price"),
+                                   daq.Slider(
+                                       id='am-price-slider-africa',
+                                       handleLabel={"showCurrentValue":True ,"label":"Euros"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Usage"),
+                                   daq.Slider(
+                                       id='am-usage-slider-americas',
+                                       handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Price"),
+                                   daq.Slider(
+                                       id='am-price-slider-americas',
+                                       handleLabel={"showCurrentValue":True ,"label":"Euros"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Usage"),
+                                   daq.Slider(
+                                       id='am-usage-slider-asia',
+                                       handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Price"),
+                                   daq.Slider(
+                                       id='am-price-slider-asia',
+                                       handleLabel={"showCurrentValue":True ,"label":"Euros"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Usage"),
+                                   daq.Slider(
+                                       id='am-usage-slider-europe',
+                                       handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Price"),
+                                   daq.Slider(
+                                       id='am-price-slider-europe',
+                                       handleLabel={"showCurrentValue":True ,"label":"Euros"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Usage"),
+                                   daq.Slider(
+                                       id='am-usage-slider-mideast',
+                                       handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Price"),
+                                   daq.Slider(
+                                       id='am-price-slider-mideast',
+                                       handleLabel={"showCurrentValue":True ,"label":"Euros"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               ]),
+                           ],size="md", color="#393375", fullscreen=False),     # End of spinner
+                           ]),
+                       ]),
+                   ]
+                   ,style={'margin-left':'10px'}
+                   ,width=8
+                   ),
+               ]),
+           html.Br(),
 
            # AMU for terrestrial animals, with uncertainty
            dbc.Row([
@@ -7793,6 +7901,157 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
     return ga_lineplot_fig
 
 #### UPDATE ANTIMICROBIAL USE
+# ------------------------------------------------------------------------------
+#### -- Controls
+# ------------------------------------------------------------------------------
+# Usage and Price sliders
+# am-usage-slider-africa
+@gbadsDash.callback(
+    Output('am-usage-slider-africa', 'min'),
+    Output('am-usage-slider-africa', 'max'),
+    Output('am-usage-slider-africa', 'value'),
+    Output('am-usage-slider-africa', 'step'),
+
+    Output('am-price-slider-africa', 'min'),
+    Output('am-price-slider-africa', 'max'),
+    Output('am-price-slider-africa', 'value'),
+    Output('am-price-slider-africa', 'step'),
+
+    Output('am-usage-slider-americas', 'min'),
+    Output('am-usage-slider-americas', 'max'),
+    Output('am-usage-slider-americas', 'value'),
+    Output('am-usage-slider-americas', 'step'),
+
+    Output('am-price-slider-americas', 'min'),
+    Output('am-price-slider-americas', 'max'),
+    Output('am-price-slider-americas', 'value'),
+    Output('am-price-slider-americas', 'step'),
+
+    Output('am-usage-slider-asia', 'min'),
+    Output('am-usage-slider-asia', 'max'),
+    Output('am-usage-slider-asia', 'value'),
+    Output('am-usage-slider-asia', 'step'),
+
+    Output('am-price-slider-asia', 'min'),
+    Output('am-price-slider-asia', 'max'),
+    Output('am-price-slider-asia', 'value'),
+    Output('am-price-slider-asia', 'step'),
+
+    Output('am-usage-slider-europe', 'min'),
+    Output('am-usage-slider-europe', 'max'),
+    Output('am-usage-slider-europe', 'value'),
+    Output('am-usage-slider-europe', 'step'),
+
+    Output('am-price-slider-europe', 'min'),
+    Output('am-price-slider-europe', 'max'),
+    Output('am-price-slider-europe', 'value'),
+    Output('am-price-slider-europe', 'step'),
+
+    Output('am-usage-slider-mideast', 'min'),
+    Output('am-usage-slider-mideast', 'max'),
+    Output('am-usage-slider-mideast', 'value'),
+    Output('am-usage-slider-mideast', 'step'),
+
+    Output('am-price-slider-mideast', 'min'),
+    Output('am-price-slider-mideast', 'max'),
+    Output('am-price-slider-mideast', 'value'),
+    Output('am-price-slider-mideast', 'step'),
+
+    Input('select-species-ga','value'),
+    )
+def update_usage_price_sliders(dummy_input):
+    regional_usage_price_data = amu_combined_regional.copy()
+
+    # Steps will be the same for all
+    usage_step = 1
+    price_step = 1
+
+    # Africa
+    usage_africa_min = regional_usage_price_data.query("region == 'Africa'")['terr_amu_tonnes_reporting_2020'].values[0]
+    usage_africa_min = round(usage_africa_min, 0)
+    usage_africa_max = regional_usage_price_data.query("region == 'Africa'")['terr_amu_tonnes_mulch_2020'].values[0]
+    usage_africa_max = round(usage_africa_max, 0)
+    usage_africa_mid = regional_usage_price_data.query("region == 'Africa'")['terr_amu_tonnes_region_2020'].values[0]
+    usage_africa_mid = round(usage_africa_mid, 0)
+
+    price_africa_min = regional_usage_price_data.query("region == 'Africa'")['am_price_eurospertonne_low'].values[0]
+    price_africa_min = round(price_africa_min, 0)
+    price_africa_max = regional_usage_price_data.query("region == 'Africa'")['am_price_eurospertonne_high'].values[0]
+    price_africa_max = round(price_africa_max, 0)
+    price_africa_mid = regional_usage_price_data.query("region == 'Africa'")['am_price_eurospertonne_mid'].values[0]
+    price_africa_mid = round(price_africa_mid, 0)
+
+    # Americas
+    usage_americas_min = regional_usage_price_data.query("region == 'Americas'")['terr_amu_tonnes_reporting_2020'].values[0]
+    usage_americas_min = round(usage_americas_min, 0)
+    usage_americas_max = regional_usage_price_data.query("region == 'Americas'")['terr_amu_tonnes_mulch_2020'].values[0]
+    usage_americas_max = round(usage_americas_max, 0)
+    usage_americas_mid = regional_usage_price_data.query("region == 'Americas'")['terr_amu_tonnes_region_2020'].values[0]
+    usage_americas_mid = round(usage_americas_mid, 0)
+
+    price_americas_min = regional_usage_price_data.query("region == 'Americas'")['am_price_eurospertonne_low'].values[0]
+    price_americas_min = round(price_americas_min, 0)
+    price_americas_max = regional_usage_price_data.query("region == 'Americas'")['am_price_eurospertonne_high'].values[0]
+    price_americas_max = round(price_americas_max, 0)
+    price_americas_mid = regional_usage_price_data.query("region == 'Americas'")['am_price_eurospertonne_mid'].values[0]
+    price_americas_mid = round(price_americas_mid, 0)
+
+    # Asia, Far East and Oceania
+    usage_asia_min = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['terr_amu_tonnes_reporting_2020'].values[0]
+    usage_asia_min = round(usage_asia_min, 0)
+    usage_asia_max = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['terr_amu_tonnes_mulch_2020'].values[0]
+    usage_asia_max = round(usage_asia_max, 0)
+    usage_asia_mid = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['terr_amu_tonnes_region_2020'].values[0]
+    usage_asia_mid = round(usage_asia_mid, 0)
+
+    price_asia_min = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['am_price_eurospertonne_low'].values[0]
+    price_asia_min = round(price_asia_min, 0)
+    price_asia_max = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['am_price_eurospertonne_high'].values[0]
+    price_asia_max = round(price_asia_max, 0)
+    price_asia_mid = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['am_price_eurospertonne_mid'].values[0]
+    price_asia_mid = round(price_asia_mid, 0)
+
+    # Europe
+    usage_europe_min = regional_usage_price_data.query("region == 'Europe'")['terr_amu_tonnes_reporting_2020'].values[0]
+    usage_europe_min = round(usage_europe_min, 0)
+    usage_europe_max = regional_usage_price_data.query("region == 'Europe'")['terr_amu_tonnes_mulch_2020'].values[0]
+    usage_europe_max = round(usage_europe_max, 0)
+    usage_europe_mid = regional_usage_price_data.query("region == 'Europe'")['terr_amu_tonnes_region_2020'].values[0]
+    usage_europe_mid = round(usage_europe_mid, 0)
+
+    price_europe_min = regional_usage_price_data.query("region == 'Europe'")['am_price_eurospertonne_low'].values[0]
+    price_europe_min = round(price_europe_min, 0)
+    price_europe_max = regional_usage_price_data.query("region == 'Europe'")['am_price_eurospertonne_high'].values[0]
+    price_europe_max = round(price_europe_max, 0)
+    price_europe_mid = regional_usage_price_data.query("region == 'Europe'")['am_price_eurospertonne_mid'].values[0]
+    price_europe_mid = round(price_europe_mid, 0)
+
+    # Middle East
+    usage_mideast_min = regional_usage_price_data.query("region == 'Middle East'")['terr_amu_tonnes_reporting_2020'].values[0]
+    usage_mideast_min = round(usage_mideast_min, 0)
+    usage_mideast_max = regional_usage_price_data.query("region == 'Middle East'")['terr_amu_tonnes_mulch_2020'].values[0]
+    usage_mideast_max = round(usage_mideast_max, 0)
+    usage_mideast_mid = regional_usage_price_data.query("region == 'Middle East'")['terr_amu_tonnes_region_2020'].values[0]
+    usage_mideast_mid = round(usage_mideast_mid, 0)
+
+    price_mideast_min = regional_usage_price_data.query("region == 'Middle East'")['am_price_eurospertonne_low'].values[0]
+    price_mideast_min = round(price_mideast_min, 0)
+    price_mideast_max = regional_usage_price_data.query("region == 'Middle East'")['am_price_eurospertonne_high'].values[0]
+    price_mideast_max = round(price_mideast_max, 0)
+    price_mideast_mid = regional_usage_price_data.query("region == 'Middle East'")['am_price_eurospertonne_mid'].values[0]
+    price_mideast_mid = round(price_mideast_mid, 0)
+
+    return usage_africa_min ,usage_africa_max ,usage_africa_mid ,usage_step \
+        ,price_africa_min ,price_africa_max ,price_africa_mid ,price_step \
+        ,usage_americas_min ,usage_americas_max ,usage_americas_mid ,usage_step \
+        ,price_americas_min ,price_americas_max ,price_americas_mid ,price_step \
+        ,usage_asia_min ,usage_asia_max ,usage_asia_mid ,usage_step \
+        ,price_asia_min ,price_asia_max ,price_asia_mid ,price_step \
+        ,usage_europe_min ,usage_europe_max ,usage_europe_mid ,usage_step \
+        ,price_europe_min ,price_europe_max ,price_europe_mid ,price_step \
+        ,usage_mideast_min ,usage_mideast_max ,usage_mideast_mid ,usage_step \
+        ,price_mideast_min ,price_mideast_max ,price_mideast_mid ,price_step
+
 # ------------------------------------------------------------------------------
 #### -- Data
 # ------------------------------------------------------------------------------

@@ -167,12 +167,35 @@ amu2018_combined_tall.to_csv(os.path.join(DASH_DATA_FOLDER ,'amu2018_combined_ta
 
 #%% Structure: one row per region
 
-# -----------------------------------------------------------------------------
-# Combine biomass and AM usage
-# -----------------------------------------------------------------------------
-amu2018_combined_regional = pd.merge(
-    left=amu2018.query("scope == 'All'").query("region != 'Global'")
-    ,right=amu2018_biomass.query("segment == 'Countries reporting AMU data'")
+# =============================================================================
+#### Combine biomass and AM usage
+# =============================================================================
+# Pivot Biomass to get countries reporting and total region into columns
+# Keep total biomass and terrestrial biomass
+amu2018_biomass_p = amu2018_biomass.query("region != 'Global'").pivot(
+    index='region'
+    ,columns='segment'
+    ,values=['biomass_total_kg' ,'biomass_total_terr_kg']
+)
+amu2018_biomass_p = colnames_from_index(amu2018_biomass_p) 	# If multi-indexed columns were created, flatten index
+cleancolnames(amu2018_biomass_p)
+amu2018_biomass_p = amu2018_biomass_p.reset_index()           # Pivoting will change columns to indexes. Change them back.
+
+amu2018_biomass_p = amu2018_biomass_p.rename(
+    columns={
+        "biomass_total_kg_countries_reporting_amu_data":"biomass_total_kg_reporting"
+        ,"biomass_total_kg_total_region":"biomass_total_kg_region"
+        ,"biomass_total_terr_kg_countries_reporting_amu_data":"biomass_terr_kg_reporting"
+        ,"biomass_total_terr_kg_total_region":"biomass_terr_kg_region"
+        }
+)
+datainfo(amu2018_biomass_p)
+
+# Merge usage and biomass
+# Keep total usage, drop antimicrobial-specific usage
+amu_combined_regional = pd.merge(
+    left=amu2018.query("scope == 'All'").query("region != 'Global'")[['region' ,'number_of_countries' ,'total_antimicrobials_tonnes']]
+    ,right=amu2018_biomass_p
     ,on='region'
     ,how='left'
 )
@@ -181,29 +204,93 @@ amu2018_combined_regional = pd.merge(
 # Find proportion of AM usage going to terrestrial food producing animals
 # -----------------------------------------------------------------------------
 # Calculate proportion of biomass
-amu2018_combined_regional['biomass_terr_prpn'] = amu2018_combined_regional['biomass_total_terr_kg'] / amu2018_combined_regional['biomass_total_kg']
-amu2018_combined_regional['terr_amu_tonnes'] = amu2018_combined_regional['total_antimicrobials_tonnes'] * amu2018_combined_regional['biomass_terr_prpn']
+amu_combined_regional['biomass_terr_prpn_reporting'] = amu_combined_regional['biomass_terr_kg_reporting'] / amu_combined_regional['biomass_total_kg_reporting']
+amu_combined_regional['terr_amu_tonnes_reporting'] = amu_combined_regional['total_antimicrobials_tonnes'] * amu_combined_regional['biomass_terr_prpn_reporting']
 
 # -----------------------------------------------------------------------------
-# Add prices
+# Adjust for 2020
 # -----------------------------------------------------------------------------
-amu_prices_ext_tomerge = amu_prices_ext.drop(columns=['adjustment_factor_lower' ,'adjustment_factor_upper'])
+# Based on 2016-2018 trends
+# Source: https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final-1.pdf
+# "All OIE Regions presented a decrease as follows:
+#    13% in Africa; 28% in the Americas; 30% in Asia, Far East and Oceania; and 18% in Europe."
+# No regional trend available for Middle East. Using global average of 27% decrease.
+amu_2020_adjustment = pd.DataFrame(
+    {"region":['Africa' ,'Americas' ,'Asia, Far East and Oceania' ,'Europe' ,'Middle East']
+     ,"prpn_change_2018to2020":[-0.13 ,-0.28 ,-0.30 ,-0.18 ,-0.27]
+     }
+)
+amu_combined_regional = pd.merge(
+    left=amu_combined_regional
+    ,right=amu_2020_adjustment
+    ,on='region'
+    ,how='left'
+)
+amu_combined_regional['terr_amu_tonnes_reporting_2020'] = \
+    amu_combined_regional['terr_amu_tonnes_reporting'] * (1 + amu_combined_regional['prpn_change_2018to2020'])
 
-amu2018_combined_regional = pd.merge(
-    left=amu2018_combined_regional
-    ,right=amu_prices_ext_tomerge
+# -----------------------------------------------------------------------------
+# Add estimate of region-total AMU by extrapolating from the countries reporting
+# -----------------------------------------------------------------------------
+# Terrestrial biomass among countries reporting as proportion of whole region
+amu_combined_regional['biomass_terr_reporting_prpnofregion'] =\
+    amu_combined_regional['biomass_terr_kg_reporting'] / amu_combined_regional['biomass_terr_kg_region']
+
+amu_combined_regional['terr_amu_tonnes_region_2020'] =\
+    amu_combined_regional['terr_amu_tonnes_reporting_2020'] / amu_combined_regional['biomass_terr_reporting_prpnofregion']
+
+datainfo(amu_combined_regional)
+
+# =============================================================================
+#### Add Mulchandani data
+# =============================================================================
+# Sum Mulchandani to region level
+amu_mulch_regional = amu_mulch_withrgn.pivot_table(
+    index='woah_region'
+# 	,values=['tonnes2020' ,'tonnes2030' ,'pcu__kg__2020' ,'pcu__kg__2030']
+	,values='tonnes2020'
+	,aggfunc='sum'
+)
+
+# Recalculate usage per PCU
+# amu_mulch_regional['mgpcu_2020'] = amu_mulch_regional['tonnes2020'] * 1e9 / amu_mulch_regional['pcu__kg__2020']
+# amu_mulch_regional['mgpcu_2030'] = amu_mulch_regional['tonnes2030'] * 1e9 / amu_mulch_regional['pcu__kg__2030']
+
+amu_mulch_regional = amu_mulch_regional.rename(
+    columns={
+        "tonnes2020":"terr_amu_tonnes_mulch_2020"
+        }
+)
+datainfo(amu_mulch_regional)
+
+# Merge
+amu_combined_regional = pd.merge(
+    left=amu_combined_regional
+    ,right=amu_mulch_regional
+    ,left_on='region'
+    ,right_on='woah_region'
+    ,how='left'
+)
+
+# =============================================================================
+#### Add prices
+# =============================================================================
+amu_combined_regional = pd.merge(
+    left=amu_combined_regional
+    ,right=amu_prices
     ,on='region'
     ,how='left'
 )
 
-# -----------------------------------------------------------------------------
-# Export
-# -----------------------------------------------------------------------------
-datainfo(amu2018_combined_regional)
+# =============================================================================
+#### Export
+# =============================================================================
+datainfo(amu_combined_regional)
 
-amu2018_combined_regional.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_combined_regional.csv') ,index=False)
+amu_combined_regional.to_csv(os.path.join(PRODATA_FOLDER ,'amu_combined_regional.csv') ,index=False)
+amu_combined_regional.to_csv(os.path.join(DASH_DATA_FOLDER ,'amu_combined_regional.csv') ,index=False)
 
-#%% Process AM Usage and Price with uncertainty
+#%% DEV: AM Usage and Price with uncertainty
 
 # =============================================================================
 #### Create data based on spreadsheet from Sara

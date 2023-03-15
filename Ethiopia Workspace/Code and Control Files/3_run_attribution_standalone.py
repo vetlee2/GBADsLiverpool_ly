@@ -207,7 +207,7 @@ datainfo(ahle_combo_scensmry_withahle_sub)
 # =============================================================================
 '''
 With the exception of adults for small ruminants, the expert attribution files
-use non-sex-specific groups for all species and age groups.
+use combined-sex groups for all species and age groups.
 
 Combined-sex AHLE components will be missing for some species and ages depending
 on the scenarios run in the simulation model.  While these cannot be calculated

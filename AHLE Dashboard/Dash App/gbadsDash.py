@@ -417,8 +417,8 @@ ga_countries_biomass.dropna(subset=['species'], inplace=True)
 # -----------------------------------------------------------------------------
 amu2018_combined_tall = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu2018_combined_tall.csv"))
 amu2018_combined_tall["countries_reporting"] = amu2018_combined_tall['region']+":"+round(amu2018_combined_tall['number_of_countries'],0).astype(int).astype(str)
-
-amu_uncertainty_data = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_uncertainty_data.csv"))
+amu_combined_regional = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_combined_regional.csv"))
+# amu_uncertainty_data = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_uncertainty_data.csv"))
 
 # =============================================================================
 #### User options and defaults
@@ -1971,7 +1971,7 @@ def create_donut_chart_amu(input_df, value, names):
 
 def create_tree_map_amu(input_df, value):
     tree_map_fig = px.treemap(input_df,
-                              path=[px.Constant("Global"), 'countries_reporting', 'importance_ctg', 'antimicrobial_class'],
+                              path=[px.Constant("Global"), 'countries_reporting', 'who_importance_ctg', 'antimicrobial_class'],
                               values=value,
                               color='region',
                               color_discrete_map={'(?)':'lightgrey', 'Africa':'#636FFA', 'Americas':'#EF553B', 'Asia, Far East and Oceania':'#00CC97', 'Europe':'#AB63FA', 'Middle East':'#FFC091'},
@@ -2011,6 +2011,7 @@ gbadsDash.layout = html.Div([
     #### Data to pass between callbacks
     dcc.Store(id='core-data-poultry'),
     dcc.Store(id='core-data-swine'),
+    dcc.Store(id='amu-regional-data'),
 
     #### TABS
     dcc.Tabs([
@@ -3581,7 +3582,13 @@ gbadsDash.layout = html.Div([
                dbc.Col([
                    html.H6("Antimicrobial Grouping"),
                    dcc.RadioItems(id='select-classification-amu',
-                         options=['Top Global Classes' ,'WHO Importance Categories' ,'Individual Classes'],
+                         options=[
+                             'Top Global Classes'
+                             ,'WHO Importance Categories'
+                             ,'WOAH Importance Categories'
+                             ,'OneHealth Importance Categories'
+                             ,'Individual Classes'
+                             ],
                          value='Top Global Classes',
                          labelStyle={'display': 'block'},
                          inputStyle={"margin-right": "10px"},
@@ -3706,79 +3713,210 @@ gbadsDash.layout = html.Div([
 
              # END OF SECOND GRAPHICS ROW
             ]),
-
-
             html.Br(),
 
-           # AMU for terrestrial animals, with uncertainty
+           # Usage and Price Sliders with Expenditure chart
            dbc.Row([
                dbc.Col([
-                   dbc.Spinner(children=[
-                   dcc.Graph(id='amu-terr-error-usage',
-                             style = {"height":"650px"},
-                             config = {
-                                 "displayModeBar" : True,
-                                 "displaylogo": False,
-                                 'toImageButtonOptions': {
-                                     'format': 'png', # one of png, svg, jpeg, webp
-                                     'filename': 'GBADs_AMU_Terrestrial_Usage'
-                                     },
-                                 'modeBarButtonsToRemove': ['zoom',
-                                                          'zoomIn',
-                                                          'zoomOut',
-                                                          'autoScale',
-                                                          #'resetScale',  # Removes home button
-                                                          'pan',
-                                                          'select2d',
-                                                          'lasso2d']
-                             })
-                   # End of Spinner
-                   ],size="md", color="#393375", fullscreen=False),
+                   dbc.Card([
+                       dbc.CardBody([
+                           html.H5("Estimated Antimicrobial Usage and Price for Terrestrial Livestock",
+                                   className="card-title",
+                                   style={"font-weight": "bold"}
+                                   ),
+                           dbc.Row([    # Region names
+                               dbc.Col([html.H5("Africa")]),
+                               dbc.Col([html.H5("Americas")]),
+                               dbc.Col([html.H5("Asia, Far East and Oceania")]),
+                               dbc.Col([html.H5("Europe")]),
+                               dbc.Col([html.H5("Middle East")]),
+                               ]),
+                           dbc.Spinner(children=[
+                           dbc.Row([
+                               dbc.Col([
+                                   html.H6("Usage"),
+                                   daq.Slider(
+                                       id='am-usage-slider-africa',
+                                       handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Price"),
+                                   daq.Slider(
+                                       id='am-price-slider-africa',
+                                       handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Usage"),
+                                   daq.Slider(
+                                       id='am-usage-slider-americas',
+                                       handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Price"),
+                                   daq.Slider(
+                                       id='am-price-slider-americas',
+                                       handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Usage"),
+                                   daq.Slider(
+                                       id='am-usage-slider-asia',
+                                       handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Price"),
+                                   daq.Slider(
+                                       id='am-price-slider-asia',
+                                       handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Usage"),
+                                   daq.Slider(
+                                       id='am-usage-slider-europe',
+                                       handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Price"),
+                                   daq.Slider(
+                                       id='am-price-slider-europe',
+                                       handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Usage"),
+                                   daq.Slider(
+                                       id='am-usage-slider-mideast',
+                                       handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               dbc.Col([
+                                   html.H6("Price"),
+                                   daq.Slider(
+                                       id='am-price-slider-mideast',
+                                       handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
+                                       vertical=True,
+                                       ),
+                                   ]),
+                               ]),
+                           ],size="md", color="#393375", fullscreen=False),     # End of spinner
+                           ]),
+                       ]),
+                   ]
+                   ,style={'margin-left':'20px'}
+                   ,width=8
+                   ),
+                dbc.Col([
+                    dbc.Spinner(children=[
+                    dcc.Graph(id='amu-expenditure',
+                              config = {
+                                  "displayModeBar" : True,
+                                  "displaylogo": False,
+                                  'toImageButtonOptions': {
+                                      'format': 'png', # one of png, svg, jpeg, webp
+                                      'filename': 'GBADs_AMU_Expenditure'
+                                      },
+                                  'modeBarButtonsToRemove': ['zoom',
+                                                           'zoomIn',
+                                                           'zoomOut',
+                                                           'autoScale',
+                                                           #'resetScale',  # Removes home button
+                                                           'pan',
+                                                           'select2d',
+                                                           'lasso2d']
+                              })
+                    # End of Spinner
+                    ],size="md", color="#393375", fullscreen=False),
+                    ]),
                ]),
-               dbc.Col([
-                   dbc.Spinner(children=[
-                   dcc.Graph(id='amu-terr-error-expenditure',
-                             style = {"height":"650px"},
-                             config = {
-                                 "displayModeBar" : True,
-                                 "displaylogo": False,
-                                 'toImageButtonOptions': {
-                                     'format': 'png', # one of png, svg, jpeg, webp
-                                     'filename': 'GBADs_AMU_Terrestrial_Expenditure'
-                                     },
-                                 'modeBarButtonsToRemove': ['zoom',
-                                                          'zoomIn',
-                                                          'zoomOut',
-                                                          'autoScale',
-                                                          #'resetScale',  # Removes home button
-                                                          'pan',
-                                                          'select2d',
-                                                          'lasso2d']
-                             })
-                   # End of Spinner
-                   ],size="md", color="#393375", fullscreen=False),
-               ]),
-           ]),
 
            #### -- FOOTNOTES
-           dbc.Row([
-               dbc.Col([
-                   html.P("Confidence intervals based on PERT distribution using data from WOAH to estimate minimum, maximum, and most likely values."),
-               ]),
-               dbc.Col([
-                    html.P("Expenditure distributions constructed by resampling from usage and price distributions and taking the product."),
-                    # html.P("Expenditure distributions constructed from product of realizations resampled from usage and price distributions."),
-               ]),
-           ], style={'margin-left':"40px", 'font-style': 'italic'}
-           ),
+            dbc.Row([
+                dbc.Col([
+                    html.P("Slider marks designate estimates from the following sources:"),
+                    # html.P("A*: WOAH usage data (limited to countries reporting). Estimate for terrestrial livestock based on their biomass as a proportion of total biomass."),
+                    html.P("A*: Countries reporting total antimicrobial usage to WOAH. Estimate for terrestrial livestock based on terrestrial biomass as a proportion of total biomass."),
+                    html.P("B*: Estimate A extrapolated to whole region based on the proportion of terrestrial biomass for the region represented in the countries reporting."),
+                    html.P("C*: Mulchandani et. al. (https://journals.plos.org/globalpublichealth/article?id=10.1371/journal.pgph.0001305)."),
+                ]),
+                # dbc.Col([
+                #      html.P("Expenditure distributions constructed by resampling from usage and price distributions and taking the product."),
+                #      # html.P("Expenditure distributions constructed from product of realizations resampled from usage and price distributions."),
+                # ]),
+            ], style={'margin-left':"30px", 'font-style': 'italic'}
+            ),
 
+           # AMU for terrestrial animals, with uncertainty
+           # dbc.Row([
+           #     dbc.Col([
+           #         dbc.Spinner(children=[
+           #         dcc.Graph(id='amu-terr-error-usage',
+           #                   style = {"height":"650px"},
+           #                   config = {
+           #                       "displayModeBar" : True,
+           #                       "displaylogo": False,
+           #                       'toImageButtonOptions': {
+           #                           'format': 'png', # one of png, svg, jpeg, webp
+           #                           'filename': 'GBADs_AMU_Terrestrial_Usage'
+           #                           },
+           #                       'modeBarButtonsToRemove': ['zoom',
+           #                                                'zoomIn',
+           #                                                'zoomOut',
+           #                                                'autoScale',
+           #                                                #'resetScale',  # Removes home button
+           #                                                'pan',
+           #                                                'select2d',
+           #                                                'lasso2d']
+           #                   })
+           #         # End of Spinner
+           #         ],size="md", color="#393375", fullscreen=False),
+           #         ]),
+           #     dbc.Col([
+           #         dbc.Spinner(children=[
+           #         dcc.Graph(id='amu-terr-error-expenditure',
+           #                   style = {"height":"650px"},
+           #                   config = {
+           #                       "displayModeBar" : True,
+           #                       "displaylogo": False,
+           #                       'toImageButtonOptions': {
+           #                           'format': 'png', # one of png, svg, jpeg, webp
+           #                           'filename': 'GBADs_AMU_Terrestrial_Expenditure'
+           #                           },
+           #                       'modeBarButtonsToRemove': ['zoom',
+           #                                                'zoomIn',
+           #                                                'zoomOut',
+           #                                                'autoScale',
+           #                                                #'resetScale',  # Removes home button
+           #                                                'pan',
+           #                                                'select2d',
+           #                                                'lasso2d']
+           #                   })
+           #         # End of Spinner
+           #         ],size="md", color="#393375", fullscreen=False),
+           #         ]),
+           #     ]),
 
            #### -- DATATABLE
            dbc.Row([
                dbc.Spinner(children=[
                dbc.Col([
                    html.Div([
-                         html.Div( id='amu-2018-combined-tall'),
+                         html.Div( id='amu-2018-combined-tall-todisplay'),
                    ], style={'margin-left':"20px" ,"width":"95%"}),
 
                html.Br() # Spacer for bottom of page
@@ -3793,13 +3931,12 @@ gbadsDash.layout = html.Div([
                dbc.Spinner(children=[
                dbc.Col([
                    html.Div([
-                         html.Div(id='amu-uncertainty'),
+                         html.Div(id='amu-regional-todisplay'),
                    ], style={'margin-left':"20px" ,"width":"95%"}),
                html.Br() # Spacer for bottom of page
                ]),# END OF COL
                # End of Spinner
                ],size="md", color="#393375", fullscreen=False),
-
            ]),
 
             ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
@@ -7790,14 +7927,235 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
 
 #### UPDATE ANTIMICROBIAL USE
 # ------------------------------------------------------------------------------
-#### -- Data
+#### -- Controls
 # ------------------------------------------------------------------------------
-# Datatable below graphics
-@gbadsDash.callback(
-    Output('amu-2018-combined-tall', 'children'),
+# Usage and Price sliders
+# am-usage-slider-africa
+@gbadsDash.callback(*
+    Output('am-usage-slider-africa', 'min'),
+    Output('am-usage-slider-africa', 'max'),
+    Output('am-usage-slider-africa', 'value'),
+    Output('am-usage-slider-africa', 'step'),
+    Output('am-usage-slider-africa', 'marks'),
+
+    Output('am-price-slider-africa', 'min'),
+    Output('am-price-slider-africa', 'max'),
+    Output('am-price-slider-africa', 'value'),
+    Output('am-price-slider-africa', 'step'),
+    Output('am-price-slider-africa', 'marks'),
+
+    Output('am-usage-slider-americas', 'min'),
+    Output('am-usage-slider-americas', 'max'),
+    Output('am-usage-slider-americas', 'value'),
+    Output('am-usage-slider-americas', 'step'),
+    Output('am-usage-slider-americas', 'marks'),
+
+    Output('am-price-slider-americas', 'min'),
+    Output('am-price-slider-americas', 'max'),
+    Output('am-price-slider-americas', 'value'),
+    Output('am-price-slider-americas', 'step'),
+    Output('am-price-slider-americas', 'marks'),
+
+    Output('am-usage-slider-asia', 'min'),
+    Output('am-usage-slider-asia', 'max'),
+    Output('am-usage-slider-asia', 'value'),
+    Output('am-usage-slider-asia', 'step'),
+    Output('am-usage-slider-asia', 'marks'),
+
+    Output('am-price-slider-asia', 'min'),
+    Output('am-price-slider-asia', 'max'),
+    Output('am-price-slider-asia', 'value'),
+    Output('am-price-slider-asia', 'step'),
+    Output('am-price-slider-asia', 'marks'),
+
+    Output('am-usage-slider-europe', 'min'),
+    Output('am-usage-slider-europe', 'max'),
+    Output('am-usage-slider-europe', 'value'),
+    Output('am-usage-slider-europe', 'step'),
+    Output('am-usage-slider-europe', 'marks'),
+
+    Output('am-price-slider-europe', 'min'),
+    Output('am-price-slider-europe', 'max'),
+    Output('am-price-slider-europe', 'value'),
+    Output('am-price-slider-europe', 'step'),
+    Output('am-price-slider-europe', 'marks'),
+
+    Output('am-usage-slider-mideast', 'min'),
+    Output('am-usage-slider-mideast', 'max'),
+    Output('am-usage-slider-mideast', 'value'),
+    Output('am-usage-slider-mideast', 'step'),
+    Output('am-usage-slider-mideast', 'marks'),
+
+    Output('am-price-slider-mideast', 'min'),
+    Output('am-price-slider-mideast', 'max'),
+    Output('am-price-slider-mideast', 'value'),
+    Output('am-price-slider-mideast', 'step'),
+    Output('am-price-slider-mideast', 'marks'),
+
     Input('select-species-ga','value'),
     )
-def update_table_amu(dummy_input):
+def update_usage_price_sliders(dummy_input):
+    regional_usage_price_data = amu_combined_regional.copy()
+
+    # Steps will be the same for all
+    usage_step = 1
+    price_step = 1
+
+    # Africa
+    usage_africa_min = regional_usage_price_data.query("region == 'Africa'")['terr_amu_tonnes_reporting_2020'].values[0].astype(int)
+    usage_africa_mid = regional_usage_price_data.query("region == 'Africa'")['terr_amu_tonnes_region_2020'].values[0].astype(int)
+    usage_africa_max = regional_usage_price_data.query("region == 'Africa'")['terr_amu_tonnes_mulch_2020'].values[0].astype(int)
+    usage_africa_marks = {
+        usage_africa_min.astype(str):'A*'
+        ,usage_africa_mid.astype(str):'B*'
+        ,usage_africa_max.astype(str):'C*'
+        }
+
+    price_africa_min = regional_usage_price_data.query("region == 'Africa'")['am_price_usdpertonne_low'].values[0].astype(int)
+    price_africa_mid = regional_usage_price_data.query("region == 'Africa'")['am_price_usdpertonne_mid'].values[0].astype(int)
+    price_africa_max = regional_usage_price_data.query("region == 'Africa'")['am_price_usdpertonne_high'].values[0].astype(int)
+    price_africa_marks = {
+        price_africa_min.astype(str):'D*'
+        ,price_africa_mid.astype(str):'E*'
+        ,price_africa_max.astype(str):'F*'
+        }
+
+    # Americas
+    usage_americas_min = regional_usage_price_data.query("region == 'Americas'")['terr_amu_tonnes_reporting_2020'].values[0].astype(int)
+    usage_americas_mid = regional_usage_price_data.query("region == 'Americas'")['terr_amu_tonnes_region_2020'].values[0].astype(int)
+    usage_americas_max = regional_usage_price_data.query("region == 'Americas'")['terr_amu_tonnes_mulch_2020'].values[0].astype(int)
+    usage_americas_marks = {
+        usage_americas_min.astype(str):'A*'
+        ,usage_americas_mid.astype(str):'B*'
+        ,usage_americas_max.astype(str):'C*'
+        }
+
+    price_americas_min = regional_usage_price_data.query("region == 'Americas'")['am_price_usdpertonne_low'].values[0].astype(int)
+    price_americas_mid = regional_usage_price_data.query("region == 'Americas'")['am_price_usdpertonne_mid'].values[0].astype(int)
+    price_americas_max = regional_usage_price_data.query("region == 'Americas'")['am_price_usdpertonne_high'].values[0].astype(int)
+    price_americas_marks = {
+        price_americas_min.astype(str):'D*'
+        ,price_americas_mid.astype(str):'E*'
+        ,price_americas_max.astype(str):'F*'
+        }
+
+    # Asia, Far East and Oceania
+    usage_asia_min = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['terr_amu_tonnes_reporting_2020'].values[0].astype(int)
+    usage_asia_mid = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['terr_amu_tonnes_region_2020'].values[0].astype(int)
+    usage_asia_max = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['terr_amu_tonnes_mulch_2020'].values[0].astype(int)
+    usage_asia_marks = {
+        usage_asia_min.astype(str):'A*'
+        ,usage_asia_mid.astype(str):'B*'
+        ,usage_asia_max.astype(str):'C*'
+        }
+
+    price_asia_min = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['am_price_usdpertonne_low'].values[0].astype(int)
+    price_asia_mid = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['am_price_usdpertonne_mid'].values[0].astype(int)
+    price_asia_max = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['am_price_usdpertonne_high'].values[0].astype(int)
+    price_asia_marks = {
+        price_asia_min.astype(str):'D*'
+        ,price_asia_mid.astype(str):'E*'
+        ,price_asia_max.astype(str):'F*'
+        }
+
+    # Europe
+    usage_europe_min = regional_usage_price_data.query("region == 'Europe'")['terr_amu_tonnes_reporting_2020'].values[0].astype(int)
+    usage_europe_mid = regional_usage_price_data.query("region == 'Europe'")['terr_amu_tonnes_region_2020'].values[0].astype(int)
+    usage_europe_max = regional_usage_price_data.query("region == 'Europe'")['terr_amu_tonnes_mulch_2020'].values[0].astype(int)
+    usage_europe_marks = {
+        usage_europe_min.astype(str):'A*'
+        ,usage_europe_mid.astype(str):'B*'
+        ,usage_europe_max.astype(str):'C*'
+        }
+
+    price_europe_min = regional_usage_price_data.query("region == 'Europe'")['am_price_usdpertonne_low'].values[0].astype(int)
+    price_europe_mid = regional_usage_price_data.query("region == 'Europe'")['am_price_usdpertonne_mid'].values[0].astype(int)
+    price_europe_max = regional_usage_price_data.query("region == 'Europe'")['am_price_usdpertonne_high'].values[0].astype(int)
+    price_europe_marks = {
+        price_europe_min.astype(str):'D*'
+        ,price_europe_mid.astype(str):'E*'
+        ,price_europe_max.astype(str):'F*'
+        }
+
+    # Middle East
+    usage_mideast_min = regional_usage_price_data.query("region == 'Middle East'")['terr_amu_tonnes_reporting_2020'].values[0].astype(int)
+    usage_mideast_mid = regional_usage_price_data.query("region == 'Middle East'")['terr_amu_tonnes_region_2020'].values[0].astype(int)
+    usage_mideast_max = regional_usage_price_data.query("region == 'Middle East'")['terr_amu_tonnes_mulch_2020'].values[0].astype(int)
+    usage_mideast_marks = {
+        usage_mideast_min.astype(str):'A*'
+        ,usage_mideast_mid.astype(str):'B*'
+        ,usage_mideast_max.astype(str):'C*'
+        }
+
+    price_mideast_min = regional_usage_price_data.query("region == 'Middle East'")['am_price_usdpertonne_low'].values[0].astype(int)
+    price_mideast_mid = regional_usage_price_data.query("region == 'Middle East'")['am_price_usdpertonne_mid'].values[0].astype(int)
+    price_mideast_max = regional_usage_price_data.query("region == 'Middle East'")['am_price_usdpertonne_high'].values[0].astype(int)
+    price_mideast_marks = {
+        price_mideast_min.astype(str):'D*'
+        ,price_mideast_mid.astype(str):'E*'
+        ,price_mideast_max.astype(str):'F*'
+        }
+
+    return usage_africa_min ,usage_africa_max ,usage_africa_mid ,usage_step ,usage_africa_marks \
+        ,price_africa_min ,price_africa_max ,price_africa_mid ,price_step ,price_africa_marks \
+        ,usage_americas_min ,usage_americas_max ,usage_americas_mid ,usage_step ,usage_americas_marks \
+        ,price_americas_min ,price_americas_max ,price_americas_mid ,price_step ,price_americas_marks \
+        ,usage_asia_min ,usage_asia_max ,usage_asia_mid ,usage_step ,usage_asia_marks \
+        ,price_asia_min ,price_asia_max ,price_asia_mid ,price_step ,price_asia_marks \
+        ,usage_europe_min ,usage_europe_max ,usage_europe_mid ,usage_step ,usage_europe_marks \
+        ,price_europe_min ,price_europe_max ,price_europe_mid ,price_step ,price_europe_marks \
+        ,usage_mideast_min ,usage_mideast_max ,usage_mideast_mid ,usage_step ,usage_mideast_marks \
+        ,price_mideast_min ,price_mideast_max ,price_mideast_mid ,price_step ,price_mideast_marks
+
+# ------------------------------------------------------------------------------
+#### -- Data
+# ------------------------------------------------------------------------------
+# Update regional data
+@gbadsDash.callback(
+    Output('amu-regional-data', 'data'),
+    Input('am-usage-slider-africa', 'value'),
+    Input('am-price-slider-africa', 'value'),
+    Input('am-usage-slider-americas', 'value'),
+    Input('am-price-slider-americas', 'value'),
+    Input('am-usage-slider-asia', 'value'),
+    Input('am-price-slider-asia', 'value'),
+    Input('am-usage-slider-europe', 'value'),
+    Input('am-price-slider-europe', 'value'),
+    Input('am-usage-slider-mideast', 'value'),
+    Input('am-price-slider-mideast', 'value'),
+    )
+def update_regional_table_amu(
+        usage_africa ,price_africa
+        ,usage_americas ,price_americas
+        ,usage_asia ,price_asia
+        ,usage_europe ,price_europe
+        ,usage_mideast ,price_mideast
+        ):
+    df = amu_combined_regional.copy()
+
+    # Add selected usage and price values as columns
+    df.loc[df['region'].str.contains('africa' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_usdpertonne_selected']] = \
+       [usage_africa ,price_africa]
+    df.loc[df['region'].str.contains('americas' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_usdpertonne_selected']] = \
+        [usage_americas ,price_americas]
+    df.loc[df['region'].str.contains('asia' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_usdpertonne_selected']] = \
+        [usage_asia ,price_asia]
+    df.loc[df['region'].str.contains('europe' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_usdpertonne_selected']] = \
+        [usage_europe ,price_europe]
+    df.loc[df['region'].str.contains('middle' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_usdpertonne_selected']] = \
+        [usage_mideast ,price_mideast]
+
+    # Calculate expenditure based on usage and price slider input
+    df['am_expenditure_usd_selected'] = df['amu_terrestrial_tonnes_selected'] * df['am_price_usdpertonne_selected']
+
+    return df.to_json(date_format='iso', orient='split')
+
+# Datatable below graphics
+@gbadsDash.callback(
+    Output('amu-2018-combined-tall-todisplay', 'children'),
+    Input('select-species-ga','value'),
+    )
+def update_table_display_amu(dummy_input):
     display_data = amu2018_combined_tall.copy()
 
     # Filter out AGP
@@ -7809,7 +8167,9 @@ def update_table_amu(dummy_input):
        ,'number_of_countries':'Number of Countries'
        ,'biomass_total_kg':'Total Biomass (kg)'
        ,'antimicrobial_class': 'Antimicrobial Class'
-       ,'importance_ctg':'Importance Category'
+       ,'who_importance_ctg':'WHO Importance Category'
+       ,'woah_importance_ctg':'WOAH Importance Category'
+       ,'onehealth_importance_ctg':'OneHealth Importance Category'
        ,'amu_tonnes': 'Total AM Usage (tonnes)'
        ,'amu_mg_perkgbiomass':'AM Usage (mg per kg biomass)'
     }
@@ -7851,45 +8211,37 @@ def update_table_amu(dummy_input):
             )
         ]
 
-# Usage and Price uncertainty data
+# Regional data with Usage and Price
 @gbadsDash.callback(
-    Output('amu-uncertainty', 'children'),
-    Input('select-species-ga','value'),
+    Output('amu-regional-todisplay', 'children'),
+    Input('amu-regional-data', 'data'),
     )
-def update_uncertainty_table_amu(dummy_input):
-    display_data = amu_uncertainty_data.copy()
+def update_regional_display_amu(input_json):
+    display_data = pd.read_json(input_json, orient='split')
 
     columns_to_display_with_labels = {
-       'region':'Region',
-       'n_countries':'Number of Countries',
-       'biomass_total_kg':'Total Biomass (kg)',
-       'biomass_total_terr_kg':'Terrestrial Livestock Biomass (kg)',
+        'region':'Region'
+        ,'number_of_countries':'Number of Countries'
+        ,'total_antimicrobials_tonnes':'Total Antimicrobials for countries reporting (tonnes)'
+        ,'biomass_total_kg_reporting':'Total Biomass for countries reporting'
+        ,'biomass_total_kg_region':'Total Biomass for region'
+        ,'biomass_terr_kg_reporting':'Terrestrial Biomass for countries reporting'
+        ,'biomass_terr_kg_region':'Terrestrial Biomass for region'
+        ,'biomass_terr_prpn_reporting':'Proportion of terrestrial biomass'
+        ,'terr_amu_tonnes_reporting':'Estimated antimicrobials for terrestrial species in countries reporting 2018 (tonnes)'
+        ,'prpn_change_2018to2020':'Trend'
+        ,'terr_amu_tonnes_reporting_2020':'Estimated antimicrobials for terrestrial species in countries reporting 2020 (tonnes)'
+        ,'biomass_terr_reporting_prpnofregion':'Proportion of regional biomass'
+        ,'terr_amu_tonnes_region_2020':'Estimated antimicrobials for terrestrial species in whole region 2020 (tonnes)'
+        ,'terr_amu_tonnes_mulch_2020':'Estimated antimicrobials for terrestrial species from Mulchandani 2020 (tonnes)'
+        ,'am_price_usdpertonne_low':'Average price of antimicrobials - Low (euros per tonne)'
+        ,'am_price_usdpertonne_mid':'Average price of antimicrobials - Mid (euros per tonne)'
+        ,'am_price_usdpertonne_high':'Average price of antimicrobials - High (euros per tonne)'
 
-       'amu_terrestrial_tonnes_min':'AMU tonnes (min)',
-       'amu_terrestrial_tonnes_mostlikely':'AMU tonnes (most likely)',
-       'amu_terrestrial_tonnes_max':'AMU tonnes (max)',
-       'tonnes_ci95_low':'AMU tonnes CI lower',
-       'tonnes_ci95_high':'AMU tonnes CI upper',
-       # 'amu_terrestrial_tonnes_distr':'',
-       # 'amu_terrestrial_tonnes_distr_lambda':'',
-       'amu_eurospertonne_min':'Euros per tonne (min)',
-       'amu_eurospertonne_mostlikely':'Euros per tonne (most likely)',
-       'amu_eurospertonne_max':'Euros per tonne (max)',
-       'price_ci95_low':'Euros per tonne CI lower',
-       'price_ci95_high':'Euros per tonne CI upper',
-       # 'amu_eurospertonne_distr':'',
-       # 'amu_eurospertonne_distr_lambda':'',
-       # 'amu_terrestrial_tonnes_errorlow':'',
-       # 'amu_terrestrial_tonnes_errorhigh':'',
-       # 'amu_eurospertonne_errorlow':'',
-       # 'amu_eurospertonne_errorhigh':'',
-       'expenditure_ci95_low':'Expenditure euros CI lower',
-       # 'expenditure_ci95_mid':'',
-       'expenditure_ci95_high':'Expenditure euros CI upper',
-       # 'amu_terrestrial_expenditure_midpoint':'',
-       # 'amu_terrestrial_expenditure_errorlow':'',
-       # 'amu_terrestrial_expenditure_errorhigh':''
-       }
+        ,'amu_terrestrial_tonnes_selected':'Antimicrobial usage - Selected (tonnes)'
+        ,'am_price_usdpertonne_selected':'Average price of antimicrobials - Selected (USD per tonne)'
+        ,'am_expenditure_usd_selected':'Expenditure on antimicrobials (USD)'
+        }
 
     # ------------------------------------------------------------------------------
     # Format data to display in the table
@@ -7897,50 +8249,44 @@ def update_uncertainty_table_amu(dummy_input):
     # Order does not matter in these lists
     # Zero decimal places
     display_data.update(display_data[[
-        'n_countries'
-        ,'biomass_total_kg'
-        ,'biomass_total_terr_kg'
-        ,'amu_terrestrial_tonnes_min'
-        ,'amu_terrestrial_tonnes_mostlikely'
-        ,'amu_terrestrial_tonnes_max'
-        ,'tonnes_ci95_low'
-        ,'tonnes_ci95_high'
+        'number_of_countries'
+        ,'biomass_total_kg_reporting'
+        ,'biomass_total_kg_region'
+        ,'biomass_terr_kg_reporting'
+        ,'biomass_terr_kg_region'
     ]].applymap('{:,.0f}'.format))
 
     # One decimal place
-    display_data.update(display_data[[
-    ]].applymap('{:,.1f}'.format))
+    # display_data.update(display_data[[
+    # ]].applymap('{:,.1f}'.format))
 
-    # Two decimal places
+    # Euro currency
+    # display_data.update(display_data[[
+    #     'am_price_eurospertonne_low'
+    #     ,'am_price_eurospertonne_mid'
+    #     ,'am_price_eurospertonne_high'
+    #     ,'am_expenditure_euros_selected'
+    # ]].applymap('€ {:,.0f}'.format))
+
+    # USD currency
     display_data.update(display_data[[
-       'amu_eurospertonne_min'
-       ,'amu_eurospertonne_mostlikely'
-       ,'amu_eurospertonne_max'
-       ,'price_ci95_low'
-       ,'price_ci95_high'
-       ,'expenditure_ci95_low'
-       ,'expenditure_ci95_high'
-    ]].applymap('€ {:,.2f}'.format))
+        'am_price_usdpertonne_low'
+        ,'am_price_usdpertonne_mid'
+        ,'am_price_usdpertonne_high'
+        ,'am_expenditure_usd_selected'
+    ]].applymap('$ {:,.0f}'.format))
 
     # ------------------------------------------------------------------------------
     # Hover-over text
     # ------------------------------------------------------------------------------
     column_tooltips = {
-        # 'amu_terrestrial_tonnes_min':'Estimated from WOAH region total AMU based on terrestrial biomass as proportion of total biomass.'
-        # ,'amu_terrestrial_tonnes_mostlikely':'Source: Mulchandani et. al.'
-        # ,'amu_terrestrial_tonnes_max':'Estimated as 10% higher than most likely value'
-        'tonnes_ci95_low':'Based on PERT distribution'
-        ,'tonnes_ci95_high':'Based on PERT distribution'
-
-        # ,'amu_eurospertonne_min':'Source:'
-        # ,'amu_eurospertonne_mostlikely':'Source:'
-        # ,'amu_eurospertonne_max':'Source:'
-        ,'price_ci95_low':'Based on PERT distribution'
-        ,'price_ci95_high':'Based on PERT distribution'
+        'am_price_usdpertonne_low':'Source:'
+        ,'am_price_usdpertonne_mid':'Source:'
+        ,'am_price_usdpertonne_high':'Source:'
         }
 
     return [
-            html.H4("Terrestrial Livestock Estimates"),
+            html.H4("Regional Estimates"),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 # fixed_rows={'headers': True, 'data': 0},
@@ -7968,6 +8314,123 @@ def update_uncertainty_table_amu(dummy_input):
             )
         ]
 
+# Usage and Price uncertainty data
+# @gbadsDash.callback(
+#     Output('amu-uncertainty-todisplay', 'children'),
+#     Input('select-species-ga','value'),
+#     )
+# def update_uncertainty_display_amu(dummy_input):
+#     display_data = amu_uncertainty_data.copy()
+
+#     columns_to_display_with_labels = {
+#        'region':'Region',
+#        'n_countries':'Number of Countries',
+#        'biomass_total_kg':'Total Biomass (kg)',
+#        'biomass_total_terr_kg':'Terrestrial Livestock Biomass (kg)',
+
+#        'amu_terrestrial_tonnes_min':'AMU tonnes (min)',
+#        'amu_terrestrial_tonnes_mostlikely':'AMU tonnes (most likely)',
+#        'amu_terrestrial_tonnes_max':'AMU tonnes (max)',
+#        'tonnes_ci95_low':'AMU tonnes CI lower',
+#        'tonnes_ci95_high':'AMU tonnes CI upper',
+#        # 'amu_terrestrial_tonnes_distr':'',
+#        # 'amu_terrestrial_tonnes_distr_lambda':'',
+#        'amu_eurospertonne_min':'Euros per tonne (min)',
+#        'amu_eurospertonne_mostlikely':'Euros per tonne (most likely)',
+#        'amu_eurospertonne_max':'Euros per tonne (max)',
+#        'price_ci95_low':'Euros per tonne CI lower',
+#        'price_ci95_high':'Euros per tonne CI upper',
+#        # 'amu_eurospertonne_distr':'',
+#        # 'amu_eurospertonne_distr_lambda':'',
+#        # 'amu_terrestrial_tonnes_errorlow':'',
+#        # 'amu_terrestrial_tonnes_errorhigh':'',
+#        # 'amu_eurospertonne_errorlow':'',
+#        # 'amu_eurospertonne_errorhigh':'',
+#        'expenditure_ci95_low':'Expenditure euros CI lower',
+#        # 'expenditure_ci95_mid':'',
+#        'expenditure_ci95_high':'Expenditure euros CI upper',
+#        # 'amu_terrestrial_expenditure_midpoint':'',
+#        # 'amu_terrestrial_expenditure_errorlow':'',
+#        # 'amu_terrestrial_expenditure_errorhigh':''
+#        }
+
+#     # ------------------------------------------------------------------------------
+#     # Format data to display in the table
+#     # ------------------------------------------------------------------------------
+#     # Order does not matter in these lists
+#     # Zero decimal places
+#     display_data.update(display_data[[
+#         'n_countries'
+#         ,'biomass_total_kg'
+#         ,'biomass_total_terr_kg'
+#         ,'amu_terrestrial_tonnes_min'
+#         ,'amu_terrestrial_tonnes_mostlikely'
+#         ,'amu_terrestrial_tonnes_max'
+#         ,'tonnes_ci95_low'
+#         ,'tonnes_ci95_high'
+#     ]].applymap('{:,.0f}'.format))
+
+#     # One decimal place
+#     display_data.update(display_data[[
+#     ]].applymap('{:,.1f}'.format))
+
+#     # Two decimal places
+#     display_data.update(display_data[[
+#        'amu_eurospertonne_min'
+#        ,'amu_eurospertonne_mostlikely'
+#        ,'amu_eurospertonne_max'
+#        ,'price_ci95_low'
+#        ,'price_ci95_high'
+#        ,'expenditure_ci95_low'
+#        ,'expenditure_ci95_high'
+#     ]].applymap('€ {:,.2f}'.format))
+
+#     # ------------------------------------------------------------------------------
+#     # Hover-over text
+#     # ------------------------------------------------------------------------------
+#     column_tooltips = {
+#         # 'amu_terrestrial_tonnes_min':'Estimated from WOAH region total AMU based on terrestrial biomass as proportion of total biomass.'
+#         # ,'amu_terrestrial_tonnes_mostlikely':'Source: Mulchandani et. al.'
+#         # ,'amu_terrestrial_tonnes_max':'Estimated as 10% higher than most likely value'
+#         'tonnes_ci95_low':'Based on PERT distribution'
+#         ,'tonnes_ci95_high':'Based on PERT distribution'
+
+#         # ,'amu_eurospertonne_min':'Source:'
+#         # ,'amu_eurospertonne_mostlikely':'Source:'
+#         # ,'amu_eurospertonne_max':'Source:'
+#         ,'price_ci95_low':'Based on PERT distribution'
+#         ,'price_ci95_high':'Based on PERT distribution'
+#         }
+
+#     return [
+#             html.H4("Terrestrial Livestock Estimates"),
+#             dash_table.DataTable(
+#                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+#                 # fixed_rows={'headers': True, 'data': 0},
+#                 data=display_data.to_dict('records'),
+#                 export_format="csv",
+#                 sort_action='native',
+#                 style_cell={
+#                     'font-family':'sans-serif',
+#                     },
+#                 style_table={'overflowX':'scroll',
+#                               'overflowY': 'auto'},
+#                 page_action='none',
+
+#                 # Hover-over for column headers
+#                 tooltip_header=column_tooltips,
+#                 tooltip_delay=1500,
+#                 tooltip_duration=50000,
+
+#                 # Underline columns with tooltips
+#                 style_header_conditional=[{
+#                     'if': {'column_id': col},
+#                     'textDecoration': 'underline',
+#                     'textDecorationStyle': 'dotted',
+#                     } for col in list(column_tooltips)],
+#             )
+#         ]
+
 # ------------------------------------------------------------------------------
 #### -- Figures
 # ------------------------------------------------------------------------------
@@ -7981,7 +8444,7 @@ def update_map_amu (viz_switch, quantity):
     input_df = amu2018_combined_tall.copy()
 
     # Filter scope to All and remove nulls from importance category
-    input_df = input_df.query("scope == 'All'").query("importance_ctg.notnull()")
+    input_df = input_df.query("scope == 'All'")
 
     # Visualization switch between map and tree map
     if viz_switch == 'Map':
@@ -8064,13 +8527,19 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
         y_var = 'amu_mg_perkgbiomass'
         y_label = "AMU Mg per Kg Biomass"
 
-    if classification.upper() == 'INDIVIDUAL CLASSES':
+    if classification.upper() == 'WHO IMPORTANCE CATEGORIES':
+        color = 'who_importance_ctg'
+        stackedbar_df['id'] = stackedbar_df.groupby(['who_importance_ctg']).ngroup()
+    elif classification.upper() == 'WOAH IMPORTANCE CATEGORIES':
+        color = 'woah_importance_ctg'
+        stackedbar_df['id'] = stackedbar_df.groupby(['woah_importance_ctg']).ngroup()
+    elif classification.upper() == 'ONEHEALTH IMPORTANCE CATEGORIES':
+        color = 'onehealth_importance_ctg'
+        stackedbar_df['id'] = stackedbar_df.groupby(['onehealth_importance_ctg']).ngroup()
+    elif classification.upper() == 'INDIVIDUAL CLASSES':
         color = 'antimicrobial_class_group'
         stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class']).ngroup()
-    elif classification.upper() == 'WHO IMPORTANCE CATEGORIES':
-        color = 'importance_ctg'
-        stackedbar_df['id'] = stackedbar_df.groupby(['importance_ctg']).ngroup()
-
+        # stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class_group']).ngroup()
     elif classification.upper() == 'TOP GLOBAL CLASSES':
         color = 'antimicrobial_class_group2'
         stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class_group2']).ngroup()
@@ -8078,8 +8547,6 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
     # Specify additonal colors
     # Taking the 10 colors from the default 'Plotly' (px.colors.qualitative.Plotly) color sequence and adding to it
     addiitonal_colors = ['#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', '#19D3F3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52',"#C6CAFD", "#F7A799", "#33FFC9"]
-
-
 
     # Options to change between graphs
     if select_amu_graph.upper() == 'TOTAL':
@@ -8089,7 +8556,9 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
                          labels={
                              x_var: "",
                              y_var: y_label,
-                             "importance_ctg": "Importance Category",
+                             "who_importance_ctg": "WHO Importance Category",
+                             "woah_importance_ctg": "WOAH Importance Category",
+                             "onehealth_importance_ctg": "OneHealth Importance Category",
                              "antimicrobial_class_group": "Antimicrobial Class",
                              "antimicrobial_class_group2": "Antimicrobial Class"
                              }
@@ -8211,9 +8680,19 @@ def update_donut_chart_amu (quantity, region, classification):
         legend_title = 'Antimicrobial Class'
 
     elif classification == 'WHO Importance Categories':
-        names = input_df['importance_ctg']
-        sort_by = 'importance_ctg'
-        legend_title = 'Importance Category'
+        names = input_df['who_importance_ctg']
+        sort_by = 'who_importance_ctg'
+        legend_title = 'WHO Importance Category'
+
+    elif classification == 'WOAH Importance Categories':
+        names = input_df['woah_importance_ctg']
+        sort_by = 'woah_importance_ctg'
+        legend_title = 'WOAH Importance Category'
+
+    elif classification == 'OneHealth Importance Categories':
+        names = input_df['onehealth_importance_ctg']
+        sort_by = 'onehealth_importance_ctg'
+        legend_title = 'OneHealth Importance Category'
 
     elif classification == 'Top Global Classes':
         names = input_df['antimicrobial_class_group2']
@@ -8261,121 +8740,140 @@ def update_donut_chart_amu (quantity, region, classification):
 
     return amu_donut_fig
 
-# AMU for terrestrial animals, with uncertainty
+# Expenditure based on usage and price sliders
 @gbadsDash.callback(
-    Output('amu-terr-error-usage','figure'),
-    Input('select-region-amu','value'),
+    Output('amu-expenditure','figure'),
+    Input('amu-regional-data', 'data'),
     )
-def update_terrestrial_usage_amu(dummy_input):
-    # Prep data
-    # This is a hack to get the Usage and Price scatterplots separated
-    usage_cols = ['amu_terrestrial_tonnes_min' ,'amu_terrestrial_tonnes_mostlikely' ,'amu_terrestrial_tonnes_max']
-    price_cols = ['amu_eurospertonne_min' ,'amu_eurospertonne_mostlikely' ,'amu_eurospertonne_max']
-    amu_regions = list(amu_uncertainty_data['region'])
-
-    amu_uncertainty_data_toplot_usage = amu_uncertainty_data.copy()
-    amu_uncertainty_data_toplot_usage[price_cols] = np.nan
-
-    amu_uncertainty_data_toplot_price = amu_uncertainty_data.copy()
-    amu_uncertainty_data_toplot_price[usage_cols] = np.nan
-    amu_uncertainty_data_toplot_price['region'] = amu_uncertainty_data_toplot_price['region'] + '_price'
-
-    amu_uncertainty_data_toplot = pd.concat([amu_uncertainty_data_toplot_usage ,amu_uncertainty_data_toplot_price] ,axis=0 ,ignore_index=True)
-    amu_uncertainty_data_toplot = amu_uncertainty_data_toplot.sort_values(by='region')
-
-    # Create figure with secondary y-axis
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
-
-    # Plot Usage
-    fig.add_trace(
-        go.Scatter(
-         	x=amu_uncertainty_data_toplot['region']
-         	,y=amu_uncertainty_data_toplot['amu_terrestrial_tonnes_mostlikely']
-         	,error_y=dict(
-                type='data'
-                ,symmetric=False
-                ,array=amu_uncertainty_data_toplot['amu_terrestrial_tonnes_errorhigh']
-                ,arrayminus=amu_uncertainty_data_toplot["amu_terrestrial_tonnes_errorlow"]
-            )
-            ,mode='markers'
-            ,name='Usage'
-            ,marker_color='blue'
+def update_expenditure_amu(input_json):
+    input_df = pd.read_json(input_json, orient='split')
+    bar_fig = px.bar(
+        input_df,
+        x='region',
+        y='am_expenditure_usd_selected',
+        labels={
+            'am_expenditure_usd_selected':'Expenditure (USD)'
+            ,'region':'Region'
+            }
         )
-        ,secondary_y=False
-    )
+    bar_fig.update_layout(title_text='Estimated Expenditure on Antimicrobials<br><sup>Terrestrial Livestock')
+    return bar_fig
 
-    # Plot Price
-    fig.add_trace(
-        go.Scatter(
-         	x=amu_uncertainty_data_toplot['region']
-         	,y=amu_uncertainty_data_toplot['amu_eurospertonne_mostlikely']
-         	,error_y=dict(
-                type='data'
-                ,symmetric=False
-                ,array=amu_uncertainty_data_toplot['amu_eurospertonne_errorhigh']
-                ,arrayminus=amu_uncertainty_data_toplot["amu_eurospertonne_errorlow"]
-            )
-            ,mode='markers'
-            ,name='Price'
-            ,marker_color='green'
-        )
-        ,secondary_y=True
-    )
+# AMU for terrestrial animals, with uncertainty
+# @gbadsDash.callback(
+#     Output('amu-terr-error-usage','figure'),
+#     Input('select-region-amu','value'),
+#     )
+# def update_terrestrial_usage_amu(dummy_input):
+#     # Prep data
+#     # This is a hack to get the Usage and Price scatterplots separated
+#     usage_cols = ['amu_terrestrial_tonnes_min' ,'amu_terrestrial_tonnes_mostlikely' ,'amu_terrestrial_tonnes_max']
+#     price_cols = ['amu_eurospertonne_min' ,'amu_eurospertonne_mostlikely' ,'amu_eurospertonne_max']
+#     amu_regions = list(amu_uncertainty_data['region'])
 
-    # Set size of points
-    fig.update_traces(marker_size=10)
+#     amu_uncertainty_data_toplot_usage = amu_uncertainty_data.copy()
+#     amu_uncertainty_data_toplot_usage[price_cols] = np.nan
 
-    # Add plot title and axis labels
-    fig.update_layout(
-        title_text='Antimicrobial Usage and Price for Terrestrial Livestock<br><sup>with 95% confidence intervals</sup>'
-        ,font_size=15
-        ,legend_y=1.1
-        ,legend_x=0.6
-        ,legend_orientation='h'
-    )
-    fig.update_xaxes(title_text="Region"
-                     ,tickangle=45
-                     ,tickmode='array'
-                     ,tickvals=amu_regions  # Only show ticks for base regions, not dummy price regions
-                     )
-    fig.update_yaxes(title_text="Antimicrobial Usage (tonnes)"
-                      ,color='blue'
-                      ,secondary_y=False
-                      )
-    fig.update_yaxes(title_text="Antimicrobial Price (euros per tonne)"
-                      ,color='green'
-                      ,secondary_y=True
-                      ,showgrid=False
-                      )
+#     amu_uncertainty_data_toplot_price = amu_uncertainty_data.copy()
+#     amu_uncertainty_data_toplot_price[usage_cols] = np.nan
+#     amu_uncertainty_data_toplot_price['region'] = amu_uncertainty_data_toplot_price['region'] + '_price'
 
-    return fig
+#     amu_uncertainty_data_toplot = pd.concat([amu_uncertainty_data_toplot_usage ,amu_uncertainty_data_toplot_price] ,axis=0 ,ignore_index=True)
+#     amu_uncertainty_data_toplot = amu_uncertainty_data_toplot.sort_values(by='region')
+
+#     # Create figure with secondary y-axis
+#     fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+#     # Plot Usage
+#     fig.add_trace(
+#         go.Scatter(
+#          	x=amu_uncertainty_data_toplot['region']
+#          	,y=amu_uncertainty_data_toplot['amu_terrestrial_tonnes_mostlikely']
+#          	,error_y=dict(
+#                 type='data'
+#                 ,symmetric=False
+#                 ,array=amu_uncertainty_data_toplot['amu_terrestrial_tonnes_errorhigh']
+#                 ,arrayminus=amu_uncertainty_data_toplot["amu_terrestrial_tonnes_errorlow"]
+#             )
+#             ,mode='markers'
+#             ,name='Usage'
+#             ,marker_color='blue'
+#         )
+#         ,secondary_y=False
+#     )
+
+#     # Plot Price
+#     fig.add_trace(
+#         go.Scatter(
+#          	x=amu_uncertainty_data_toplot['region']
+#          	,y=amu_uncertainty_data_toplot['amu_eurospertonne_mostlikely']
+#          	,error_y=dict(
+#                 type='data'
+#                 ,symmetric=False
+#                 ,array=amu_uncertainty_data_toplot['amu_eurospertonne_errorhigh']
+#                 ,arrayminus=amu_uncertainty_data_toplot["amu_eurospertonne_errorlow"]
+#             )
+#             ,mode='markers'
+#             ,name='Price'
+#             ,marker_color='green'
+#         )
+#         ,secondary_y=True
+#     )
+
+#     # Set size of points
+#     fig.update_traces(marker_size=10)
+
+#     # Add plot title and axis labels
+#     fig.update_layout(
+#         title_text='Antimicrobial Usage and Price for Terrestrial Livestock<br><sup>with 95% confidence intervals</sup>'
+#         ,font_size=15
+#         ,legend_y=1.1
+#         ,legend_x=0.6
+#         ,legend_orientation='h'
+#     )
+#     fig.update_xaxes(title_text="Region"
+#                      ,tickangle=45
+#                      ,tickmode='array'
+#                      ,tickvals=amu_regions  # Only show ticks for base regions, not dummy price regions
+#                      )
+#     fig.update_yaxes(title_text="Antimicrobial Usage (tonnes)"
+#                       ,color='blue'
+#                       ,secondary_y=False
+#                       )
+#     fig.update_yaxes(title_text="Antimicrobial Price (euros per tonne)"
+#                       ,color='green'
+#                       ,secondary_y=True
+#                       ,showgrid=False
+#                       )
+
+#     return fig
 
 # AM expenditure for terrestrial animals, with uncertainty
-@gbadsDash.callback(
-    Output('amu-terr-error-expenditure','figure'),
-    Input('select-region-amu','value'),
-    )
-def update_terrestrial_expenditure_amu(dummy_input):
-    fig = px.scatter(
-        amu_uncertainty_data
-    	,x='region'
-    	,y='amu_terrestrial_expenditure_midpoint'
-    	,error_y='amu_terrestrial_expenditure_errorhigh', error_y_minus="amu_terrestrial_expenditure_errorlow"
-        ,labels={"amu_terrestrial_expenditure_midpoint":"Total Expenditure on Antimicrobials (Euros)"}
-    )
-    fig.update_traces(marker_size=10 ,marker_color='red')
+# @gbadsDash.callback(
+#     Output('amu-terr-error-expenditure','figure'),
+#     Input('select-region-amu','value'),
+#     )
+# def update_terrestrial_expenditure_amu(dummy_input):
+#     fig = px.scatter(
+#         amu_uncertainty_data
+#      	,x='region'
+#      	,y='amu_terrestrial_expenditure_midpoint'
+#      	,error_y='amu_terrestrial_expenditure_errorhigh', error_y_minus="amu_terrestrial_expenditure_errorlow"
+#         ,labels={"amu_terrestrial_expenditure_midpoint":"Total Expenditure on Antimicrobials (Euros)"}
+#     )
+#     fig.update_traces(marker_size=10 ,marker_color='red')
 
-    # Add title
-    fig.update_layout(
-        title_text='Antimicrobial Expenditure for Terrestrial Livestock<br><sup>with 95% confidence intervals</sup>'
-        ,font_size=15
-        ,plot_bgcolor="#ededed"
-    )
-    fig.update_xaxes(title_text="Region"
-                     ,tickangle=45
-                     )
+#     # Add title
+#     fig.update_layout(
+#         title_text='Antimicrobial Expenditure for Terrestrial Livestock<br><sup>with 95% confidence intervals</sup>'
+#         ,font_size=15
+#         ,plot_bgcolor="#ededed"
+#     )
+#     fig.update_xaxes(title_text="Region"
+#                       ,tickangle=45
+#                       )
 
-    return fig
+#     return fig
 
 #%% 6. RUN APP
 #############################################################################################################

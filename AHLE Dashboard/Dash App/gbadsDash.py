@@ -3568,7 +3568,7 @@ gbadsDash.layout = html.Div([
                dbc.Col([
                    html.H6("AMU Units"),
                    dcc.RadioItems(id='select-quantity-amu-tonnes',
-                         options=['Tonnes', 'Mg per kg biomass'],
+                         options=['Tonnes', 'mg per kg biomass'],
                          value='Tonnes',
                          labelStyle={'display': 'block'},
                          inputStyle={"margin-right": "10px"},
@@ -8010,14 +8010,14 @@ def update_map_amu (viz_switch, quantity):
         # Update hoverover
         if quantity == 'Tonnes':
             amu_map_fig.update_traces(hovertemplate=
-                                      "<b>%{customdata[0]}</b><br><br>" +
-                                      "Region: %{customdata[0]}<br>" +
+                                      "<b>%{customdata[0]}</b><br>" +
+                                      # "Region: %{customdata[0]}<br>" +
                                       "AMU: %{customdata[1]:,.0f} tonnes<br>" +
                                       "<extra></extra>",)
         else:
             amu_map_fig.update_traces(hovertemplate=
-                                      "<b>%{customdata[0]}</b><br><br>" +
-                                      "Region: %{customdata[0]}<br>" +
+                                      "<b>%{customdata[0]}</b><br>" +
+                                      # "Region: %{customdata[0]}<br>" +
                                       "AMU: %{customdata[1]:,.0f} mg per kg biomass<br>" +
                                       "<extra></extra>",)
 
@@ -8033,26 +8033,42 @@ def update_map_amu (viz_switch, quantity):
         amu_map_fig = create_tree_map_amu(input_df, value)
 
         # Add title
-        amu_map_fig.update_layout(title_text=f'AMU {quantity} Drilldown<br><sup>for countries reporting to WOAH</sup>',
+        amu_map_fig.update_layout(title_text=f'AMU {quantity} Drilldown<br>', # <sup>for countries reporting to WOAH</sup>
                                       font_size=15,
                                       plot_bgcolor="#ededed",
                                       )
 
         # Update hoverover
-        amu_map_fig.update_traces(customdata=customdata,
-            hovertemplate=
-            "Label = %{label}<br>" +
-            "AMU total =  %{value:,.0f}<br>" +
-            "Parent = %{parent}" +
-            "<extra></extra>",)
+        if quantity == 'Tonnes':
+            amu_map_fig.update_traces(customdata=customdata,
+                hovertemplate=
+                "<b>%{label}</b><br>" +
+                "AMU total =  %{value:,.0f} tonnes<br>" +
+                "Parent = %{parent}" +
+                "<extra></extra>",)
+            
+            # # Display value on box
+            # amu_map_fig.data[0].texttemplate = "%{label}<br>%{value:,.0f} tonnes"
+            
+        else:
+            amu_map_fig.update_traces(customdata=customdata,
+                hovertemplate=
+                "<b>%{label}</b><br>" +
+                "AMU total =  %{value:,.0f} mg per kg biomass<br>" +
+                "Parent = %{parent}" +
+                "<extra></extra>",)
+            
+            # # Display value on box
+            # amu_map_fig.data[0].texttemplate = "%{label}<br>%{value:,.0f}mg per kg biomass"
         
         # Display value on box
         amu_map_fig.data[0].texttemplate = "%{label}<br>%{value:,.0f}"
 
     # Adjust margins
     amu_map_fig.update_layout(
-        margin=dict(l=20, r=20, b=20),
+        margin=dict(l=10, r=10, b=10),
         )
+
 
     return amu_map_fig
 
@@ -8076,7 +8092,7 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
         y_label = "AMU Tonnes"
     elif quantity.upper() == 'MG PER KG BIOMASS':
         y_var = 'amu_mg_perkgbiomass'
-        y_label = "AMU Mg per Kg Biomass"
+        y_label = "AMU mg per Kg Biomass"
 
     if classification.upper() == 'INDIVIDUAL CLASSES':
         color = 'antimicrobial_class_group'

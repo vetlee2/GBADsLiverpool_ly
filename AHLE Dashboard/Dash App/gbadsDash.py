@@ -8047,9 +8047,6 @@ def update_map_amu (viz_switch, quantity):
                 "Parent = %{parent}" +
                 "<extra></extra>",)
             
-            # # Display value on box
-            # amu_map_fig.data[0].texttemplate = "%{label}<br>%{value:,.0f} tonnes"
-            
         else:
             amu_map_fig.update_traces(customdata=customdata,
                 hovertemplate=
@@ -8057,9 +8054,6 @@ def update_map_amu (viz_switch, quantity):
                 "AMU total =  %{value:,.0f} mg per kg biomass<br>" +
                 "Parent = %{parent}" +
                 "<extra></extra>",)
-            
-            # # Display value on box
-            # amu_map_fig.data[0].texttemplate = "%{label}<br>%{value:,.0f}mg per kg biomass"
         
         # Display value on box
         amu_map_fig.data[0].texttemplate = "%{label}<br>%{value:,.0f}"

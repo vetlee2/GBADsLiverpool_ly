@@ -416,6 +416,8 @@ ga_countries_biomass.dropna(subset=['species'], inplace=True)
 # Antimicrobial Usage
 # -----------------------------------------------------------------------------
 amu2018_combined_tall = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu2018_combined_tall.csv"))
+amu2018_combined_tall["countries_reporting"] = amu2018_combined_tall['region']+":"+round(amu2018_combined_tall['number_of_countries'],0).astype(int).astype(str)
+
 amu_uncertainty_data = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_uncertainty_data.csv"))
 
 # =============================================================================
@@ -1969,7 +1971,7 @@ def create_donut_chart_amu(input_df, value, names):
 
 def create_tree_map_amu(input_df, value):
     tree_map_fig = px.treemap(input_df,
-                              path=[px.Constant("Global"), 'region', 'importance_ctg', 'antimicrobial_class'],
+                              path=[px.Constant("Global"), 'countries_reporting', 'importance_ctg', 'antimicrobial_class'],
                               values=value,
                               color='region',
                               color_discrete_map={'(?)':'lightgrey', 'Africa':'#636FFA', 'Americas':'#EF553B', 'Asia, Far East and Oceania':'#00CC97', 'Europe':'#AB63FA', 'Middle East':'#FFC091'},
@@ -8053,7 +8055,7 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
     stackedbar_df = amu2018_combined_tall.copy()
     stackedbar_df = stackedbar_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
 
-    x_var = 'region'
+    x_var = 'countries_reporting'
 
     if quantity.upper() == 'TONNES':
         y_var = 'amu_tonnes'

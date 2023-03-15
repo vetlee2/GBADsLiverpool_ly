@@ -1928,7 +1928,7 @@ def create_ahle_waterfall_ga(input_df, name, measure, x, y):
     return waterfall_fig
 
 
-def create_map_display_amu(input_df):
+def create_map_display_amu(input_df, value):
     # Add graphing country column for map
     input_df['graphing_country'] = 'TEST'
     input_df['graphing_country'] = np.where(input_df['region']=='Africa', 'Chad', input_df['graphing_country'])
@@ -1943,9 +1943,9 @@ def create_map_display_amu(input_df):
                                  locationmode='country names',
                                  color="region",
                                  hover_name="region",
-                                 size="biomass_total_kg",
+                                 size=value,
                                  projection="natural earth",
-                                 custom_data=['region', 'biomass_total_kg']
+                                 custom_data=['region', value]
                                  )
 
     return amu_map_fig
@@ -3174,7 +3174,7 @@ gbadsDash.layout = html.Div([
                                 html.H6("Display"),
                                 dcc.RadioItems(id='select-display-ecs',
                                               options=ecs_display_options,
-                                              value='Side by Side',
+                                              value='Difference (AHLE)',
                                               labelStyle={'display': 'block'},
                                               inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                               ),
@@ -3571,7 +3571,7 @@ gbadsDash.layout = html.Div([
                dbc.Col([
                    html.H6("AMU Units"),
                    dcc.RadioItems(id='select-quantity-amu-tonnes',
-                         options=['Tonnes', 'Mg per kg biomass'],
+                         options=['Tonnes', 'mg per kg biomass'],
                          value='Tonnes',
                          labelStyle={'display': 'block'},
                          inputStyle={"margin-right": "10px"},
@@ -8445,14 +8445,22 @@ def update_map_amu (viz_switch, quantity):
 
     # Filter scope to All and remove nulls from importance category
     input_df = input_df.query("scope == 'All'")
+    
+    # Use selected quantity value
+    if quantity == 'Tonnes':
+        value = input_df['amu_tonnes']
+        map_value = input_df['amu_tonnes_by_region'] = input_df['amu_tonnes'].groupby(input_df['region']).transform('sum')
+    else:
+        value = input_df['amu_mg_perkgbiomass']
+        map_value = input_df['amu_mg_perkgbiomass_by_region'] = input_df['amu_mg_perkgbiomass'].groupby(input_df['region']).transform('sum')
 
     # Visualization switch between map and tree map
     if viz_switch == 'Map':
         # Use create map defined above
-        amu_map_fig = create_map_display_amu(input_df)
+        amu_map_fig = create_map_display_amu(input_df, map_value)
 
         # Add title
-        amu_map_fig.update_layout(title_text='Global Animal Biomass (kg)',
+        amu_map_fig.update_layout(title_text=f'Global AMU {quantity}',
                                       font_size=15,
                                       plot_bgcolor="#ededed",)
 
@@ -8464,20 +8472,24 @@ def update_map_amu (viz_switch, quantity):
             ))
 
         # Update hoverover
-        amu_map_fig.update_traces(hovertemplate=
-                                  "<b>%{customdata[0]}</b><br><br>" +
-                                  "Region: %{customdata[0]}<br>" +
-                                  "Biomass: %{customdata[1]:,.0f}<br>" +
-                                  "<extra></extra>",)
+        if quantity == 'Tonnes':
+            amu_map_fig.update_traces(hovertemplate=
+                                      "<b>%{customdata[0]}</b><br>" +
+                                      # "Region: %{customdata[0]}<br>" +
+                                      "AMU: %{customdata[1]:,.0f} tonnes<br>" +
+                                      "<extra></extra>",)
+        else:
+            amu_map_fig.update_traces(hovertemplate=
+                                      "<b>%{customdata[0]}</b><br>" +
+                                      # "Region: %{customdata[0]}<br>" +
+                                      "AMU: %{customdata[1]:,.0f} mg per kg biomass<br>" +
+                                      "<extra></extra>",)
+
 
     else:
         input_df = input_df.query("antimicrobial_class != 'total_antimicrobials'")
-        # Use selected quantity value
-        if quantity == 'Tonnes':
-            value = input_df['amu_tonnes']
-        else:
-            value = input_df['amu_mg_perkgbiomass']
-
+        
+        # Add custom data for hoverover
         customdata = list(pd.DataFrame([f'{quantity}']).to_numpy())
 
 
@@ -8485,23 +8497,36 @@ def update_map_amu (viz_switch, quantity):
         amu_map_fig = create_tree_map_amu(input_df, value)
 
         # Add title
-        amu_map_fig.update_layout(title_text=f'AMU {quantity} Drilldown<br><sup>for countries reporting to WOAH</sup>',
+        amu_map_fig.update_layout(title_text=f'AMU {quantity} Drilldown<br>', # <sup>for countries reporting to WOAH</sup>
                                       font_size=15,
                                       plot_bgcolor="#ededed",
                                       )
 
         # Update hoverover
-        amu_map_fig.update_traces(customdata=customdata,
-            hovertemplate=
-            "Label = %{label}<br>" +
-            "AMU total =  %{value:,.0f}<br>" +
-            "Parent = %{parent}" +
-            "<extra></extra>",)
+        if quantity == 'Tonnes':
+            amu_map_fig.update_traces(customdata=customdata,
+                hovertemplate=
+                "<b>%{label}</b><br>" +
+                "AMU total =  %{value:,.0f} tonnes<br>" +
+                "Parent = %{parent}" +
+                "<extra></extra>",)
+            
+        else:
+            amu_map_fig.update_traces(customdata=customdata,
+                hovertemplate=
+                "<b>%{label}</b><br>" +
+                "AMU total =  %{value:,.0f} mg per kg biomass<br>" +
+                "Parent = %{parent}" +
+                "<extra></extra>",)
+        
+        # Display value on box
+        amu_map_fig.data[0].texttemplate = "%{label}<br>%{value:,.0f}"
 
     # Adjust margins
     amu_map_fig.update_layout(
-        margin=dict(l=20, r=20, b=20),
+        margin=dict(l=10, r=10, b=10),
         )
+
 
     return amu_map_fig
 
@@ -8525,7 +8550,7 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
         y_label = "AMU Tonnes"
     elif quantity.upper() == 'MG PER KG BIOMASS':
         y_var = 'amu_mg_perkgbiomass'
-        y_label = "AMU Mg per Kg Biomass"
+        y_label = "AMU mg per Kg Biomass"
 
     if classification.upper() == 'WHO IMPORTANCE CATEGORIES':
         color = 'who_importance_ctg'

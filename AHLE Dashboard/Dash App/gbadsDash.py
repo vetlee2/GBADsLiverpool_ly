@@ -7931,7 +7931,7 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
 # ------------------------------------------------------------------------------
 # Usage and Price sliders
 # am-usage-slider-africa
-@gbadsDash.callback(*
+@gbadsDash.callback(
     Output('am-usage-slider-africa', 'min'),
     Output('am-usage-slider-africa', 'max'),
     Output('am-usage-slider-africa', 'value'),

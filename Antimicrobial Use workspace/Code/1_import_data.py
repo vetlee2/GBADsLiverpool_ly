@@ -521,8 +521,10 @@ datainfo(amu_importance)
 
 #%% Import price data
 
-# Reading from the spreadsheet Sara assembled
-# See her commentsin the spreadsheet for sources and calculations
+# =============================================================================
+#### From Sara's spreadsheet
+# =============================================================================
+# See comments in the spreadsheet for sources and calculations
 # Note AMU usage data in the same spreadsheet is recreated separately in combine_and_process.py
 amu_prices = pd.read_excel(
     os.path.join(RAWDATA_FOLDER ,'Burden - slider inputs.xlsx')
@@ -544,49 +546,67 @@ amu_prices['region'] = amu_prices['region'].str.strip(' ')
 amu_prices = amu_prices.drop(columns=['region_with_count' ,'count'])
 datainfo(amu_prices)
 
+# =============================================================================
+#### Add exchange rates
+# =============================================================================
+wb_exchg = pd.read_pickle(os.path.join(GLBL_PRODATA_FOLDER ,'wb_infl_exchg.pkl.gz'))
+
+# We only need the exchange rate for Euros in 2020
+wb_exchg_eurosperusd = wb_exchg.query("country.str.upper() == 'GERMANY'").query("year == 2020")['exchg_lcuperusd'].values[0]
+
+amu_prices = amu_prices.eval(
+    f'''
+    worldbank_eurosperusd = {wb_exchg_eurosperusd}
+    am_price_usdpertonne_low = am_price_eurospertonne_low / {wb_exchg_eurosperusd}
+    am_price_usdpertonne_mid = am_price_eurospertonne_mid / {wb_exchg_eurosperusd}
+    am_price_usdpertonne_high = am_price_eurospertonne_high / {wb_exchg_eurosperusd}
+    '''
+)
 '''
 EARLY PARTIAL DATA
 REPLACED WITH Burden - slider inputs.xlsx
-# =============================================================================
-#### Raw price data
-# =============================================================================
-amu_prices = pd.read_excel(
-    os.path.join(RAWDATA_FOLDER ,'AMU_ euros per ton.xlsx')
-	,skiprows=2                 # List: row numbers to skip. Integer: count of rows to skip at start of file
-    ,nrows=5                    # Total number of rows to read
-)
-cleancolnames(amu_prices)
-
-# Rename, drop columns
-amu_prices = amu_prices.rename(columns={'unnamed:_0':'category'})
-amu_prices = amu_prices.drop(columns=['unnamed:_5' ,'reference_price_europe'])
-
-# Add columns based on metadata
-amu_prices['region'] = 'Europe'
-amu_prices['n_countries'] = 31
-amu_prices['year'] = 2020
-
-datainfo(amu_prices)
-
-# =============================================================================
-#### Extended price data
-# =============================================================================
-amu_prices_ext = pd.read_excel(
-    os.path.join(RAWDATA_FOLDER ,'AMU_ euros per ton extended.xlsx')
-	,skiprows=2                 # List: row numbers to skip. Integer: count of rows to skip at start of file
-    ,nrows=5                    # Total number of rows to read
-)
-cleancolnames(amu_prices_ext)
-
-datainfo(amu_prices_ext)
 '''
+# # =============================================================================
+# #### Raw price data
+# # =============================================================================
+# amu_prices = pd.read_excel(
+#     os.path.join(RAWDATA_FOLDER ,'AMU_ euros per ton.xlsx')
+# 	,skiprows=2                 # List: row numbers to skip. Integer: count of rows to skip at start of file
+#     ,nrows=5                    # Total number of rows to read
+# )
+# cleancolnames(amu_prices)
+
+# # Rename, drop columns
+# amu_prices = amu_prices.rename(columns={'unnamed:_0':'category'})
+# amu_prices = amu_prices.drop(columns=['unnamed:_5' ,'reference_price_europe'])
+
+# # Add columns based on metadata
+# amu_prices['region'] = 'Europe'
+# amu_prices['n_countries'] = 31
+# amu_prices['year'] = 2020
+
+# datainfo(amu_prices)
+
+# # =============================================================================
+# #### Extended price data
+# # =============================================================================
+# amu_prices_ext = pd.read_excel(
+#     os.path.join(RAWDATA_FOLDER ,'AMU_ euros per ton extended.xlsx')
+# 	,skiprows=2                 # List: row numbers to skip. Integer: count of rows to skip at start of file
+#     ,nrows=5                    # Total number of rows to read
+# )
+# cleancolnames(amu_prices_ext)
+
+# datainfo(amu_prices_ext)
+
 #%% Import WOAH regions and countries
 
 woah_regions = pd.read_csv(os.path.join(GLBL_RAWDATA_FOLDER ,'WOAH regions and countries.csv'))
 cleancolnames(woah_regions)
 datainfo(woah_regions)
 
-woah_regions['world_region'].unique()
+woah_regions = woah_regions.rename(columns={'world_region':'woah_region'})
+woah_regions['woah_region'].unique()
 
 #%% Import data from Mulchandani
 
@@ -602,7 +622,6 @@ datainfo(amu_mulch)
 # Add WOAH regions
 # -----------------------------------------------------------------------------
 woah_regions_formulch = woah_regions.copy()
-woah_regions_formulch = woah_regions_formulch.rename(columns={'world_region':'woah_region'})
 
 woah_regions_formulch['country_tomatch'] = woah_regions_formulch['country'].str.upper()
 amu_mulch['country_tomatch'] = amu_mulch['country'].str.upper()
@@ -742,7 +761,7 @@ rename_countries_woah = {
 woah_regions_foramr['country_tomatch'] = woah_regions_foramr['country'].replace(rename_countries_woah)
 
 woah_add_countries = pd.DataFrame(
-    {"country_tomatch":"GRENADA" ,"world_region":"Americas"}
+    {"country_tomatch":"GRENADA" ,"woah_region":"Americas"}
     ,index=[0]
     )
 woah_regions_foramr = pd.concat([woah_regions_foramr ,woah_add_countries])
@@ -774,8 +793,17 @@ amr_withrgn.query("_merge == 'left_only'")['location_name'].unique()
 amr_withrgn = amr_withrgn.drop(columns=['country_tomatch' ,'country' ,'_merge'])
 
 # =============================================================================
+#### Basic calcs
+# =============================================================================
+# Separate antimicrobial and pathogen into their own columns
+amr_withrgn[['antimicrobial_class' ,'pathogen']] = amr_withrgn['antibiotic_pathogen_combo'].str.split('&' ,expand=True)
+amr_withrgn['antimicrobial_class'] = amr_withrgn['antimicrobial_class'].str.strip(' ')  # Remove leading and trailing blanks
+amr_withrgn['pathogen'] = amr_withrgn['pathogen'].str.strip(' ')  # Remove leading and trailing blanks
+
+# =============================================================================
 #### Export
 # =============================================================================
+datainfo(amr_withrgn)
 amr_withrgn.to_csv(os.path.join(PRODATA_FOLDER ,'amr.csv') ,index=False)
 
 #%% Checks

@@ -3719,7 +3719,7 @@ gbadsDash.layout = html.Div([
                dbc.Col([
                    dbc.Card([
                        dbc.CardBody([
-                           html.H5("Estimated Regional Usage and Price for Terrestrial Livestock",
+                           html.H5("Estimated Antimicrobial Usage and Price for Terrestrial Livestock",
                                    className="card-title",
                                    style={"font-weight": "bold"}
                                    ),
@@ -3744,7 +3744,7 @@ gbadsDash.layout = html.Div([
                                    html.H6("Price"),
                                    daq.Slider(
                                        id='am-price-slider-africa',
-                                       handleLabel={"showCurrentValue":True ,"label":"Euros"},
+                                       handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
                                        vertical=True,
                                        ),
                                    ]),
@@ -3760,7 +3760,7 @@ gbadsDash.layout = html.Div([
                                    html.H6("Price"),
                                    daq.Slider(
                                        id='am-price-slider-americas',
-                                       handleLabel={"showCurrentValue":True ,"label":"Euros"},
+                                       handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
                                        vertical=True,
                                        ),
                                    ]),
@@ -3776,7 +3776,7 @@ gbadsDash.layout = html.Div([
                                    html.H6("Price"),
                                    daq.Slider(
                                        id='am-price-slider-asia',
-                                       handleLabel={"showCurrentValue":True ,"label":"Euros"},
+                                       handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
                                        vertical=True,
                                        ),
                                    ]),
@@ -3792,7 +3792,7 @@ gbadsDash.layout = html.Div([
                                    html.H6("Price"),
                                    daq.Slider(
                                        id='am-price-slider-europe',
-                                       handleLabel={"showCurrentValue":True ,"label":"Euros"},
+                                       handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
                                        vertical=True,
                                        ),
                                    ]),
@@ -3808,7 +3808,7 @@ gbadsDash.layout = html.Div([
                                    html.H6("Price"),
                                    daq.Slider(
                                        id='am-price-slider-mideast',
-                                       handleLabel={"showCurrentValue":True ,"label":"Euros"},
+                                       handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
                                        vertical=True,
                                        ),
                                    ]),
@@ -3843,6 +3843,22 @@ gbadsDash.layout = html.Div([
                     ],size="md", color="#393375", fullscreen=False),
                     ]),
                ]),
+
+           #### -- FOOTNOTES
+            dbc.Row([
+                dbc.Col([
+                    html.P("Slider marks designate estimates from the following sources:"),
+                    # html.P("A*: WOAH usage data (limited to countries reporting). Estimate for terrestrial livestock based on their biomass as a proportion of total biomass."),
+                    html.P("A*: Countries reporting total antimicrobial usage to WOAH. Estimate for terrestrial livestock based on terrestrial biomass as a proportion of total biomass."),
+                    html.P("B*: Estimate A extrapolated to whole region based on the proportion of terrestrial biomass for the region represented in the countries reporting."),
+                    html.P("C*: Mulchandani et. al. (https://journals.plos.org/globalpublichealth/article?id=10.1371/journal.pgph.0001305)."),
+                ]),
+                # dbc.Col([
+                #      html.P("Expenditure distributions constructed by resampling from usage and price distributions and taking the product."),
+                #      # html.P("Expenditure distributions constructed from product of realizations resampled from usage and price distributions."),
+                # ]),
+            ], style={'margin-left':"30px", 'font-style': 'italic'}
+            ),
 
            # AMU for terrestrial animals, with uncertainty
            # dbc.Row([
@@ -3893,22 +3909,6 @@ gbadsDash.layout = html.Div([
            #         ],size="md", color="#393375", fullscreen=False),
            #         ]),
            #     ]),
-
-           #### -- FOOTNOTES
-            dbc.Row([
-                dbc.Col([
-                    html.P("Slider marks designate estimates from the following sources:"),
-                    html.P("A*: WOAH usage data (limited to countries reporting). Estimate for terrestrial livestock based on their biomass as a proportion of total biomass."),
-                    html.P("B*: WOAH usage data extrapolated to whole region based on the proportion of region total biomass represented in countries reporting."),
-                    html.P("C*: Mulchandani et. al. (https://journals.plos.org/globalpublichealth/article?id=10.1371/journal.pgph.0001305)."),
-                ]),
-                # dbc.Col([
-                #      html.P("Expenditure distributions constructed by resampling from usage and price distributions and taking the product."),
-                #      # html.P("Expenditure distributions constructed from product of realizations resampled from usage and price distributions."),
-                # ]),
-            ], style={'margin-left':"40px", 'font-style': 'italic'}
-            ),
-
 
            #### -- DATATABLE
            dbc.Row([
@@ -7930,7 +7930,7 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
 # ------------------------------------------------------------------------------
 # Usage and Price sliders
 # am-usage-slider-africa
-@gbadsDash.callback(
+@gbadsDash.callback(*
     Output('am-usage-slider-africa', 'min'),
     Output('am-usage-slider-africa', 'max'),
     Output('am-usage-slider-africa', 'value'),
@@ -8010,9 +8010,9 @@ def update_usage_price_sliders(dummy_input):
         ,usage_africa_max.astype(str):'C*'
         }
 
-    price_africa_min = regional_usage_price_data.query("region == 'Africa'")['am_price_eurospertonne_low'].values[0].astype(int)
-    price_africa_mid = regional_usage_price_data.query("region == 'Africa'")['am_price_eurospertonne_mid'].values[0].astype(int)
-    price_africa_max = regional_usage_price_data.query("region == 'Africa'")['am_price_eurospertonne_high'].values[0].astype(int)
+    price_africa_min = regional_usage_price_data.query("region == 'Africa'")['am_price_usdpertonne_low'].values[0].astype(int)
+    price_africa_mid = regional_usage_price_data.query("region == 'Africa'")['am_price_usdpertonne_mid'].values[0].astype(int)
+    price_africa_max = regional_usage_price_data.query("region == 'Africa'")['am_price_usdpertonne_high'].values[0].astype(int)
     price_africa_marks = {
         price_africa_min.astype(str):'D*'
         ,price_africa_mid.astype(str):'E*'
@@ -8029,9 +8029,9 @@ def update_usage_price_sliders(dummy_input):
         ,usage_americas_max.astype(str):'C*'
         }
 
-    price_americas_min = regional_usage_price_data.query("region == 'Americas'")['am_price_eurospertonne_low'].values[0].astype(int)
-    price_americas_mid = regional_usage_price_data.query("region == 'Americas'")['am_price_eurospertonne_mid'].values[0].astype(int)
-    price_americas_max = regional_usage_price_data.query("region == 'Americas'")['am_price_eurospertonne_high'].values[0].astype(int)
+    price_americas_min = regional_usage_price_data.query("region == 'Americas'")['am_price_usdpertonne_low'].values[0].astype(int)
+    price_americas_mid = regional_usage_price_data.query("region == 'Americas'")['am_price_usdpertonne_mid'].values[0].astype(int)
+    price_americas_max = regional_usage_price_data.query("region == 'Americas'")['am_price_usdpertonne_high'].values[0].astype(int)
     price_americas_marks = {
         price_americas_min.astype(str):'D*'
         ,price_americas_mid.astype(str):'E*'
@@ -8048,9 +8048,9 @@ def update_usage_price_sliders(dummy_input):
         ,usage_asia_max.astype(str):'C*'
         }
 
-    price_asia_min = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['am_price_eurospertonne_low'].values[0].astype(int)
-    price_asia_mid = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['am_price_eurospertonne_mid'].values[0].astype(int)
-    price_asia_max = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['am_price_eurospertonne_high'].values[0].astype(int)
+    price_asia_min = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['am_price_usdpertonne_low'].values[0].astype(int)
+    price_asia_mid = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['am_price_usdpertonne_mid'].values[0].astype(int)
+    price_asia_max = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['am_price_usdpertonne_high'].values[0].astype(int)
     price_asia_marks = {
         price_asia_min.astype(str):'D*'
         ,price_asia_mid.astype(str):'E*'
@@ -8067,9 +8067,9 @@ def update_usage_price_sliders(dummy_input):
         ,usage_europe_max.astype(str):'C*'
         }
 
-    price_europe_min = regional_usage_price_data.query("region == 'Europe'")['am_price_eurospertonne_low'].values[0].astype(int)
-    price_europe_mid = regional_usage_price_data.query("region == 'Europe'")['am_price_eurospertonne_mid'].values[0].astype(int)
-    price_europe_max = regional_usage_price_data.query("region == 'Europe'")['am_price_eurospertonne_high'].values[0].astype(int)
+    price_europe_min = regional_usage_price_data.query("region == 'Europe'")['am_price_usdpertonne_low'].values[0].astype(int)
+    price_europe_mid = regional_usage_price_data.query("region == 'Europe'")['am_price_usdpertonne_mid'].values[0].astype(int)
+    price_europe_max = regional_usage_price_data.query("region == 'Europe'")['am_price_usdpertonne_high'].values[0].astype(int)
     price_europe_marks = {
         price_europe_min.astype(str):'D*'
         ,price_europe_mid.astype(str):'E*'
@@ -8086,9 +8086,9 @@ def update_usage_price_sliders(dummy_input):
         ,usage_mideast_max.astype(str):'C*'
         }
 
-    price_mideast_min = regional_usage_price_data.query("region == 'Middle East'")['am_price_eurospertonne_low'].values[0].astype(int)
-    price_mideast_mid = regional_usage_price_data.query("region == 'Middle East'")['am_price_eurospertonne_mid'].values[0].astype(int)
-    price_mideast_max = regional_usage_price_data.query("region == 'Middle East'")['am_price_eurospertonne_high'].values[0].astype(int)
+    price_mideast_min = regional_usage_price_data.query("region == 'Middle East'")['am_price_usdpertonne_low'].values[0].astype(int)
+    price_mideast_mid = regional_usage_price_data.query("region == 'Middle East'")['am_price_usdpertonne_mid'].values[0].astype(int)
+    price_mideast_max = regional_usage_price_data.query("region == 'Middle East'")['am_price_usdpertonne_high'].values[0].astype(int)
     price_mideast_marks = {
         price_mideast_min.astype(str):'D*'
         ,price_mideast_mid.astype(str):'E*'
@@ -8133,19 +8133,19 @@ def update_regional_table_amu(
     df = amu_combined_regional.copy()
 
     # Add selected usage and price values as columns
-    df.loc[df['region'].str.contains('africa' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_eurospertonne_selected']] = \
+    df.loc[df['region'].str.contains('africa' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_usdpertonne_selected']] = \
        [usage_africa ,price_africa]
-    df.loc[df['region'].str.contains('americas' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_eurospertonne_selected']] = \
+    df.loc[df['region'].str.contains('americas' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_usdpertonne_selected']] = \
         [usage_americas ,price_americas]
-    df.loc[df['region'].str.contains('asia' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_eurospertonne_selected']] = \
+    df.loc[df['region'].str.contains('asia' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_usdpertonne_selected']] = \
         [usage_asia ,price_asia]
-    df.loc[df['region'].str.contains('europe' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_eurospertonne_selected']] = \
+    df.loc[df['region'].str.contains('europe' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_usdpertonne_selected']] = \
         [usage_europe ,price_europe]
-    df.loc[df['region'].str.contains('middle' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_eurospertonne_selected']] = \
+    df.loc[df['region'].str.contains('middle' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_usdpertonne_selected']] = \
         [usage_mideast ,price_mideast]
 
     # Calculate expenditure based on usage and price slider input
-    df['am_expenditure_euros_selected'] = df['amu_terrestrial_tonnes_selected'] * df['am_price_eurospertonne_selected']
+    df['am_expenditure_usd_selected'] = df['amu_terrestrial_tonnes_selected'] * df['am_price_usdpertonne_selected']
 
     return df.to_json(date_format='iso', orient='split')
 
@@ -8233,13 +8233,13 @@ def update_regional_display_amu(input_json):
         ,'biomass_terr_reporting_prpnofregion':'Proportion of regional biomass'
         ,'terr_amu_tonnes_region_2020':'Estimated antimicrobials for terrestrial species in whole region 2020 (tonnes)'
         ,'terr_amu_tonnes_mulch_2020':'Estimated antimicrobials for terrestrial species from Mulchandani 2020 (tonnes)'
-        ,'am_price_eurospertonne_low':'Average price of antimicrobials - Low (euros per tonne)'
-        ,'am_price_eurospertonne_mid':'Average price of antimicrobials - Mid (euros per tonne)'
-        ,'am_price_eurospertonne_high':'Average price of antimicrobials - High (euros per tonne)'
+        ,'am_price_usdpertonne_low':'Average price of antimicrobials - Low (euros per tonne)'
+        ,'am_price_usdpertonne_mid':'Average price of antimicrobials - Mid (euros per tonne)'
+        ,'am_price_usdpertonne_high':'Average price of antimicrobials - High (euros per tonne)'
 
         ,'amu_terrestrial_tonnes_selected':'Antimicrobial usage - Selected (tonnes)'
-        ,'am_price_eurospertonne_selected':'Average price of antimicrobials - Selected (euros per tonne)'
-        ,'am_expenditure_euros_selected':'Expenditure on antimicrobials (euros)'
+        ,'am_price_usdpertonne_selected':'Average price of antimicrobials - Selected (USD per tonne)'
+        ,'am_expenditure_usd_selected':'Expenditure on antimicrobials (USD)'
         }
 
     # ------------------------------------------------------------------------------
@@ -8260,20 +8260,28 @@ def update_regional_display_amu(input_json):
     # ]].applymap('{:,.1f}'.format))
 
     # Euro currency
+    # display_data.update(display_data[[
+    #     'am_price_eurospertonne_low'
+    #     ,'am_price_eurospertonne_mid'
+    #     ,'am_price_eurospertonne_high'
+    #     ,'am_expenditure_euros_selected'
+    # ]].applymap('€ {:,.0f}'.format))
+
+    # USD currency
     display_data.update(display_data[[
-        'am_price_eurospertonne_low'
-        ,'am_price_eurospertonne_mid'
-        ,'am_price_eurospertonne_high'
-        ,'am_expenditure_euros_selected'
-    ]].applymap('€ {:,.0f}'.format))
+        'am_price_usdpertonne_low'
+        ,'am_price_usdpertonne_mid'
+        ,'am_price_usdpertonne_high'
+        ,'am_expenditure_usd_selected'
+    ]].applymap('$ {:,.0f}'.format))
 
     # ------------------------------------------------------------------------------
     # Hover-over text
     # ------------------------------------------------------------------------------
     column_tooltips = {
-        'am_price_eurospertonne_low':'Source:'
-        ,'am_price_eurospertonne_mid':'Source:'
-        ,'am_price_eurospertonne_high':'Source:'
+        'am_price_usdpertonne_low':'Source:'
+        ,'am_price_usdpertonne_mid':'Source:'
+        ,'am_price_usdpertonne_high':'Source:'
         }
 
     return [
@@ -8530,6 +8538,7 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
     elif classification.upper() == 'INDIVIDUAL CLASSES':
         color = 'antimicrobial_class_group'
         stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class']).ngroup()
+        # stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class_group']).ngroup()
     elif classification.upper() == 'TOP GLOBAL CLASSES':
         color = 'antimicrobial_class_group2'
         stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class_group2']).ngroup()
@@ -8740,11 +8749,13 @@ def update_expenditure_amu(input_json):
     bar_fig = px.bar(
         input_df,
         x='region',
-        y='am_expenditure_euros_selected',
+        y='am_expenditure_usd_selected',
+        labels={
+            'am_expenditure_usd_selected':'Expenditure (USD)'
+            ,'region':'Region'
+            }
         )
     bar_fig.update_layout(title_text='Estimated Expenditure on Antimicrobials<br><sup>Terrestrial Livestock')
-    bar_fig.update_yaxes(title_text='Euros')
-    bar_fig.update_xaxes(title_text='Region')
     return bar_fig
 
 # AMU for terrestrial animals, with uncertainty

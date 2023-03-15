@@ -800,6 +800,15 @@ amr_withrgn[['antimicrobial_class' ,'pathogen']] = amr_withrgn['antibiotic_patho
 amr_withrgn['antimicrobial_class'] = amr_withrgn['antimicrobial_class'].str.strip(' ')  # Remove leading and trailing blanks
 amr_withrgn['pathogen'] = amr_withrgn['pathogen'].str.strip(' ')  # Remove leading and trailing blanks
 
+# Find total number of samples
+#??? Maybe unneccessary. While the document accompanying this table states
+# sum_isolates is "the number of isolates (samples that were resistant for a
+# given pathogen)", I believe it is actually reporting total samples tested.
+# This is because (1) records with prevalence of zero have a nonzero count of
+# sum_isolates and (2) sum_isolates is the same for all records of a given
+# country and year.
+# amr_withrgn['total_samples'] = amr_withrgn['sum_isolates'] / (amr_withrgn['overall_prev'] / 100)
+
 # =============================================================================
 #### Export
 # =============================================================================

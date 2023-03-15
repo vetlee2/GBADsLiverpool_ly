@@ -290,6 +290,8 @@ datainfo(amu_combined_regional)
 amu_combined_regional.to_csv(os.path.join(PRODATA_FOLDER ,'amu_combined_regional.csv') ,index=False)
 amu_combined_regional.to_csv(os.path.join(DASH_DATA_FOLDER ,'amu_combined_regional.csv') ,index=False)
 
+#%% DEV: Resistance data
+
 #%% DEV: AM Usage and Price with uncertainty
 
 # =============================================================================

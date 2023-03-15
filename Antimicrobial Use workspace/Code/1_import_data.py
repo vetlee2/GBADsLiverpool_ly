@@ -727,6 +727,7 @@ datainfo(amu_mulch_withrgn)
 #%% Import AMR data
 
 amr = pd.read_csv(os.path.join(RAWDATA_FOLDER ,'SBM_JSA_AMR_livestock.csv'))
+cleancolnames(amr)
 
 # Profile
 # profile = amr.profile_report()
@@ -800,6 +801,11 @@ amr_withrgn[['antimicrobial_class' ,'pathogen']] = amr_withrgn['antibiotic_patho
 amr_withrgn['antimicrobial_class'] = amr_withrgn['antimicrobial_class'].str.strip(' ')  # Remove leading and trailing blanks
 amr_withrgn['pathogen'] = amr_withrgn['pathogen'].str.strip(' ')  # Remove leading and trailing blanks
 
+# Divide prevalence by 100 to make clear it is a rate
+amr_withrgn['overall_prev'] = amr_withrgn['overall_prev'] / 100
+amr_withrgn['prop_2_5'] = amr_withrgn['prop_2_5'] / 100
+amr_withrgn['prop_97_5'] = amr_withrgn['prop_97_5'] / 100
+
 # Find total number of samples
 #??? Maybe unneccessary. While the document accompanying this table states
 # sum_isolates is "the number of isolates (samples that were resistant for a
@@ -814,6 +820,7 @@ amr_withrgn['pathogen'] = amr_withrgn['pathogen'].str.strip(' ')  # Remove leadi
 # =============================================================================
 datainfo(amr_withrgn)
 amr_withrgn.to_csv(os.path.join(PRODATA_FOLDER ,'amr.csv') ,index=False)
+amr_withrgn.to_csv(os.path.join(DASH_DATA_FOLDER ,'amr.csv') ,index=False)
 
 #%% Checks
 

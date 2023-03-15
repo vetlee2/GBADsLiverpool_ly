@@ -8445,7 +8445,7 @@ def update_map_amu (viz_switch, quantity):
 
     # Filter scope to All and remove nulls from importance category
     input_df = input_df.query("scope == 'All'")
-    
+
     # Use selected quantity value
     if quantity == 'Tonnes':
         value = input_df['amu_tonnes']
@@ -8488,7 +8488,7 @@ def update_map_amu (viz_switch, quantity):
 
     else:
         input_df = input_df.query("antimicrobial_class != 'total_antimicrobials'")
-        
+
         # Add custom data for hoverover
         customdata = list(pd.DataFrame([f'{quantity}']).to_numpy())
 
@@ -8497,7 +8497,7 @@ def update_map_amu (viz_switch, quantity):
         amu_map_fig = create_tree_map_amu(input_df, value)
 
         # Add title
-        amu_map_fig.update_layout(title_text=f'AMU {quantity} Drilldown<br>', # <sup>for countries reporting to WOAH</sup>
+        amu_map_fig.update_layout(title_text=f'AMU {quantity} Drilldown for countries reporting to WOAH'
                                       font_size=15,
                                       plot_bgcolor="#ededed",
                                       )
@@ -8510,7 +8510,7 @@ def update_map_amu (viz_switch, quantity):
                 "AMU total =  %{value:,.0f} tonnes<br>" +
                 "Parent = %{parent}" +
                 "<extra></extra>",)
-            
+
         else:
             amu_map_fig.update_traces(customdata=customdata,
                 hovertemplate=
@@ -8518,7 +8518,7 @@ def update_map_amu (viz_switch, quantity):
                 "AMU total =  %{value:,.0f} mg per kg biomass<br>" +
                 "Parent = %{parent}" +
                 "<extra></extra>",)
-        
+
         # Display value on box
         amu_map_fig.data[0].texttemplate = "%{label}<br>%{value:,.0f}"
 
@@ -8781,7 +8781,7 @@ def update_expenditure_amu(input_json):
             ,'region':'Region'
             }
         )
-    bar_fig.update_layout(title_text='Estimated Expenditure on Antimicrobials<br><sup>Terrestrial Livestock')
+    bar_fig.update_layout(title_text='Estimated Antimicrobial Expenditure for Terrestrial Livestock')
     return bar_fig
 
 # AMU for terrestrial animals, with uncertainty

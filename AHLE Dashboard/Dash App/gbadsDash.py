@@ -419,6 +419,9 @@ amu2018_combined_tall = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu2018_comb
 amu2018_combined_tall["countries_reporting"] = amu2018_combined_tall['region']+":"+round(amu2018_combined_tall['number_of_countries'],0).astype(int).astype(str)
 amu_combined_regional = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_combined_regional.csv"))
 # amu_uncertainty_data = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_uncertainty_data.csv"))
+amr_withsmry = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amr_withsmry.csv"))
+
+
 
 # =============================================================================
 #### User options and defaults
@@ -8596,7 +8599,7 @@ def update_map_amu (viz_switch, quantity):
         amu_map_fig = create_tree_map_amu(input_df, value)
 
         # Add title
-        amu_map_fig.update_layout(title_text=f'AMU {quantity} Drilldown for countries reporting to WOAH'
+        amu_map_fig.update_layout(title_text=f'AMU {quantity} Drilldown for countries reporting to WOAH',
                                       font_size=15,
                                       plot_bgcolor="#ededed",
                                       )

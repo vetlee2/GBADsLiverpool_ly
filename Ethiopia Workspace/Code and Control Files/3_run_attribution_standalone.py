@@ -202,9 +202,13 @@ Restructuring is the same for all species.
 ahle_combo_scensmry_withahle_sub = pd.read_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_scensmry_ahle.pkl.gz'))
 datainfo(ahle_combo_scensmry_withahle_sub)
 
+#!!! Until I can incorporate yearly data into this, apply a top-level filter for a single year
+ahle_combo_scensmry_withahle_sub = ahle_combo_scensmry_withahle_sub.query("year == 2021")
+
 # =============================================================================
 #### Fill in missing components
 # =============================================================================
+#!!! Come back to this
 '''
 With the exception of adults for small ruminants, the expert attribution files
 use combined-sex groups for all species and age groups.
@@ -214,21 +218,24 @@ on the scenarios run in the simulation model.  While these cannot be calculated
 exactly outside of the simulation model, I will fill in values here based on
 the scenarios that are present.
 '''
-# Split age and sex groups into their own columns
-ahle_combo_scensmry_withahle_sub[['age_group' ,'sex']] = ahle_combo_scensmry_withahle_sub['agesex_scenario'].str.split(' ' ,expand=True)
+# # Split age and sex groups into their own columns
+# ahle_combo_scensmry_withahle_sub[['age_group' ,'sex']] = \
+#     ahle_combo_scensmry_withahle_sub['agesex_scenario'].str.split(' ' ,expand=True)
 
-# For each species, production system, and age group, fill in the Combined sex result based on the Male and Female results
-for SPECIES in ahle_combo_scensmry_withahle_sub['species'].unique():
-    _species = (ahle_combo_scensmry_withahle_sub['species'] == SPECIES)
-    for PRODSYS in ahle_combo_scensmry_withahle_sub.loc[_species ,'production_system'].unique():
-        _prodsys = (ahle_combo_scensmry_withahle_sub['production_system'] == PRODSYS)
-        for AGEGRP in ['Adult' ,'Juvenile' ,'Neonatal']:
-            _agegrp = (ahle_combo_scensmry_withahle_sub['age_group'] == AGEGRP)
-            print(f'> {SPECIES=} {PRODSYS=} {AGEGRP=}')
-            print(ahle_combo_scensmry_withahle_sub.loc[_species & _prodsys & _agegrp ,'ahle_total_mean'])
+# # For each species, production system, and age group, fill in the Combined sex result based on the Male and Female results
+# for SPECIES in ahle_combo_scensmry_withahle_sub['species'].unique():
+#     _species = (ahle_combo_scensmry_withahle_sub['species'] == SPECIES)
+#     for PRODSYS in ahle_combo_scensmry_withahle_sub.loc[_species ,'production_system'].unique():
+#         _prodsys = (ahle_combo_scensmry_withahle_sub['production_system'] == PRODSYS)
+#         for AGEGRP in ['Adult' ,'Juvenile' ,'Neonatal']:
+#             _agegrp = (ahle_combo_scensmry_withahle_sub['age_group'] == AGEGRP)
+#             print(f'> {SPECIES=} {PRODSYS=} {AGEGRP=}')
+#             print(ahle_combo_scensmry_withahle_sub.loc[_species & _prodsys & _agegrp ,'ahle_total_mean'])
 
 # Recalculate AHLE due to production loss
-    # ahle_dueto_productionloss_mean = ahle_total_mean - ahle_dueto_mortality_mean - ahle_dueto_healthcost_mean
+'''
+ahle_dueto_productionloss_mean = ahle_total_mean - ahle_dueto_mortality_mean - ahle_dueto_healthcost_mean
+'''
 
 # =============================================================================
 #### Restructure for Attribution function
@@ -290,26 +297,26 @@ ahle_combo_forattr_1 = ahle_combo_forattr_1.drop(ahle_combo_forattr_1.loc[_dropr
 Mortality AHLE results are non-sex-specific for Juveniles and Neonates. This is
 due to the way scenarios are defined, and is true for all species.
 '''
-# # Keep only one sex
-# _droprows = (ahle_combo_forattr_1['ahle_component'] == 'Mortality') \
-#     & (ahle_combo_forattr_1['agesex_scenario'].isin(['Juvenile Male' ,'Neonatal Male']))
-# print(f"> Dropping {_droprows.sum() :,} rows.")
-# ahle_combo_forattr_1 = ahle_combo_forattr_1.drop(ahle_combo_forattr_1.loc[_droprows].index).reset_index(drop=True)
+# Keep only one sex
+_droprows = (ahle_combo_forattr_1['ahle_component'] == 'Mortality') \
+    & (ahle_combo_forattr_1['agesex_scenario'].isin(['Juvenile Male' ,'Neonatal Male']))
+print(f"> Dropping {_droprows.sum() :,} rows.")
+ahle_combo_forattr_1 = ahle_combo_forattr_1.drop(ahle_combo_forattr_1.loc[_droprows].index).reset_index(drop=True)
 
-# # Change group label
-# relabel_mort = {
-#     "Juvenile Female": "Juvenile Combined"
-#     ,"Neonatal Female": "Neonatal Combined"
-#     }
-# _mortrows = (ahle_combo_forattr_1['ahle_component'] == 'Mortality')
-# ahle_combo_forattr_1.loc[_mortrows] = ahle_combo_forattr_1.loc[_mortrows].replace(relabel_mort)
+# Change group label
+relabel_mort = {
+    "Juvenile Female": "Juvenile Combined"
+    ,"Neonatal Female": "Neonatal Combined"
+    }
+_mortrows = (ahle_combo_forattr_1['ahle_component'] == 'Mortality')
+ahle_combo_forattr_1.loc[_mortrows] = ahle_combo_forattr_1.loc[_mortrows].replace(relabel_mort)
 
-# # Drop duplicates
-# # Different processing for different species may have produced duplicates
-# ahle_combo_forattr_1 = ahle_combo_forattr_1.drop_duplicates(
-# 	subset=['species' ,'production_system' ,'agesex_scenario' ,'ahle_component']
-# 	,keep='first'                   # String: which occurrence to keep, 'first' or 'last'
-# )
+# Drop duplicates
+# Different processing for different species may have produced duplicates
+ahle_combo_forattr_1 = ahle_combo_forattr_1.drop_duplicates(
+ 	subset=['species' ,'production_system' ,'agesex_scenario' ,'ahle_component']
+ 	,keep='first'                   # String: which occurrence to keep, 'first' or 'last'
+)
 
 #%% Prep for Attribution - Small Ruminants
 '''

@@ -1918,7 +1918,7 @@ datainfo(ahle_combo_scensmry_withahle)
 
 # Keep only key columns and AHLE calcs
 _cols_for_summary = [i for i in list(ahle_combo_scensmry_withahle) if 'ahle' in i]
-_keepcols = ['species' ,'production_system' ,'agesex_scenario'] + _cols_for_summary
+_keepcols = ['species' ,'production_system' ,'agesex_scenario' ,'year'] + _cols_for_summary
 ahle_combo_scensmry_withahle_sub = ahle_combo_scensmry_withahle[_keepcols]
 
 datainfo(ahle_combo_scensmry_withahle_sub)

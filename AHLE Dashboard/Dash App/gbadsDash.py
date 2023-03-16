@@ -8507,7 +8507,7 @@ def update_map_amu (viz_switch, quantity):
         amu_map_fig = create_tree_map_amu(input_df, value)
 
         # Add title
-        amu_map_fig.update_layout(title_text=f'AMU {quantity} Drilldown for countries reporting to WOAH'
+        amu_map_fig.update_layout(title_text=f'AMU {quantity} Drilldown for countries reporting to WOAH',
                                       font_size=15,
                                       plot_bgcolor="#ededed",
                                       )

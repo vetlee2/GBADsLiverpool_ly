@@ -292,6 +292,61 @@ amu_combined_regional.to_csv(os.path.join(DASH_DATA_FOLDER ,'amu_combined_region
 
 #%% DEV: Resistance data
 
+amr_withrgn_working = amr_withrgn.copy()
+
+# Add prevalence weighted by isolates
+amr_withrgn_working['overall_prev_x_isolates'] = amr_withrgn_working['overall_prev'] * amr_withrgn_working['sum_isolates']
+
+# =============================================================================
+#### Add summary rows
+# =============================================================================
+# Antimicrobial = ALL for a given country, year, and pathogen
+# Reporting the average prevalence across all antimicrobials, weighted by sum_isolates.
+amr_pivot_bypathogen = amr_withrgn_working.pivot_table(
+    index=['location_name' ,'map_id' ,'reporting_year' ,'woah_region' ,'pathogen']
+    ,aggfunc={
+        'overall_prev_x_isolates':['sum' ,'count']
+        ,'sum_isolates':'sum'
+    }
+)
+amr_pivot_bypathogen = colnames_from_index(amr_pivot_bypathogen) 	# If multiple aggregate functions specified, will create multi-indexed columns. Flatten.
+amr_pivot_bypathogen = amr_pivot_bypathogen.reset_index()         # Pivoting will change columns to indexes. Change them back.
+
+amr_pivot_bypathogen['antimicrobial_class'] = 'All'
+amr_pivot_bypathogen['overall_prev'] = amr_pivot_bypathogen['overall_prev_x_isolates_sum'] / amr_pivot_bypathogen['sum_isolates_sum']
+amr_pivot_bypathogen = amr_pivot_bypathogen.rename(columns={'sum_isolates_sum':'sum_isolates'})     # Rename to keep after concatenating
+
+# Pathogen = ALL for a given country, year, and antimicrobial
+# Reporting the average prevalence across all pathogens, weighted by sum_isolates.
+amr_pivot_byantimicrobial = amr_withrgn_working.pivot_table(
+    index=['location_name' ,'map_id' ,'reporting_year' ,'woah_region' ,'antimicrobial_class']
+    ,aggfunc={
+        'overall_prev_x_isolates':['sum' ,'count']
+        ,'sum_isolates':'sum'
+    }
+)
+amr_pivot_byantimicrobial = colnames_from_index(amr_pivot_byantimicrobial) 	# If multiple aggregate functions specified, will create multi-indexed columns. Flatten.
+amr_pivot_byantimicrobial = amr_pivot_byantimicrobial.reset_index()         # Pivoting will change columns to indexes. Change them back.
+
+amr_pivot_byantimicrobial['pathogen'] = 'All'
+amr_pivot_byantimicrobial['overall_prev'] = amr_pivot_byantimicrobial['overall_prev_x_isolates_sum'] / amr_pivot_byantimicrobial['sum_isolates_sum']
+amr_pivot_byantimicrobial = amr_pivot_byantimicrobial.rename(columns={'sum_isolates_sum':'sum_isolates'})     # Rename to keep after concatenating
+
+# Concatenate with original data
+amr_withsmry = pd.concat(
+    [amr_withrgn ,amr_pivot_bypathogen ,amr_pivot_byantimicrobial]
+    ,axis=0
+    ,join='inner'   # Keep only common columns
+    ,ignore_index=True
+)
+
+# =============================================================================
+#### Export
+# =============================================================================
+datainfo(amr_withsmry)
+amr_withsmry.to_csv(os.path.join(PRODATA_FOLDER ,'amr_withsmry.csv') ,index=False)
+amr_withsmry.to_csv(os.path.join(DASH_DATA_FOLDER ,'amr_withsmry.csv') ,index=False)
+
 #%% DEV: AM Usage and Price with uncertainty
 
 # =============================================================================

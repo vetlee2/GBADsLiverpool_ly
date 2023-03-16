@@ -458,6 +458,51 @@ ahle_combo = ahle_combo.reindex(columns=cols_first + cols_other)
 datainfo(ahle_combo)
 
 # =============================================================================
+#### Add yearly placeholder rows
+# =============================================================================
+'''
+Goal: add yearly placeholder values for any species, production system, item,
+and group that does not have them.
+'''
+# Each numeric column gets inflated/deflated by a percentage
+yearly_adjustment = 1.05    # Desired yearly change in values
+
+# Get list of columns for which to add placeholders
+vary_by_year = list(ahle_combo.select_dtypes(include='float'))
+
+# Turn data into list
+ahle_combo_plhdyear_aslist = ahle_combo.to_dict(orient='records')
+
+base_year = 2021
+create_years = list(range(2017 ,2022))
+for YEAR in create_years:
+    # Create dataset for this year
+    single_year_df = ahle_combo.copy()
+    single_year_df['year'] = YEAR
+
+    # Adjust numeric columns
+    adj_factor = yearly_adjustment**(YEAR - base_year)
+    for COL in vary_by_year:
+        single_year_df[COL] = single_year_df[COL] * adj_factor
+
+    # Turn data into list and append
+    single_year_df_aslist = single_year_df.to_dict(orient='records')
+    ahle_combo_plhdyear_aslist.extend(single_year_df_aslist)
+
+# Convert list of dictionaries into data frame
+ahle_combo_plhdyear = pd.DataFrame.from_dict(ahle_combo_plhdyear_aslist ,orient='columns')
+del ahle_combo_plhdyear_aslist ,single_year_df ,single_year_df_aslist
+
+# Remove duplicate values, keeping the first (the first is the actual value for that year if it exists)
+ahle_combo_plhdyear = ahle_combo_plhdyear.drop_duplicates(
+    subset=['species' ,'production_system' ,'item' ,'group' ,'age_group' ,'sex' ,'year']
+    ,keep='first'
+)
+datainfo(ahle_combo_plhdyear)
+
+ahle_combo = ahle_combo_plhdyear
+
+# =============================================================================
 #### Export
 # =============================================================================
 ahle_combo.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_stacked.csv') ,index=False)
@@ -733,14 +778,14 @@ ahle_combo_withagg = pd.concat(
 # De-Dup, keeping new Overall group if it exists
 ahle_combo_withagg = ahle_combo_withagg.drop_duplicates(
    subset=['species' ,'production_system' ,'item' ,'group' ,'year']       # List (opt): only consider these columns when identifying duplicates. If None, consider all columns.
-   ,keep='first'                   # String: which occurrence to keep, 'first' or 'last'
+   ,keep='first'
 )
 
 # -----------------------------------------------------------------------------
 # Create overall production system for each species and group
 # -----------------------------------------------------------------------------
 ahle_combo_withagg_sumprod = ahle_combo_withagg.pivot_table(
-   index=['species' ,'item' ,'group' ,'age_group' ,'sex']
+   index=['species' ,'item' ,'group' ,'age_group' ,'sex' ,'year']
    ,values=mean_cols + var_cols
    ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
 ).reset_index()
@@ -830,16 +875,6 @@ datainfo(ahle_combo_withagg)
 # =============================================================================
 #### Cleanup and Export
 # =============================================================================
-# -----------------------------------------------------------------------------
-# Remove rows added by Github
-# -----------------------------------------------------------------------------
-# Hoping this is due to a one-time file merge issue
-_git_rows = (ahle_combo_withagg['item'].str.contains('>>>')) \
-    | (ahle_combo_withagg['item'].str.contains('<<<')) \
-        | (ahle_combo_withagg['item'].str.contains('==='))
-
-ahle_combo_withagg = ahle_combo_withagg.loc[~ _git_rows]
-
 # -----------------------------------------------------------------------------
 # Subset and rename columns
 # -----------------------------------------------------------------------------
@@ -1086,7 +1121,7 @@ _cols_for_summary = ['species' ,'production_system' ,'group' ,'year'] + _ahle_co
 # For this summary, keep only system total AHLE
 _groups_for_summary = (ahle_combo_withahle['group'].str.upper() == 'OVERALL')
 
-ahle_combo_withahle_smry = ahle_combo_withahle.loc[_groups_for_summary][_cols_for_summary]
+ahle_combo_withahle_smry = ahle_combo_withahle.loc[_groups_for_summary][_cols_for_summary].reset_index(drop=True)
 datainfo(ahle_combo_withahle_smry)
 
 ahle_combo_withahle_smry.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary2.csv') ,index=False)

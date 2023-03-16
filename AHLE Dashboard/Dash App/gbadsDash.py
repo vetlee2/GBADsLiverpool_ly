@@ -1529,7 +1529,6 @@ def prep_ahle_forstackedbar_ecs(INPUT_DF, cols_birr_costs, cols_usd_costs, prett
    OUTPUT_DF['label_birr'] = OUTPUT_DF['Age_group_string'] + ' - ' + OUTPUT_DF['cost_birr'].map('{:,.0f}'.format).astype(str) + ' Birr'
    OUTPUT_DF['label_usd'] = OUTPUT_DF['Age_group_string'] + ' - ' + OUTPUT_DF['cost_usd'].map('{:,.0f}'.format).astype(str) + ' USD'
 
-
    return OUTPUT_DF
 
 def prep_ahle_forwaterfall_ga(INPUT_DF):
@@ -6299,9 +6298,10 @@ def update_attr_treemap_ecs(prodsys, species, currency, top_lvl_hierarchy,
     Input('select-compare-ecs','value'),
     Input('select-factor-ecs','value'),
     Input('select-improve-ecs','value'),
+    Input('select-graph-ahle-ecs', 'value'),
     Input('select-year-item-switch-ecs', 'value'),
     )
-def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, impvmnt_value, year_select):
+def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, impvmnt_value, graph_options, year_or_item):
     # AHLE Summary 2 - for stacked bar
     input_df = ecs_ahle_summary2
 
@@ -6672,8 +6672,10 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
     # Base plot
     # -----------------------------------------------------------------------------
     # Apply year filter
-    input_df = input_df.loc[input_df['year'] == year_select]
-    # input_df = input_df.loc[input_df['year'] == 2021]
+    if graph_options == "By Year":
+        input_df = input_df.loc[input_df['year'] == year_or_item]
+    else:
+        input_df = input_df.loc[input_df['year'] == 2021]
 
     # Structure for plot
     stackedbar_df = prep_ahle_forstackedbar_ecs(input_df, cols_birr_costs, cols_usd_costs, pretty_ahle_cost_names)

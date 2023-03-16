@@ -190,7 +190,9 @@ swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'
 # AHLE Summary
 # ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv'))
 # Using alternative data which summarizes results from age/sex specific scenarios
-ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry_yearlyfake.csv'))
+ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry.csv'))
+# Using data with dummy yearly values
+# ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry_yearlyfake.csv'))
 
 # AHLE Summary 2 - for stacked bar
 ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary2.csv'))
@@ -1528,7 +1530,6 @@ def prep_ahle_forstackedbar_ecs(INPUT_DF, cols_birr_costs, cols_usd_costs, prett
    # Add column with labels for each segment
    OUTPUT_DF['label_birr'] = OUTPUT_DF['Age_group_string'] + ' - ' + OUTPUT_DF['cost_birr'].map('{:,.0f}'.format).astype(str) + ' Birr'
    OUTPUT_DF['label_usd'] = OUTPUT_DF['Age_group_string'] + ' - ' + OUTPUT_DF['cost_usd'].map('{:,.0f}'.format).astype(str) + ' USD'
-
 
    return OUTPUT_DF
 
@@ -5726,7 +5727,7 @@ def update_improvment_factors(compare):
 )
 def update_ecs_ahle_data(currency, species, prodsys, agesex):
     # Read in data and apply filters
-    input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry_yearlyfake.csv'))
+    input_df = ecs_ahle_summary
     # Species filter
     input_df = input_df.loc[(input_df['species'] == species)]
     # Production System filter
@@ -5817,7 +5818,7 @@ def update_ecs_ahle_data(currency, species, prodsys, agesex):
     )
 def update_ecs_attr_data(currency, prodsys, species):
     # Read in data
-    input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv'))
+    input_df = ecs_ahle_all_withattr
     # Production System filter
     # If All production systems, don't filter. Attribution data is not aggregated to that level.
     if prodsys == 'All Production Systems':
@@ -5901,7 +5902,7 @@ def update_ecs_attr_data(currency, prodsys, species):
     )
 def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, compare, prodsys, currency, impvmnt_factor, impvmnt_value, year_or_item):
     # Read in data and apply filters
-    input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry_yearlyfake.csv'))
+    input_df = ecs_ahle_summary
     # Species filter
     input_df = input_df.loc[(input_df['species'] == species)]
     # Production System filter
@@ -6352,7 +6353,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
 def update_attr_treemap_ecs(prodsys, species, currency, top_lvl_hierarchy,
                             dd1_hierarchy, dd2_hierarchy, dd3_hierarchy, dd4_hierarchy):
     # Data
-    input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv'))
+    input_df = ecs_ahle_all_withattr
     # Production System filter
     # If All production systems, don't filter. Attribution data is not aggregated to that level.
     if prodsys == 'All Production Systems':
@@ -6436,11 +6437,12 @@ def update_attr_treemap_ecs(prodsys, species, currency, top_lvl_hierarchy,
     Input('select-compare-ecs','value'),
     Input('select-factor-ecs','value'),
     Input('select-improve-ecs','value'),
+    Input('select-graph-ahle-ecs', 'value'),
+    Input('select-year-item-switch-ecs', 'value'),
     )
-def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, impvmnt_value):
-
+def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, impvmnt_value, graph_options, year_or_item):
     # AHLE Summary 2 - for stacked bar
-    input_df = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary2.csv'))
+    input_df = ecs_ahle_summary2
 
     # Rename values to match filters
     input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
@@ -6808,21 +6810,29 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
     # -----------------------------------------------------------------------------
     # Base plot
     # -----------------------------------------------------------------------------
+    # Apply year filter
+    if graph_options == "By Year":
+        input_df = input_df.loc[input_df['year'] == year_or_item]
+    else:
+        input_df = input_df.loc[input_df['year'] == 2021]
+
     # Structure for plot
     stackedbar_df = prep_ahle_forstackedbar_ecs(input_df, cols_birr_costs, cols_usd_costs, pretty_ahle_cost_names)
 
     # Apply production system filter
-    stackedbar_df = stackedbar_df.loc[(stackedbar_df['production_system'] == prodsys)]
+    stackedbar_df = stackedbar_df.loc[stackedbar_df['production_system'] == prodsys]
 
     # Apply species filter
-    stackedbar_df = stackedbar_df.loc[(stackedbar_df['species'] == species)]
+    stackedbar_df = stackedbar_df.loc[stackedbar_df['species'] == species]
+
     x = stackedbar_df['species']
 
     # Change y based on selected currency value
-    yaxis_title = 'Ethiopian Birr'
-    y = stackedbar_df['cost_birr']
-    text = stackedbar_df['label_birr']
-    if currency == 'USD':
+    if currency == 'Birr':
+        yaxis_title = 'Ethiopian Birr'
+        y = stackedbar_df['cost_birr']
+        text = stackedbar_df['label_birr']
+    elif currency == 'USD':
         yaxis_title = 'USD'
         y = stackedbar_df['cost_usd']
         text = stackedbar_df['label_usd']

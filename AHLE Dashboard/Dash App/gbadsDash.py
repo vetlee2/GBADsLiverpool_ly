@@ -230,9 +230,6 @@ ga_countries_biomass = ga_countries_biomass.drop(columns=['producing_animals_egg
                                                           'production_wool_kgperkgbm',
                                                           ])
 
-# KEEP ONLY ETHIOPIA FOR TESTING
-# ga_countries_biomass = ga_countries_biomass.loc[ga_countries_biomass['country'] == 'Ethiopia']
-
 # Drop species
 drop_species = ['Camels',
                 'Horses',
@@ -419,8 +416,9 @@ amu2018_combined_tall = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu2018_comb
 amu2018_combined_tall["countries_reporting"] = amu2018_combined_tall['region']+":"+round(amu2018_combined_tall['number_of_countries'],0).astype(int).astype(str)
 amu_combined_regional = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_combined_regional.csv"))
 # amu_uncertainty_data = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_uncertainty_data.csv"))
-amr_withsmry = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amr_withsmry.csv"))
 
+# Antimicrobial resistance data
+amr_withsmry = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amr_withsmry.csv"))
 
 
 # =============================================================================
@@ -950,6 +948,20 @@ options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'Sub-Sahar
 wb_africa_options_ga = [{'label': "All", 'value': "All"}]
 for i in options['country'].unique():
     str(wb_africa_options_ga.append({'label':i,'value':(i)}))
+    
+    
+# =============================================================================
+#### Antimicrobial Usage (AMU) options
+# =============================================================================
+# Antimicrobial Class
+amu_antimicrobial_class_options = []
+for i in np.sort(amr_withsmry['antimicrobial_class'].unique()):
+    str(amu_antimicrobial_class_options.append({'label':i,'value':(i)}))
+    
+# Pathogen
+amu_pathogen_options = []
+for i in np.sort(amr_withsmry['pathogen'].unique()):
+    str(amu_pathogen_options.append({'label':i,'value':(i)}))
 
 # =============================================================================
 #### Burden of disease calcs
@@ -3691,17 +3703,12 @@ gbadsDash.layout = html.Div([
                       ),
                 ]),
             
-            # Antibiotics
+            # Antimicrobial Class
             dbc.Col([
-                html.H6("Antibiotics", id='select-antibiotics-amu-title'),
-                dcc.Dropdown(id='select-antibiotics-amu',
-                      options=[
-                          'AMU: tonnes'
-                          ,'AMU: mg per kg biomass'
-                          ,'Biomass'
-                          ,'AMR'
-                          ],
-                      value='AMU Tonnes',
+                html.H6("Antimircobials", id='select-antimicrobial-class-amu-title'),
+                dcc.Dropdown(id='select-antimicrobial-class-amu',
+                      options=amu_antimicrobial_class_options,
+                      value='All',
                       clearable=False,
                       ),
                 ]),
@@ -3710,13 +3717,8 @@ gbadsDash.layout = html.Div([
             dbc.Col([
                 html.H6("Pathogens", id='select-pathogens-amu-title'),
                 dcc.Dropdown(id='select-pathogens-amu',
-                      options=[
-                          'AMU: tonnes'
-                          ,'AMU: mg per kg biomass'
-                          ,'Biomass'
-                          ,'AMR'
-                          ],
-                      value='AMU Tonnes',
+                      options=amu_pathogen_options,
+                      value='All',
                       clearable=False,
                       ),
                 ]),
@@ -7972,9 +7974,9 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
 # ------------------------------------------------------------------------------
 # # Enable the options for antibotics/pathogens when 'AMR' is selected
 # @gbadsDash.callback(
-#     Output('select-antibiotics-amu','options'),
-#     Output('select-antibiotics-amu','style'),
-#     Output('select-antibiotics-amu-title','style'),
+#     Output('select-antimicrobial-class-amu','options'),
+#     Output('select-antimicrobial-class-amu','style'),
+#     Output('select-antimicrobial-class-amu-title','style'),
 #     Output('select-pathogens-amu','options'),
 #     Output('select-pathogens-amu','style'),
 #     Output('select-pathogens-amu-title','style'),

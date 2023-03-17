@@ -3703,12 +3703,10 @@ gbadsDash.layout = html.Div([
                               ),
                 ],  width=1),
             
-            # Map Display Options
+            # Map Display/Drilldown switch
             dbc.Col([
-                html.H6("Map Display", id='select-map-display-amu-title'),
-                dcc.Dropdown(id='select-map-display-amu',
-                      options=amu_map_display_options,
-                      value='AMU: tonnes',
+                html.H6("Map Display", id='select-map-display-drilldown-amu-title'),
+                dcc.Dropdown(id='select-map-display-drilldown-amu',
                       clearable=False,
                       ),
                 ]),
@@ -7991,47 +7989,24 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
 # ------------------------------------------------------------------------------
 #### -- Controls
 # ------------------------------------------------------------------------------
-# Enable the map display options when 'Map' is selected
+# Switch between Map Display and Drilldown
 @gbadsDash.callback(
-    Output('select-map-display-amu','options'),
-    Output('select-map-display-amu','style'),
-    Output('select-map-display-amu-title','style'),
+    Output('select-map-display-drilldown-amu','options'),
+    Output('select-map-display-drilldown-amu','value'),
+    Output('select-map-display-drilldown-amu-title','children'),
     Input('select-viz-switch-amu','value'),
     )
-def update_map_display_options(viz_switch):
-    options3 = amu_map_display_options.copy()
-    for d in options3:
-        if viz_switch == 'Map':
-            block = {'display': 'block'}
-            d['disabled']=False
-        else:
-            block = {'display': 'none'} # hide map display dropdown
-            d['disabled']=True
+def update_map_display_drilldown_switch(viz_switch):
+    if viz_switch == 'Map':
+        options = amu_map_display_options
+        value = 'AMU: tonnes'
+        title = 'Map Display'
+    else:
+        options = ['AMU: tonnes', 'AMU: mg per kg biomass']
+        value = 'AMU: tonnes'
+        title = 'Drilldown Display'
 
-    return options3, block, block
-
-# # Switch between Map Display and Drilldown
-# @gbadsDash.callback(
-#     Output('select-year-item-switch-ecs','options'),
-#     Output('select-year-item-switch-ecs','value'),
-#     Output('select-year-ecs-title','children'),
-#     Input('select-graph-ahle-ecs','value'),
-#     )
-# def update_year_item_switch(graph):
-#     if graph == 'By Year':
-#         options=ecs_year_options=[]
-#         for i in np.sort(ecs_ahle_summary['year'].unique()):
-#             str(ecs_year_options.append({'label':i,'value':(i)}))
-#         value=2021
-#         title = 'Year'
-#     else:
-#         options=ecs_item_ahle_options=[]
-#         for i in waterfall_plot_values:
-#            str(ecs_item_ahle_options.append({'label':i,'value':(i)}))
-#         value='Gross Margin'
-#         title = 'Item'
-
-#     return options, value, title
+    return options, value, title
 
 # Enable the options for antibotics/pathogens when 'AMR' is selected
 @gbadsDash.callback(
@@ -8041,7 +8016,7 @@ def update_map_display_options(viz_switch):
     Output('select-pathogens-amu','options'),
     Output('select-pathogens-amu','style'),
     Output('select-pathogens-amu-title','style'),
-    Input('select-map-display-amu','value'),
+    Input('select-map-display-drilldown-amu','value'),
     )
 def update_map_amr_options(display_option):
     options1 = amu_antimicrobial_class_options.copy()

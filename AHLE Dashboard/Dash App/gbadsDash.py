@@ -953,6 +953,12 @@ for i in options['country'].unique():
 # =============================================================================
 #### Antimicrobial Usage (AMU) options
 # =============================================================================
+# Map display
+amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["AMU: tonnes",
+                                                                                 "AMU: mg per kg biomass",
+                                                                                 "Biomass",
+                                                                                 "AMR",]]
+
 # Antimicrobial Class
 amu_antimicrobial_class_options = []
 for i in np.sort(amr_withsmry['antimicrobial_class'].unique()):
@@ -3690,15 +3696,10 @@ gbadsDash.layout = html.Div([
             
             # Map Display Options
             dbc.Col([
-                html.H6("Map Display"),
+                html.H6("Map Display", id='select-map-display-amu-title'),
                 dcc.Dropdown(id='select-map-display-amu',
-                      options=[
-                          'AMU: tonnes'
-                          ,'AMU: mg per kg biomass'
-                          ,'Biomass'
-                          ,'AMR'
-                          ],
-                      value='AMU Tonnes',
+                      options=amu_map_display_options,
+                      value='AMU: tonnes',
                       clearable=False,
                       ),
                 ]),
@@ -7972,36 +7973,79 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
 # ------------------------------------------------------------------------------
 #### -- Controls
 # ------------------------------------------------------------------------------
-# # Enable the options for antibotics/pathogens when 'AMR' is selected
-# @gbadsDash.callback(
-#     Output('select-antimicrobial-class-amu','options'),
-#     Output('select-antimicrobial-class-amu','style'),
-#     Output('select-antimicrobial-class-amu-title','style'),
-#     Output('select-pathogens-amu','options'),
-#     Output('select-pathogens-amu','style'),
-#     Output('select-pathogens-amu-title','style'),
-#     Input('select-map-display-ecs','value'),
-#     )
-# def update_map_amr_options(display_option):
-#     options1 = ecs_factor_options.copy()
-#     options2 = ecs_improve_options.copy()
-#     for d in options1:
-#         if display_option == 'Improvement':
-#             block = {'display': 'block'}
-#             if d['value'] != 'Lactation':
-#                 d['disabled']=False
-#         else:
-#             block = {'display': 'none'} # hide the improvement options
-#             d['disabled']=True
-#     for d in options2:
-#         if display_option == 'Improvement':
-#             block = {'display': 'block'}
-#             d['disabled']=False
-#         else:
-#             block = {'display': 'none'} # hide the improvement options
-#             d['disabled']=True
+# Enable the map display options when 'Map' is selected
+@gbadsDash.callback(
+    Output('select-map-display-amu','options'),
+    Output('select-map-display-amu','style'),
+    Output('select-map-display-amu-title','style'),
+    Input('select-viz-switch-amu','value'),
+    )
+def update_map_display_options(viz_switch):
+    options3 = amu_map_display_options.copy()
+    for d in options3:
+        if viz_switch == 'Map':
+            block = {'display': 'block'}
+            d['disabled']=False
+        else:
+            block = {'display': 'none'} # hide map display dropdown
+            d['disabled']=True
 
-#     return options1, block, block, options2, block, block
+    return options3, block, block
+
+# # Switch between Map Display and Drilldown
+# @gbadsDash.callback(
+#     Output('select-year-item-switch-ecs','options'),
+#     Output('select-year-item-switch-ecs','value'),
+#     Output('select-year-ecs-title','children'),
+#     Input('select-graph-ahle-ecs','value'),
+#     )
+# def update_year_item_switch(graph):
+#     if graph == 'By Year':
+#         options=ecs_year_options=[]
+#         for i in np.sort(ecs_ahle_summary['year'].unique()):
+#             str(ecs_year_options.append({'label':i,'value':(i)}))
+#         value=2021
+#         title = 'Year'
+#     else:
+#         options=ecs_item_ahle_options=[]
+#         for i in waterfall_plot_values:
+#            str(ecs_item_ahle_options.append({'label':i,'value':(i)}))
+#         value='Gross Margin'
+#         title = 'Item'
+
+#     return options, value, title
+
+# Enable the options for antibotics/pathogens when 'AMR' is selected
+@gbadsDash.callback(
+    Output('select-antimicrobial-class-amu','options'),
+    Output('select-antimicrobial-class-amu','style'),
+    Output('select-antimicrobial-class-amu-title','style'),
+    Output('select-pathogens-amu','options'),
+    Output('select-pathogens-amu','style'),
+    Output('select-pathogens-amu-title','style'),
+    Input('select-map-display-amu','value'),
+    )
+def update_map_amr_options(display_option):
+    options1 = amu_antimicrobial_class_options.copy()
+    options2 = amu_pathogen_options.copy()
+    for d in options1:
+        if display_option == 'AMR':
+            block = {'display': 'block'}
+            d['disabled']=False
+        else:
+            block = {'display': 'none'} # hide antimicrobial class dropdown
+            d['disabled']=True
+            
+    for d in options2:
+        if display_option == 'AMR':
+            block = {'display': 'block'}
+            d['disabled']=False
+        else:
+            block = {'display': 'none'} # hide pathogen dropdown
+            d['disabled']=True
+            
+    return options1, block, block, options2, block, block
+
 
 # # Enable the options for factor/improvement when 'Improvement' selected
 # @gbadsDash.callback(
@@ -8033,7 +8077,6 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
 #             d['disabled']=True
 
 #     return options1, block, block, options2, block, block
-
 
 # Usage and Price sliders
 # am-usage-slider-africa

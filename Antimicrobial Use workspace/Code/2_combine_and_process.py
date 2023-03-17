@@ -266,6 +266,13 @@ amu_combined_regional['biomass_terr_reporting_prpnofregion'] =\
 amu_combined_regional['terr_amu_tonnes_region_2020'] =\
     amu_combined_regional['terr_amu_tonnes_reporting_2020'] / amu_combined_regional['biomass_terr_reporting_prpnofregion']
 
+# All species
+amu_combined_regional['biomass_total_reporting_prpnofregion'] =\
+    amu_combined_regional['biomass_total_kg_reporting'] / amu_combined_regional['biomass_total_kg_region']
+
+amu_combined_regional['total_antimicrobials_tonnes_region'] =\
+    amu_combined_regional['total_antimicrobials_tonnes'] / amu_combined_regional['biomass_total_reporting_prpnofregion']
+
 datainfo(amu_combined_regional)
 
 # =============================================================================
@@ -356,7 +363,7 @@ amu_combined_regional['amr_index_agunos'] = \
         / 1e9   # Adjust downward
 
 amu_combined_regional['amr_index_agunos_usage'] = \
-    amu_combined_regional['amr_index_agunos'] * amu_combined_regional['total_antimicrobials_tonnes']
+    amu_combined_regional['amr_index_agunos'] * amu_combined_regional['total_antimicrobials_tonnes_region']
 
 # =============================================================================
 #### Export

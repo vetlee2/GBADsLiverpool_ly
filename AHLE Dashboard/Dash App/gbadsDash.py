@@ -232,9 +232,6 @@ ga_countries_biomass = ga_countries_biomass.drop(columns=['producing_animals_egg
                                                           'production_wool_kgperkgbm',
                                                           ])
 
-# KEEP ONLY ETHIOPIA FOR TESTING
-# ga_countries_biomass = ga_countries_biomass.loc[ga_countries_biomass['country'] == 'Ethiopia']
-
 # Drop species
 drop_species = ['Camels',
                 'Horses',
@@ -429,6 +426,10 @@ amu2018_combined_tall["region_with_countries_reporting"] = \
 
 amu_combined_regional = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_combined_regional.csv"))
 # amu_uncertainty_data = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_uncertainty_data.csv"))
+
+# Antimicrobial resistance data
+amr_withsmry = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amr_withsmry.csv"))
+
 
 # =============================================================================
 #### User options and defaults
@@ -957,6 +958,26 @@ options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'Sub-Sahar
 wb_africa_options_ga = [{'label': "All", 'value': "All"}]
 for i in options['country'].unique():
     str(wb_africa_options_ga.append({'label':i,'value':(i)}))
+    
+    
+# =============================================================================
+#### Antimicrobial Usage (AMU) options
+# =============================================================================
+# Map display
+amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["AMU: tonnes",
+                                                                                 "AMU: mg per kg biomass",
+                                                                                 "Biomass",
+                                                                                 "AMR",]]
+
+# Antimicrobial Class
+amu_antimicrobial_class_options = []
+for i in np.sort(amr_withsmry['antimicrobial_class'].unique()):
+    str(amu_antimicrobial_class_options.append({'label':i,'value':(i)}))
+    
+# Pathogen
+amu_pathogen_options = []
+for i in np.sort(amr_withsmry['pathogen'].unique()):
+    str(amu_pathogen_options.append({'label':i,'value':(i)}))
 
 # =============================================================================
 #### Burden of disease calcs
@@ -3219,33 +3240,6 @@ gbadsDash.layout = html.Div([
 
                         ]), # END OF ROW
                         dbc.Row([  # Year for waterfall and Improvement scenarios
-
-                            # # Year dropdown
-                            # dbc.Col([
-                            #     html.H6("Year", id='select-year-ecs-title'),
-                            #     dcc.Dropdown(id='select-year-ecs',
-                            #                 options=ecs_year_options,
-                            #                 value=2021,
-                            #                 clearable = False,
-                            #                 ),
-                            #     ]),
-
-                            # # Item
-                            # dbc.Col([
-                            #     html.H6("Item", id='select-item-ahle-ecs-title'),
-                            #     dcc.Dropdown(id='select-item-ahle-ecs',
-                            #                   options=ecs_item_ahle_options,
-                            #                   value='Gross Margin',
-                            #                   clearable = False,
-                            #                   ),
-                            #     ],
-                            # ),
-
-                            # # Item or Year Control switch
-                            # dbc.Col([
-
-                            #     ], id='select-year-item-switch-ecs',
-                            # ),
                             # Item or Year Control switch
                             dbc.Col([
                                 html.H6("Year", id='select-year-ecs-title'),
@@ -3590,7 +3584,7 @@ gbadsDash.layout = html.Div([
                # AMU classification
                dbc.Col([
                    html.H6("Antimicrobial Grouping"),
-                   dcc.RadioItems(id='select-classification-amu',
+                   dcc.Dropdown(id='select-classification-amu',
                          options=[
                              'Top Global Classes'
                              ,'WHO Importance Categories'
@@ -3599,8 +3593,7 @@ gbadsDash.layout = html.Div([
                              ,'Individual Classes'
                              ],
                          value='Top Global Classes',
-                         labelStyle={'display': 'block'},
-                         inputStyle={"margin-right": "10px"},
+                         clearable=False,
                          ),
                    ]),
 
@@ -3631,7 +3624,7 @@ gbadsDash.layout = html.Div([
 
         html.Hr(style={'margin-right':'10px',}),
 
-           #### -- GRAPHICS
+           #### -- GRAPHICS PT.1
             dbc.Row([
                      dbc.Col([ # AMU Stacked Bar
                      dbc.Spinner(children=[
@@ -3689,19 +3682,69 @@ gbadsDash.layout = html.Div([
                  ],),
 
             html.Br(),
-
+            
+            #### -- VISUALIZATION SWITCH
+            
+            dbc.Card([
+                dbc.CardBody([
+                    html.H5("Select Visualization",
+                            className="card-title",
+                            style={"font-weight": "bold"}),
+             
             dbc.Row([
-                # Visualization Switch
-                dbc.Col([
-                    html.H6("Global Visualization"),
-                    dcc.RadioItems(id='select-viz-switch-amu',
-                                  options=['Drilldown', 'Map'],
-                                  value='Drilldown',
-                                  labelStyle={'display': 'block'},
-                                  inputStyle={"margin-right": "10px"},
-                                  ),
-                    ],  width=1),
+            # Visualization Switch
+            dbc.Col([
+                html.H6("Global Visualization"),
+                dcc.RadioItems(id='select-viz-switch-amu',
+                              options=['Drilldown', 'Map'],
+                              value='Drilldown',
+                              labelStyle={'display': 'block'},
+                              inputStyle={"margin-right": "10px"},
+                              ),
+                ],  width=1),
+            
+            # Map Display Options
+            dbc.Col([
+                html.H6("Map Display", id='select-map-display-amu-title'),
+                dcc.Dropdown(id='select-map-display-amu',
+                      options=amu_map_display_options,
+                      value='AMU: tonnes',
+                      clearable=False,
+                      ),
+                ]),
+            
+            # Antimicrobial Class
+            dbc.Col([
+                html.H6("Antimircobials", id='select-antimicrobial-class-amu-title'),
+                dcc.Dropdown(id='select-antimicrobial-class-amu',
+                      options=amu_antimicrobial_class_options,
+                      value='All',
+                      clearable=False,
+                      ),
+                ]),
+            
+            # Pathogens
+            dbc.Col([
+                html.H6("Pathogens", id='select-pathogens-amu-title'),
+                dcc.Dropdown(id='select-pathogens-amu',
+                      options=amu_pathogen_options,
+                      value='All',
+                      clearable=False,
+                      ),
+                ]),
+            
+            # END OF CARD OPTIONS ROW
+            ]),
+            
+            # END OF CARD BODY
+            ]),
 
+            ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF CARD
+
+            html.Hr(style={'margin-right':'10px',}),
+            
+            # Map viz
+            dbc.Row([
                 dbc.Col([ # Global Aggregation Visual
                     dbc.Spinner(children=[
                     dcc.Graph(id='amu-map',
@@ -3719,11 +3762,12 @@ gbadsDash.layout = html.Div([
                 ],size="md", color="#393375", fullscreen=False),
                 # End of Map
                 ]),
-
+                
              # END OF SECOND GRAPHICS ROW
             ]),
             html.Br(),
 
+          #### -- GRAPHICS PT.2
            # Usage and Price Sliders with Expenditure chart
            dbc.Row([
                dbc.Col([
@@ -7947,6 +7991,111 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
 # ------------------------------------------------------------------------------
 #### -- Controls
 # ------------------------------------------------------------------------------
+# Enable the map display options when 'Map' is selected
+@gbadsDash.callback(
+    Output('select-map-display-amu','options'),
+    Output('select-map-display-amu','style'),
+    Output('select-map-display-amu-title','style'),
+    Input('select-viz-switch-amu','value'),
+    )
+def update_map_display_options(viz_switch):
+    options3 = amu_map_display_options.copy()
+    for d in options3:
+        if viz_switch == 'Map':
+            block = {'display': 'block'}
+            d['disabled']=False
+        else:
+            block = {'display': 'none'} # hide map display dropdown
+            d['disabled']=True
+
+    return options3, block, block
+
+# # Switch between Map Display and Drilldown
+# @gbadsDash.callback(
+#     Output('select-year-item-switch-ecs','options'),
+#     Output('select-year-item-switch-ecs','value'),
+#     Output('select-year-ecs-title','children'),
+#     Input('select-graph-ahle-ecs','value'),
+#     )
+# def update_year_item_switch(graph):
+#     if graph == 'By Year':
+#         options=ecs_year_options=[]
+#         for i in np.sort(ecs_ahle_summary['year'].unique()):
+#             str(ecs_year_options.append({'label':i,'value':(i)}))
+#         value=2021
+#         title = 'Year'
+#     else:
+#         options=ecs_item_ahle_options=[]
+#         for i in waterfall_plot_values:
+#            str(ecs_item_ahle_options.append({'label':i,'value':(i)}))
+#         value='Gross Margin'
+#         title = 'Item'
+
+#     return options, value, title
+
+# Enable the options for antibotics/pathogens when 'AMR' is selected
+@gbadsDash.callback(
+    Output('select-antimicrobial-class-amu','options'),
+    Output('select-antimicrobial-class-amu','style'),
+    Output('select-antimicrobial-class-amu-title','style'),
+    Output('select-pathogens-amu','options'),
+    Output('select-pathogens-amu','style'),
+    Output('select-pathogens-amu-title','style'),
+    Input('select-map-display-amu','value'),
+    )
+def update_map_amr_options(display_option):
+    options1 = amu_antimicrobial_class_options.copy()
+    options2 = amu_pathogen_options.copy()
+    for d in options1:
+        if display_option == 'AMR':
+            block = {'display': 'block'}
+            d['disabled']=False
+        else:
+            block = {'display': 'none'} # hide antimicrobial class dropdown
+            d['disabled']=True
+            
+    for d in options2:
+        if display_option == 'AMR':
+            block = {'display': 'block'}
+            d['disabled']=False
+        else:
+            block = {'display': 'none'} # hide pathogen dropdown
+            d['disabled']=True
+            
+    return options1, block, block, options2, block, block
+
+
+# # Enable the options for factor/improvement when 'Improvement' selected
+# @gbadsDash.callback(
+#     Output('select-factor-ecs','options'),
+#     Output('select-factor-ecs','style'),
+#     Output('select-factor-ecs-title','style'),
+#     Output('select-improve-ecs','options'),
+#     Output('select-improve-ecs','style'),
+#     Output('select-improve-ecs-title','style'),
+#     Input('select-compare-ecs','value'),
+#     )
+# def update_improvment_factors(compare):
+#     options1 = ecs_factor_options.copy()
+#     options2 = ecs_improve_options.copy()
+#     for d in options1:
+#         if compare == 'Improvement':
+#             block = {'display': 'block'}
+#             if d['value'] != 'Lactation':
+#                 d['disabled']=False
+#         else:
+#             block = {'display': 'none'} # hide the improvement options
+#             d['disabled']=True
+#     for d in options2:
+#         if compare == 'Improvement':
+#             block = {'display': 'block'}
+#             d['disabled']=False
+#         else:
+#             block = {'display': 'none'} # hide the improvement options
+#             d['disabled']=True
+
+#     return options1, block, block, options2, block, block
+
 # Usage and Price sliders
 # am-usage-slider-africa
 @gbadsDash.callback(
@@ -8496,13 +8645,11 @@ def update_map_amu (viz_switch, quantity):
         if quantity == 'Tonnes':
             amu_map_fig.update_traces(hovertemplate=
                                       "<b>%{customdata[0]}</b><br>" +
-                                      # "Region: %{customdata[0]}<br>" +
                                       "AMU: %{customdata[1]:,.0f} tonnes<br>" +
                                       "<extra></extra>",)
         else:
             amu_map_fig.update_traces(hovertemplate=
                                       "<b>%{customdata[0]}</b><br>" +
-                                      # "Region: %{customdata[0]}<br>" +
                                       "AMU: %{customdata[1]:,.0f} mg per kg biomass<br>" +
                                       "<extra></extra>",)
 

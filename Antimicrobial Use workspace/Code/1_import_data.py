@@ -741,17 +741,6 @@ woah_regions_foramr = woah_regions.copy()
 amr['location_name'] = amr['location_name'].str.upper()
 woah_regions_foramr['country'] = woah_regions_foramr['country'].str.upper()
 
-# import difflib
-# amr['country_fuzzy'] = amr['map_id'].apply(
-#     lambda x: difflib.get_close_matches(x, woah_regions_foramr['country'] ,cutoff=0.2)[0]
-# )
-# check_countrymatch = amr[['map_id' ,'country_fuzzy']].value_counts()
-
-# woah_regions_foramr['iso3_fuzzy'] = woah_regions_foramr['country'].apply(
-#     lambda x: difflib.get_close_matches(x, amr['map_id'] ,cutoff=0.1)[0]
-# )
-# check_countrymatch = woah_regions_foramr[['country' ,'iso3_fuzzy']].value_counts()
-
 datainfo(amr)
 
 # Rename countries

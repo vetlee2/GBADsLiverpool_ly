@@ -134,10 +134,31 @@ amu2018_combined_tall.loc[amu2018_combined_tall['antimicrobial_class'].isin(top3
 # =============================================================================
 #### Add biomass data
 # =============================================================================
+# Pivot Biomass to get countries reporting and total region into columns
+# Keep total biomass and terrestrial biomass
+amu2018_biomass_p = amu2018_biomass.query("region != 'Global'").pivot(
+    index='region'
+    ,columns='segment'
+    ,values=['biomass_total_kg' ,'biomass_total_terr_kg']
+)
+amu2018_biomass_p = colnames_from_index(amu2018_biomass_p) 	# If multi-indexed columns were created, flatten index
+cleancolnames(amu2018_biomass_p)
+amu2018_biomass_p = amu2018_biomass_p.reset_index()           # Pivoting will change columns to indexes. Change them back.
+amu2018_biomass_p = amu2018_biomass_p.rename(
+    columns={
+        "biomass_total_kg_countries_reporting_amu_data":"biomass_total_kg_reporting"
+        ,"biomass_total_kg_total_region":"biomass_total_kg_region"
+        ,"biomass_total_terr_kg_countries_reporting_amu_data":"biomass_terr_kg_reporting"
+        ,"biomass_total_terr_kg_total_region":"biomass_terr_kg_region"
+        }
+)
+datainfo(amu2018_biomass_p)
+
 # Merge
 amu2018_combined_tall = pd.merge(
     left=amu2018_combined_tall
-    ,right=amu2018_biomass.query("segment == 'Countries reporting AMU data'")[['region' ,'biomass_total_kg' ,'biomass_total_terr_kg']]
+    # ,right=amu2018_biomass.query("segment == 'Countries reporting AMU data'")[['region' ,'biomass_total_kg' ,'biomass_total_terr_kg']]
+    ,right=amu2018_biomass_p
     ,on='region'
     ,how='left'
 )
@@ -145,17 +166,22 @@ amu2018_combined_tall = pd.merge(
 # Apply appropriate biomass to each row based on scope
 def biomass_for_scope(INPUT_ROW):
     if INPUT_ROW['scope'].upper() == 'ALL':
-        OUTPUT = INPUT_ROW['biomass_total_kg']
+        reporting = INPUT_ROW['biomass_total_kg_reporting']
+        region = INPUT_ROW['biomass_total_kg_region']
     elif INPUT_ROW['scope'].upper() == 'TERRESTRIAL FOOD PRODUCING':
-        OUTPUT = INPUT_ROW['biomass_total_terr_kg']
+        reporting = INPUT_ROW['biomass_terr_kg_reporting']
+        region = INPUT_ROW['biomass_terr_kg_region']
     else:
-        OUTPUT = np.nan
-    return OUTPUT
-amu2018_combined_tall['biomass_total_kg'] = amu2018_combined_tall.apply(biomass_for_scope ,axis=1)
-del amu2018_combined_tall['biomass_total_terr_kg']
+        reporting = np.nan
+        region = np.nan
+    return pd.Series([reporting ,region])
+amu2018_combined_tall[['biomass_total_kg_reporting' ,'biomass_total_kg_region']] = amu2018_combined_tall.apply(biomass_for_scope ,axis=1)
+amu2018_combined_tall = amu2018_combined_tall.drop(columns=['biomass_terr_kg_reporting' ,'biomass_terr_kg_region'])
+
+amu2018_combined_tall['biomass_prpn_reporting'] = amu2018_combined_tall['biomass_total_kg_reporting'] / amu2018_combined_tall['biomass_total_kg_region']
 
 # Calculate AMU per kg biomass
-amu2018_combined_tall['amu_mg_perkgbiomass'] = (amu2018_combined_tall['amu_tonnes'] / amu2018_combined_tall['biomass_total_kg']) * 1e9
+amu2018_combined_tall['amu_mg_perkgbiomass'] = (amu2018_combined_tall['amu_tonnes'] / amu2018_combined_tall['biomass_total_kg_reporting']) * 1e9
 
 # =============================================================================
 #### Export
@@ -228,6 +254,7 @@ amu_combined_regional = pd.merge(
 )
 amu_combined_regional['terr_amu_tonnes_reporting_2020'] = \
     amu_combined_regional['terr_amu_tonnes_reporting'] * (1 + amu_combined_regional['prpn_change_2018to2020'])
+datainfo(amu_combined_regional)
 
 # -----------------------------------------------------------------------------
 # Add estimate of region-total AMU by extrapolating from the countries reporting
@@ -271,6 +298,7 @@ amu_combined_regional = pd.merge(
     ,right_on='woah_region'
     ,how='left'
 )
+datainfo(amu_combined_regional)
 
 # =============================================================================
 #### Add prices
@@ -281,6 +309,54 @@ amu_combined_regional = pd.merge(
     ,on='region'
     ,how='left'
 )
+datainfo(amu_combined_regional)
+
+# =============================================================================
+#### Add AMR
+# =============================================================================
+amr_withrgn_working = amr_withrgn.copy()
+
+# Add prevalence weighted by isolates
+amr_withrgn_working['overall_prev_x_isolates'] = amr_withrgn_working['overall_prev'] * amr_withrgn_working['sum_isolates']
+
+# Aggregate to region level
+# Using E.coli as indicator, same as EFSA paper (https://www.efsa.europa.eu/en/efsajournal/pub/5017)
+amr_regional = amr_withrgn_working.query("pathogen == 'E. coli'").pivot_table(
+    index=['woah_region' ,'reporting_year']
+    ,values=['overall_prev_x_isolates' ,'sum_isolates']
+    ,aggfunc='sum'
+)
+amr_regional = amr_regional.add_suffix('_sum')
+amr_regional = amr_regional.reset_index()
+amr_regional['overall_prev'] = amr_regional['overall_prev_x_isolates_sum'] / amr_regional['sum_isolates_sum']
+
+# Merge with AMU
+amr_regional_tomerge = amr_regional.query("reporting_year == 2018")   # 2018 is last year with data for all regions
+keep_rename_cols = {
+    'woah_region':'region'
+    ,'overall_prev':'amr_prevalence'
+}
+amr_regional_tomerge = amr_regional_tomerge[list(keep_rename_cols)].rename(columns=keep_rename_cols)
+
+amu_combined_regional = pd.merge(
+    left=amu_combined_regional
+    ,right=amr_regional_tomerge
+    ,on='region'
+    ,how='left'
+)
+datainfo(amu_combined_regional)
+
+# -----------------------------------------------------------------------------
+# Calculate drug resistance index
+# -----------------------------------------------------------------------------
+# Simple index from Agunos paper (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6509235/#B18)
+# Resistance x biomass
+amu_combined_regional['amr_index_agunos'] = \
+    amu_combined_regional['amr_prevalence'] * amu_combined_regional['biomass_total_kg_region'] \
+        / 1e9   # Adjust downward
+
+amu_combined_regional['amr_index_agunos_usage'] = \
+    amu_combined_regional['amr_index_agunos'] * amu_combined_regional['total_antimicrobials_tonnes']
 
 # =============================================================================
 #### Export
@@ -298,7 +374,7 @@ amr_withrgn_working = amr_withrgn.copy()
 amr_withrgn_working['overall_prev_x_isolates'] = amr_withrgn_working['overall_prev'] * amr_withrgn_working['sum_isolates']
 
 # =============================================================================
-#### Add summary rows
+#### Add summary rows for plotting
 # =============================================================================
 # Antimicrobial = ALL for a given country, year, and pathogen
 # Reporting the average prevalence across all antimicrobials, weighted by sum_isolates.

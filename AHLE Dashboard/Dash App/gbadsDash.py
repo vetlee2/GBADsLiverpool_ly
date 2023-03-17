@@ -418,7 +418,15 @@ ga_countries_biomass.dropna(subset=['species'], inplace=True)
 # Antimicrobial Usage
 # -----------------------------------------------------------------------------
 amu2018_combined_tall = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu2018_combined_tall.csv"))
-amu2018_combined_tall["countries_reporting"] = amu2018_combined_tall['region']+":"+round(amu2018_combined_tall['number_of_countries'],0).astype(int).astype(str)
+
+# Create region labels with number of countries reporting
+# amu2018_combined_tall["region_with_countries_reporting"] = \
+#     amu2018_combined_tall['region'] + " (" + round(amu2018_combined_tall['number_of_countries'] ,0).astype(int).astype(str) + ")"
+
+# Create region labels with proportion of biomass represented in countries reporting
+amu2018_combined_tall["region_with_countries_reporting"] = \
+    amu2018_combined_tall['region'] + " (" + round(amu2018_combined_tall['biomass_prpn_reporting'] * 100 ,1).astype(str) + "%)"
+
 amu_combined_regional = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_combined_regional.csv"))
 # amu_uncertainty_data = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_uncertainty_data.csv"))
 
@@ -1972,7 +1980,7 @@ def create_donut_chart_amu(input_df, value, names):
 
 def create_tree_map_amu(input_df, value):
     tree_map_fig = px.treemap(input_df,
-                              path=[px.Constant("Global"), 'countries_reporting', 'who_importance_ctg', 'antimicrobial_class'],
+                              path=[px.Constant("Global"), 'region_with_countries_reporting', 'who_importance_ctg', 'antimicrobial_class'],
                               values=value,
                               color='region',
                               color_discrete_map={'(?)':'lightgrey', 'Africa':'#636FFA', 'Americas':'#EF553B', 'Asia, Far East and Oceania':'#00CC97', 'Europe':'#AB63FA', 'Middle East':'#FFC091'},
@@ -8175,7 +8183,9 @@ def update_table_display_amu(dummy_input):
        'region':'Region'
        ,'scope':'Scope'
        ,'number_of_countries':'Number of Countries'
-       ,'biomass_total_kg':'Total Biomass (kg)'
+       ,'biomass_total_kg_reporting':'Total Biomass in Countries Reporting (kg)'
+       ,'biomass_total_kg_region':'Total Biomass in Region (kg)'
+       # ,'biomass_prpn_reporting':''
        ,'antimicrobial_class': 'Antimicrobial Class'
        ,'who_importance_ctg':'WHO Importance Category'
        ,'woah_importance_ctg':'WOAH Importance Category'
@@ -8190,7 +8200,8 @@ def update_table_display_amu(dummy_input):
     # Order does not matter in these lists
     # Zero decimal places
     display_data.update(display_data[[
-        'biomass_total_kg'
+        'biomass_total_kg_reporting'
+        ,'biomass_total_kg_region'
     ]].applymap('{:,.0f}'.format))
 
     # One decimal place
@@ -8204,7 +8215,7 @@ def update_table_display_amu(dummy_input):
     ]].applymap('{:,.2f}'.format))
 
     return [
-            html.H4("Antimicrobial Data 2018"),
+            html.H4("WOAH Antimicrobial Data 2018"),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 # fixed_rows={'headers': True, 'data': 0},
@@ -8296,7 +8307,7 @@ def update_regional_display_amu(input_json):
         }
 
     return [
-            html.H4("Regional Estimates"),
+            html.H4("Extrapolated Regional Data"),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 # fixed_rows={'headers': True, 'data': 0},
@@ -8553,14 +8564,12 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
     stackedbar_df = amu2018_combined_tall.copy()
     stackedbar_df = stackedbar_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
 
-    x_var = 'countries_reporting'
+    x_var = 'region_with_countries_reporting'
 
     if quantity.upper() == 'TONNES':
         y_var = 'amu_tonnes'
-        y_label = "AMU Tonnes"
     elif quantity.upper() == 'MG PER KG BIOMASS':
         y_var = 'amu_mg_perkgbiomass'
-        y_label = "AMU mg per Kg Biomass"
 
     if classification.upper() == 'WHO IMPORTANCE CATEGORIES':
         color = 'who_importance_ctg'
@@ -8581,16 +8590,15 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
 
     # Specify additonal colors
     # Taking the 10 colors from the default 'Plotly' (px.colors.qualitative.Plotly) color sequence and adding to it
-    addiitonal_colors = ['#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', '#19D3F3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52',"#C6CAFD", "#F7A799", "#33FFC9"]
+    additional_colors = ['#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', '#19D3F3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52',"#C6CAFD", "#F7A799", "#33FFC9"]
 
     # Options to change between graphs
     if select_amu_graph.upper() == 'TOTAL':
         amu_bar_fig = px.histogram(stackedbar_df, x=x_var, y=y_var,
                          color=color,
-                         color_discrete_sequence=addiitonal_colors,
+                         color_discrete_sequence=additional_colors,
                          labels={
                              x_var: "",
-                             y_var: y_label,
                              "who_importance_ctg": "WHO Importance Category",
                              "woah_importance_ctg": "WOAH Importance Category",
                              "onehealth_importance_ctg": "OneHealth Importance Category",
@@ -8599,12 +8607,11 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
                              }
                          )
 
-
         # Add title
         amu_bar_fig.update_layout(title_text=f'Regional AMU {quantity} by {classification}<br><sup>for countries reporting to WOAH</sup>',
-                                      font_size=15,
-                                      plot_bgcolor="#ededed",
-                                      )
+                                  font_size=15,
+                                  plot_bgcolor="#ededed",
+                                  )
         amu_bar_fig.update_yaxes(title_text=f"AMU {quantity}")
 
 
@@ -8659,7 +8666,6 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
              text_auto='.1f',
              labels={
                 x_var: "",
-                y_var: y_label,
                 "antimicrobial_class_group": "Antimicrobial Class"})
 
          # Add title
@@ -8791,7 +8797,7 @@ def update_expenditure_amu(input_json):
             ,'region':'Region'
             }
         )
-    bar_fig.update_layout(title_text='Estimated Antimicrobial Expenditure for Terrestrial Livestock')
+    bar_fig.update_layout(title_text='Estimated Antimicrobial Expenditure<br><sup>Terrestrial Livestock')
     return bar_fig
 
 # AMU for terrestrial animals, with uncertainty

@@ -405,7 +405,7 @@ _drop_countries = (ga_countries_biomass['country'].isin(drop_countries))
 ga_countries_biomass = ga_countries_biomass.loc[~ _drop_countries]
 
 # Keep history only to 2015
-ga_countries_biomass = ga_countries_biomass.loc[ga_countries_biomass['year'] >= 2015]
+# ga_countries_biomass = ga_countries_biomass.loc[ga_countries_biomass['year'] >= 2015]
 
 # Drop missing values from species
 ga_countries_biomass['species'].replace('', np.nan, inplace=True)
@@ -964,10 +964,15 @@ for i in options['country'].unique():
 #### Antimicrobial Usage (AMU) options
 # =============================================================================
 # Map display
+# amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["AMU: tonnes",
+#                                                                                  "AMU: mg per kg biomass",
+#                                                                                  "Biomass",
+#                                                                                  "AMR",]]
 amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["AMU: tonnes",
                                                                                  "AMU: mg per kg biomass",
-                                                                                 "Biomass",
-                                                                                 "AMR",]]
+                                                                                 "Biomass",]]
+
+amu_map_display_options += [{'label': i, 'value': i, 'disabled': True} for i in ["AMR"]]
 
 # Antimicrobial Class
 amu_antimicrobial_class_options = []
@@ -1975,7 +1980,7 @@ def create_map_display_amu(input_df, value):
                                  hover_name="region",
                                  size=value,
                                  projection="natural earth",
-                                 custom_data=['region', value]
+                                 custom_data=['region', value, 'number_of_countries']
                                  )
 
     return amu_map_fig
@@ -2003,6 +2008,7 @@ def create_tree_map_amu(input_df, value):
     tree_map_fig = px.treemap(input_df,
                               path=[px.Constant("Global"), 'region_with_countries_reporting', 'who_importance_ctg', 'antimicrobial_class'],
                               values=value,
+                              maxdepth=3,
                               color='region',
                               color_discrete_map={'(?)':'lightgrey', 'Africa':'#636FFA', 'Americas':'#EF553B', 'Asia, Far East and Oceania':'#00CC97', 'Europe':'#AB63FA', 'Middle East':'#FFC091'},
                               )
@@ -3696,14 +3702,14 @@ gbadsDash.layout = html.Div([
             dbc.Col([
                 html.H6("Global Visualization"),
                 dcc.RadioItems(id='select-viz-switch-amu',
-                              options=['Drilldown', 'Map'],
-                              value='Drilldown',
+                              options=['Drill Down', 'Map'],
+                              value='Drill Down',
                               labelStyle={'display': 'block'},
                               inputStyle={"margin-right": "10px"},
                               ),
                 ],  width=1),
             
-            # Map Display/Drilldown switch
+            # Map Display/Drill Down switch
             dbc.Col([
                 html.H6("Map Display", id='select-map-display-drilldown-amu-title'),
                 dcc.Dropdown(id='select-map-display-drilldown-amu',
@@ -8003,8 +8009,8 @@ def update_map_display_drilldown_switch(viz_switch):
         title = 'Map Display'
     else:
         options = ['AMU: tonnes', 'AMU: mg per kg biomass']
-        value = 'AMU: tonnes'
-        title = 'Drilldown Display'
+        value = 'AMU: mg per kg biomass'
+        title = 'Drill Down Display'
 
     return options, value, title
 
@@ -8039,37 +8045,6 @@ def update_map_amr_options(display_option):
             
     return options1, block, block, options2, block, block
 
-
-# # Enable the options for factor/improvement when 'Improvement' selected
-# @gbadsDash.callback(
-#     Output('select-factor-ecs','options'),
-#     Output('select-factor-ecs','style'),
-#     Output('select-factor-ecs-title','style'),
-#     Output('select-improve-ecs','options'),
-#     Output('select-improve-ecs','style'),
-#     Output('select-improve-ecs-title','style'),
-#     Input('select-compare-ecs','value'),
-#     )
-# def update_improvment_factors(compare):
-#     options1 = ecs_factor_options.copy()
-#     options2 = ecs_improve_options.copy()
-#     for d in options1:
-#         if compare == 'Improvement':
-#             block = {'display': 'block'}
-#             if d['value'] != 'Lactation':
-#                 d['disabled']=False
-#         else:
-#             block = {'display': 'none'} # hide the improvement options
-#             d['disabled']=True
-#     for d in options2:
-#         if compare == 'Improvement':
-#             block = {'display': 'block'}
-#             d['disabled']=False
-#         else:
-#             block = {'display': 'none'} # hide the improvement options
-#             d['disabled']=True
-
-#     return options1, block, block, options2, block, block
 
 # Usage and Price sliders
 # am-usage-slider-africa
@@ -8583,29 +8558,52 @@ def update_regional_display_amu(input_json):
 @gbadsDash.callback(
     Output('amu-map', 'figure'),
     Input('select-viz-switch-amu','value'),
-    Input('select-quantity-amu-tonnes','value'),
+    Input('select-map-display-drilldown-amu','value'),
     )
 def update_map_amu (viz_switch, quantity):
     input_df = amu2018_combined_tall.copy()
+    input_df_amr = amr_withsmry.copy()
 
     # Filter scope to All and remove nulls from importance category
     input_df = input_df.query("scope == 'All'")
+    
+    # Sort AMR data by year
+    input_df_amr = input_df_amr.sort_values(by=['reporting_year'])
 
-    # Use selected quantity value
-    if quantity == 'Tonnes':
+    # Use selected quantity value (AMU & AMR)
+    if quantity == 'AMU: tonnes':
         value = input_df['amu_tonnes']
         map_value = input_df['amu_tonnes_by_region'] = input_df['amu_tonnes'].groupby(input_df['region']).transform('sum')
-    else:
+    elif quantity == 'AMU: mg per kg biomass':
         value = input_df['amu_mg_perkgbiomass']
         map_value = input_df['amu_mg_perkgbiomass_by_region'] = input_df['amu_mg_perkgbiomass'].groupby(input_df['region']).transform('sum')
+    elif quantity == 'Biomass':
+        map_value = input_df['biomass_total_kg_reporting']
+    elif quantity == 'AMR':
+        # map_value = input_df_amr['overall_prev_for_all_combos'] = input_df_amr['overall_prev'].groupby(input_df_amr['location_name']).transform('sum')
+        map_value = input_df_amr['overall_prev']
 
     # Visualization switch between map and tree map
     if viz_switch == 'Map':
-        # Use create map defined above
-        amu_map_fig = create_map_display_amu(input_df, map_value)
+        
+        # Create Map for AMR prevalence
+        if quantity == 'AMR':
+           amu_map_fig = px.scatter_geo(input_df_amr,
+                                        locations="location_name",
+                                        locationmode='country names',
+                                        color="woah_region",
+                                        hover_name="woah_region",
+                                        animation_frame='reporting_year',
+                                        size=map_value,
+                                        projection="natural earth",
+                                        custom_data=['woah_region', map_value, 'location_name']
+                                        ) 
+        else:
+            # Use create map defined above for AMU
+            amu_map_fig = create_map_display_amu(input_df, map_value)
 
         # Add title
-        amu_map_fig.update_layout(title_text=f'Global AMU {quantity}',
+        amu_map_fig.update_layout(title_text=f'Global {quantity}',
                                       font_size=15,
                                       plot_bgcolor="#ededed",)
 
@@ -8617,15 +8615,29 @@ def update_map_amu (viz_switch, quantity):
             ))
 
         # Update hoverover
-        if quantity == 'Tonnes':
+        if quantity == 'AMU: tonnes':
             amu_map_fig.update_traces(hovertemplate=
                                       "<b>%{customdata[0]}</b><br>" +
                                       "AMU: %{customdata[1]:,.0f} tonnes<br>" +
+                                      "# of countries reporting: %{customdata[2]}" +
                                       "<extra></extra>",)
-        else:
+        elif quantity == 'AMU: mg per kg biomass':
             amu_map_fig.update_traces(hovertemplate=
                                       "<b>%{customdata[0]}</b><br>" +
                                       "AMU: %{customdata[1]:,.0f} mg per kg biomass<br>" +
+                                      "# of countries reporting: %{customdata[2]}" +
+                                      "<extra></extra>",)
+        elif quantity == 'Biomass':
+            amu_map_fig.update_traces(hovertemplate=
+                                      "<b>%{customdata[2]}</b><br>" +
+                                      "Biomass: %{customdata[1]:,.0f}<br>" +
+                                      "# of countries reporting: %{customdata[2]}" +
+                                      "<extra></extra>",)
+        elif quantity == 'AMR':
+            amu_map_fig.update_traces(hovertemplate=
+                                      "<b>%{customdata[0]}</b><br>" +
+                                      "Country: %{customdata[2]}<br>" +
+                                      "Overall prevalence: %{customdata[1]:,.2f}%" +
                                       "<extra></extra>",)
 
 
@@ -8633,20 +8645,22 @@ def update_map_amu (viz_switch, quantity):
         input_df = input_df.query("antimicrobial_class != 'total_antimicrobials'")
 
         # Add custom data for hoverover
-        customdata = list(pd.DataFrame([f'{quantity}']).to_numpy())
-
+        if quantity == 'AMU: tonnes':
+            customdata = list(pd.DataFrame(['amu_tonnes']).to_numpy())
+        elif quantity == 'AMU: mg per kg biomass':
+            customdata = list(pd.DataFrame(['amu_mg_perkgbiomass_by_region']).to_numpy())
 
         # Use create map defined above
         amu_map_fig = create_tree_map_amu(input_df, value)
 
         # Add title
-        amu_map_fig.update_layout(title_text=f'AMU {quantity} Drilldown for countries reporting to WOAH',
+        amu_map_fig.update_layout(title_text=f'{quantity} drill down for countries reporting to WOAH',
                                       font_size=15,
                                       plot_bgcolor="#ededed",
                                       )
 
         # Update hoverover
-        if quantity == 'Tonnes':
+        if quantity == 'AMU: tonnes':
             amu_map_fig.update_traces(customdata=customdata,
                 hovertemplate=
                 "<b>%{label}</b><br>" +

@@ -964,15 +964,15 @@ for i in options['country'].unique():
 #### Antimicrobial Usage (AMU) options
 # =============================================================================
 # Map display
+amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["AMU: tonnes",
+                                                                                  "AMU: mg per kg biomass",
+                                                                                  "Biomass",
+                                                                                  "AMR",]]
 # amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["AMU: tonnes",
 #                                                                                  "AMU: mg per kg biomass",
-#                                                                                  "Biomass",
-#                                                                                  "AMR",]]
-amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["AMU: tonnes",
-                                                                                 "AMU: mg per kg biomass",
-                                                                                 "Biomass",]]
+#                                                                                  "Biomass",]]
 
-amu_map_display_options += [{'label': i, 'value': i, 'disabled': True} for i in ["AMR"]]
+# amu_map_display_options += [{'label': i, 'value': i, 'disabled': True} for i in ["AMR"]]
 
 # Antimicrobial Class
 amu_antimicrobial_class_options = []
@@ -3722,7 +3722,7 @@ gbadsDash.layout = html.Div([
                 html.H6("Antimircobials", id='select-antimicrobial-class-amu-title'),
                 dcc.Dropdown(id='select-antimicrobial-class-amu',
                       options=amu_antimicrobial_class_options,
-                      value='All',
+                      value='Aminoglycosides',
                       clearable=False,
                       ),
                 ]),
@@ -8023,8 +8023,9 @@ def update_map_display_drilldown_switch(viz_switch):
     Output('select-pathogens-amu','style'),
     Output('select-pathogens-amu-title','style'),
     Input('select-map-display-drilldown-amu','value'),
+    Input('select-antimicrobial-class-amu', 'value'),
     )
-def update_map_amr_options(display_option):
+def update_map_amr_options(display_option, antimicrobial_class):
     options1 = amu_antimicrobial_class_options.copy()
     options2 = amu_pathogen_options.copy()
     for d in options1:
@@ -8034,9 +8035,17 @@ def update_map_amr_options(display_option):
         else:
             block = {'display': 'none'} # hide antimicrobial class dropdown
             d['disabled']=True
-            
+    
+    # Pathogen options
     for d in options2:
+      
         if display_option == 'AMR':
+            # Filter data based on antimicrobial class selected
+            input_df=amr_withsmry.query(f"antimicrobial_class == '{antimicrobial_class}'")
+            options2 = []
+            for i in input_df['pathogen'].unique():
+                str(options2.append({'label':i,'value':(i)}))
+                
             block = {'display': 'block'}
             d['disabled']=False
         else:
@@ -8044,6 +8053,16 @@ def update_map_amr_options(display_option):
             d['disabled']=True
             
     return options1, block, block, options2, block, block
+
+# Output('select-pathogens-amu', 'options'),
+#     Input('select-antimicrobial-class-amu', 'value'),
+#     )
+# def update_pathogens_options_ga(antimicrobial_class):
+#     input_df=amr_withsmry.query(f"antimicrobial_class == '{antimicrobial_class}'")
+#     # Set options for pathogens based on the antimicrobial class selected
+#     options = []
+#     for i in input_df['pathogens'].unique():
+#         str(options.append({'label':i,'value':(i)}))
 
 
 # Usage and Price sliders
@@ -8223,6 +8242,21 @@ def update_usage_price_sliders(dummy_input):
         ,price_europe_min ,price_europe_max ,price_europe_mid ,price_step ,price_europe_marks \
         ,usage_mideast_min ,usage_mideast_max ,usage_mideast_mid ,usage_step ,usage_mideast_marks \
         ,price_mideast_min ,price_mideast_max ,price_mideast_mid ,price_step ,price_mideast_marks
+
+# # Update species options based on region and country selections
+# @gbadsDash.callback(
+#     Output('select-pathogens-amu', 'options'),
+#     Input('select-antimicrobial-class-amu', 'value'),
+#     )
+# def update_pathogens_options_ga(antimicrobial_class):
+#     input_df=amr_withsmry.query(f"antimicrobial_class == '{antimicrobial_class}'")
+#     # Set options for pathogens based on the antimicrobial class selected
+#     options = []
+#     for i in input_df['pathogens'].unique():
+#         str(options.append({'label':i,'value':(i)}))
+        
+#     return options
+
 
 # ------------------------------------------------------------------------------
 #### -- Data
@@ -8559,16 +8593,19 @@ def update_regional_display_amu(input_json):
     Output('amu-map', 'figure'),
     Input('select-viz-switch-amu','value'),
     Input('select-map-display-drilldown-amu','value'),
+    Input('select-antimicrobial-class-amu','value'),
+    Input('select-pathogens-amu','value'),
     )
-def update_map_amu (viz_switch, quantity):
+def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens):
     input_df = amu2018_combined_tall.copy()
     input_df_amr = amr_withsmry.copy()
 
     # Filter scope to All and remove nulls from importance category
     input_df = input_df.query("scope == 'All'")
     
-    # Sort AMR data by year
-    input_df_amr = input_df_amr.sort_values(by=['reporting_year'])
+    # Filter AMR to just 2018, selected antimicrobial class and pathogen, and sort data by region
+    input_df_amr = input_df_amr.query("reporting_year == 2018").query(f"antimicrobial_class == '{antimicrobial_class}'").query(f"pathogen == '{pathogens}'")
+    input_df_amr = input_df_amr.sort_values(by=['woah_region'])
 
     # Use selected quantity value (AMU & AMR)
     if quantity == 'AMU: tonnes':
@@ -8593,10 +8630,13 @@ def update_map_amu (viz_switch, quantity):
                                         locationmode='country names',
                                         color="woah_region",
                                         hover_name="woah_region",
-                                        animation_frame='reporting_year',
                                         size=map_value,
                                         projection="natural earth",
-                                        custom_data=['woah_region', map_value, 'location_name']
+                                        custom_data=['woah_region', 
+                                                     map_value, 
+                                                     'location_name',
+                                                     'antimicrobial_class',
+                                                     'pathogen']
                                         ) 
         else:
             # Use create map defined above for AMU
@@ -8637,7 +8677,9 @@ def update_map_amu (viz_switch, quantity):
             amu_map_fig.update_traces(hovertemplate=
                                       "<b>%{customdata[0]}</b><br>" +
                                       "Country: %{customdata[2]}<br>" +
-                                      "Overall prevalence: %{customdata[1]:,.2f}%" +
+                                      "Overall prevalence: %{customdata[1]:,.2f}%<br>" +
+                                      'Antimicrobial Class: %{customdata[3]}<br>'+
+                                      'Pathogen: %{customdata[4]}'
                                       "<extra></extra>",)
 
 

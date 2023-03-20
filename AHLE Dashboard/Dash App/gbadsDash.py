@@ -8643,9 +8643,14 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens):
             amu_map_fig = create_map_display_amu(input_df, map_value)
 
         # Add title
-        amu_map_fig.update_layout(title_text=f'Global {quantity}',
-                                      font_size=15,
-                                      plot_bgcolor="#ededed",)
+        if quantity == 'AMR':
+            amu_map_fig.update_layout(title_text=f'Global {quantity}<br><sup>{pathogens} pathogen(s) resistance to {antimicrobial_class} antimicrobials</sup>',
+                                          font_size=15,
+                                          plot_bgcolor="#ededed",)
+        else:
+            amu_map_fig.update_layout(title_text=f'Global {quantity}',
+                                          font_size=15,
+                                          plot_bgcolor="#ededed",)
 
         # Update legend title and location
         amu_map_fig.update_layout(legend=dict(

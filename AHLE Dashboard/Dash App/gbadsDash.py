@@ -967,7 +967,9 @@ for i in options['country'].unique():
 amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["AMU: tonnes",
                                                                                   "AMU: mg per kg biomass",
                                                                                   "Biomass",
-                                                                                  "AMR",]]
+                                                                                  "AMR",
+                                                                                  "AM expenditure: total",
+                                                                                  "AM expenditure: per kg biomass",]]
 # amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["AMU: tonnes",
 #                                                                                  "AMU: mg per kg biomass",
 #                                                                                  "Biomass",]]
@@ -8595,10 +8597,12 @@ def update_regional_display_amu(input_json):
     Input('select-map-display-drilldown-amu','value'),
     Input('select-antimicrobial-class-amu','value'),
     Input('select-pathogens-amu','value'),
+    Input('amu-regional-data', 'data'),
     )
-def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens):
+def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_json):
     input_df = amu2018_combined_tall.copy()
     input_df_amr = amr_withsmry.copy()
+    input_df_am_expend = pd.read_json(input_json, orient='split')
 
     # Filter scope to All and remove nulls from importance category
     input_df = input_df.query("scope == 'All'")
@@ -8617,8 +8621,12 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens):
     elif quantity == 'Biomass':
         map_value = input_df['biomass_total_kg_reporting']
     elif quantity == 'AMR':
-        # map_value = input_df_amr['overall_prev_for_all_combos'] = input_df_amr['overall_prev'].groupby(input_df_amr['location_name']).transform('sum')
         map_value = input_df_amr['overall_prev']
+    elif quantity == 'AM expenditure: total':
+        map_value = input_df_am_expend['am_expenditure_usd_selected']
+    elif quantity == 'AM expenditure: per kg biomass':
+        map_value = input_df_am_expend['am_expenditure_usd_perkg_selected']
+        
 
     # Visualization switch between map and tree map
     if viz_switch == 'Map':
@@ -8638,6 +8646,9 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens):
                                                      'antimicrobial_class',
                                                      'pathogen']
                                         ) 
+        elif quantity == 'AM expenditure: total' or quantity == 'AM expenditure: per kg biomass':
+            # Use create map defined above for AM expenditure
+            amu_map_fig = create_map_display_amu(input_df_am_expend, map_value)
         else:
             # Use create map defined above for AMU
             amu_map_fig = create_map_display_amu(input_df, map_value)
@@ -8645,6 +8656,14 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens):
         # Add title
         if quantity == 'AMR':
             amu_map_fig.update_layout(title_text=f'Global {quantity}<br><sup>{pathogens} pathogen(s) resistance to {antimicrobial_class} antimicrobials</sup>',
+                                          font_size=15,
+                                          plot_bgcolor="#ededed",)
+        elif quantity == 'AM expenditure: total':
+            amu_map_fig.update_layout(title_text='Total Antimicrobial Expenditure by Region',
+                                          font_size=15,
+                                          plot_bgcolor="#ededed",)
+        elif quantity == 'AM expenditure: per kg biomass':
+            amu_map_fig.update_layout(title_text= 'Antimicrobial Expenditure per kg Biomass by Region',
                                           font_size=15,
                                           plot_bgcolor="#ededed",)
         else:
@@ -8685,6 +8704,16 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens):
                                       "Overall prevalence: %{customdata[1]:,.2f}%<br>" +
                                       'Antimicrobial Class: %{customdata[3]}<br>'+
                                       'Pathogen: %{customdata[4]}'
+                                      "<extra></extra>",)
+        elif quantity == 'AM expenditure: total':
+            amu_map_fig.update_traces(hovertemplate=
+                                      "<b>%{customdata[0]}</b><br>" +
+                                      "Expenditure (USD): $%{customdata[1]:,.0f}" +
+                                      "<extra></extra>",)
+        elif quantity == 'AM expenditure: per kg biomass':
+            amu_map_fig.update_traces(hovertemplate=
+                                      "<b>%{customdata[0]}</b><br>" +
+                                      "Expenditure (USD): $%{customdata[1]:,.0f} per kg biomass" +
                                       "<extra></extra>",)
 
 
@@ -8907,21 +8936,57 @@ def update_donut_chart_amu (quantity, region, classification):
         names = input_df['who_importance_ctg']
         sort_by = 'who_importance_ctg'
         legend_title = 'WHO Importance Category'
+        # Set colors to sync across visuals
+        colors = {
+        "A: Critically Important": "black",
+        "B: Highly Important": "green",
+        "C: Other": "#00CC96",
+        "D: Unknown": "#AB63FA",
+        }
+        s = pd.Series(colors)
 
     elif classification == 'WOAH Importance Categories':
         names = input_df['woah_importance_ctg']
         sort_by = 'woah_importance_ctg'
         legend_title = 'WOAH Importance Category'
+        # Set colors to sync across visuals
+        colors = {
+        "A: Critically Important": "#636EFA",
+        "B: Highly Important": "#EF553B",
+        "C: Other": "#00CC96",
+        "D: Unknown": "#AB63FA",
+        }
+        s = pd.Series(colors)
 
     elif classification == 'OneHealth Importance Categories':
         names = input_df['onehealth_importance_ctg']
         sort_by = 'onehealth_importance_ctg'
         legend_title = 'OneHealth Importance Category'
+        # Set colors to sync across visuals
+        colors = {
+        "Important": "#636EFA",
+        "Other": "#00CC96",
+        "Unknown": "#AB63FA",
+        }
+        s = pd.Series(colors)
 
     elif classification == 'Top Global Classes':
         names = input_df['antimicrobial_class_group2']
         sort_by = 'antimicrobial_class'
         legend_title = 'Antimicrobial Class'
+        
+    # # Set colors to sync across visuals
+    # colors = {
+    # "A: Critically Important": "#636EFA",
+    # "B: Highly Important": "#EF553B",
+    # "C: Other": "#00CC96",
+    # "D: Unknown": "#AB63FA",
+    # # "Important": "#636EFA",
+    # # "Other": "#00CC96",
+    # # "Unknown": "#AB63FA",
+    # }
+    # s = pd.Series(colors)
+    # pie_fig.update_traces(marker=dict(colors=s))
 
 
     # Sort the data by classification to sync the legends across the visualizations
@@ -8943,6 +9008,10 @@ def update_donut_chart_amu (quantity, region, classification):
                                               ],
                                   legend_title_text=f'{legend_title}'
                                   )
+    
+    # Sync colors across visuals
+    if classification == 'WHO Importance Categories' or classification == 'WOAH Importance Categories' or classification == 'OneHealth Importance Categories':
+        amu_donut_fig.update_traces(marker=dict(colors=s))
 
     # Move legend to bottom
     amu_donut_fig.update_layout(legend=dict(

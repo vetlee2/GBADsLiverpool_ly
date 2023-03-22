@@ -724,7 +724,7 @@ print(amu_mulch_withrgn['_merge'].value_counts())
 amu_mulch_withrgn = amu_mulch_withrgn.drop(columns=['country_tomatch' ,'_merge'])
 datainfo(amu_mulch_withrgn)
 
-#%% Import AMR data
+#%% Import AMR data - summarized version
 
 amr = pd.read_csv(os.path.join(RAWDATA_FOLDER ,'SBM_JSA_AMR_livestock.csv'))
 cleancolnames(amr)
@@ -810,6 +810,77 @@ amr_withrgn['prop_97_5'] = amr_withrgn['prop_97_5'] / 100
 datainfo(amr_withrgn)
 amr_withrgn.to_csv(os.path.join(PRODATA_FOLDER ,'amr.csv') ,index=False)
 amr_withrgn.to_csv(os.path.join(DASH_DATA_FOLDER ,'amr.csv') ,index=False)
+
+#%% Import AMR data - raw version
+
+amr_full = pd.read_csv(os.path.join(RAWDATA_FOLDER ,'livestock_AMR_raw_data.csv'))
+cleancolnames(amr_full)
+datainfo(amr_full)
+
+# =============================================================================
+#### Add WOAH regions
+# =============================================================================
+woah_regions_foramr = woah_regions.copy()
+
+amr_full['location_name'] = amr_full['location_name'].str.upper()
+woah_regions_foramr['country'] = woah_regions_foramr['country'].str.upper()
+
+datainfo(amr_full)
+
+# Rename countries
+rename_countries_woah = {
+    "CHINA (PEOPLE'S REP. OF)":"CHINA"
+    ,"KOREA (REP. OF)":"KOREA"
+    }
+woah_regions_foramr['country_tomatch'] = woah_regions_foramr['country'].replace(rename_countries_woah)
+
+woah_add_countries = pd.DataFrame(
+    {"country_tomatch":["GRENADA" ,"SAINT LUCIA"]
+     ,"woah_region":["Americas" ,"Americas"]}
+    )
+woah_regions_foramr = pd.concat([woah_regions_foramr ,woah_add_countries])
+
+rename_countries_amr = {
+    "BOLIVIA (PLURINATIONAL STATE OF)":"BOLIVIA"
+    ,"CÔTE D'IVOIRE":"COTE D'IVOIRE"
+    ,"CZECHIA":"CZECH REPUBLIC"
+    ,"IRAN (ISLAMIC REPUBLIC OF)":"IRAN"
+    ,"LAO PEOPLE'S DEMOCRATIC REPUBLIC":"LAOS"
+    ,"REPUBLIC OF KOREA":"KOREA"
+    ,"UNITED REPUBLIC OF TANZANIA":"TANZANIA"
+    ,"VENEZUELA (BOLIVARIAN REPUBLIC OF)":"VENEZUELA"
+    ,"VIET NAM":"VIETNAM"
+    }
+amr_full['country_tomatch'] = amr_full['location_name'].replace(rename_countries_amr)
+
+# Merge
+amr_full_withrgn = pd.merge(
+    left=amr_full
+    ,right=woah_regions_foramr
+    ,on='country_tomatch'
+    ,how='left'
+    ,indicator=True
+)
+print(amr_full_withrgn['_merge'].value_counts())
+
+amr_full_withrgn.query("_merge == 'left_only'")['location_name'].unique()
+
+amr_full_withrgn = amr_full_withrgn.drop(columns=['country_tomatch' ,'country' ,'_merge'])
+
+datainfo(amr_full_withrgn)
+
+# =============================================================================
+#### Basic calcs
+# =============================================================================
+# Divide resistance by 100 to make clear it is a rate
+amr_full_withrgn['rescom'] = amr_full_withrgn['rescom'] / 100
+
+# =============================================================================
+#### Export
+# =============================================================================
+datainfo(amr_full_withrgn)
+amr_full_withrgn.to_csv(os.path.join(PRODATA_FOLDER ,'amr_full.csv') ,index=False)
+amr_full_withrgn.to_csv(os.path.join(DASH_DATA_FOLDER ,'amr_full.csv') ,index=False)
 
 #%% Checks
 

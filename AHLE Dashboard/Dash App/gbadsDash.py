@@ -8832,9 +8832,9 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
     #   "D: Unknown": '#AB63FA',
     #   "Unknown": '#AB63FA',
     #   # Individual classes/top classes
-    #   "macrolides": '',
-    #   "penicillins": '',
-    #   "tetracyclines": '',
+    #   "macrolides": '#19D3F3',
+    #   "penicillins": '#FF6692',
+    #   "tetracyclines": '#C6CAFD',
     #   "others": 'grey'
     #   }
     

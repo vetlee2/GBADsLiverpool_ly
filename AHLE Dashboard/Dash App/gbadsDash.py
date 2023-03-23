@@ -1982,7 +1982,12 @@ def create_map_display_amu(input_df, value):
                                  hover_name="region",
                                  size=value,
                                  projection="natural earth",
-                                 custom_data=['region', value, 'number_of_countries']
+                                 custom_data=['region', value, 'number_of_countries'],
+                                 color_discrete_map={"Asia, Far East and Oceania": 'rgb(102,197,204)',
+                                                     "Americas": 'rgb(248,156,116)',
+                                                     "Europe": 'rgb(220,176,242)',
+                                                     "Africa": 'rgb(135,197,95)',
+                                                     "Middle East": 'rgb(254,136,177)'}
                                  )
 
     return amu_map_fig
@@ -2012,7 +2017,8 @@ def create_tree_map_amu(input_df, value):
                               values=value,
                               maxdepth=3,
                               color='region',
-                              color_discrete_map={'(?)':'lightgrey', 'Africa':'#636FFA', 'Americas':'#EF553B', 'Asia, Far East and Oceania':'#00CC97', 'Europe':'#AB63FA', 'Middle East':'#FFC091'},
+                              # color_discrete_map={'(?)':'lightgrey', 'Africa':'#636FFA', 'Americas':'#EF553B', 'Asia, Far East and Oceania':'#00CC97', 'Europe':'#AB63FA', 'Middle East':'#FFC091'},
+                              color_discrete_map={'(?)':'lightgrey', 'Africa':'rgb(135,197,95)', 'Americas':'rgb(248,156,116)', 'Asia, Far East and Oceania':'rgb(102,197,204)', 'Europe':'rgb(220,176,242)', 'Middle East':'rgb(254,136,177)'},
                               )
 
     # # Add value to bottom leaf node labels
@@ -3798,14 +3804,17 @@ gbadsDash.layout = html.Div([
                                        id='am-usage-slider-africa',
                                        handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
                                        vertical=True,
+                                       color= 'rgb(135,197,95)',
                                        ),
                                    ]),
+                               #                     "Middle East": 'rgb(254,136,177)'}
                                dbc.Col([
                                    html.H6("Price"),
                                    daq.Slider(
                                        id='am-price-slider-africa',
                                        handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
                                        vertical=True,
+                                       color= 'rgb(135,197,95)',
                                        ),
                                    ]),
                                dbc.Col([
@@ -3814,6 +3823,7 @@ gbadsDash.layout = html.Div([
                                        id='am-usage-slider-americas',
                                        handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
                                        vertical=True,
+                                       color='rgb(248,156,116)',
                                        ),
                                    ]),
                                dbc.Col([
@@ -3822,6 +3832,7 @@ gbadsDash.layout = html.Div([
                                        id='am-price-slider-americas',
                                        handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
                                        vertical=True,
+                                       color='rgb(248,156,116)',
                                        ),
                                    ]),
                                dbc.Col([
@@ -3830,6 +3841,7 @@ gbadsDash.layout = html.Div([
                                        id='am-usage-slider-asia',
                                        handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
                                        vertical=True,
+                                       color='rgb(102,197,204)',
                                        ),
                                    ]),
                                dbc.Col([
@@ -3838,6 +3850,7 @@ gbadsDash.layout = html.Div([
                                        id='am-price-slider-asia',
                                        handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
                                        vertical=True,
+                                       color='rgb(102,197,204)',
                                        ),
                                    ]),
                                dbc.Col([
@@ -3846,6 +3859,7 @@ gbadsDash.layout = html.Div([
                                        id='am-usage-slider-europe',
                                        handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
                                        vertical=True,
+                                       color='rgb(220,176,242)',
                                        ),
                                    ]),
                                dbc.Col([
@@ -3854,6 +3868,7 @@ gbadsDash.layout = html.Div([
                                        id='am-price-slider-europe',
                                        handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
                                        vertical=True,
+                                       color='rgb(220,176,242)',
                                        ),
                                    ]),
                                dbc.Col([
@@ -3862,6 +3877,7 @@ gbadsDash.layout = html.Div([
                                        id='am-usage-slider-mideast',
                                        handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
                                        vertical=True,
+                                       color='',
                                        ),
                                    ]),
                                dbc.Col([
@@ -3978,7 +3994,7 @@ gbadsDash.layout = html.Div([
                          html.Div( id='amu-2018-combined-tall-todisplay'),
                    ], style={'margin-left':"20px" ,"width":"95%"}),
 
-               html.Br() # Spacer for bottom of page
+               html.Br() # Space in between tables
 
                ]),# END OF COL
                # End of Spinner
@@ -8644,7 +8660,12 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
                                                      map_value, 
                                                      'location_name',
                                                      'antimicrobial_class',
-                                                     'pathogen']
+                                                     'pathogen'],
+                                        color_discrete_map={"Asia, Far East and Oceania": 'rgb(102,197,204)',
+                                                            "Americas": 'rgb(248,156,116)',
+                                                            "Europe": 'rgb(220,176,242)',
+                                                            "Africa": 'rgb(135,197,95)',
+                                                            "Middle East": 'rgb(254,136,177)'}
                                         ) 
         elif quantity == 'AM expenditure: total' or quantity == 'AM expenditure: per kg biomass':
             # Use create map defined above for AM expenditure
@@ -8880,7 +8901,7 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
                 x_var: "",
                 "antimicrobial_class_group": "Antimicrobial Class"})
 
-         # Add title
+         # Add titles
          amu_bar_fig.update_layout(title_text=f'Regional Percent of AMU {quantity} by {classification}<br><sup>for countries reporting to WOAH</sup>',
                                        font_size=15,
                                        plot_bgcolor="#ededed",
@@ -9045,11 +9066,21 @@ def update_expenditure_amu(input_json):
         x='region',
         y='am_expenditure_usd_selected',
         labels={
-            'am_expenditure_usd_selected':'Expenditure (USD)'
-            ,'region':'Region'
-            }
+            'am_expenditure_usd_selected':'Expenditure (USD)',
+            'region': ""
+            },
+        color="region",
+        color_discrete_map={"Asia, Far East and Oceania": 'rgb(102,197,204)',
+                            "Americas": 'rgb(248,156,116)',
+                            "Europe": 'rgb(220,176,242)',
+                            "Africa": 'rgb(135,197,95)',
+                            "Middle East": 'rgb(254,136,177)'}
         )
-    bar_fig.update_layout(title_text='Estimated Antimicrobial Expenditure<br><sup>Terrestrial Livestock')
+    
+    # Add title and hide legend
+    bar_fig.update_layout(title_text='Estimated Antimicrobial Expenditure<br><sup>Terrestrial Livestock',
+                          showlegend=False)
+        
     return bar_fig
 
 # AMU for terrestrial animals, with uncertainty

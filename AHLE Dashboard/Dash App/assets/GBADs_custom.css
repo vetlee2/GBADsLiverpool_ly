@@ -62,6 +62,9 @@ font-family: “Raleway”, sans-serif !important;
 /* Changes the default slider tracks to black */
 div.rc-slider-track {
   background-color: #333333 !important;
+  outline-color: black;
+  outline-width: thin;
+  outline-style: solid;
 }
 
 /* Region specific colors for AMU tab */

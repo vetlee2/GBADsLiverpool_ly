@@ -3606,7 +3606,7 @@ gbadsDash.layout = html.Div([
                              ,'OneHealth Importance Categories'
                              ,'Individual Classes'
                              ],
-                         value='Top Global Classes',
+                         value='WHO Importance Categories',
                          clearable=False,
                          ),
                    ]),
@@ -3807,7 +3807,6 @@ gbadsDash.layout = html.Div([
                                        color= 'rgb(135,197,95)',
                                        ),
                                    ]),
-                               #                     "Middle East": 'rgb(254,136,177)'}
                                dbc.Col([
                                    html.H6("Price"),
                                    daq.Slider(
@@ -3877,7 +3876,7 @@ gbadsDash.layout = html.Div([
                                        id='am-usage-slider-mideast',
                                        handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
                                        vertical=True,
-                                       color='',
+                                       color='rgb(254,136,177)',
                                        ),
                                    ]),
                                dbc.Col([
@@ -3886,6 +3885,7 @@ gbadsDash.layout = html.Div([
                                        id='am-price-slider-mideast',
                                        handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
                                        vertical=True,
+                                       color='rgb(254,136,177)',
                                        ),
                                    ]),
                                ]),
@@ -8377,7 +8377,7 @@ def update_table_display_amu(dummy_input):
                     'font-family':'sans-serif',
                     },
                 style_table={'overflowX': 'scroll',
-                              'height': '680px',
+                              'height': '350px',
                               'overflowY': 'auto'},
                 page_action='none',
             )
@@ -8824,7 +8824,20 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
     # Specify additonal colors
     # Taking the 10 colors from the default 'Plotly' (px.colors.qualitative.Plotly) color sequence and adding to it
     additional_colors = ['#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', '#19D3F3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52',"#C6CAFD", "#F7A799", "#33FFC9"]
-
+    # {"A: Critically Important": '#EF553B',
+    #   "Important": '#EF553B',
+    #   "B: Highly Important": '#00CC96',
+    #   "C: Other": '#636EFA',
+    #   "Other": '#636EFA',
+    #   "D: Unknown": '#AB63FA',
+    #   "Unknown": '#AB63FA',
+    #   # Individual classes/top classes
+    #   "macrolides": '',
+    #   "penicillins": '',
+    #   "tetracyclines": '',
+    #   "others": 'grey'
+    #   }
+    
     # Options to change between graphs
     if select_amu_graph.upper() == 'TOTAL':
         amu_bar_fig = px.histogram(stackedbar_df, x=x_var, y=y_var,
@@ -8916,7 +8929,6 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
         margin=dict(l=20, r=20, b=20),
         )
 
-
     return amu_bar_fig
 
 # AMU Donut chart
@@ -8959,12 +8971,14 @@ def update_donut_chart_amu (quantity, region, classification):
         legend_title = 'WHO Importance Category'
         # Set colors to sync across visuals
         colors = {
-        "A: Critically Important": "black",
+        "A: Critically Important": "blue",
         "B: Highly Important": "green",
-        "C: Other": "#00CC96",
-        "D: Unknown": "#AB63FA",
+        "C: Other": "orange",
+        "D: Unknown": "pink",
         }
         s = pd.Series(colors)
+        # input_df["Color"] = input_df["who_importance_ctg"].apply(lambda x: colors.get(x)) #to connect Column value to Color in Dict
+        input_df['Color']= input_df['who_importance_ctg'].map(colors)
 
     elif classification == 'WOAH Importance Categories':
         names = input_df['woah_importance_ctg']
@@ -9033,6 +9047,8 @@ def update_donut_chart_amu (quantity, region, classification):
     # Sync colors across visuals
     if classification == 'WHO Importance Categories' or classification == 'WOAH Importance Categories' or classification == 'OneHealth Importance Categories':
         amu_donut_fig.update_traces(marker=dict(colors=s))
+        # amu_donut_fig.update_traces(marker=dict(colors=input_df['Color']))
+        # amu_donut_fig.update_traces(marker=dict(colors=list(colors.values())))
 
     # Move legend to bottom
     amu_donut_fig.update_layout(legend=dict(
@@ -9080,6 +9096,11 @@ def update_expenditure_amu(input_json):
     # Add title and hide legend
     bar_fig.update_layout(title_text='Estimated Antimicrobial Expenditure<br><sup>Terrestrial Livestock',
                           showlegend=False)
+    
+    # Adjust margins
+    bar_fig.update_layout(
+        margin=dict(l=20, r=20, b=10),
+        ) 
         
     return bar_fig
 

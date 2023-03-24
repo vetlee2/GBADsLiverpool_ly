@@ -191,6 +191,17 @@ datainfo(amu2018_combined_tall)
 amu2018_combined_tall.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_combined_tall.csv') ,index=False)
 amu2018_combined_tall.to_csv(os.path.join(DASH_DATA_FOLDER ,'amu2018_combined_tall.csv') ,index=False)
 
+#%% DEV: Prep AMR for regional
+
+# Filter to E. coli
+# Filter to one year - may be different for each region based on data available
+# Get average rescom by woah_region and antibiotic_class, weighted by nisolates
+# Lookup frequency of use of each antibiotic_class as proportion of region total AMU
+# - Problem: Drugs in AMR data are not a strict subset of drugs in AMU
+# - E.g. Polymyxins, Carbapenems appear in AMR but not AMU. We don’t know what proportion of usage these make up.
+# - What about Aminopenicillins in AMR data?  Are these included in Penicillins in AMU?
+# Get average rescom by woah_region, weighted by nisolates AND frequency of use of each antibiotic_class
+
 #%% Structure: one row per region
 
 # =============================================================================
@@ -320,34 +331,54 @@ datainfo(amu_combined_regional)
 
 # =============================================================================
 #### Add AMR
+# See DEV: Prep AMR section above
 # =============================================================================
-amr_withrgn_working = amr_withrgn.copy()
+amr_full_withrgn_working = amr_full_withrgn.copy()
+datainfo(amr_full_withrgn_working)
 
-# Add prevalence weighted by isolates
-amr_withrgn_working['overall_prev_x_isolates'] = amr_withrgn_working['overall_prev'] * amr_withrgn_working['sum_isolates']
+# Add resistance weighted by number of isolates for each pathogen
+amr_full_withrgn_working['rescom_x_nisolates'] = amr_full_withrgn_working['rescom'] * amr_full_withrgn_working['nisolates']
 
 # Aggregate to region level
-# Using E.coli as indicator, same as EFSA paper (https://www.efsa.europa.eu/en/efsajournal/pub/5017)
-amr_regional = amr_withrgn_working.query("pathogen == 'E. coli'").pivot_table(
-    index=['woah_region' ,'reporting_year']
-    ,values=['overall_prev_x_isolates' ,'sum_isolates']
+amr_full_regional = amr_full_withrgn_working.pivot_table(
+    index=['woah_region' ,'reporting_year' ,'pathogen']
+    ,values=['rescom_x_nisolates' ,'nisolates']
     ,aggfunc='sum'
 )
-amr_regional = amr_regional.add_suffix('_sum')
-amr_regional = amr_regional.reset_index()
-amr_regional['overall_prev'] = amr_regional['overall_prev_x_isolates_sum'] / amr_regional['sum_isolates_sum']
+amr_full_regional = amr_full_regional.add_suffix('_sum')
+amr_full_regional = amr_full_regional.reset_index()
+amr_full_regional['rescom_wtavg'] = amr_full_regional['rescom_x_nisolates_sum'] / amr_full_regional['nisolates_sum']
 
+# -----------------------------------------------------------------------------
 # Merge with AMU
-amr_regional_tomerge = amr_regional.query("reporting_year == 2018")   # 2018 is last year with data for all regions
-keep_rename_cols = {
+# -----------------------------------------------------------------------------
+# Using E.coli as indicator, same as EFSA paper (https://www.efsa.europa.eu/en/efsajournal/pub/5017)
+amr_full_regional_tomerge = amr_full_regional.query("pathogen == 'E. coli'").copy()
+
+# Keep a single year for each region
+# Select the last year with good representation, preferring consistency across regions
+# Check record count by country and year
+check_amr_years = amr_full_withrgn_working[['woah_region' ,'reporting_year' ,'pathogen']].value_counts().reset_index()
+keep_years_byregion = {
+    "AFRICA":2015
+    ,"AMERICAS":2018
+    ,"ASIA, FAR EAST AND OCEANIA":2018
+    ,"EUROPE":2018
+    ,"MIDDLE EAST":2015
+    }
+amr_full_regional_tomerge['keep_year'] = \
+    amr_full_regional_tomerge['woah_region'].str.upper().apply(lookup_from_dictionary ,DICT=keep_years_byregion)
+amr_full_regional_tomerge = amr_full_regional_tomerge.query("reporting_year == keep_year")
+
+rename_cols = {
     'woah_region':'region'
-    ,'overall_prev':'amr_prevalence'
+    ,'rescom_wtavg':'amr_prevalence'
 }
-amr_regional_tomerge = amr_regional_tomerge[list(keep_rename_cols)].rename(columns=keep_rename_cols)
+amr_full_regional_tomerge = amr_full_regional_tomerge.rename(columns=rename_cols)
 
 amu_combined_regional = pd.merge(
     left=amu_combined_regional
-    ,right=amr_regional_tomerge
+    ,right=amr_full_regional_tomerge[list(rename_cols.values())]
     ,on='region'
     ,how='left'
 )
@@ -362,8 +393,21 @@ amu_combined_regional['amr_index_agunos'] = \
     amu_combined_regional['amr_prevalence'] * amu_combined_regional['biomass_total_kg_region'] \
         / 1e9   # Adjust downward
 
+# Multiplying by usage
 amu_combined_regional['amr_index_agunos_usage'] = \
     amu_combined_regional['amr_index_agunos'] * amu_combined_regional['total_antimicrobials_tonnes_region']
+
+# Approximating index from Laxminarayan paper
+# Find proportion of total AMU for each region represented by antimicrobial classes in AMR data
+# Using same subset as for merging: E.coli for a specific year
+amr_classes = amr_full_withrgn[['woah_region' ,'reporting_year' ,'pathogen' ,'antibiotic_class']].drop_duplicates()
+amr_classes_included = pd.merge(
+    left=amr_full_regional_tomerge
+    ,right=amr_classes
+    ,left_on=['region' ,'reporting_year' ,'pathogen']
+    ,right_on=['woah_region' ,'reporting_year' ,'pathogen']
+    ,how='left'
+)
 
 # =============================================================================
 #### Export
@@ -373,7 +417,11 @@ datainfo(amu_combined_regional)
 amu_combined_regional.to_csv(os.path.join(PRODATA_FOLDER ,'amu_combined_regional.csv') ,index=False)
 amu_combined_regional.to_csv(os.path.join(DASH_DATA_FOLDER ,'amu_combined_regional.csv') ,index=False)
 
-#%% DEV: Resistance data
+#%% Prep Resistance data for plotting
+'''
+This will be used to allow users to explore the AMR data in detail, so retains the full
+granularity: country, year, antimicrobial class, and pathogen.
+'''
 
 amr_withrgn_working = amr_withrgn.copy()
 
@@ -430,7 +478,7 @@ datainfo(amr_withsmry)
 amr_withsmry.to_csv(os.path.join(PRODATA_FOLDER ,'amr_withsmry.csv') ,index=False)
 amr_withsmry.to_csv(os.path.join(DASH_DATA_FOLDER ,'amr_withsmry.csv') ,index=False)
 
-#%% DEV: AM Usage and Price with uncertainty
+#%% Illustrate AM Usage and Price with uncertainty
 
 # =============================================================================
 #### Create data based on spreadsheet from Sara

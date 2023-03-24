@@ -422,7 +422,9 @@ amu2018_combined_tall = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu2018_comb
 
 # Create region labels with proportion of biomass represented in countries reporting
 amu2018_combined_tall["region_with_countries_reporting"] = \
-    amu2018_combined_tall['region'] + " (" + round(amu2018_combined_tall['biomass_prpn_reporting'] * 100 ,1).astype(str) + "%)"
+    amu2018_combined_tall['region'] \
+        + " (" + round(amu2018_combined_tall['number_of_countries'] ,0).astype(int).astype(str) \
+        + " | " + round(amu2018_combined_tall['biomass_prpn_reporting'] * 100 ,1).astype(str) + "%)"
 
 amu_combined_regional = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_combined_regional.csv"))
 # amu_uncertainty_data = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_uncertainty_data.csv"))
@@ -958,8 +960,8 @@ options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'Sub-Sahar
 wb_africa_options_ga = [{'label': "All", 'value': "All"}]
 for i in options['country'].unique():
     str(wb_africa_options_ga.append({'label':i,'value':(i)}))
-    
-    
+
+
 # =============================================================================
 #### Antimicrobial Usage (AMU) options
 # =============================================================================
@@ -980,7 +982,7 @@ amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in 
 amu_antimicrobial_class_options = []
 for i in np.sort(amr_withsmry['antimicrobial_class'].unique()):
     str(amu_antimicrobial_class_options.append({'label':i,'value':(i)}))
-    
+
 # Pathogen
 amu_pathogen_options = []
 for i in np.sort(amr_withsmry['pathogen'].unique()):
@@ -2011,9 +2013,9 @@ def create_donut_chart_amu(input_df, value, names):
 
     return pie_fig
 
-def create_tree_map_amu(input_df, value):
+def create_tree_map_amu(input_df, value, categories):
     tree_map_fig = px.treemap(input_df,
-                              path=[px.Constant("Global"), 'region_with_countries_reporting', 'who_importance_ctg', 'antimicrobial_class'],
+                              path=[px.Constant("Global"), 'region_with_countries_reporting', categories, 'antimicrobial_class'],
                               values=value,
                               maxdepth=3,
                               color='region',
@@ -2026,6 +2028,78 @@ def create_tree_map_amu(input_df, value):
 
     return tree_map_fig
 
+# This function creates a plotly treemap
+# with an option to show weighted averages instead of sums for boxes above the base level
+# It first calculates weighted averages using a pivot table, then draws the treemap by
+# specifying the id and parent for each box.
+# 2023/3/22: There is a bug causing a blank chart when AGGREGATION == 'mean'. Not using this at this time.
+def create_treemap_withagg(
+        INPUT_DF
+        ,HIERARCHY              # List: categorical variables that define hierarchy, in desired order most to least aggregated
+        ,COLOR_BY               # String: variable to color by. WARNING: must be one of the variables in HIERARCHY.
+        ,VALUE_VAR              # String: variable with values to plot
+        ,AGGREGATION='sum'      # String: how to aggregate VALUE_VAR. 'sum' (default) or 'mean'.
+        ,WEIGHT_VAR=None        # String (optional): variable to use for weighting if AGGREGATION='mean'.
+    ):
+    if AGGREGATION == 'mean':
+        dfmod = INPUT_DF.copy()
+
+        # For each variable in the hierarchy, create summary rows where that variable is ALL
+        # Calculate the mean (optionally weighted)
+        if WEIGHT_VAR:
+            dfmod['treemap_weight'] = dfmod[WEIGHT_VAR]
+        else:
+            dfmod['treemap_weight'] = 1
+
+        dfmod['treemap_weighted_value'] = dfmod[VALUE_VAR] * dfmod['treemap_weight']
+        treemap_df = pd.DataFrame()     # Initialize dataframe to hold results
+        for i ,VAR in enumerate(HIERARCHY):
+            summary_rows = dfmod.pivot_table(
+                index=HIERARCHY[:i+1]     # Index is all hierarchy variables up to i
+                ,values=['treemap_weighted_value' ,'treemap_weight']
+                ,aggfunc='sum'
+                ).reset_index()
+            summary_rows['treemap_value'] = summary_rows['treemap_weighted_value'] / summary_rows['treemap_weight']
+            treemap_df = pd.concat([treemap_df ,summary_rows] ,axis=0 ,ignore_index=True)
+
+        # Add columns for id and parent
+        treemap_df['treemap_id'] = treemap_df[f'{HIERARCHY[0]}'].str.cat(treemap_df[HIERARCHY[1:]] ,sep='|' ,na_rep='_all_')
+        treemap_df[['treemap_parent' ,'treemap_parent_remainder']] = treemap_df['treemap_id'].str.replace('|_all_' ,'' ,regex=False).str.rsplit('|' ,n=1 ,expand=True)
+        treemap_df.loc[treemap_df['treemap_parent_remainder'].isnull() ,'treemap_parent'] = treemap_df['treemap_parent_remainder']
+
+        # Draw tree map
+        tree_map_fig = px.treemap(
+            parents=treemap_df['treemap_parent']
+            ,ids=treemap_df['treemap_id']
+            ,values=treemap_df['treemap_value']
+            ,color=treemap_df[COLOR_BY]
+            )
+
+    elif AGGREGATION == 'sum':
+        tree_map_fig = px.treemap(
+            INPUT_DF
+            ,path=HIERARCHY
+            ,values=VALUE_VAR
+            ,color=COLOR_BY
+            )
+
+    return tree_map_fig
+
+concat_list = ['region' ,'scope' ,'antimicrobial_class']
+test = pd.DataFrame()
+for i ,VAR in enumerate(concat_list):
+    print(concat_list[:i+1])
+    test_summary = amu2018_combined_tall.pivot_table(
+        index=concat_list[:i+1]     # Index is all hierarchy variables up to i
+        ,values='amu_tonnes'
+        ,aggfunc='sum'
+        ).reset_index()
+    test = pd.concat([test ,test_summary] ,axis=0 ,ignore_index=True)
+
+# Add columns for id and parent
+test['treemap_id'] = test[f'{concat_list[0]}'].str.cat(test[concat_list[1:]] ,sep='|' ,na_rep='_all_')
+test[['treemap_parent' ,'treemap_parent_remainder']] = test['treemap_id'].str.replace('|_all_' ,'' ,regex=False).str.rsplit('|' ,n=1 ,expand=True)
+test.loc[test['treemap_parent_remainder'].isnull() ,'treemap_parent'] = test['treemap_parent_remainder']
 
 #%% 4. LAYOUT
 ##################################################################################################
@@ -3695,16 +3769,27 @@ gbadsDash.layout = html.Div([
                  # END OF FIRST GRAPHICS ROW
                  ],),
 
+           #### -- FOOTNOTES PT.1
+            dbc.Row([
+                dbc.Col([
+                    html.P("Numbers in parenthesis show the number of countries in each region reporting to WOAH and the percent of region total biomass they represent."),
+                    ]),
+                dbc.Col([   # Empty column so footnotes line up with charts
+                      html.P(""),
+                      ]),
+                ], style={'margin-left':"10px", 'font-style': 'italic'}
+                ),
+
             html.Br(),
-            
+
             #### -- VISUALIZATION SWITCH
-            
+
             dbc.Card([
                 dbc.CardBody([
                     html.H5("Select Visualization",
                             className="card-title",
                             style={"font-weight": "bold"}),
-             
+
             dbc.Row([
             # Visualization Switch
             dbc.Col([
@@ -3716,7 +3801,7 @@ gbadsDash.layout = html.Div([
                               inputStyle={"margin-right": "10px"},
                               ),
                 ],  width=1),
-            
+
             # Map Display/Drill Down switch
             dbc.Col([
                 html.H6("Map Display", id='select-map-display-drilldown-amu-title'),
@@ -3724,7 +3809,7 @@ gbadsDash.layout = html.Div([
                       clearable=False,
                       ),
                 ]),
-            
+
             # Antimicrobial Class
             dbc.Col([
                 html.H6("Antimircobials", id='select-antimicrobial-class-amu-title'),
@@ -3734,7 +3819,7 @@ gbadsDash.layout = html.Div([
                       clearable=False,
                       ),
                 ]),
-            
+
             # Pathogens
             dbc.Col([
                 html.H6("Pathogens", id='select-pathogens-amu-title'),
@@ -3744,17 +3829,17 @@ gbadsDash.layout = html.Div([
                       clearable=False,
                       ),
                 ]),
-            
+
             # END OF CARD OPTIONS ROW
             ]),
-            
+
             # END OF CARD BODY
             ]),
 
             ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF CARD
 
             html.Hr(style={'margin-right':'10px',}),
-            
+
             # Map viz
             dbc.Row([
                 dbc.Col([ # Global Aggregation Visual
@@ -3774,12 +3859,51 @@ gbadsDash.layout = html.Div([
                 ],size="md", color="#393375", fullscreen=False),
                 # End of Map
                 ]),
-                
+
              # END OF SECOND GRAPHICS ROW
             ]),
             html.Br(),
 
-          #### -- GRAPHICS PT.2
+           #### -- GRAPHICS PT.2
+           # Separator for WOAH data above, estiamtes/variations below
+           dbc.Row([
+               html.H3("Exploring Variability"),
+               html.P("Use the charts and sliders below to explore the variability in antimicrobial usage and price from different sources."),
+               ]),
+           html.Br(),
+
+           # Plots comparing different estimates of usage and price
+           dbc.Row([
+               # Side-by-side bars showing different usage estimates for each region
+               dbc.Col([
+                   dbc.Spinner(children=[
+                       dcc.Graph(id='amu-comparison-bars',
+                          style = {"height":"400px"},
+                          config = {
+                              "displayModeBar" : True,
+                              "displaylogo": False,
+                              'toImageButtonOptions': {
+                                  'format': 'png', # one of png, svg, jpeg, webp
+                                  'filename': 'GBADs_AMU_comparison_bars'
+                                  },
+                              'modeBarButtonsToRemove': [
+                                  'zoom',
+                                  'zoomIn',
+                                  'zoomOut',
+                                  'autoScale',
+                                  #'resetScale',  # Removes home button
+                                  'pan',
+                                  'select2d',
+                                  'lasso2d'
+                                  ]
+                              }
+                          )
+                       # End of Spinner
+                       ],size="md", color="#393375", fullscreen=False),
+                   ]),
+               ]),
+           html.Br(),
+
            # Usage and Price Sliders with Expenditure chart
            dbc.Row([
                dbc.Col([
@@ -3920,7 +4044,7 @@ gbadsDash.layout = html.Div([
                     ]),
                ]),
 
-           #### -- FOOTNOTES
+           #### -- FOOTNOTES PT.2
             dbc.Row([
                 dbc.Col([
                     html.P("Slider marks designate estimates from the following sources:"),
@@ -8069,7 +8193,7 @@ def update_map_amr_options(display_option, antimicrobial_class):
         else:
             block = {'display': 'none'} # hide pathogen dropdown
             d['disabled']=True
-            
+
     return options1, block, block, options2, block, block
 
 # Output('select-pathogens-amu', 'options'),
@@ -8299,7 +8423,7 @@ def update_regional_table_amu(
         ,usage_asia ,price_asia
         ,usage_europe ,price_europe
         ,usage_mideast ,price_mideast
-        ):
+    ):
     df = amu_combined_regional.copy()
 
     # Add selected usage and price values as columns
@@ -8316,6 +8440,7 @@ def update_regional_table_amu(
 
     # Calculate expenditure based on usage and price slider input
     df['am_expenditure_usd_selected'] = df['amu_terrestrial_tonnes_selected'] * df['am_price_usdpertonne_selected']
+    df['am_expenditure_usd_perkg_selected'] = df['am_expenditure_usd_selected'] / df['biomass_terr_kg_region']
 
     return df.to_json(date_format='iso', orient='split')
 
@@ -8336,7 +8461,7 @@ def update_table_display_amu(dummy_input):
        ,'number_of_countries':'Number of Countries'
        ,'biomass_total_kg_reporting':'Total Biomass in Countries Reporting (kg)'
        ,'biomass_total_kg_region':'Total Biomass in Region (kg)'
-       # ,'biomass_prpn_reporting':''
+       ,'biomass_prpn_reporting':'Percent of Region Biomass in Countries Reporting'
        ,'antimicrobial_class': 'Antimicrobial Class'
        ,'who_importance_ctg':'WHO Importance Category'
        ,'woah_importance_ctg':'WOAH Importance Category'
@@ -8359,6 +8484,11 @@ def update_table_display_amu(dummy_input):
     display_data.update(display_data[[
         'amu_tonnes'
     ]].applymap('{:,.1f}'.format))
+
+    # Percent
+    display_data.update(display_data[[
+        'biomass_prpn_reporting'
+    ]].applymap('{:,.1%}'.format))
 
     # Two decimal places
     display_data.update(display_data[[
@@ -8614,8 +8744,9 @@ def update_regional_display_amu(input_json):
     Input('select-antimicrobial-class-amu','value'),
     Input('select-pathogens-amu','value'),
     Input('amu-regional-data', 'data'),
+    Input('select-classification-amu','value'),
     )
-def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_json):
+def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_json, classification):
     input_df = amu2018_combined_tall.copy()
     input_df_amr = amr_withsmry.copy()
     input_df_am_expend = pd.read_json(input_json, orient='split')
@@ -8646,7 +8777,7 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
 
     # Visualization switch between map and tree map
     if viz_switch == 'Map':
-        
+
         # Create Map for AMR prevalence
         if quantity == 'AMR':
            amu_map_fig = px.scatter_geo(input_df_amr,
@@ -8747,14 +8878,43 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
         elif quantity == 'AMU: mg per kg biomass':
             customdata = list(pd.DataFrame(['amu_mg_perkgbiomass_by_region']).to_numpy())
 
+        # Determine which categorization to use
+        if classification.upper() == 'WHO IMPORTANCE CATEGORIES':
+            categories = 'who_importance_ctg'
+            category_title = 'WHO importance categories'
+        elif classification.upper() == 'ONEHEALTH IMPORTANCE CATEGORIES':
+            categories = 'onehealth_importance_ctg'
+            category_title = 'OneHealth importance categories'
+        else:   # Default: WOAH categories
+            categories = 'woah_importance_ctg'
+            category_title = 'WOAH importance categories'
+
         # Use create map defined above
-        amu_map_fig = create_tree_map_amu(input_df, value)
+        amu_map_fig = create_tree_map_amu(input_df, value, categories)
+
+        # treemap_hierarchy = ['region_with_countries_reporting', categories, 'antimicrobial_class']
+        # if quantity == 'AMU: tonnes':
+        #     amu_map_fig = create_treemap_withagg(
+        #         input_df
+        #         ,HIERARCHY=treemap_hierarchy
+        #         ,COLOR_BY='region_with_countries_reporting'
+        #         ,VALUE_VAR='amu_tonnes'
+        #         )
+        # elif quantity == 'AMU: mg per kg biomass':
+        #     amu_map_fig = create_treemap_withagg(
+        #         input_df
+        #         ,HIERARCHY=treemap_hierarchy
+        #         ,COLOR_BY='region_with_countries_reporting'
+        #         ,VALUE_VAR='amu_mg_perkgbiomass'
+        #         ,AGGREGATION='mean'
+        #         ,WEIGHT_VAR='biomass_total_kg_reporting'
+        #         )
 
         # Add title
-        amu_map_fig.update_layout(title_text=f'{quantity} drill down for countries reporting to WOAH',
-                                      font_size=15,
-                                      plot_bgcolor="#ededed",
-                                      )
+        amu_map_fig.update_layout(title_text=f'{quantity} drill down by region and {category_title} | Countries reporting to WOAH',
+                                  font_size=15,
+                                  plot_bgcolor="#ededed",
+                                  )
 
         # Update hoverover
         if quantity == 'AMU: tonnes':
@@ -9083,6 +9243,43 @@ def update_donut_chart_amu (quantity, region, classification):
 
 
     return amu_donut_fig
+
+# Comparing usage estimates
+@gbadsDash.callback(
+    Output('amu-comparison-bars','figure'),
+    Input('amu-regional-data', 'data'),
+    )
+def usage_comparison_amu(input_json):
+    input_df = pd.read_json(input_json, orient='split')
+    bar_fig = px.bar(
+        input_df,
+        x='region',
+        y=['terr_amu_tonnes_reporting_2020' ,'terr_amu_tonnes_region_2020' ,'terr_amu_tonnes_mulch_2020'],
+        barmode='group',
+        )
+    bar_fig.update_layout(title_text='Comparing antimicrobial usage estimates<br><sup>Terrestrial Livestock',
+                          legend=dict(
+                              title="",
+                              orientation="h",
+                              x=0.3,
+                              y=1.15,
+                              font=dict(size=12)
+                              )
+                          )
+    bar_fig.update_xaxes(title_text='Region')
+    bar_fig.update_yaxes(title_text='Antimicrobial Usage (tonnes)')
+
+    # Workaround to fix names in legend
+    # This isn't working either
+    # newnames = {
+    #     'terr_amu_tonnes_reporting_2020':'WOAH countries reporting'
+    #     }
+    # bar_fig.for_each_trace(lambda t: t.update(name = newnames[t.name],
+    #                                           legendgroup = newnames[t.name],
+    #                                           hovertemplate = t.hovertemplate.replace(t.name, newnames[t.name])
+    #                                           )
+    #               )
+    return bar_fig
 
 # Expenditure based on usage and price sliders
 @gbadsDash.callback(

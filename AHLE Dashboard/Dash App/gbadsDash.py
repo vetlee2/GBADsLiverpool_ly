@@ -9326,9 +9326,12 @@ def usage_comparison_amu(input_json):
     bar_fig.update_traces(showlegend=False)
     
     # For display purpose, create traces so that legend contains symbole and colors, does not connect with bars
-    bar_fig.add_trace(go.Bar(x=[None], y=[None], marker_pattern_shape=".", marker_color="white"))
-    bar_fig.add_trace(go.Bar(x=[None], y=[None], marker_pattern_shape="/", marker_color="white"))
-    bar_fig.add_trace(go.Bar(x=[None], y=[None], marker_pattern_shape="+", marker_color="white"))
+    bar_fig.add_trace(go.Bar(x=[None], y=[None], marker_pattern_shape=".", marker_color="white",
+                             name='terr_amu_tonnes_reporting_2020'))
+    bar_fig.add_trace(go.Bar(x=[None], y=[None], marker_pattern_shape="/", marker_color="white",
+                             name='terr_amu_tonnes_region_2020'))
+    bar_fig.add_trace(go.Bar(x=[None], y=[None], marker_pattern_shape="+", marker_color="white",
+                             name='terr_amu_tonnes_mulch_2020'))
 
     
     bar_fig.update_layout(title_text='Comparing antimicrobial usage estimates<br><sup>Terrestrial Livestock',

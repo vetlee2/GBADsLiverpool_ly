@@ -1997,9 +1997,17 @@ def create_map_display_amu(input_df, value):
 def create_donut_chart_amu(input_df, value, names):
 
     pie_fig = go.Figure(data=[go.Pie(labels=names,
-                                     values=value,
-                                     hovertemplate = "%{label}: <br>%{percent} </br><extra></extra>"
-                                     )])
+                                      values=value,
+                                      hovertemplate = "%{label}: <br>%{percent} </br><extra></extra>"
+                                      )])
+    
+    # pie_fig = px.pie(input_df,
+    #                  names=names,
+    #                  values=value,
+    #                  hole=.4,
+    #                  color_discrete_map=color_mapping
+    #                  # hovertemplate = "%{label}: <br>%{percent} </br><extra></extra>"
+    #                  )
 
     # show % values inside
     pie_fig.update_traces(textposition='inside')
@@ -8983,20 +8991,20 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
 
     # Specify additonal colors
     # Taking the 10 colors from the default 'Plotly' (px.colors.qualitative.Plotly) color sequence and adding to it
-    additional_colors = ['#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', '#19D3F3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52',"#C6CAFD", "#F7A799", "#33FFC9"]
-    {"A: Critically Important": '#EF553B',
-      "Important": '#EF553B',
-      "B: Highly Important": '#00CC96',
-      "C: Other": '#636EFA',
-      "Other": '#636EFA',
-      "D: Unknown": '#AB63FA',
-      "Unknown": '#AB63FA',
-      # Individual classes/top classes
-      "macrolides": '#19D3F3',
-      "penicillins": '#FF6692',
-      "tetracyclines": '#C6CAFD',
-      "others": '#222a2a'
-      }
+    # additional_colors = ['#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', '#19D3F3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52',"#C6CAFD", "#F7A799", "#33FFC9"]
+    # {"A: Critically Important": '#EF553B',
+    #   "Important": '#EF553B',
+    #   "B: Highly Important": '#00CC96',
+    #   "C: Other": '#636EFA',
+    #   "Other": '#636EFA',
+    #   "D: Unknown": '#AB63FA',
+    #   "Unknown": '#AB63FA',
+    #   # Individual classes/top classes
+    #   "macrolides": '#19D3F3',
+    #   "penicillins": '#FF6692',
+    #   "tetracyclines": '#C6CAFD',
+    #   "others": '#AB63FA'
+    #   }
     
     # Options to change between graphs
     if select_amu_graph.upper() == 'TOTAL':
@@ -9012,10 +9020,19 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
                                       "D: Unknown": '#AB63FA',
                                       "Unknown": '#AB63FA',
                                       # Individual classes/top classes
-                                      "macrolides": '#19D3F3',
-                                      "penicillins": '#FF6692',
-                                      "tetracyclines": '#C6CAFD',
-                                      "others": '#222a2a'
+                                      "aggregated_class_data": '#636EFA',
+                                      "aminoglycosides": '#EF553B',
+                                      "amphenicols": '#00CC96',
+                                      "fluoroquinolones": '#AB63FA',
+                                      "macrolides": '#AAFFE1',
+                                      "others": '#C6CAFD',
+                                      "other": '#C6CAFD',
+                                      "other_important": '#FF6692',
+                                      "penicillins": '#FECB52',
+                                      "pleuromutilins": '#F7A799',
+                                      "polypeptides": '#FFA15A',
+                                      "sulfonamides__including_trimethoprim": '#B6E880',
+                                      "tetracyclines": '#FF97FF',
                                       },
                                    labels={
                                        x_var: "",
@@ -9082,6 +9099,19 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
              x=x_var,
              y=y_var,
              color=color,
+             color_discrete_map= {"A: Critically Important": '#EF553B',
+                "Important": '#EF553B',
+                "B: Highly Important": '#00CC96',
+                "C: Other": '#636EFA',
+                "Other": '#636EFA',
+                "D: Unknown": '#AB63FA',
+                "Unknown": '#AB63FA',
+                # Individual classes/top classes
+                "macrolides": '#19D3F3',
+                "penicillins": '#FF6692',
+                "tetracyclines": '#C6CAFD',
+                "others": '#222a2a'
+                },
              barnorm='percent',
              text_auto='.1f',
              labels={
@@ -9120,89 +9150,115 @@ def update_donut_chart_amu (quantity, region, classification):
     # Filter by region selected
     if region == 'All':
         selected_region = 'Global'
-        input_df = input_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
     else:
         selected_region = f'{region}'
-        input_df = input_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
         input_df = input_df.loc[(input_df['region'] == region)]
-
-
-    # Use selected quantity value
-    if quantity == 'Tonnes':
-        value = input_df['amu_tonnes']
-    else:
-        value = input_df['amu_mg_perkgbiomass']
 
     # Use selected classification value
     if classification == 'Individual Classes':
-        names = input_df['antimicrobial_class_group']
+        summarize_df = input_df.query("scope == 'All'").groupby('antimicrobial_class_group')[['amu_tonnes' ,'biomass_total_kg_reporting']].sum().reset_index()
         sort_by = 'antimicrobial_class'
         legend_title = 'Antimicrobial Class'
+        names = summarize_df['antimicrobial_class_group']
+        # Set colors to sync across visuals
+        colors = {
+        "aggregated_class_data": '#636EFA',
+        "aminoglycosides": '#EF553B',
+        "amphenicols": '#00CC96',
+        "fluoroquinolones": '#AB63FA',
+        "macrolides": '#AAFFE1',
+        "other": '#C6CAFD',
+        "other_important": '#FF6692',
+        "penicillins": '#FECB52',
+        "pleuromutilins": '#F7A799',
+        "polypeptides": '#FFA15A',
+        "sulfonamides__including_trimethoprim": '#B6E880',
+        "tetracyclines": '#FF97FF',
+        }
+        summarize_df['Color']= summarize_df['antimicrobial_class_group'].map(colors)
 
     elif classification == 'WHO Importance Categories':
-        names = input_df['who_importance_ctg']
+        summarize_df = input_df.query("scope == 'All'").groupby('who_importance_ctg')[['amu_tonnes' ,'biomass_total_kg_reporting']].sum().reset_index()
         sort_by = 'who_importance_ctg'
         legend_title = 'WHO Importance Category'
+        names = summarize_df['who_importance_ctg']
         # Set colors to sync across visuals
         colors = {
-        "A: Critically Important": "blue",
-        "B: Highly Important": "green",
-        "C: Other": "orange",
-        "D: Unknown": "pink",
-        }
-        s = pd.Series(colors)
-        # input_df["Color"] = input_df["who_importance_ctg"].apply(lambda x: colors.get(x)) #to connect Column value to Color in Dict
-        input_df['Color']= input_df['who_importance_ctg'].map(colors)
-
-    elif classification == 'WOAH Importance Categories':
-        names = input_df['woah_importance_ctg']
-        sort_by = 'woah_importance_ctg'
-        legend_title = 'WOAH Importance Category'
-        # Set colors to sync across visuals
-        colors = {
-        "A: Critically Important": "#636EFA",
-        "B: Highly Important": "#EF553B",
-        "C: Other": "#00CC96",
+        "A: Critically Important": "#EF553B",
+        "B: Highly Important": "#00CC96",
+        "C: Other": "#636EFA",
         "D: Unknown": "#AB63FA",
         }
-        s = pd.Series(colors)
+        summarize_df['Color']= summarize_df['who_importance_ctg'].map(colors)
 
-    elif classification == 'OneHealth Importance Categories':
-        names = input_df['onehealth_importance_ctg']
-        sort_by = 'onehealth_importance_ctg'
-        legend_title = 'OneHealth Importance Category'
+    elif classification == 'WOAH Importance Categories':
+        summarize_df = input_df.query("scope == 'All'").groupby('woah_importance_ctg')[['amu_tonnes' ,'biomass_total_kg_reporting']].sum().reset_index()
+        sort_by = 'woah_importance_ctg'
+        legend_title = 'WOAH Importance Category'
+        names = summarize_df['woah_importance_ctg']
         # Set colors to sync across visuals
         colors = {
-        "Important": "#636EFA",
-        "Other": "#00CC96",
+        "A: Critically Important": "#EF553B",
+        "B: Highly Important": "#00CC96",
+        "C: Other": "#636EFA",
+        "D: Unknown": "#AB63FA",
+        }
+        summarize_df['Color']= summarize_df['woah_importance_ctg'].map(colors)
+
+    elif classification == 'OneHealth Importance Categories':
+        summarize_df = input_df.query("scope == 'All'").groupby('onehealth_importance_ctg')[['amu_tonnes' ,'biomass_total_kg_reporting']].sum().reset_index()
+        sort_by = 'onehealth_importance_ctg'
+        legend_title = 'OneHealth Importance Category'
+        names = summarize_df['onehealth_importance_ctg']
+        # Set colors to sync across visuals
+        colors = {
+        "Important": "#EF553B",
+        "Other": "#636EFA",
         "Unknown": "#AB63FA",
         }
-        s = pd.Series(colors)
+        summarize_df['Color']= summarize_df['onehealth_importance_ctg'].map(colors)
 
     elif classification == 'Top Global Classes':
-        names = input_df['antimicrobial_class_group2']
-        sort_by = 'antimicrobial_class'
-        legend_title = 'Antimicrobial Class'
-        
+        summarize_df = input_df.query("scope == 'All'").groupby('antimicrobial_class_group2')[['amu_tonnes' ,'biomass_total_kg_reporting']].sum().reset_index()
+        sort_by = 'antimicrobial_class_group2'
+        legend_title = 'Top Global Classes'
+        names = summarize_df['antimicrobial_class_group2']
+        # Set colors to sync across visuals
+        colors = {
+        "macrolides": '#AAFFE1',
+        "penicillins": '#FECB52',
+        "tetracyclines": '#FF97FF',
+        "others": '#C6CAFD'
+        }
+        summarize_df['Color']= summarize_df['antimicrobial_class_group2'].map(colors)
+       
     # # Set colors to sync across visuals
     # colors = {
-    # "A: Critically Important": "#636EFA",
-    # "B: Highly Important": "#EF553B",
-    # "C: Other": "#00CC96",
+    # "A: Critically Important": "#EF553B",
+    # "B: Highly Important": "#00CC96",
+    # "C: Other": "#636EFA",
     # "D: Unknown": "#AB63FA",
-    # # "Important": "#636EFA",
-    # # "Other": "#00CC96",
+    # # "Important": "#EF553B",
+    # # "Other": "#636EFA",
     # # "Unknown": "#AB63FA",
     # }
     # s = pd.Series(colors)
     # pie_fig.update_traces(marker=dict(colors=s))
+    
+    
+    # Use selected quantity value
+    if quantity == 'Tonnes':
+        value = summarize_df['amu_tonnes']
+    else:
+        summarize_df['amu_mg_perkgbiomass'] = (summarize_df['amu_tonnes'] / summarize_df['biomass_total_kg_reporting']) * 1e9
+        value = summarize_df['amu_mg_perkgbiomass']
 
 
     # Sort the data by classification to sync the legends across the visualizations
     input_df = input_df.sort_values(by=sort_by)
 
     # Use create donut chart defined above
-    amu_donut_fig = create_donut_chart_amu(input_df, value, names)
+    amu_donut_fig = create_donut_chart_amu(summarize_df, value, names)
 
     # Add title and legend title
     amu_donut_fig.update_layout(title_text=f'{selected_region} AMU {quantity} by {classification}<br><sup>for countries reporting to WOAH</sup>',
@@ -9219,10 +9275,7 @@ def update_donut_chart_amu (quantity, region, classification):
                                   )
     
     # Sync colors across visuals
-    if classification == 'WHO Importance Categories' or classification == 'WOAH Importance Categories' or classification == 'OneHealth Importance Categories':
-        amu_donut_fig.update_traces(marker=dict(colors=s))
-        # amu_donut_fig.update_traces(marker=dict(colors=input_df['Color']))
-        # amu_donut_fig.update_traces(marker=dict(colors=list(colors.values())))
+    amu_donut_fig.update_traces(marker=dict(colors=summarize_df['Color']))
 
     # Move legend to bottom
     amu_donut_fig.update_layout(legend=dict(
@@ -9240,8 +9293,6 @@ def update_donut_chart_amu (quantity, region, classification):
         margin=dict(l=20, r=20, b=40),
         )
 
-
-
     return amu_donut_fig
 
 # Comparing usage estimates
@@ -9251,12 +9302,35 @@ def update_donut_chart_amu (quantity, region, classification):
     )
 def usage_comparison_amu(input_json):
     input_df = pd.read_json(input_json, orient='split')
+    input_df = pd.melt(input_df, id_vars='region', value_vars=['terr_amu_tonnes_reporting_2020' ,'terr_amu_tonnes_region_2020' ,'terr_amu_tonnes_mulch_2020'])
     bar_fig = px.bar(
         input_df,
         x='region',
-        y=['terr_amu_tonnes_reporting_2020' ,'terr_amu_tonnes_region_2020' ,'terr_amu_tonnes_mulch_2020'],
+        color='region',
+        color_discrete_map={"Asia, Far East and Oceania": 'rgb(102,197,204)',
+                            "Americas": 'rgb(248,156,116)',
+                            "Europe": 'rgb(220,176,242)',
+                            "Africa": 'rgb(135,197,95)',
+                            "Middle East": 'rgb(254,136,177)'},
+        y='value',
         barmode='group',
+        pattern_shape="variable",
+        pattern_shape_map={
+              "terr_amu_tonnes_reporting_2020": ".", 
+              "terr_amu_tonnes_region_2020": "/", 
+              "terr_amu_tonnes_mulch_2020": "+"
+              }
         )
+      
+    # Hide legend made from px.box
+    bar_fig.update_traces(showlegend=False)
+    
+    # For display purpose, create traces so that legend contains symbole and colors, does not connect with bars
+    bar_fig.add_trace(go.Bar(x=[None], y=[None], marker_pattern_shape=".", marker_color="white"))
+    bar_fig.add_trace(go.Bar(x=[None], y=[None], marker_pattern_shape="/", marker_color="white"))
+    bar_fig.add_trace(go.Bar(x=[None], y=[None], marker_pattern_shape="+", marker_color="white"))
+
+    
     bar_fig.update_layout(title_text='Comparing antimicrobial usage estimates<br><sup>Terrestrial Livestock',
                           legend=dict(
                               title="",
@@ -9266,7 +9340,7 @@ def usage_comparison_amu(input_json):
                               font=dict(size=12)
                               )
                           )
-    bar_fig.update_xaxes(title_text='Region')
+    bar_fig.update_xaxes(title_text='')
     bar_fig.update_yaxes(title_text='Antimicrobial Usage (tonnes)')
 
     # Workaround to fix names in legend

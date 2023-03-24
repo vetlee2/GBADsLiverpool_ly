@@ -8824,34 +8824,48 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
     # Specify additonal colors
     # Taking the 10 colors from the default 'Plotly' (px.colors.qualitative.Plotly) color sequence and adding to it
     additional_colors = ['#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', '#19D3F3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52',"#C6CAFD", "#F7A799", "#33FFC9"]
-    # {"A: Critically Important": '#EF553B',
-    #   "Important": '#EF553B',
-    #   "B: Highly Important": '#00CC96',
-    #   "C: Other": '#636EFA',
-    #   "Other": '#636EFA',
-    #   "D: Unknown": '#AB63FA',
-    #   "Unknown": '#AB63FA',
-    #   # Individual classes/top classes
-    #   "macrolides": '#19D3F3',
-    #   "penicillins": '#FF6692',
-    #   "tetracyclines": '#C6CAFD',
-    #   "others": 'grey'
-    #   }
+    {"A: Critically Important": '#EF553B',
+      "Important": '#EF553B',
+      "B: Highly Important": '#00CC96',
+      "C: Other": '#636EFA',
+      "Other": '#636EFA',
+      "D: Unknown": '#AB63FA',
+      "Unknown": '#AB63FA',
+      # Individual classes/top classes
+      "macrolides": '#19D3F3',
+      "penicillins": '#FF6692',
+      "tetracyclines": '#C6CAFD',
+      "others": '#222a2a'
+      }
     
     # Options to change between graphs
     if select_amu_graph.upper() == 'TOTAL':
-        amu_bar_fig = px.histogram(stackedbar_df, x=x_var, y=y_var,
-                         color=color,
-                         color_discrete_sequence=additional_colors,
-                         labels={
-                             x_var: "",
-                             "who_importance_ctg": "WHO Importance Category",
-                             "woah_importance_ctg": "WOAH Importance Category",
-                             "onehealth_importance_ctg": "OneHealth Importance Category",
-                             "antimicrobial_class_group": "Antimicrobial Class",
-                             "antimicrobial_class_group2": "Antimicrobial Class"
-                             }
-                         )
+        amu_bar_fig = px.histogram(stackedbar_df, 
+                                   x=x_var, 
+                                   y=y_var,
+                                   color=color,
+                                   color_discrete_map= {"A: Critically Important": '#EF553B',
+                                      "Important": '#EF553B',
+                                      "B: Highly Important": '#00CC96',
+                                      "C: Other": '#636EFA',
+                                      "Other": '#636EFA',
+                                      "D: Unknown": '#AB63FA',
+                                      "Unknown": '#AB63FA',
+                                      # Individual classes/top classes
+                                      "macrolides": '#19D3F3',
+                                      "penicillins": '#FF6692',
+                                      "tetracyclines": '#C6CAFD',
+                                      "others": '#222a2a'
+                                      },
+                                   labels={
+                                       x_var: "",
+                                       "who_importance_ctg": "WHO Importance Category",
+                                       "woah_importance_ctg": "WOAH Importance Category",
+                                       "onehealth_importance_ctg": "OneHealth Importance Category",
+                                       "antimicrobial_class_group": "Antimicrobial Class",
+                                       "antimicrobial_class_group2": "Antimicrobial Class"
+                                       }
+                                   )
 
         # Add title
         amu_bar_fig.update_layout(title_text=f'Regional AMU {quantity} by {classification}<br><sup>for countries reporting to WOAH</sup>',

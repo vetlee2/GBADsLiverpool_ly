@@ -3686,15 +3686,15 @@ gbadsDash.layout = html.Div([
                    ]),
 
                # Region-country alignment
-               dbc.Col([
-                   html.H6('Region-country alignment'),
-                   dcc.RadioItems(id='Region-country-alignment-amu',
-                                   options=region_structure_options,
-                                   inputStyle={"margin-right": "10px", # This pulls the words off of the button
-                                               "margin-left":"20px"},
-                                   value="WOAH",
-                                   style={"margin-left":'-20px'})
-                   ]),
+                # dbc.Col([
+                #     html.H6('Region-country alignment'),
+                #     dcc.RadioItems(id='Region-country-alignment-amu',
+                #                     options=region_structure_options,
+                #                     inputStyle={"margin-right": "10px", # This pulls the words off of the button
+                #                                 "margin-left":"20px"},
+                #                     value="WOAH",
+                #                     style={"margin-left":'-20px'})
+                #     ]),
 
                # Region
                dbc.Col([
@@ -3812,7 +3812,7 @@ gbadsDash.layout = html.Div([
 
             # Antimicrobial Class
             dbc.Col([
-                html.H6("Antimircobials", id='select-antimicrobial-class-amu-title'),
+                html.H6("Antimicrobial Class", id='select-antimicrobial-class-amu-title'),
                 dcc.Dropdown(id='select-antimicrobial-class-amu',
                       options=amu_antimicrobial_class_options,
                       value='Aminoglycosides',
@@ -3822,7 +3822,7 @@ gbadsDash.layout = html.Div([
 
             # Pathogens
             dbc.Col([
-                html.H6("Pathogens", id='select-pathogens-amu-title'),
+                html.H6("Pathogen", id='select-pathogens-amu-title'),
                 dcc.Dropdown(id='select-pathogens-amu',
                       options=amu_pathogen_options,
                       value='All',
@@ -3862,29 +3862,74 @@ gbadsDash.layout = html.Div([
 
              # END OF SECOND GRAPHICS ROW
             ]),
-            html.Br(),
 
            #### -- GRAPHICS PT.2
-           # Separator for WOAH data above, estiamtes/variations below
+           # Separator for WOAH data above, estimates/variations below
+           html.Hr(style={'margin-right':'10px',}),
            dbc.Row([
-               html.H3("Exploring Variability"),
-               html.P("Use the charts and sliders below to explore the variability in antimicrobial usage and price from different sources."),
+               html.H3("Extending Estimates and Exploring Variability"),
+               html.P("Use the charts and sliders below to explore the variability in antimicrobial usage and price from different sources. To facilitate comparison with other sources, antimicrobial usage figures reported to WOAH are extended to 2020 and extrapolated to cover whole regions."),
+               ]),
+           dbc.Row([
+               dbc.Col([
+                   dbc.Card([
+                       dbc.CardBody([html.H5("Antimicrobial usage estimates are produced for terrestrial livestock as follows:", className="card-title"),
+                                     html.P("A*: Limited to countries reporting total antimicrobial usage to WOAH. Estimate for terrestrial livestock based on terrestrial biomass as a proportion of total biomass. Extended to 2020 by assuming the trend from 2016-2018 continues."),
+                                     html.P("B*: Estimate A* extrapolated to whole region based on the proportion of terrestrial biomass for the region represented in the countries reporting."),
+                                     html.P("C*: Whole-region estimate for terrestrial livestock from Mulchandani et. al. (https://journals.plos.org/globalpublichealth/article?id=10.1371/journal.pgph.0001305)."),
+                                     ]),
+                       ]),
+                   ]),
+               dbc.Col([
+                   dbc.Card([
+                       dbc.CardBody([html.H5("Price estimates are from the following sources:", className="card-title"),
+                                     html.P("D*: For Africa, the Americas, and the Middle East: the average price in Brazil (https://www.oecd-ilibrary.org/agriculture-and-food/antimicrobial-use-resistance-and-economic-benefits-and-costs-to-livestock-producers-in-brazil_27137b1e-en). For Asia, Far East and Oceania: the price of Tetracyclin in China (https://one.oecd.org/document/TAD/CA/APM/WP(2018)19/FINAL/En/pdf (page 25)). For Europe: https://animalhealtheurope.eu/about-us/annual-reports/2020-2/key-figures/."),
+                                     html.P("E*: For Africa: 22% increase from price in Europe. For the Americas: midpoint between high and low estimates. For Asia, Far East and Oceania: . For Europe: . For the Middle East: 25% decrease from price in Europe."),
+                                     html.P("F*: For Africa: 42% increase from price in Europe. For the Americas and Asia, Far East and Oceania: the average price reported in Europe. For Europe: . For the Middle East: 15% decrease from price in Europe."),
+                                     ]),
+                       ]),
+                   ]),
                ]),
            html.Br(),
 
            # Plots comparing different estimates of usage and price
            dbc.Row([
-               # Side-by-side bars showing different usage estimates for each region
-               dbc.Col([
+               dbc.Col([    # Side-by-side bars comparing usage estimates for each region
                    dbc.Spinner(children=[
-                       dcc.Graph(id='amu-comparison-bars',
+                       dcc.Graph(id='am-usage-comparison',
                           style = {"height":"400px"},
                           config = {
                               "displayModeBar" : True,
                               "displaylogo": False,
                               'toImageButtonOptions': {
                                   'format': 'png', # one of png, svg, jpeg, webp
-                                  'filename': 'GBADs_AMU_comparison_bars'
+                                  'filename': 'GBADs_AM_usage_comparison'
+                                  },
+                              'modeBarButtonsToRemove': [
+                                  'zoom',
+                                  'zoomIn',
+                                  'zoomOut',
+                                  'autoScale',
+                                  #'resetScale',  # Removes home button
+                                  'pan',
+                                  'select2d',
+                                  'lasso2d'
+                                  ]
+                              }
+                          )
+                       # End of Spinner
+                       ],size="md", color="#393375", fullscreen=False),
+                   ]),
+               dbc.Col([    # Dots and error bars comparing price estimates for each region
+                   dbc.Spinner(children=[
+                       dcc.Graph(id='am-price-comparison',
+                          style = {"height":"400px"},
+                          config = {
+                              "displayModeBar" : True,
+                              "displaylogo": False,
+                              'toImageButtonOptions': {
+                                  'format': 'png', # one of png, svg, jpeg, webp
+                                  'filename': 'GBADs_AM_price_comparison'
                                   },
                               'modeBarButtonsToRemove': [
                                   'zoom',
@@ -4045,20 +4090,20 @@ gbadsDash.layout = html.Div([
                ]),
 
            #### -- FOOTNOTES PT.2
-            dbc.Row([
-                dbc.Col([
-                    html.P("Slider marks designate estimates from the following sources:"),
-                    # html.P("A*: WOAH usage data (limited to countries reporting). Estimate for terrestrial livestock based on their biomass as a proportion of total biomass."),
-                    html.P("A*: Countries reporting total antimicrobial usage to WOAH. Estimate for terrestrial livestock based on terrestrial biomass as a proportion of total biomass."),
-                    html.P("B*: Estimate A extrapolated to whole region based on the proportion of terrestrial biomass for the region represented in the countries reporting."),
-                    html.P("C*: Mulchandani et. al. (https://journals.plos.org/globalpublichealth/article?id=10.1371/journal.pgph.0001305)."),
-                ]),
-                # dbc.Col([
-                #      html.P("Expenditure distributions constructed by resampling from usage and price distributions and taking the product."),
-                #      # html.P("Expenditure distributions constructed from product of realizations resampled from usage and price distributions."),
-                # ]),
-            ], style={'margin-left':"30px", 'font-style': 'italic'}
-            ),
+            # dbc.Row([
+            #     dbc.Col([
+            #         html.P("Slider marks designate estimates from the following sources:"),
+            #         # html.P("A*: WOAH usage data (limited to countries reporting). Estimate for terrestrial livestock based on their biomass as a proportion of total biomass."),
+            #         html.P("A*: Countries reporting total antimicrobial usage to WOAH. Estimate for terrestrial livestock based on terrestrial biomass as a proportion of total biomass."),
+            #         html.P("B*: Estimate A extrapolated to whole region based on the proportion of terrestrial biomass for the region represented in the countries reporting."),
+            #         html.P("C*: Mulchandani et. al. (https://journals.plos.org/globalpublichealth/article?id=10.1371/journal.pgph.0001305)."),
+            #     ]),
+            #     # dbc.Col([
+            #     #      html.P("Expenditure distributions constructed by resampling from usage and price distributions and taking the product."),
+            #     #      # html.P("Expenditure distributions constructed from product of realizations resampled from usage and price distributions."),
+            #     # ]),
+            # ], style={'margin-left':"30px", 'font-style': 'italic'}
+            # ),
 
            # AMU for terrestrial animals, with uncertainty
            # dbc.Row([
@@ -4109,6 +4154,7 @@ gbadsDash.layout = html.Div([
            #         ],size="md", color="#393375", fullscreen=False),
            #         ]),
            #     ]),
+           html.Hr(style={'margin-right':'10px',}),
 
            #### -- DATATABLE
            dbc.Row([
@@ -8177,17 +8223,17 @@ def update_map_amr_options(display_option, antimicrobial_class):
         else:
             block = {'display': 'none'} # hide antimicrobial class dropdown
             d['disabled']=True
-    
+
     # Pathogen options
     for d in options2:
-      
+
         if display_option == 'AMR':
             # Filter data based on antimicrobial class selected
             input_df=amr_withsmry.query(f"antimicrobial_class == '{antimicrobial_class}'")
             options2 = []
             for i in input_df['pathogen'].unique():
                 str(options2.append({'label':i,'value':(i)}))
-                
+
             block = {'display': 'block'}
             d['disabled']=False
         else:
@@ -8396,7 +8442,7 @@ def update_usage_price_sliders(dummy_input):
 #     options = []
 #     for i in input_df['pathogens'].unique():
 #         str(options.append({'label':i,'value':(i)}))
-        
+
 #     return options
 
 
@@ -8531,7 +8577,7 @@ def update_regional_display_amu(input_json):
         ,'biomass_terr_kg_region':'Terrestrial Biomass for region'
         ,'biomass_terr_prpn_reporting':'Proportion of terrestrial biomass'
         ,'terr_amu_tonnes_reporting':'Estimated antimicrobials for terrestrial species in countries reporting 2018 (tonnes)'
-        ,'prpn_change_2018to2020':'Trend'
+        ,'prpn_change_2018to2020':'AM Usage Trend 2016 to 2018'
         ,'terr_amu_tonnes_reporting_2020':'Estimated antimicrobials for terrestrial species in countries reporting 2020 (tonnes)'
         ,'biomass_terr_reporting_prpnofregion':'Proportion of regional biomass'
         ,'terr_amu_tonnes_region_2020':'Estimated antimicrobials for terrestrial species in whole region 2020 (tonnes)'
@@ -8562,6 +8608,11 @@ def update_regional_display_amu(input_json):
     # display_data.update(display_data[[
     # ]].applymap('{:,.1f}'.format))
 
+    # Percent
+    display_data.update(display_data[[
+        'prpn_change_2018to2020'
+    ]].applymap('{:,.0%}'.format))
+
     # Euro currency
     # display_data.update(display_data[[
     #     'am_price_eurospertonne_low'
@@ -8588,7 +8639,7 @@ def update_regional_display_amu(input_json):
         }
 
     return [
-            html.H4("Extrapolated Regional Data"),
+            html.H4("Extended Regional Data"),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 # fixed_rows={'headers': True, 'data': 0},
@@ -8753,7 +8804,7 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
 
     # Filter scope to All and remove nulls from importance category
     input_df = input_df.query("scope == 'All'")
-    
+
     # Filter AMR to just 2018, selected antimicrobial class and pathogen, and sort data by region
     input_df_amr = input_df_amr.query("reporting_year == 2018").query(f"antimicrobial_class == '{antimicrobial_class}'").query(f"pathogen == '{pathogens}'")
     input_df_amr = input_df_amr.sort_values(by=['woah_region'])
@@ -8773,7 +8824,7 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
         map_value = input_df_am_expend['am_expenditure_usd_selected']
     elif quantity == 'AM expenditure: per kg biomass':
         map_value = input_df_am_expend['am_expenditure_usd_perkg_selected']
-        
+
 
     # Visualization switch between map and tree map
     if viz_switch == 'Map':
@@ -8787,8 +8838,8 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
                                         hover_name="woah_region",
                                         size=map_value,
                                         projection="natural earth",
-                                        custom_data=['woah_region', 
-                                                     map_value, 
+                                        custom_data=['woah_region',
+                                                     map_value,
                                                      'location_name',
                                                      'antimicrobial_class',
                                                      'pathogen'],
@@ -8797,7 +8848,7 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
                                                             "Europe": 'rgb(220,176,242)',
                                                             "Africa": 'rgb(135,197,95)',
                                                             "Middle East": 'rgb(254,136,177)'}
-                                        ) 
+                                        )
         elif quantity == 'AM expenditure: total' or quantity == 'AM expenditure: per kg biomass':
             # Use create map defined above for AM expenditure
             amu_map_fig = create_map_display_amu(input_df_am_expend, map_value)
@@ -8997,11 +9048,11 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
       "tetracyclines": '#C6CAFD',
       "others": '#222a2a'
       }
-    
+
     # Options to change between graphs
     if select_amu_graph.upper() == 'TOTAL':
-        amu_bar_fig = px.histogram(stackedbar_df, 
-                                   x=x_var, 
+        amu_bar_fig = px.histogram(stackedbar_df,
+                                   x=x_var,
                                    y=y_var,
                                    color=color,
                                    color_discrete_map= {"A: Critically Important": '#EF553B',
@@ -9183,7 +9234,7 @@ def update_donut_chart_amu (quantity, region, classification):
         names = input_df['antimicrobial_class_group2']
         sort_by = 'antimicrobial_class'
         legend_title = 'Antimicrobial Class'
-        
+
     # # Set colors to sync across visuals
     # colors = {
     # "A: Critically Important": "#636EFA",
@@ -9217,7 +9268,7 @@ def update_donut_chart_amu (quantity, region, classification):
                                               ],
                                   legend_title_text=f'{legend_title}'
                                   )
-    
+
     # Sync colors across visuals
     if classification == 'WHO Importance Categories' or classification == 'WOAH Importance Categories' or classification == 'OneHealth Importance Categories':
         amu_donut_fig.update_traces(marker=dict(colors=s))
@@ -9246,40 +9297,90 @@ def update_donut_chart_amu (quantity, region, classification):
 
 # Comparing usage estimates
 @gbadsDash.callback(
-    Output('amu-comparison-bars','figure'),
+    Output('am-usage-comparison','figure'),
     Input('amu-regional-data', 'data'),
     )
-def usage_comparison_amu(input_json):
+def update_am_usage_comparison(input_json):
     input_df = pd.read_json(input_json, orient='split')
+
+    # Rename columns to plot
+    # Workaround to fix names in legend
+    rename_plot_cols = {
+        'terr_amu_tonnes_reporting_2020':'A*'
+        ,'terr_amu_tonnes_region_2020':'B*'
+        ,'terr_amu_tonnes_mulch_2020':'C*'
+        }
+    input_df = input_df.rename(columns=rename_plot_cols)
+
     bar_fig = px.bar(
         input_df,
         x='region',
-        y=['terr_amu_tonnes_reporting_2020' ,'terr_amu_tonnes_region_2020' ,'terr_amu_tonnes_mulch_2020'],
+        y=list(rename_plot_cols.values()),
         barmode='group',
         )
     bar_fig.update_layout(title_text='Comparing antimicrobial usage estimates<br><sup>Terrestrial Livestock',
+                          font_size=15,
                           legend=dict(
                               title="",
                               orientation="h",
-                              x=0.3,
-                              y=1.15,
+                              # Bottom
+                              # x=-0.1,
+                              # y=-0.6,
+                              # Top
+                               x=0.7,
+                               y=1.15,
                               font=dict(size=12)
                               )
                           )
-    bar_fig.update_xaxes(title_text='Region')
+    bar_fig.update_xaxes(title_text=''
+                         ,tickangle=20
+                         )
     bar_fig.update_yaxes(title_text='Antimicrobial Usage (tonnes)')
 
-    # Workaround to fix names in legend
-    # This isn't working either
-    # newnames = {
-    #     'terr_amu_tonnes_reporting_2020':'WOAH countries reporting'
-    #     }
-    # bar_fig.for_each_trace(lambda t: t.update(name = newnames[t.name],
-    #                                           legendgroup = newnames[t.name],
-    #                                           hovertemplate = t.hovertemplate.replace(t.name, newnames[t.name])
-    #                                           )
-    #               )
     return bar_fig
+
+# Comparing price estimates
+@gbadsDash.callback(
+    Output('am-price-comparison','figure'),
+    Input('amu-regional-data', 'data'),
+    )
+def update_am_price_comparison(input_json):
+    input_df = pd.read_json(input_json, orient='split')
+
+    # Calculate errors as difference between endpoints and midpoint
+    input_df['am_price_usdpertonne_high_err'] = input_df['am_price_usdpertonne_high'] - input_df['am_price_usdpertonne_mid']
+    input_df['am_price_usdpertonne_low_err'] = input_df['am_price_usdpertonne_mid'] - input_df['am_price_usdpertonne_low']
+
+    # Create figure with secondary y-axis
+    fig = make_subplots()
+
+    # Plot Price
+    fig.add_trace(
+        go.Scatter(
+         	x=input_df['region']
+         	,y=input_df['am_price_usdpertonne_mid']
+         	,error_y=dict(
+                type='data'
+                ,symmetric=False
+                ,array=input_df['am_price_usdpertonne_high_err']
+                ,arrayminus=input_df["am_price_usdpertonne_low_err"]
+            )
+            ,mode='markers'
+        )
+    )
+
+    # Set size of points
+    fig.update_traces(marker_size=10)
+
+    # Add plot title and axis labels
+    fig.update_layout(title_text='Comparing antimicrobial price estimates'
+                      ,font_size=15
+                      )
+    fig.update_xaxes(title_text=""
+                     ,tickangle=20
+                     )
+    fig.update_yaxes(title_text="Average Price (USD per tonne)")
+    return fig
 
 # Expenditure based on usage and price sliders
 @gbadsDash.callback(
@@ -9291,9 +9392,11 @@ def update_expenditure_amu(input_json):
     bar_fig = px.bar(
         input_df,
         x='region',
-        y='am_expenditure_usd_selected',
+        # y='am_expenditure_usd_selected',
+        y='am_expenditure_usd_perkg_selected',
         labels={
             'am_expenditure_usd_selected':'Expenditure (USD)',
+            'am_expenditure_usd_perkg_selected':'Expenditure per kg biomass (USD)',
             'region': ""
             },
         color="region",
@@ -9303,16 +9406,16 @@ def update_expenditure_amu(input_json):
                             "Africa": 'rgb(135,197,95)',
                             "Middle East": 'rgb(254,136,177)'}
         )
-    
+
     # Add title and hide legend
     bar_fig.update_layout(title_text='Estimated Antimicrobial Expenditure<br><sup>Terrestrial Livestock',
                           showlegend=False)
-    
+
     # Adjust margins
     bar_fig.update_layout(
         margin=dict(l=20, r=20, b=10),
-        ) 
-        
+        )
+
     return bar_fig
 
 # AMU for terrestrial animals, with uncertainty

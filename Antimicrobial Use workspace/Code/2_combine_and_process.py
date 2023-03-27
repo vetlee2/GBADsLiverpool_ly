@@ -66,7 +66,7 @@ pert_distr_ci95_high = (beta_distr_ci95[1] * (10 - 1)) + 1   # Translate from (0
 amu2018_m_tomerge = amu2018_m.copy()
 
 # =============================================================================
-#### Combine AM usage and importance
+#### Add importance
 # =============================================================================
 # Modify antimicrobial names in importance data to match
 amu_importance_tomerge = amu_importance.copy()
@@ -190,17 +190,6 @@ datainfo(amu2018_combined_tall)
 
 amu2018_combined_tall.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_combined_tall.csv') ,index=False)
 amu2018_combined_tall.to_csv(os.path.join(DASH_DATA_FOLDER ,'amu2018_combined_tall.csv') ,index=False)
-
-#%% DEV: Prep AMR for regional
-
-# Filter to E. coli
-# Filter to one year - may be different for each region based on data available
-# Get average rescom by woah_region and antibiotic_class, weighted by nisolates
-# Lookup frequency of use of each antibiotic_class as proportion of region total AMU
-# - Problem: Drugs in AMR data are not a strict subset of drugs in AMU
-# - E.g. Polymyxins, Carbapenems appear in AMR but not AMU. We don’t know what proportion of usage these make up.
-# - What about Aminopenicillins in AMR data?  Are these included in Penicillins in AMU?
-# Get average rescom by woah_region, weighted by nisolates AND frequency of use of each antibiotic_class
 
 #%% Structure: one row per region
 
@@ -331,29 +320,145 @@ datainfo(amu_combined_regional)
 
 # =============================================================================
 #### Add AMR
-# See DEV: Prep AMR section above
 # =============================================================================
+# -----------------------------------------------------------------------------
+# DEV: Calculating weighted average for each class
+# Next I'll do this after combining classes to match the AMU data
+# -----------------------------------------------------------------------------
+# amr_full_withrgn_working = amr_full_withrgn.copy()
+# datainfo(amr_full_withrgn_working)
+
+# # Add resistance weighted by number of isolates for each pathogen
+# amr_full_withrgn_working['nisolates_resistant'] = amr_full_withrgn_working['rescom'] * amr_full_withrgn_working['nisolates']
+
+# # Aggregate to region, year, pathogen, antimicrobial class level
+# amr_full_regional = amr_full_withrgn_working.pivot_table(
+#     index=['woah_region' ,'reporting_year' ,'pathogen' ,'antibiotic_class']
+#     ,values=['nisolates_resistant' ,'nisolates']
+#     ,aggfunc='sum'
+# )
+# amr_full_regional = amr_full_regional.add_suffix('_sum')
+# amr_full_regional = amr_full_regional.reset_index()
+# amr_full_regional['rescom_wtavg'] = amr_full_regional['nisolates_resistant_sum'] / amr_full_regional['nisolates_sum']
+
+# -----------------------------------------------------------------------------
+# Get resistance of each antibiotic class in each region
+# - Problem: Drugs in AMR data are not a strict subset of drugs in AMU
+# - E.g. Polymyxins, Carbapenems appear in AMR but not AMU. We don’t know what proportion of usage these make up.
+# -- For now, assume these are in "Other"
+# - What about Aminopenicillins in AMR data?
+# -- Include in Penicillins in AMU
+# -----------------------------------------------------------------------------
 amr_full_withrgn_working = amr_full_withrgn.copy()
-datainfo(amr_full_withrgn_working)
 
 # Add resistance weighted by number of isolates for each pathogen
-amr_full_withrgn_working['rescom_x_nisolates'] = amr_full_withrgn_working['rescom'] * amr_full_withrgn_working['nisolates']
+amr_full_withrgn_working['nisolates_resistant'] = amr_full_withrgn_working['rescom'] * amr_full_withrgn_working['nisolates']
 
-# Aggregate to region level
-amr_full_regional = amr_full_withrgn_working.pivot_table(
-    index=['woah_region' ,'reporting_year' ,'pathogen']
-    ,values=['rescom_x_nisolates' ,'nisolates']
+# Rename classes in AMR data to match AMU
+amr_full_withrgn_working['antibiotic_class'].unique()
+rename_amr_classes = {
+    '1st Generation Cephalosporin':'cephalosporins__all_generations'
+    ,'2nd Generation Cephalosporin':'cephalosporins__all_generations'
+    ,'Third generation cephalosporins':'cephalosporins__all_generations'
+    ,'Fourth generation cephalosporins':'cephalosporins__all_generations'
+    ,'5th Generation Cephalosporin':'cephalosporins__all_generations'
+
+    ,'Amidinopenicillins':'penicillins'
+    ,'Aminocyclitols':'others'
+    ,'Aminoglycosides':'aminoglycosides'
+    ,'Aminopenicillins with beta-lactamase inhibitors':'penicillins'
+    ,'Aminopenicillins with Penicillins':'penicillins'
+    ,'Aminopenicillins':'penicillins'
+    ,'Amphenicols':'amphenicols'
+    ,'Ansamycins':'others'
+    ,'Carbapenems':'others'
+    ,'Cephamycin':'others'
+    ,'Cyclic Polypeptides':'polypeptides'
+    ,'Fluoroquinolones':'fluoroquinolones'
+    ,'Glycopeptides':'glycopeptides'
+    ,'Glycylcyclines':'others'
+    ,'Ionophore':'others'
+    ,'Lincosamides':'lincosamides'
+    ,'Lipopeptides':'others'
+    ,'Macrolides':'macrolides'
+    ,'Monobactams':'others'
+    ,'Nitrofurans':'nitrofurans'
+    ,'Nitroimidazoles':'others'
+    ,'Oxazolidinones':'others'
+    ,'Penicillins (Anti-Staphylococcal)':'penicillins'
+    ,'Penicillins (Narrow Spectrum)':'penicillins'
+    ,'Penicillins':'penicillins'
+    ,'Phosphonic acid derivatives':'others'
+    ,'Polymyxins':'others'
+    ,'Pseudomonic Acids':'others'
+    ,'Quinolones':'other_quinolones'
+    ,'Steroid Antibacterials':'others'
+    ,'Streptogramins':'streptogramins'
+    ,'Sulfonamides, Trimethoprim and Combinations':'sulfonamides__including_trimethoprim'
+    ,'Tetracyclines':'tetracyclines'
+}
+amr_full_withrgn_working['antibiotic_class'] = amr_full_withrgn_working['antibiotic_class'].replace(rename_amr_classes)
+
+# Calculate class-level average resistance for classes to match AMU
+amr_full_p1 = amr_full_withrgn_working.pivot_table(
+    index=['woah_region' ,'reporting_year' ,'pathogen' ,'antibiotic_class']
+    ,values=['nisolates_resistant' ,'nisolates']
     ,aggfunc='sum'
 )
-amr_full_regional = amr_full_regional.add_suffix('_sum')
-amr_full_regional = amr_full_regional.reset_index()
-amr_full_regional['rescom_wtavg'] = amr_full_regional['rescom_x_nisolates_sum'] / amr_full_regional['nisolates_sum']
+amr_full_p1 = amr_full_p1.add_suffix('_sum')
+amr_full_p1 = amr_full_p1.reset_index()
+amr_full_p1['resistance_rate'] = amr_full_p1['nisolates_resistant_sum'] / amr_full_p1['nisolates_sum']
 
 # -----------------------------------------------------------------------------
-# Merge with AMU
+# Lookup frequency of use of each antibiotic_class as proportion of region total AMU
+# -----------------------------------------------------------------------------
+amu2018_m_classprev = amu2018_m.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'").copy()
+
+# Combine classes in AMU to make the best use of data (e.g. combine all cephalosporins into cephalosporins__all_generations)
+combine_amu_classes = {
+    '1_2_gen__cephalosporins':'cephalosporins__all_generations'
+    ,'3_4_gen_cephalosporins':'cephalosporins__all_generations'
+}
+amu2018_m_classprev['antimicrobial_class'] = amu2018_m_classprev['antimicrobial_class'].replace(combine_amu_classes)
+amu2018_m_classprev['antimicrobial_class'].unique()
+
+# Sum usage at combined class level
+amu2018_m_classprev = amu2018_m_classprev.groupby(['region' ,'scope' ,'number_of_countries' ,'antimicrobial_class'])['amu_tonnes'].sum().reset_index()
+
+# Add region total AMU as a column and calculate usage of each class as proportion of total
+amu2018_m_classprev['region_total_amu_tonnes'] = amu2018_m_classprev.groupby('region')['amu_tonnes'].transform('sum')
+amu2018_m_classprev['region_prpn_amu'] = amu2018_m_classprev['amu_tonnes'] / amu2018_m_classprev['region_total_amu_tonnes']
+
+# Merge onto AMR
+amr_full_p1_classprpn = pd.merge(
+    left=amr_full_p1
+    ,right=amu2018_m_classprev[['region' ,'antimicrobial_class' ,'region_prpn_amu']]
+    ,left_on=['woah_region' ,'antibiotic_class']
+    ,right_on=['region' ,'antimicrobial_class']
+    ,how='left'
+)
+
+# -----------------------------------------------------------------------------
+# Calculate regional resistance for each pathogen over all classes
+# -----------------------------------------------------------------------------
+# For each class*pathogen, calculate resistance x proportion of use
+# Based on Laxminarayan paper (BMJ Open 2011;1:e000135. doi: 10.1136/bmjopen-2011-000135)
+amr_full_p1_classprpn['resistancerate_x_classprpn'] = amr_full_p1_classprpn['resistance_rate'] * amr_full_p1_classprpn['region_prpn_amu']
+
+amr_full_p2 = amr_full_p1_classprpn.pivot_table(
+    index=['region' ,'pathogen' ,'reporting_year']
+    ,values=['nisolates_sum' ,'nisolates_resistant_sum' ,'resistancerate_x_classprpn']
+    ,aggfunc='sum'
+)
+amr_full_p2 = amr_full_p2.add_suffix('_sum')
+amr_full_p2 = amr_full_p2.reset_index()
+amr_full_p2['resistance_rate_wtavg'] = amr_full_p2['nisolates_resistant_sum_sum'] / amr_full_p2['nisolates_sum_sum']
+
+# -----------------------------------------------------------------------------
+# Merge with AMU and calculate drug resistance index
 # -----------------------------------------------------------------------------
 # Using E.coli as indicator, same as EFSA paper (https://www.efsa.europa.eu/en/efsajournal/pub/5017)
-amr_full_regional_tomerge = amr_full_regional.query("pathogen == 'E. coli'").copy()
+amr_full_p2_tomerge = amr_full_p2.query("pathogen == 'E. coli'").copy()
 
 # Keep a single year for each region
 # Select the last year with good representation, preferring consistency across regions
@@ -366,19 +471,18 @@ keep_years_byregion = {
     ,"EUROPE":2018
     ,"MIDDLE EAST":2015
     }
-amr_full_regional_tomerge['keep_year'] = \
-    amr_full_regional_tomerge['woah_region'].str.upper().apply(lookup_from_dictionary ,DICT=keep_years_byregion)
-amr_full_regional_tomerge = amr_full_regional_tomerge.query("reporting_year == keep_year")
+amr_full_p2_tomerge['keep_year'] = \
+    amr_full_p2_tomerge['region'].str.upper().apply(lookup_from_dictionary ,DICT=keep_years_byregion)
+amr_full_p2_tomerge = amr_full_p2_tomerge.query("reporting_year == keep_year")
 
 rename_cols = {
-    'woah_region':'region'
-    ,'rescom_wtavg':'amr_prevalence'
+    'resistancerate_x_classprpn_sum':'drug_resistance_index'
 }
-amr_full_regional_tomerge = amr_full_regional_tomerge.rename(columns=rename_cols)
+amr_full_p2_tomerge = amr_full_p2_tomerge.rename(columns=rename_cols)
 
 amu_combined_regional = pd.merge(
     left=amu_combined_regional
-    ,right=amr_full_regional_tomerge[list(rename_cols.values())]
+    ,right=amr_full_p2_tomerge[['region' ,'resistance_rate_wtavg' ,'drug_resistance_index']]
     ,on='region'
     ,how='left'
 )
@@ -386,28 +490,29 @@ datainfo(amu_combined_regional)
 
 # -----------------------------------------------------------------------------
 # Calculate drug resistance index
+# First try - before calculating with proportion of antimicrobial classes
 # -----------------------------------------------------------------------------
-# Simple index from Agunos paper (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6509235/#B18)
-# Resistance x biomass
-amu_combined_regional['amr_index_agunos'] = \
-    amu_combined_regional['amr_prevalence'] * amu_combined_regional['biomass_total_kg_region'] \
-        / 1e9   # Adjust downward
+# # Simple index from Agunos paper (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6509235/#B18)
+# # Resistance x biomass
+# amu_combined_regional['amr_index_agunos'] = \
+#     amu_combined_regional['amr_prevalence'] * amu_combined_regional['biomass_total_kg_region'] \
+#         / 1e9   # Adjust downward
 
-# Multiplying by usage
-amu_combined_regional['amr_index_agunos_usage'] = \
-    amu_combined_regional['amr_index_agunos'] * amu_combined_regional['total_antimicrobials_tonnes_region']
+# # Multiplying by usage
+# amu_combined_regional['amr_index_agunos_usage'] = \
+#     amu_combined_regional['amr_index_agunos'] * amu_combined_regional['total_antimicrobials_tonnes_region']
 
-# Approximating index from Laxminarayan paper
-# Find proportion of total AMU for each region represented by antimicrobial classes in AMR data
-# Using same subset as for merging: E.coli for a specific year
-amr_classes = amr_full_withrgn[['woah_region' ,'reporting_year' ,'pathogen' ,'antibiotic_class']].drop_duplicates()
-amr_classes_included = pd.merge(
-    left=amr_full_regional_tomerge
-    ,right=amr_classes
-    ,left_on=['region' ,'reporting_year' ,'pathogen']
-    ,right_on=['woah_region' ,'reporting_year' ,'pathogen']
-    ,how='left'
-)
+# # Approximating index from Laxminarayan paper
+# # Find proportion of total AMU for each region represented by antimicrobial classes in AMR data
+# # Using same subset as for merging: E.coli for a specific year
+# amr_classes = amr_full_withrgn[['woah_region' ,'reporting_year' ,'pathogen' ,'antibiotic_class']].drop_duplicates()
+# amr_classes_included = pd.merge(
+#     left=amr_full_p2_tomerge
+#     ,right=amr_classes
+#     ,left_on=['region' ,'reporting_year' ,'pathogen']
+#     ,right_on=['woah_region' ,'reporting_year' ,'pathogen']
+#     ,how='left'
+# )
 
 # =============================================================================
 #### Export
@@ -417,7 +522,7 @@ datainfo(amu_combined_regional)
 amu_combined_regional.to_csv(os.path.join(PRODATA_FOLDER ,'amu_combined_regional.csv') ,index=False)
 amu_combined_regional.to_csv(os.path.join(DASH_DATA_FOLDER ,'amu_combined_regional.csv') ,index=False)
 
-#%% Prep Resistance data for plotting
+#%% Prep Resistance data for plotting at the country-level
 '''
 This will be used to allow users to explore the AMR data in detail, so retains the full
 granularity: country, year, antimicrobial class, and pathogen.
@@ -472,8 +577,14 @@ amr_withsmry = pd.concat(
 )
 
 # =============================================================================
-#### Export
+#### Cleanup and Export
 # =============================================================================
+# We do not intend to show yearly data in the dashboard
+# Filter to the year with most representation for each region
+amr_withsmry['keep_year'] = \
+    amr_withsmry['woah_region'].str.upper().apply(lookup_from_dictionary ,DICT=keep_years_byregion)
+amr_withsmry = amr_withsmry.query("reporting_year == keep_year")
+
 datainfo(amr_withsmry)
 amr_withsmry.to_csv(os.path.join(PRODATA_FOLDER ,'amr_withsmry.csv') ,index=False)
 amr_withsmry.to_csv(os.path.join(DASH_DATA_FOLDER ,'amr_withsmry.csv') ,index=False)

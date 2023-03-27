@@ -972,9 +972,7 @@ amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in 
                                                                                   "Drug Resistance Index (region level)",
                                                                                   "AM expenditure: total",
                                                                                   "AM expenditure: per kg biomass",]]
-# amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["AMU: tonnes",
-#                                                                                  "AMU: mg per kg biomass",
-#                                                                                  "Biomass",]]
+
 
 # Antimicrobial Class
 amu_antimicrobial_class_options = []
@@ -986,6 +984,15 @@ amu_pathogen_options = []
 for i in np.sort(amr_withsmry['pathogen'].unique()):
     str(amu_pathogen_options.append({'label':i,'value':(i)}))
 
+# nav_btn_style = {
+#      'align': 'center',
+#      'color': 'black', 
+#      'backgroundColor': 'white',
+#      'fontSize': '1rem',
+#      'width': '10rem',
+#      'height': '3.2rem',
+#      'margin': '0rem 1rem',
+#  }
 # =============================================================================
 #### Burden of disease calcs
 # =============================================================================
@@ -3650,99 +3657,124 @@ gbadsDash.layout = html.Div([
         #### ANTIMICROBIAL USAGE TAB
        dcc.Tab(label="Antimicrobial Usage (AMU) [WIP]", children =[
            
-           # #### -- NAVIGATION BUTTONS
-           # dbc.Row([ 
-           #     # Regional & Global AMU
-           #     dbc.Col([
-           #         dbc.NavbarBrand(dcc.Link(
-           #                     dbc.Button(children='Regional & Global AMU',
-           #                                style={
-           #                                    'display': 'inline-block',
-           #                                    'align': 'center',
-           #                                    'color': 'white', 
-           #                                    'fontSize': '15px ',
-           #                                    'backgroundColor': '#101820',
-           #                                    'width': '150px',
-           #                                    'height': '50px',
-           #                                    'marginLeft': '100px',
-           #                                    'marginRight': '100px'
-           #                                }, className='lg'),
+            #### -- NAVIGATION BUTTONS
+            dbc.Row([ 
+                # Regional & Global AMU
+                dbc.Col([
+                    dbc.NavbarBrand(dcc.Link(
+                                dbc.Button(children='Regional & Global AMU',
+                                            # style={
+                                            #     'display': 'inline-block',
+                                            #     'align': 'center',
+                                            #     'color': 'white', 
+                                            #     'fontSize': '15px ',
+                                            #     'backgroundColor': '#101820',
+                                            #     'width': '150px',
+                                            #     'height': '50px',
+                                            #     'marginLeft': '100px',
+                                            #     'marginRight': '100px'
+                                            # }
+                                            ),
                    
-           #                     href='#test', refresh=True), className='lg'),
-           #         ]),
+                                href='#AMU-Regional-Global', refresh=True)),
+                    ]),
                
-           #     # Treemap & Map (Visualization of AMU, Biomass, AMR & AM Costs)
-           #     dbc.Col([ 
-           #         dbc.NavbarBrand(dcc.Link(
-           #             dbc.Button(children='Visualization of AMU, Biomass, AMR & AM Costs',
-           #                        style={'color': 'white',
-           #                               'backgroundColor': '#101820',
-           #                               'fontSize': '15px ',
-           #                               'width': '150px',
-           #                               'height': '50px',
-           #                               'marginLeft': '10px',
-           #                               'marginRight': '100px',
-           #                               }),
-           #             href='#test2', refresh=True)),
-           #         ]),
+                # Treemap & Map (Visualization of AMU, Biomass, AMR & AM Costs)
+                dbc.Col([ 
+                    dbc.NavbarBrand(dcc.Link(
+                        dbc.Button(children='Visualization of AMU, Biomass, AMR & AM Costs',
+                                    # style={'color': 'white',
+                                    #        'backgroundColor': '#101820',
+                                    #        'fontSize': '15px ',
+                                    #        'width': '150px',
+                                    #        'height': '50px',
+                                    #        'marginLeft': '10px',
+                                    #        'marginRight': '100px',
+                                    #        }
+                                    ),
+                        href='#AMU-Biomass-AMR-Costs-Viz', refresh=True)),
+                    ],width="auto"),
                
-           #     # Exploring AMU/price Variability
-           #     dbc.Col([   
-           #         dbc.NavbarBrand(dcc.Link(
-           #             dbc.Button(children='Exploring AMU/price Variability',
-           #                        style={'color': 'white',
-           #                               'backgroundColor': '#101820',
-           #                               'fontSize': '15px ',
-           #                               'width': '150px',
-           #                               'height': '50px',
-           #                               'marginLeft': '10px',
-           #                               'marginRight': '100px',
-           #                               }),
-           #             href='#end', refresh=True)),
-           #         ]),
+                # Exploring AMU/price Variability
+                dbc.Col([   
+                    dbc.NavbarBrand(dcc.Link(
+                        dbc.Button(children='Exploring AMU/price Variability',
+                                    # style={'color': 'white',
+                                    #        'backgroundColor': '#101820',
+                                    #        'fontSize': '15px ',
+                                    #        'width': '150px',
+                                    #        'height': '50px',
+                                    #        'marginLeft': '10px',
+                                    #        'marginRight': '100px',
+                                    #        }
+                                    ),
+                        href='#AMU-exploring-variability', refresh=True)),
+                    ]),
                
-           #     # Regional AM Expenditure Estimator
-           #     dbc.Col([   
-           #         dbc.NavbarBrand(dcc.Link(
-           #             dbc.Button(children='Regional AM Expenditure Estimator',
-           #                        style={'color': 'white',
-           #                               'backgroundColor': '#101820',
-           #                               'fontSize': '15px ',
-           #                               'width': '150px',
-           #                               'height': '50px',
-           #                               'marginLeft': '10px',
-           #                               'marginRight': '100px',
-           #                               }),
-           #             href='#end', refresh=True)),
-           #         ]),
+                # Regional AM Expenditure Estimator
+                dbc.Col([   
+                    dbc.NavbarBrand(dcc.Link(
+                        dbc.Button(children='Regional AM Expenditure Estimator',
+                                    # style={'color': 'white',
+                                    #        'backgroundColor': '#101820',
+                                    #        'fontSize': '15px ',
+                                    #        'width': '150px',
+                                    #        'height': '50px',
+                                    #        'marginLeft': '10px',
+                                    #        'marginRight': '100px',
+                                    #        }
+                                    ),
+                        href='#AMU-regional-expenditure', refresh=True)),
+                    ]),
                
-           #     # Data Export
-           #     dbc.Col([   
-           #         dbc.NavbarBrand(dcc.Link(
-           #             dbc.Button(children='Data Export',
-           #                        style={'color': 'white',
-           #                               'backgroundColor': '#101820',
-           #                               'fontSize': '15px ',
-           #                               'width': '150px',
-           #                               'height': '50px',
-           #                               'marginLeft': '10px',
-           #                               'marginRight': '100px',
-           #                               }),
-           #             href='#end', refresh=True)),
-           #         ]),
-               
-           #     # END OF NAVIGATION BUTTONS ROW
-           #     ], justify='evenly',
-           #         style={
-           #                 'textAlign': 'center',
-           #                 'position': 'fixed',
-           #                 'marginRight': '0px',
-           #             },),
+                # Data Export
+                dbc.Col([   
+                    dbc.NavbarBrand(dcc.Link(
+                        dbc.Button(children='Data Export',
+                                    # style=nav_btn_style,
+                                    ),
+                        href='#AMU-data-export', refresh=True)),
+                    ],  
+                    style={
+                              "border":"2px #C5DAB8 solid",
+                              'display': 'flex',
+                              'justify-content': 'center',
+                              }
+                    ),
+                
+            #     dbc.NavbarSimple(
+            #     children=[
+            #         dbc.NavItem(dbc.NavLink("Regional & Global AMU", href="#AMU-Regional-Global",)),
+            #         dbc.DropdownMenu(
+            #             children=[
+            #                 dbc.DropdownMenuItem("More pages", header=True),
+            #                 dbc.DropdownMenuItem("Exploring AMU/price Variability", href="#AMU-exploring-variability",),
+            #                 dbc.DropdownMenuItem("Regional AM Expenditure Estimator", href="#AMU-regional-expenditure",),
+            #             ],
+            #             nav=True,
+            #             in_navbar=True,
+            #             label="More",
+            #         ),
+            #     ],
+            #     brand="NavbarSimple",
+            #     # brand_href="#",
+            #     color="secondary",
+            #     dark=True,
+            # ),
+
+                # END OF NAVIGATION BUTTONS ROW
+                ], 
+                    style={
+                            'position': 'fixed',
+                            # 'z-index': '999', # Bring to front
+                        },
+                    ),
                
                html.Br(),
                html.Br(),
 
            #### -- DROPDOWN CONTROLS
+           html.H3("Livestock Antimicrobial Usage by Region & Antimicrobial Importance/Classes", id="AMU-Regional-Global"),
            dbc.Row([
 
                # Bar Chart selection
@@ -3881,12 +3913,10 @@ gbadsDash.layout = html.Div([
             html.Br(),
 
             #### -- VISUALIZATION SWITCH
-
             dbc.Card([
                 dbc.CardBody([
-                    html.H5("Select Visualization",
-                            className="card-title",
-                            style={"font-weight": "bold"}),
+                    html.H3("Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region", id="AMU-Biomass-AMR-Costs-Viz",
+                            className="card-title"),
 
             dbc.Row([
             # Visualization Switch
@@ -3965,7 +3995,7 @@ gbadsDash.layout = html.Div([
            # Separator for WOAH data above, estimates/variations below
            html.Hr(style={'margin-right':'10px',}),
            dbc.Row([
-               html.H3("Extending Estimates and Exploring Variability", id=""),
+               html.H3("Exploring Variability of Veterinary Antimicrobial Usage and Price by Data Source", id="AMU-exploring-variability"),
                html.P("Use the charts and sliders below to explore the variability in antimicrobial usage and price from different sources. To facilitate comparison with other sources, antimicrobial usage figures reported to WOAH are extended to 2020 and extrapolated to cover whole regions."),
                ]),
            dbc.Row([
@@ -4046,8 +4076,10 @@ gbadsDash.layout = html.Div([
                    ]),
                ]),
            html.Br(),
-
+           
+           #### -- GRAPHICS PT.3
            # Usage and Price Sliders with Expenditure chart
+           html.H3("Regional Veterinary Antimicrobial Expenditure Estimator", id="AMU-regional-expenditure"),
            dbc.Row([
                dbc.Col([
                    dbc.Card([
@@ -4255,6 +4287,7 @@ gbadsDash.layout = html.Div([
            html.Hr(style={'margin-right':'10px',}),
 
            #### -- DATATABLE
+           html.H3("Data Export", id="AMU-data-export"),
            dbc.Row([
                dbc.Spinner(children=[
                dbc.Col([

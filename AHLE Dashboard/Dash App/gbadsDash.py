@@ -3649,6 +3649,98 @@ gbadsDash.layout = html.Div([
 
         #### ANTIMICROBIAL USAGE TAB
        dcc.Tab(label="Antimicrobial Usage (AMU) [WIP]", children =[
+           
+           # #### -- NAVIGATION BUTTONS
+           # dbc.Row([ 
+           #     # Regional & Global AMU
+           #     dbc.Col([
+           #         dbc.NavbarBrand(dcc.Link(
+           #                     dbc.Button(children='Regional & Global AMU',
+           #                                style={
+           #                                    'display': 'inline-block',
+           #                                    'align': 'center',
+           #                                    'color': 'white', 
+           #                                    'fontSize': '15px ',
+           #                                    'backgroundColor': '#101820',
+           #                                    'width': '150px',
+           #                                    'height': '50px',
+           #                                    'marginLeft': '100px',
+           #                                    'marginRight': '100px'
+           #                                }, className='lg'),
+                   
+           #                     href='#test', refresh=True), className='lg'),
+           #         ]),
+               
+           #     # Treemap & Map (Visualization of AMU, Biomass, AMR & AM Costs)
+           #     dbc.Col([ 
+           #         dbc.NavbarBrand(dcc.Link(
+           #             dbc.Button(children='Visualization of AMU, Biomass, AMR & AM Costs',
+           #                        style={'color': 'white',
+           #                               'backgroundColor': '#101820',
+           #                               'fontSize': '15px ',
+           #                               'width': '150px',
+           #                               'height': '50px',
+           #                               'marginLeft': '10px',
+           #                               'marginRight': '100px',
+           #                               }),
+           #             href='#test2', refresh=True)),
+           #         ]),
+               
+           #     # Exploring AMU/price Variability
+           #     dbc.Col([   
+           #         dbc.NavbarBrand(dcc.Link(
+           #             dbc.Button(children='Exploring AMU/price Variability',
+           #                        style={'color': 'white',
+           #                               'backgroundColor': '#101820',
+           #                               'fontSize': '15px ',
+           #                               'width': '150px',
+           #                               'height': '50px',
+           #                               'marginLeft': '10px',
+           #                               'marginRight': '100px',
+           #                               }),
+           #             href='#end', refresh=True)),
+           #         ]),
+               
+           #     # Regional AM Expenditure Estimator
+           #     dbc.Col([   
+           #         dbc.NavbarBrand(dcc.Link(
+           #             dbc.Button(children='Regional AM Expenditure Estimator',
+           #                        style={'color': 'white',
+           #                               'backgroundColor': '#101820',
+           #                               'fontSize': '15px ',
+           #                               'width': '150px',
+           #                               'height': '50px',
+           #                               'marginLeft': '10px',
+           #                               'marginRight': '100px',
+           #                               }),
+           #             href='#end', refresh=True)),
+           #         ]),
+               
+           #     # Data Export
+           #     dbc.Col([   
+           #         dbc.NavbarBrand(dcc.Link(
+           #             dbc.Button(children='Data Export',
+           #                        style={'color': 'white',
+           #                               'backgroundColor': '#101820',
+           #                               'fontSize': '15px ',
+           #                               'width': '150px',
+           #                               'height': '50px',
+           #                               'marginLeft': '10px',
+           #                               'marginRight': '100px',
+           #                               }),
+           #             href='#end', refresh=True)),
+           #         ]),
+               
+           #     # END OF NAVIGATION BUTTONS ROW
+           #     ], justify='evenly',
+           #         style={
+           #                 'textAlign': 'center',
+           #                 'position': 'fixed',
+           #                 'marginRight': '0px',
+           #             },),
+               
+               html.Br(),
+               html.Br(),
 
            #### -- DROPDOWN CONTROLS
            dbc.Row([
@@ -3873,7 +3965,7 @@ gbadsDash.layout = html.Div([
            # Separator for WOAH data above, estimates/variations below
            html.Hr(style={'margin-right':'10px',}),
            dbc.Row([
-               html.H3("Extending Estimates and Exploring Variability"),
+               html.H3("Extending Estimates and Exploring Variability", id=""),
                html.P("Use the charts and sliders below to explore the variability in antimicrobial usage and price from different sources. To facilitate comparison with other sources, antimicrobial usage figures reported to WOAH are extended to 2020 and extrapolated to cover whole regions."),
                ]),
            dbc.Row([
@@ -8259,7 +8351,7 @@ def update_antimicrobial_importance_class_switch(display_option, viz_switch):
     else:
         options = amu_antimicrobial_class_options.copy()
         for d in options:
-            if display_option == 'AMR':
+            if display_option == 'Antimicrobial Resistance (country level)':
                 block = {'display': 'block'}
                 d['disabled']=False
                 value = 'Aminoglycosides'

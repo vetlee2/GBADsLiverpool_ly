@@ -1998,7 +1998,7 @@ def create_donut_chart_amu(input_df, value, names):
                                       values=value,
                                       hovertemplate = "%{label}: <br>%{percent} </br><extra></extra>"
                                       )])
-    
+
     # pie_fig = px.pie(input_df,
     #                  names=names,
     #                  values=value,
@@ -8293,7 +8293,7 @@ def update_map_amr_options(display_option, antimicrobial_class):
     #     else:
     #         block = {'display': 'none'} # hide antimicrobial class dropdown
     #         d['disabled']=True
-    
+
     # Pathogen options
     for d in options2:
 
@@ -9141,7 +9141,7 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
     #   "tetracyclines": '#C6CAFD',
     #   "others": '#AB63FA'
     #   }
-    
+
     # Options to change between graphs
     if select_amu_graph.upper() == 'TOTAL':
         amu_bar_fig = px.histogram(stackedbar_df,
@@ -9367,7 +9367,7 @@ def update_donut_chart_amu (quantity, region, classification):
         "others": '#C6CAFD'
         }
         summarize_df['Color']= summarize_df['antimicrobial_class_group2'].map(colors)
-       
+
     # # Set colors to sync across visuals
     # colors = {
     # "A: Critically Important": "#EF553B",
@@ -9380,8 +9380,8 @@ def update_donut_chart_amu (quantity, region, classification):
     # }
     # s = pd.Series(colors)
     # pie_fig.update_traces(marker=dict(colors=s))
-    
-    
+
+
     # Use selected quantity value
     if quantity == 'Tonnes':
         value = summarize_df['amu_tonnes']
@@ -9446,7 +9446,7 @@ def update_am_usage_comparison(input_json):
         ,'terr_amu_tonnes_mulch_2020':'C*'
         }
     input_df = input_df.rename(columns=rename_plot_cols)
-    input_df = pd.melt(input_df, id_vars='region', value_vars=[list(rename_plot_cols.values())])
+    input_df = pd.melt(input_df, id_vars='region', value_vars=["A*" ,"B*" ,"C*"])
     bar_fig = px.bar(
         input_df,
         x='region',
@@ -9460,15 +9460,15 @@ def update_am_usage_comparison(input_json):
         barmode='group',
         pattern_shape="variable",
         pattern_shape_map={
-              "A*": ".", 
-              "B*": "/", 
+              "A*": ".",
+              "B*": "/",
               "C*": "+"
               }
         )
-      
+
     # Hide legend made from px.box
     bar_fig.update_traces(showlegend=False)
-    
+
     # For display purpose, create traces so that legend contains symbole and colors, does not connect with bars
     bar_fig.add_trace(go.Bar(x=[None], y=[None], marker_pattern_shape=".", marker_color="white",
                              name='A*'))
@@ -9477,7 +9477,7 @@ def update_am_usage_comparison(input_json):
     bar_fig.add_trace(go.Bar(x=[None], y=[None], marker_pattern_shape="+", marker_color="white",
                              name='C*'))
 
-    
+
     bar_fig.update_layout(title_text='Comparing antimicrobial usage estimates<br><sup>Terrestrial Livestock',
                           font_size=15,
                           legend=dict(
@@ -9496,7 +9496,7 @@ def update_am_usage_comparison(input_json):
     #             legend=dict(
     #             orientation="h")
     #             )
-    
+
     bar_fig.update_xaxes(title_text=''
                          ,tickangle=20
                          )

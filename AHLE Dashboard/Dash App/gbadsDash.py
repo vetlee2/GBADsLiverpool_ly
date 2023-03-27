@@ -3688,7 +3688,7 @@ gbadsDash.layout = html.Div([
                              ,'OneHealth Importance Categories'
                              ,'Individual Classes'
                              ],
-                         value='WHO Importance Categories',
+                         value='Top Global Classes',
                          clearable=False,
                          ),
                    ]),
@@ -3820,9 +3820,9 @@ gbadsDash.layout = html.Div([
 
             # Antimicrobial Class
             dbc.Col([
-                html.H6("Antimircobials", id='select-antimicrobial-class-amu-title'),
-                dcc.Dropdown(id='select-antimicrobial-class-amu',
-                      options=amu_antimicrobial_class_options,
+                html.H6("Antimircobials", id='select-antimicrobial-importance-class-amu-title'),
+                dcc.Dropdown(id='select-antimicrobial-importance-class-amu',
+                      # options=amu_antimicrobial_class_options,
                       value='Aminoglycosides',
                       clearable=False,
                       ),
@@ -4124,7 +4124,7 @@ gbadsDash.layout = html.Div([
                dbc.Col([
                    html.Div([
                          html.Div( id='amu-2018-combined-tall-todisplay'),
-                   ], style={'margin-left':"20px" ,"width":"95%"}),
+                   ], style={'margin-left':"20px"}),
 
                html.Br() # Space in between tables
 
@@ -4139,7 +4139,7 @@ gbadsDash.layout = html.Div([
                dbc.Col([
                    html.Div([
                          html.Div(id='amu-regional-todisplay'),
-                   ], style={'margin-left':"20px" ,"width":"95%"}),
+                   ], style={'margin-left':"20px"}),
                html.Br() # Spacer for bottom of page
                ]),# END OF COL
                # End of Spinner
@@ -8164,27 +8164,60 @@ def update_map_display_drilldown_switch(viz_switch):
 
     return options, value, title
 
+# Switch between Importance categories and Antimicrobial class options
+@gbadsDash.callback(
+    Output('select-antimicrobial-importance-class-amu','options'),
+    Output('select-antimicrobial-importance-class-amu','value'),
+    Output('select-antimicrobial-importance-class-amu-title','children'),
+    Output('select-antimicrobial-importance-class-amu','style'),
+    Output('select-antimicrobial-importance-class-amu-title','style'),
+    Input('select-map-display-drilldown-amu','value'),
+    Input('select-viz-switch-amu','value'),
+    )
+def update_antimicrobial_importance_class_switch(display_option, viz_switch):
+    if viz_switch == 'Drill Down':
+        options =['OneHealth Importance Categories', 'WHO Importance Categories', 'WOAH Importance Categories']
+        value = 'WOAH Importance Categories'
+        title = 'Importance Categories'
+        block = {'display': 'block'}
+        # d['disabled']=False
+    else:
+        options = amu_antimicrobial_class_options.copy()
+        for d in options:
+            if display_option == 'AMR':
+                block = {'display': 'block'}
+                d['disabled']=False
+                value = 'Aminoglycosides'
+                title = 'Antimircobials'
+            else:
+                block = {'display': 'none'} # hide antimicrobial class dropdown
+                d['disabled']=True
+                value = ''
+                title = ''
+
+    return options, value, title, block, block
+
 # Enable the options for antibotics/pathogens when 'AMR' is selected
 @gbadsDash.callback(
-    Output('select-antimicrobial-class-amu','options'),
-    Output('select-antimicrobial-class-amu','style'),
-    Output('select-antimicrobial-class-amu-title','style'),
+    # Output('select-antimicrobial-importance-class-amu','options'),
+    # Output('select-antimicrobial-importance-class-amu','style'),
+    # Output('select-antimicrobial-importance-class-amu-title','style'),
     Output('select-pathogens-amu','options'),
     Output('select-pathogens-amu','style'),
     Output('select-pathogens-amu-title','style'),
     Input('select-map-display-drilldown-amu','value'),
-    Input('select-antimicrobial-class-amu', 'value'),
+    Input('select-antimicrobial-importance-class-amu', 'value'),
     )
 def update_map_amr_options(display_option, antimicrobial_class):
-    options1 = amu_antimicrobial_class_options.copy()
+    # options1 = amu_antimicrobial_class_options.copy()
     options2 = amu_pathogen_options.copy()
-    for d in options1:
-        if display_option == 'AMR':
-            block = {'display': 'block'}
-            d['disabled']=False
-        else:
-            block = {'display': 'none'} # hide antimicrobial class dropdown
-            d['disabled']=True
+    # for d in options1:
+    #     if display_option == 'AMR':
+    #         block = {'display': 'block'}
+    #         d['disabled']=False
+    #     else:
+    #         block = {'display': 'none'} # hide antimicrobial class dropdown
+    #         d['disabled']=True
     
     # Pathogen options
     for d in options2:
@@ -8202,10 +8235,12 @@ def update_map_amr_options(display_option, antimicrobial_class):
             block = {'display': 'none'} # hide pathogen dropdown
             d['disabled']=True
 
-    return options1, block, block, options2, block, block
+    # return options1, block, block, options2, block, block
+    return options2, block, block
+
 
 # Output('select-pathogens-amu', 'options'),
-#     Input('select-antimicrobial-class-amu', 'value'),
+#     Input('select-antimicrobial-importance-class-amu', 'value'),
 #     )
 # def update_pathogens_options_ga(antimicrobial_class):
 #     input_df=amr_withsmry.query(f"antimicrobial_class == '{antimicrobial_class}'")
@@ -8396,7 +8431,7 @@ def update_usage_price_sliders(dummy_input):
 # # Update species options based on region and country selections
 # @gbadsDash.callback(
 #     Output('select-pathogens-amu', 'options'),
-#     Input('select-antimicrobial-class-amu', 'value'),
+#     Input('select-antimicrobial-importance-class-amu', 'value'),
 #     )
 # def update_pathogens_options_ga(antimicrobial_class):
 #     input_df=amr_withsmry.query(f"antimicrobial_class == '{antimicrobial_class}'")
@@ -8749,12 +8784,11 @@ def update_regional_display_amu(input_json):
     Output('amu-map', 'figure'),
     Input('select-viz-switch-amu','value'),
     Input('select-map-display-drilldown-amu','value'),
-    Input('select-antimicrobial-class-amu','value'),
+    Input('select-antimicrobial-importance-class-amu','value'),
     Input('select-pathogens-amu','value'),
     Input('amu-regional-data', 'data'),
-    Input('select-classification-amu','value'),
     )
-def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_json, classification):
+def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_json):
     input_df = amu2018_combined_tall.copy()
     input_df_amr = amr_withsmry.copy()
     input_df_am_expend = pd.read_json(input_json, orient='split')
@@ -8878,8 +8912,6 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
 
 
     else:
-        input_df = input_df.query("antimicrobial_class != 'total_antimicrobials'")
-
         # Add custom data for hoverover
         if quantity == 'AMU: tonnes':
             customdata = list(pd.DataFrame(['amu_tonnes']).to_numpy())
@@ -8887,10 +8919,10 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
             customdata = list(pd.DataFrame(['amu_mg_perkgbiomass_by_region']).to_numpy())
 
         # Determine which categorization to use
-        if classification.upper() == 'WHO IMPORTANCE CATEGORIES':
+        if antimicrobial_class.upper() == 'WHO IMPORTANCE CATEGORIES':
             categories = 'who_importance_ctg'
             category_title = 'WHO importance categories'
-        elif classification.upper() == 'ONEHEALTH IMPORTANCE CATEGORIES':
+        elif antimicrobial_class.upper() == 'ONEHEALTH IMPORTANCE CATEGORIES':
             categories = 'onehealth_importance_ctg'
             category_title = 'OneHealth importance categories'
         else:   # Default: WOAH categories
@@ -9343,6 +9375,11 @@ def usage_comparison_amu(input_json):
                               font=dict(size=12)
                               )
                           )
+    # layout = go.Layout(
+    #             legend=dict(
+    #             orientation="h")
+    #             )
+    
     bar_fig.update_xaxes(title_text='')
     bar_fig.update_yaxes(title_text='Antimicrobial Usage (tonnes)')
 

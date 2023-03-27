@@ -2034,8 +2034,8 @@ def create_tree_map_amu(input_df, value, categories):
 
     return tree_map_fig
 
-# This function creates a plotly treemap
-# with an option to show weighted averages instead of sums for boxes above the base level
+# This function creates a plotly treemap with an option to show weighted averages
+# instead of sums for boxes above the base level.
 # It first calculates weighted averages using a pivot table, then draws the treemap by
 # specifying the id and parent for each box.
 # 2023/3/22: There is a bug causing a blank chart when AGGREGATION == 'mean'. Not using this at this time.
@@ -2050,14 +2050,15 @@ def create_treemap_withagg(
     if AGGREGATION == 'mean':
         dfmod = INPUT_DF.copy()
 
-        # For each variable in the hierarchy, create summary rows where that variable is ALL
-        # Calculate the mean (optionally weighted)
+        # Create weighted value
         if WEIGHT_VAR:
             dfmod['treemap_weight'] = dfmod[WEIGHT_VAR]
         else:
             dfmod['treemap_weight'] = 1
-
         dfmod['treemap_weighted_value'] = dfmod[VALUE_VAR] * dfmod['treemap_weight']
+
+        # For each variable in the hierarchy, create summary rows where that variable is ALL
+        # Calculate the mean of the weighted value
         treemap_df = pd.DataFrame()     # Initialize dataframe to hold results
         for i ,VAR in enumerate(HIERARCHY):
             summary_rows = dfmod.pivot_table(
@@ -2065,21 +2066,42 @@ def create_treemap_withagg(
                 ,values=['treemap_weighted_value' ,'treemap_weight']
                 ,aggfunc='sum'
                 ).reset_index()
-            summary_rows['treemap_value'] = summary_rows['treemap_weighted_value'] / summary_rows['treemap_weight']
+            # summary_rows['treemap_value'] = summary_rows['treemap_weighted_value'] / summary_rows['treemap_weight']
             treemap_df = pd.concat([treemap_df ,summary_rows] ,axis=0 ,ignore_index=True)
+
+        # Add a row for the global total
+        global_row = pd.DataFrame(dfmod[['treemap_weighted_value' ,'treemap_weight']].sum()).transpose()
+        treemap_df = pd.concat([global_row ,treemap_df] ,axis=0 ,ignore_index=True)
+
+        # Calculate weighted mean
+        treemap_df['treemap_value'] = treemap_df['treemap_weighted_value'] / treemap_df['treemap_weight']
+
+        # Drop rows with zero or negative value - these cause plotly to fail silently!
+        treemap_df = treemap_df.query("treemap_value > 0")
 
         # Add columns for id and parent
         treemap_df['treemap_id'] = treemap_df[f'{HIERARCHY[0]}'].str.cat(treemap_df[HIERARCHY[1:]] ,sep='|' ,na_rep='_all_')
-        treemap_df[['treemap_parent' ,'treemap_parent_remainder']] = treemap_df['treemap_id'].str.replace('|_all_' ,'' ,regex=False).str.rsplit('|' ,n=1 ,expand=True)
-        treemap_df.loc[treemap_df['treemap_parent_remainder'].isnull() ,'treemap_parent'] = treemap_df['treemap_parent_remainder']
+        treemap_df['treemap_id'] = treemap_df['treemap_id'].str.replace('|_all_' ,'' ,regex=False)
+        treemap_df[['treemap_parent' ,'treemap_parent_remainder']] = treemap_df['treemap_id'].str.rsplit('|' ,n=1 ,expand=True)
+
+        treemap_df.loc[treemap_df['treemap_parent_remainder'].isnull() ,'treemap_parent'] = '_all_'  # First level of hierarchy gets parent _all_
+        treemap_df.loc[treemap_df['treemap_id'] == '_all_' ,'treemap_parent'] = ''  # Global level of hierarchy gets parent blank
 
         # Draw tree map
+        # Figure is blank with no errors!!
         tree_map_fig = px.treemap(
-            parents=treemap_df['treemap_parent']
-            ,ids=treemap_df['treemap_id']
+            ids=treemap_df['treemap_id']
+            ,parents=treemap_df['treemap_parent']
             ,values=treemap_df['treemap_value']
             ,color=treemap_df[COLOR_BY]
             )
+
+        # Figure is blank with no errors!!
+        # tree_map_fig = go.Figure(go.Treemap(
+        #     ids=treemap_df['treemap_id']
+        #     ,parents=treemap_df['treemap_parent']
+        #     ,values=treemap_df['treemap_value']
+        #     ))
 
     elif AGGREGATION == 'sum':
         tree_map_fig = px.treemap(
@@ -2090,22 +2112,6 @@ def create_treemap_withagg(
             )
 
     return tree_map_fig
-
-concat_list = ['region' ,'scope' ,'antimicrobial_class']
-test = pd.DataFrame()
-for i ,VAR in enumerate(concat_list):
-    print(concat_list[:i+1])
-    test_summary = amu2018_combined_tall.pivot_table(
-        index=concat_list[:i+1]     # Index is all hierarchy variables up to i
-        ,values='amu_tonnes'
-        ,aggfunc='sum'
-        ).reset_index()
-    test = pd.concat([test ,test_summary] ,axis=0 ,ignore_index=True)
-
-# Add columns for id and parent
-test['treemap_id'] = test[f'{concat_list[0]}'].str.cat(test[concat_list[1:]] ,sep='|' ,na_rep='_all_')
-test[['treemap_parent' ,'treemap_parent_remainder']] = test['treemap_id'].str.replace('|_all_' ,'' ,regex=False).str.rsplit('|' ,n=1 ,expand=True)
-test.loc[test['treemap_parent_remainder'].isnull() ,'treemap_parent'] = test['treemap_parent_remainder']
 
 #%% 4. LAYOUT
 ##################################################################################################

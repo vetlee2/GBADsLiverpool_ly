@@ -4205,7 +4205,7 @@ gbadsDash.layout = html.Div([
             html.Iframe(src="assets/GBADs_Documentation/_build/html/index.html", # this is for the jupyter books
                         # src="https://docs.python.org/3/", # this is for the placeholder python documentation
                         style={"width":"100%",
-                                "height":"2500px",   # Set large enough for your largest page and guide will use browser scroll bar. Otherwise, longer pages will get their own scroll bars.
+                                "height":"3000px",   # Set large enough for your largest page and guide will use browser scroll bar. Otherwise, longer pages will get their own scroll bars.
                                 },)
         ### END OF USER GUIDE TAB
             ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),

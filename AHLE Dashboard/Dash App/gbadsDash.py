@@ -2602,6 +2602,22 @@ gbadsDash.layout = html.Div([
                 html.P("Antimicrobial Expenditure shown is the estimated global total based on usage and price selected on the Antimicrobial Usage tab."),
                 # html.P("Using morbidity and mortality rates according to income group"),
                 ]),
+            # Regional AM Expenditure Estimator
+            dbc.Col([   
+                dcc.Link(
+                    dbc.Button(children='Antimicrobial Expenditure',
+                                # style={'color': 'white',
+                                #        'backgroundColor': '#101820',
+                                #        'fontSize': '15px ',
+                                #        'width': '150px',
+                                #        'height': '50px',
+                                #        'marginLeft': '10px',
+                                #        'marginRight': '100px',
+                                #        }
+                                ),
+                    href='#AMU-regional-expenditure', refresh=True),
+                ]),
+           
             dbc.Col([
                 # Line chart
                 html.P(""),
@@ -3660,14 +3676,14 @@ gbadsDash.layout = html.Div([
             ], style=ecs_tab_style, selected_style=ecs_tab_selected_style),
 
         #### ANTIMICROBIAL USAGE TAB
-       dcc.Tab(label="Antimicrobial Usage (AMU) [WIP]", children =[
+       dcc.Tab(label="Antimicrobial Usage (AMU) [WIP]", id='AMU-tab', children =[
            
             #### -- NAVIGATION BUTTONS
             dbc.Row([ 
                 # Regional & Global AMU
                 dbc.Col([
                     dbc.NavbarBrand(dcc.Link(
-                                dbc.Button(children='Regional & Global AMU',
+                                dbc.Button(children='AMU by Region & Importance',
                                             # style={
                                             #     'display': 'inline-block',
                                             #     'align': 'center',
@@ -3741,7 +3757,7 @@ gbadsDash.layout = html.Div([
                         href='#AMU-data-export', refresh=True)),
                     ],  
                     style={
-                              "border":"2px #C5DAB8 solid",
+                              # "border":"2px #C5DAB8 solid",
                               # 'display': 'flex',
                               'justify-content': 'center',
                               }
@@ -3768,14 +3784,13 @@ gbadsDash.layout = html.Div([
             # ),
 
                 # END OF NAVIGATION BUTTONS ROW
-                ], 
+                ], justify='evenly',
                     style={
-                            'position': 'fixed',
+                            # 'position': 'fixed',
                             # 'z-index': '999', # Bring to front
                         },
                     ),
-               
-               html.Br(),
+            
                html.Br(),
 
            #### -- DROPDOWN CONTROLS
@@ -3910,7 +3925,7 @@ gbadsDash.layout = html.Div([
                     html.P("Numbers in parenthesis show the number of countries in each region reporting to WOAH and the percent of region total biomass they represent."),
                     ]),
                 dbc.Col([   # Empty column so footnotes line up with charts
-                      html.P(""),
+                      html.P("Click on an antimicrobial name/importance category in the legend to remove it from the visual"),
                       ]),
                 ], style={'margin-left':"10px", 'font-style': 'italic'}
                 ),
@@ -4325,13 +4340,11 @@ gbadsDash.layout = html.Div([
            ]),
 
             ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
-
-
+          
 
         #### USER GUIDE TAB
         dcc.Tab(label="User Guide & References", children =[
             html.Iframe(src="assets/GBADs_Documentation/_build/html/index.html", # this is for the jupyter books
-                        # src="https://docs.python.org/3/", # this is for the placeholder python documentation
                         style={"width":"100%",
                                 "height":"3000px",   # Set large enough for your largest page and guide will use browser scroll bar. Otherwise, longer pages will get their own scroll bars.
                                 },)
@@ -9666,8 +9679,10 @@ def update_am_price_comparison(input_json):
                 ,symmetric=False
                 ,array=input_df['am_price_usdpertonne_high_err']
                 ,arrayminus=input_df["am_price_usdpertonne_low_err"]
-            )
-            ,mode='markers'
+            ),
+            mode="markers+text",
+            text=["B*", "B*", "B*", "B*","B*"],
+            textposition="middle right"
         )
     )
     

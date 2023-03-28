@@ -79,7 +79,6 @@ app.config.suppress_callback_exceptions = True    # Use to remove warnings when 
 # - Typical example would be functions that read, store, and prep data to be used in the app
 ###############################################################################################
 # Define tab styles
-# tab_style = {'fontWeight': 'bold'}
 
 # Tab colors based on grouping
 global_tab_style = {
@@ -972,9 +971,7 @@ amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in 
                                                                                   "Drug Resistance Index (region level)",
                                                                                   "AM expenditure: total",
                                                                                   "AM expenditure: per kg biomass",]]
-# amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["AMU: tonnes",
-#                                                                                  "AMU: mg per kg biomass",
-#                                                                                  "Biomass",]]
+
 
 # Antimicrobial Class
 amu_antimicrobial_class_options = []
@@ -986,6 +983,15 @@ amu_pathogen_options = []
 for i in np.sort(amr_withsmry['pathogen'].unique()):
     str(amu_pathogen_options.append({'label':i,'value':(i)}))
 
+# nav_btn_style = {
+#      'align': 'center',
+#      'color': 'black', 
+#      'backgroundColor': 'white',
+#      'fontSize': '1rem',
+#      'width': '10rem',
+#      'height': '3.2rem',
+#      'margin': '0rem 1rem',
+#  }
 # =============================================================================
 #### Burden of disease calcs
 # =============================================================================
@@ -3655,8 +3661,125 @@ gbadsDash.layout = html.Div([
 
         #### ANTIMICROBIAL USAGE TAB
        dcc.Tab(label="Antimicrobial Usage (AMU) [WIP]", children =[
+           
+            #### -- NAVIGATION BUTTONS
+            dbc.Row([ 
+                # Regional & Global AMU
+                dbc.Col([
+                    dbc.NavbarBrand(dcc.Link(
+                                dbc.Button(children='Regional & Global AMU',
+                                            # style={
+                                            #     'display': 'inline-block',
+                                            #     'align': 'center',
+                                            #     'color': 'white', 
+                                            #     'fontSize': '15px ',
+                                            #     'backgroundColor': '#101820',
+                                            #     'width': '150px',
+                                            #     'height': '50px',
+                                            #     'marginLeft': '100px',
+                                            #     'marginRight': '100px'
+                                            # }
+                                            ),
+                   
+                                href='#AMU-Regional-Global', refresh=True)),
+                    ]),
+               
+                # Treemap & Map (Visualization of AMU, Biomass, AMR & AM Costs)
+                dbc.Col([ 
+                    dbc.NavbarBrand(dcc.Link(
+                        dbc.Button(children='Visualization of AMU, Biomass, AMR & AM Costs',
+                                    # style={'color': 'white',
+                                    #        'backgroundColor': '#101820',
+                                    #        'fontSize': '15px ',
+                                    #        'width': '150px',
+                                    #        'height': '50px',
+                                    #        'marginLeft': '10px',
+                                    #        'marginRight': '100px',
+                                    #        }
+                                    ),
+                        href='#AMU-Biomass-AMR-Costs-Viz', refresh=True)),
+                    ],width="auto"),
+               
+                # Exploring AMU/price Variability
+                dbc.Col([   
+                    dbc.NavbarBrand(dcc.Link(
+                        dbc.Button(children='Exploring AMU/price Variability',
+                                    # style={'color': 'white',
+                                    #        'backgroundColor': '#101820',
+                                    #        'fontSize': '15px ',
+                                    #        'width': '150px',
+                                    #        'height': '50px',
+                                    #        'marginLeft': '10px',
+                                    #        'marginRight': '100px',
+                                    #        }
+                                    ),
+                        href='#AMU-exploring-variability', refresh=True)),
+                    ]),
+               
+                # Regional AM Expenditure Estimator
+                dbc.Col([   
+                    dbc.NavbarBrand(dcc.Link(
+                        dbc.Button(children='Regional AM Expenditure Estimator',
+                                    # style={'color': 'white',
+                                    #        'backgroundColor': '#101820',
+                                    #        'fontSize': '15px ',
+                                    #        'width': '150px',
+                                    #        'height': '50px',
+                                    #        'marginLeft': '10px',
+                                    #        'marginRight': '100px',
+                                    #        }
+                                    ),
+                        href='#AMU-regional-expenditure', refresh=True)),
+                    ]),
+               
+                # Data Export
+                dbc.Col([   
+                    dbc.NavbarBrand(dcc.Link(
+                        dbc.Button(children='Data Export',
+                                    # style=nav_btn_style,
+                                    ),
+                        href='#AMU-data-export', refresh=True)),
+                    ],  
+                    style={
+                              "border":"2px #C5DAB8 solid",
+                              # 'display': 'flex',
+                              'justify-content': 'center',
+                              }
+                    ),
+                
+            #     dbc.NavbarSimple(
+            #     children=[
+            #         dbc.NavItem(dbc.NavLink("Regional & Global AMU", href="#AMU-Regional-Global",)),
+            #         dbc.DropdownMenu(
+            #             children=[
+            #                 dbc.DropdownMenuItem("More pages", header=True),
+            #                 dbc.DropdownMenuItem("Exploring AMU/price Variability", href="#AMU-exploring-variability",),
+            #                 dbc.DropdownMenuItem("Regional AM Expenditure Estimator", href="#AMU-regional-expenditure",),
+            #             ],
+            #             nav=True,
+            #             in_navbar=True,
+            #             label="More",
+            #         ),
+            #     ],
+            #     brand="NavbarSimple",
+            #     # brand_href="#",
+            #     color="secondary",
+            #     dark=True,
+            # ),
+
+                # END OF NAVIGATION BUTTONS ROW
+                ], 
+                    style={
+                            'position': 'fixed',
+                            # 'z-index': '999', # Bring to front
+                        },
+                    ),
+               
+               html.Br(),
+               html.Br(),
 
            #### -- DROPDOWN CONTROLS
+           html.H3("Livestock Antimicrobial Usage by Region & Antimicrobial Importance/Classes", id="AMU-Regional-Global"),
            dbc.Row([
 
                # Bar Chart selection
@@ -3795,12 +3918,10 @@ gbadsDash.layout = html.Div([
             html.Br(),
 
             #### -- VISUALIZATION SWITCH
-
             dbc.Card([
                 dbc.CardBody([
-                    html.H5("Select Visualization",
-                            className="card-title",
-                            style={"font-weight": "bold"}),
+                    html.H3("Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region", id="AMU-Biomass-AMR-Costs-Viz",
+                            className="card-title"),
 
             dbc.Row([
             # Visualization Switch
@@ -3879,7 +4000,7 @@ gbadsDash.layout = html.Div([
            # Separator for WOAH data above, estimates/variations below
            html.Hr(style={'margin-right':'10px',}),
            dbc.Row([
-               html.H3("Extending Estimates and Exploring Variability"),
+               html.H3("Exploring Variability of Veterinary Antimicrobial Usage and Price by Data Source", id="AMU-exploring-variability"),
                html.P("Use the charts and sliders below to explore the variability in antimicrobial usage and price from different sources. To facilitate comparison with other sources, antimicrobial usage figures reported to WOAH are extended to 2020 and extrapolated to cover whole regions."),
                ]),
            dbc.Row([
@@ -3959,10 +4080,37 @@ gbadsDash.layout = html.Div([
                        ],size="md", color="#393375", fullscreen=False),
                    ]),
                ]),
+           
            html.Br(),
-
+           
+           #### -- GRAPHICS PT.3
            # Usage and Price Sliders with Expenditure chart
+           html.H3("Regional Veterinary Antimicrobial Expenditure Estimator", id="AMU-regional-expenditure"),
            dbc.Row([
+               dbc.Col([
+                   dbc.Spinner(children=[
+                   dcc.Graph(id='amu-expenditure',
+                             config = {
+                                 "displayModeBar" : True,
+                                 "displaylogo": False,
+                                 'toImageButtonOptions': {
+                                     'format': 'png', # one of png, svg, jpeg, webp
+                                     'filename': 'GBADs_AMU_Expenditure'
+                                     },
+                                 'modeBarButtonsToRemove': ['zoom',
+                                                          'zoomIn',
+                                                          'zoomOut',
+                                                          'autoScale',
+                                                          #'resetScale',  # Removes home button
+                                                          'pan',
+                                                          'select2d',
+                                                          'lasso2d']
+                             })
+                   # End of Spinner
+                   ],size="md", color="#393375", fullscreen=False),
+                   ]),
+               
+               # Price and Usage Sliders
                dbc.Col([
                    dbc.Card([
                        dbc.CardBody([
@@ -4074,31 +4222,10 @@ gbadsDash.layout = html.Div([
                            ]),
                        ]),
                    ]
-                   ,style={'margin-left':'20px'}
-                   ,width=8
+                   # ,style={'margin-left':'20px'}
+                   ,width=7
                    ),
-                dbc.Col([
-                    dbc.Spinner(children=[
-                    dcc.Graph(id='amu-expenditure',
-                              config = {
-                                  "displayModeBar" : True,
-                                  "displaylogo": False,
-                                  'toImageButtonOptions': {
-                                      'format': 'png', # one of png, svg, jpeg, webp
-                                      'filename': 'GBADs_AMU_Expenditure'
-                                      },
-                                  'modeBarButtonsToRemove': ['zoom',
-                                                           'zoomIn',
-                                                           'zoomOut',
-                                                           'autoScale',
-                                                           #'resetScale',  # Removes home button
-                                                           'pan',
-                                                           'select2d',
-                                                           'lasso2d']
-                              })
-                    # End of Spinner
-                    ],size="md", color="#393375", fullscreen=False),
-                    ]),
+                
                ]),
 
            #### -- FOOTNOTES PT.2
@@ -4169,6 +4296,7 @@ gbadsDash.layout = html.Div([
            html.Hr(style={'margin-right':'10px',}),
 
            #### -- DATATABLE
+           html.H3("Data Export", id="AMU-data-export"),
            dbc.Row([
                dbc.Spinner(children=[
                dbc.Col([
@@ -8265,7 +8393,7 @@ def update_antimicrobial_importance_class_switch(display_option, viz_switch):
     else:
         options = amu_antimicrobial_class_options.copy()
         for d in options:
-            if display_option == 'AMR':
+            if display_option == 'Antimicrobial Resistance (country level)':
                 block = {'display': 'block'}
                 d['disabled']=False
                 value = 'Aminoglycosides'
@@ -8408,9 +8536,10 @@ def update_usage_price_sliders(dummy_input):
     usage_africa_mid = regional_usage_price_data.query("region == 'Africa'")['terr_amu_tonnes_region_2020'].values[0].astype(int)
     usage_africa_max = regional_usage_price_data.query("region == 'Africa'")['terr_amu_tonnes_mulch_2020'].values[0].astype(int)
     usage_africa_marks = {
-        usage_africa_min.astype(str):'A*'
-        ,usage_africa_mid.astype(str):'B*'
-        ,usage_africa_max.astype(str):'C*'
+        usage_africa_min.astype(str):'A*',
+        usage_africa_mid.astype(str):'B*',
+        usage_africa_max.astype(str):'C*',
+        # 'style':{'fontWeight': 'bold'}
         }
 
     price_africa_min = regional_usage_price_data.query("region == 'Africa'")['am_price_usdpertonne_low'].values[0].astype(int)
@@ -8921,24 +9050,44 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
 
         # Create Map for AMR prevalence
         if quantity == 'Antimicrobial Resistance (country level)':
-           amu_map_fig = px.scatter_geo(input_df_amr,
-                                        locations="location_name",
-                                        locationmode='country names',
-                                        color="woah_region",
-                                        hover_name="woah_region",
-                                        size=map_value,
-                                        projection="natural earth",
-                                        custom_data=['woah_region',
-                                                     map_value,
-                                                     'location_name',
-                                                     'antimicrobial_class',
-                                                     'pathogen'],
-                                        color_discrete_map={"Asia, Far East and Oceania": 'rgb(102,197,204)',
-                                                            "Americas": 'rgb(248,156,116)',
-                                                            "Europe": 'rgb(220,176,242)',
-                                                            "Africa": 'rgb(135,197,95)',
-                                                            "Middle East": 'rgb(254,136,177)'}
-                                        )
+            if len(input_df_amr):
+               amu_map_fig = px.scatter_geo(input_df_amr,
+                                            locations="location_name",
+                                            locationmode='country names',
+                                            color="woah_region",
+                                            hover_name="woah_region",
+                                            size=map_value,
+                                            projection="natural earth",
+                                            custom_data=['woah_region',
+                                                         map_value,
+                                                         'location_name',
+                                                         'antimicrobial_class',
+                                                         'pathogen'],
+                                            color_discrete_map={"Asia, Far East and Oceania": 'rgb(102,197,204)',
+                                                                "Americas": 'rgb(248,156,116)',
+                                                                "Europe": 'rgb(220,176,242)',
+                                                                "Africa": 'rgb(135,197,95)',
+                                                                "Middle East": 'rgb(254,136,177)'}
+                                            )
+               
+            else:
+                amu_map_fig = go.Figure()
+                amu_map_fig.update_layout(
+                       xaxis =  { "visible": False },
+                       yaxis = { "visible": False },
+                       annotations = [
+                           {   
+                               "text": "No data available, please choose a different antimicrobial or pathogen",
+                               "xref": "paper",
+                               "yref": "paper",
+                               "showarrow": False,
+                               "font": {
+                                   "size": 28
+                               }
+                           }
+                       ]
+                   )
+                   
         elif quantity == 'AM expenditure: total'\
             or quantity == 'AM expenditure: per kg biomass'\
                 or quantity == 'Drug Resistance Index (region level)':
@@ -8947,6 +9096,8 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
         else:
             # Use create map defined above for AMU
             amu_map_fig = create_map_display_amu(input_df, map_value)
+    
+        
 
         # Add title
         if quantity == 'Antimicrobial Resistance (country level)':
@@ -9374,20 +9525,6 @@ def update_donut_chart_amu (quantity, region, classification):
         }
         summarize_df['Color']= summarize_df['antimicrobial_class_group2'].map(colors)
 
-    # # Set colors to sync across visuals
-    # colors = {
-    # "A: Critically Important": "#EF553B",
-    # "B: Highly Important": "#00CC96",
-    # "C: Other": "#636EFA",
-    # "D: Unknown": "#AB63FA",
-    # # "Important": "#EF553B",
-    # # "Other": "#636EFA",
-    # # "Unknown": "#AB63FA",
-    # }
-    # s = pd.Series(colors)
-    # pie_fig.update_traces(marker=dict(colors=s))
-
-
     # Use selected quantity value
     if quantity == 'Tonnes':
         value = summarize_df['amu_tonnes']
@@ -9421,11 +9558,11 @@ def update_donut_chart_amu (quantity, region, classification):
 
     # Move legend to bottom
     amu_donut_fig.update_layout(legend=dict(
-        orientation="h",
+        # orientation="h",
         font=dict(size=15),
         bgcolor='rgba(0,0,0,0)', # makes legend background transparent
         # yanchor="bottom",
-        y=0.02,
+        # y=0.02,
         xanchor="left",
         # x=1
         ))
@@ -9452,56 +9589,40 @@ def update_am_usage_comparison(input_json):
         ,'terr_amu_tonnes_mulch_2020':'C*'
         }
     input_df = input_df.rename(columns=rename_plot_cols)
-    input_df = pd.melt(input_df, id_vars='region', value_vars=["A*" ,"B*" ,"C*"])
-    bar_fig = px.bar(
-        input_df,
-        x='region',
-        color='region',
-        color_discrete_map={"Asia, Far East and Oceania": 'rgb(102,197,204)',
-                            "Americas": 'rgb(248,156,116)',
-                            "Europe": 'rgb(220,176,242)',
-                            "Africa": 'rgb(135,197,95)',
-                            "Middle East": 'rgb(254,136,177)'},
-        y='value',
-        barmode='group',
-        pattern_shape="variable",
-        pattern_shape_map={
-              "A*": ".",
-              "B*": "/",
-              "C*": "+"
-              }
-        )
+    
+    # Set custom colors to sync across all visuals
+    colors = {"Asia, Far East and Oceania": 'rgb(102,197,204)',
+              "Americas": 'rgb(248,156,116)',
+              "Europe": 'rgb(220,176,242)',
+              "Africa": 'rgb(135,197,95)',
+              "Middle East": 'rgb(254,136,177)'}
+    input_df['Color']= input_df['region'].map(colors)
+    
+    bar_fig = go.Figure(data=[
+        go.Bar(name='A*', x=input_df['region'], y=input_df["A*"], marker_pattern_shape="x", marker_color="black",),
+        go.Bar(name='B*', x=input_df['region'], y=input_df["B*"], marker_pattern_shape=".",),
+        go.Bar(name='C*', x=input_df['region'], y=input_df["C*"], marker_pattern_shape="+",),
+    ])
+    # Change the bar mode
+    bar_fig.update_layout(barmode='group')
 
-    # Hide legend made from px.box
-    bar_fig.update_traces(showlegend=False)
-
-    # For display purpose, create traces so that legend contains symbole and colors, does not connect with bars
-    bar_fig.add_trace(go.Bar(x=[None], y=[None], marker_pattern_shape=".", marker_color="white",
-                             name='A*'))
-    bar_fig.add_trace(go.Bar(x=[None], y=[None], marker_pattern_shape="/", marker_color="white",
-                             name='B*'))
-    bar_fig.add_trace(go.Bar(x=[None], y=[None], marker_pattern_shape="+", marker_color="white",
-                             name='C*'))
-
+    # Sync colors across visuals
+    bar_fig.update_traces(marker=dict(color=input_df['Color'], 
+                                       pattern_fgcolor='black',
+                                       pattern_bgcolor='white',
+                                      ))
 
     bar_fig.update_layout(title_text='Comparing antimicrobial usage estimates<br><sup>Terrestrial Livestock',
                           font_size=15,
                           legend=dict(
                               title="",
                               orientation="h",
-                              # Bottom
-                              # x=-0.1,
-                              # y=-0.6,
                               # Top
-                               x=0.7,
-                               y=1.15,
-                              font=dict(size=12)
+                                x=0.7,
+                                y=1.20,
+                              font=dict(size=15)
                               )
                           )
-    # layout = go.Layout(
-    #             legend=dict(
-    #             orientation="h")
-    #             )
 
     bar_fig.update_xaxes(title_text=''
                          ,tickangle=20
@@ -9517,6 +9638,15 @@ def update_am_usage_comparison(input_json):
     )
 def update_am_price_comparison(input_json):
     input_df = pd.read_json(input_json, orient='split')
+    
+    # Set custom colors to sync across all visuals
+    colors = {"Asia, Far East and Oceania": 'rgb(102,197,204)',
+              "Americas": 'rgb(248,156,116)',
+              "Europe": 'rgb(220,176,242)',
+              "Africa": 'rgb(135,197,95)',
+              "Middle East": 'rgb(254,136,177)'}
+    # colors_list_for_errors = ['rgb(135,197,95)', 'rgb(248,156,116)', 'rgb(102,197,204)', 'rgb(220,176,242)', 'rgb(254,136,177)']
+    input_df['Color']= input_df['region'].map(colors)
 
     # Calculate errors as difference between endpoints and midpoint
     input_df['am_price_usdpertonne_high_err'] = input_df['am_price_usdpertonne_high'] - input_df['am_price_usdpertonne_mid']
@@ -9530,6 +9660,7 @@ def update_am_price_comparison(input_json):
         go.Scatter(
          	x=input_df['region']
          	,y=input_df['am_price_usdpertonne_mid']
+            ,marker=dict(color=input_df['Color'])
          	,error_y=dict(
                 type='data'
                 ,symmetric=False
@@ -9539,7 +9670,7 @@ def update_am_price_comparison(input_json):
             ,mode='markers'
         )
     )
-
+    
     # Set size of points
     fig.update_traces(marker_size=10)
 

@@ -68,45 +68,74 @@ div.rc-slider-track {
 }
 
 /* Region specific colors for AMU tab */
-/* Changes slider track for Africa to green */
+/* Changes slider track for Africa to green and adjust font size of label*/
 #am-usage-slider-africa div.rc-slider-track {
   background-color: rgb(135,197,95) !important;
+}
+#am-usage-slider-africa div.value {
+  font-size: 15px;
 }
 #am-price-slider-africa div.rc-slider-track {
   background-color: rgb(135,197,95) !important;
 }
+#am-price-slider-africa div.value {
+  font-size: 15px;
+}
 
-/* Changes slider track for Americas to pastel brick red */
+/* Changes slider track for Americas to pastel brick red and adjust font size of label */
 #am-usage-slider-americas div.rc-slider-track {
   background-color: rgb(248,156,116) !important;
+}
+#am-usage-slider-americas div.value {
+  font-size: 15px;
 }
 #am-price-slider-americas div.rc-slider-track {
   background-color: rgb(248,156,116) !important;
 }
+#am-price-slider-americas div.value {
+  font-size: 15px;
+}
 
-/* Changes slider track for Asia, Far East and Oceania to pastel blue */
+/* Changes slider track for Asia, Far East and Oceania to pastel blue and adjust font size of label */
 #am-usage-slider-asia div.rc-slider-track {
   background-color: rgb(102,197,204) !important;
+}
+#am-usage-slider-asia div.value {
+  font-size: 15px;
 }
 #am-price-slider-asia div.rc-slider-track {
   background-color: rgb(102,197,204) !important;
 }
+#am-price-slider-asia div.value {
+  font-size: 15px;
+}
 
-/* Changes slider track for Europe to pastel purple */
+/* Changes slider track for Europe to pastel purple and adjust font size of label*/
 #am-usage-slider-europe div.rc-slider-track {
   background-color: rgb(220,176,242) !important;
 }
-
+#am-usage-slider-europe div.value {
+  font-size: 15px;
+}
 #am-price-slider-europe div.rc-slider-track {
   background-color: rgb(220,176,242) !important;
 }
+#am-price-slider-europe div.value {
+  font-size: 15px;
+}
 
-/* Changes slider track for Middle East to pastel magenta */
+/* Changes slider track for Middle East to pastel magenta and adjust font size of label*/
 #am-usage-slider-mideast div.rc-slider-track {
   background-color: rgb(254,136,177) !important;
 }
+#am-usage-slider-mideast div.value {
+  font-size: 15px;
+}
 #am-price-slider-mideast div.rc-slider-track {
   background-color: rgb(254,136,177) !important;
+}
+#am-price-slider-mideast div.value {
+  font-size: 15px;
 }
 
 /* Changes the box that displays the slider value to have an grey outline*/

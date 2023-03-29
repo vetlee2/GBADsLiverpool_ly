@@ -50,6 +50,18 @@ parts:
       - file: Tool/eth_attribution_chart
       - file: Tool/eth_ahle_contrib_chart
     - file: Analysis/Compartmental population model
+  - caption: Antimicrobial Usage
+    chapters:
+    - file: Analysis/amu_overview
+    - file: Tool/amu_readingthecharts
+      sections:
+      - file: Tool/amu_1_bar_and_donut
+      - file: Tool/amu_2_map_and_drilldown
+      - file: Tool/amu_3_usage_price_variability
+    - file: Tool/amu_readingthedata
+      sections:
+      - file: Tool/amu_main_table
+      - file: Tool/amu_region_table
   - caption: References
     chapters:
     - file: References/General

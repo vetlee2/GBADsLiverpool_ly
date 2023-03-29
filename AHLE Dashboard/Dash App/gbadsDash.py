@@ -985,7 +985,7 @@ for i in np.sort(amr_withsmry['pathogen'].unique()):
 
 # nav_btn_style = {
 #      'align': 'center',
-#      'color': 'black', 
+#      'color': 'black',
 #      'backgroundColor': 'white',
 #      'fontSize': '1rem',
 #      'width': '10rem',
@@ -3661,9 +3661,9 @@ gbadsDash.layout = html.Div([
 
         #### ANTIMICROBIAL USAGE TAB
        dcc.Tab(label="Antimicrobial Usage (AMU) [WIP]", children =[
-           
+
             #### -- NAVIGATION BUTTONS
-            dbc.Row([ 
+            dbc.Row([
                 # Regional & Global AMU
                 dbc.Col([
                     dbc.NavbarBrand(dcc.Link(
@@ -3671,7 +3671,7 @@ gbadsDash.layout = html.Div([
                                             # style={
                                             #     'display': 'inline-block',
                                             #     'align': 'center',
-                                            #     'color': 'white', 
+                                            #     'color': 'white',
                                             #     'fontSize': '15px ',
                                             #     'backgroundColor': '#101820',
                                             #     'width': '150px',
@@ -3680,12 +3680,12 @@ gbadsDash.layout = html.Div([
                                             #     'marginRight': '100px'
                                             # }
                                             ),
-                   
+
                                 href='#AMU-Regional-Global', refresh=True)),
                     ]),
-               
+
                 # Treemap & Map (Visualization of AMU, Biomass, AMR & AM Costs)
-                dbc.Col([ 
+                dbc.Col([
                     dbc.NavbarBrand(dcc.Link(
                         dbc.Button(children='Visualization of AMU, Biomass, AMR & AM Costs',
                                     # style={'color': 'white',
@@ -3699,9 +3699,9 @@ gbadsDash.layout = html.Div([
                                     ),
                         href='#AMU-Biomass-AMR-Costs-Viz', refresh=True)),
                     ],width="auto"),
-               
+
                 # Exploring AMU/price Variability
-                dbc.Col([   
+                dbc.Col([
                     dbc.NavbarBrand(dcc.Link(
                         dbc.Button(children='Exploring AMU/price Variability',
                                     # style={'color': 'white',
@@ -3715,9 +3715,9 @@ gbadsDash.layout = html.Div([
                                     ),
                         href='#AMU-exploring-variability', refresh=True)),
                     ]),
-               
+
                 # Regional AM Expenditure Estimator
-                dbc.Col([   
+                dbc.Col([
                     dbc.NavbarBrand(dcc.Link(
                         dbc.Button(children='Regional AM Expenditure Estimator',
                                     # style={'color': 'white',
@@ -3731,22 +3731,22 @@ gbadsDash.layout = html.Div([
                                     ),
                         href='#AMU-regional-expenditure', refresh=True)),
                     ]),
-               
+
                 # Data Export
-                dbc.Col([   
+                dbc.Col([
                     dbc.NavbarBrand(dcc.Link(
                         dbc.Button(children='Data Export',
                                     # style=nav_btn_style,
                                     ),
                         href='#AMU-data-export', refresh=True)),
-                    ],  
+                    ],
                     style={
                               "border":"2px #C5DAB8 solid",
                               # 'display': 'flex',
                               'justify-content': 'center',
                               }
                     ),
-                
+
             #     dbc.NavbarSimple(
             #     children=[
             #         dbc.NavItem(dbc.NavLink("Regional & Global AMU", href="#AMU-Regional-Global",)),
@@ -3768,18 +3768,19 @@ gbadsDash.layout = html.Div([
             # ),
 
                 # END OF NAVIGATION BUTTONS ROW
-                ], 
+                ],
                     style={
                             'position': 'fixed',
                             # 'z-index': '999', # Bring to front
                         },
                     ),
-               
+
                html.Br(),
                html.Br(),
 
            #### -- DROPDOWN CONTROLS
            html.H3("Livestock Antimicrobial Usage by Region & Antimicrobial Importance/Classes", id="AMU-Regional-Global"),
+           html.P("Displaying antimicrobial usage as reported to WOAH" ,style={'font-style':'italic'}),
            dbc.Row([
 
                # Bar Chart selection
@@ -3818,6 +3819,8 @@ gbadsDash.layout = html.Div([
                          value='Top Global Classes',
                          clearable=False,
                          ),
+                   # Text underneath slider
+                   html.P("See user guide for descriptions of importance categories" ,style={'font-style':'italic'}),
                    ]),
 
                # Region-country alignment
@@ -4001,29 +4004,29 @@ gbadsDash.layout = html.Div([
            html.Hr(style={'margin-right':'10px',}),
            dbc.Row([
                html.H3("Exploring Variability of Veterinary Antimicrobial Usage and Price by Data Source", id="AMU-exploring-variability"),
-               html.P("Use the charts and sliders below to explore the variability in antimicrobial usage and price from different sources. To facilitate comparison with other sources, antimicrobial usage figures reported to WOAH are extended to 2020 and extrapolated to cover whole regions."),
+               html.P("Use the charts and sliders below to compare antimicrobial usage and price estimates from different sources. To facilitate comparison with other sources, antimicrobial usage reported to WOAH is extended to 2020 and extrapolated to cover whole regions. See the user guide for full descriptions of these estimates."),
                ]),
-           dbc.Row([
-               dbc.Col([
-                   dbc.Card([
-                       dbc.CardBody([html.H5("Antimicrobial usage estimates are produced for terrestrial livestock as follows:", className="card-title"),
-                                     html.P("A*: Limited to countries reporting total antimicrobial usage to WOAH. Estimate for terrestrial livestock based on terrestrial biomass as a proportion of total biomass. Extended to 2020 by assuming the trend from 2016-2018 continues."),
-                                     html.P("B*: Estimate A* extrapolated to whole region based on the proportion of terrestrial biomass for the region represented in the countries reporting."),
-                                     html.P("C*: Whole-region estimate for terrestrial livestock from Mulchandani et. al. (https://journals.plos.org/globalpublichealth/article?id=10.1371/journal.pgph.0001305)."),
-                                     ]),
-                       ]),
-                   ]),
-               dbc.Col([
-                   dbc.Card([
-                       dbc.CardBody([html.H5("Price estimates are from the following sources:", className="card-title"),
-                                     html.P("A*: For Africa, the Americas, and the Middle East: the average price in Brazil (https://www.oecd-ilibrary.org/agriculture-and-food/antimicrobial-use-resistance-and-economic-benefits-and-costs-to-livestock-producers-in-brazil_27137b1e-en). For Asia, Far East and Oceania: the price of Tetracyclin in China (https://one.oecd.org/document/TAD/CA/APM/WP(2018)19/FINAL/En/pdf (page 25)). For Europe: https://animalhealtheurope.eu/about-us/annual-reports/2020-2/key-figures/."),
-                                     html.P("B*: For Africa: 22% increase from price in Europe. For the Americas: midpoint between high and low estimates. For Asia, Far East and Oceania: . For Europe: . For the Middle East: 25% decrease from price in Europe."),
-                                     html.P("C*: For Africa: 42% increase from price in Europe. For the Americas and Asia, Far East and Oceania: the average price reported in Europe. For Europe: . For the Middle East: 15% decrease from price in Europe."),
-                                     ]),
-                       ]),
-                   ]),
-               ]),
-           html.Br(),
+           # dbc.Row([
+           #     dbc.Col([
+           #         dbc.Card([
+           #             dbc.CardBody([html.H5("Antimicrobial usage estimates are produced for terrestrial livestock as follows:", className="card-title"),
+           #                           html.P("A*: Limited to countries reporting total antimicrobial usage to WOAH. Estimate for terrestrial livestock based on terrestrial biomass as a proportion of total biomass. Extended to 2020 by assuming the trend from 2016-2018 continues."),
+           #                           html.P("B*: Estimate A* extrapolated to whole region based on the proportion of terrestrial biomass for the region represented in the countries reporting."),
+           #                           html.P("C*: Whole-region estimate for terrestrial livestock from Mulchandani et. al. (https://journals.plos.org/globalpublichealth/article?id=10.1371/journal.pgph.0001305)."),
+           #                           ]),
+           #             ]),
+           #         ]),
+           #     dbc.Col([
+           #         dbc.Card([
+           #             dbc.CardBody([html.H5("Price estimates are from the following sources:", className="card-title"),
+           #                           html.P("A*: For Africa, the Americas, and the Middle East: the average price in Brazil (https://www.oecd-ilibrary.org/agriculture-and-food/antimicrobial-use-resistance-and-economic-benefits-and-costs-to-livestock-producers-in-brazil_27137b1e-en). For Asia, Far East and Oceania: the price of Tetracyclin in China (https://one.oecd.org/document/TAD/CA/APM/WP(2018)19/FINAL/En/pdf (page 25)). For Europe: https://animalhealtheurope.eu/about-us/annual-reports/2020-2/key-figures/."),
+           #                           html.P("B*: For Africa: 22% increase from price in Europe. For the Americas: midpoint between high and low estimates. For Asia, Far East and Oceania: . For Europe: . For the Middle East: 25% decrease from price in Europe."),
+           #                           html.P("C*: For Africa: 42% increase from price in Europe. For the Americas and Asia, Far East and Oceania: the average price reported in Europe. For Europe: . For the Middle East: 15% decrease from price in Europe."),
+           #                           ]),
+           #             ]),
+           #         ]),
+           #     ]),
+           # html.Br(),
 
            # Plots comparing different estimates of usage and price
            dbc.Row([
@@ -4080,9 +4083,23 @@ gbadsDash.layout = html.Div([
                        ],size="md", color="#393375", fullscreen=False),
                    ]),
                ]),
-           
+           #### -- FOOTNOTES PT.2
+           dbc.Row([
+               dbc.Col([
+                   html.P("Bars represent usage from the following sources:"),
+                   html.P("A*: Countries reporting 2018 data to WOAH, extended to 2020 by assuming the trend from 2016-2018 continues."),
+                   html.P("B*: Estimate A extended to whole region based on the proportion of region total biomass represented in the countries reporting."),
+                   html.P("C*: Region-total estimate from Mulchandani et. al. (https://journals.plos.org/globalpublichealth/article?id=10.1371/journal.pgph.0001305)."),
+                   ]),
+               dbc.Col([
+                   html.P("Price estimates"),
+                   ]),
+               ], style={'margin-left':"10px", 'font-style': 'italic'}
+               ),
+
+
            html.Br(),
-           
+
            #### -- GRAPHICS PT.3
            # Usage and Price Sliders with Expenditure chart
            html.H3("Regional Veterinary Antimicrobial Expenditure Estimator", id="AMU-regional-expenditure"),
@@ -4109,7 +4126,7 @@ gbadsDash.layout = html.Div([
                    # End of Spinner
                    ],size="md", color="#393375", fullscreen=False),
                    ]),
-               
+
                # Price and Usage Sliders
                dbc.Col([
                    dbc.Card([
@@ -4225,24 +4242,8 @@ gbadsDash.layout = html.Div([
                    # ,style={'margin-left':'20px'}
                    ,width=7
                    ),
-                
-               ]),
 
-           #### -- FOOTNOTES PT.2
-            # dbc.Row([
-            #     dbc.Col([
-            #         html.P("Slider marks designate estimates from the following sources:"),
-            #         # html.P("A*: WOAH usage data (limited to countries reporting). Estimate for terrestrial livestock based on their biomass as a proportion of total biomass."),
-            #         html.P("A*: Countries reporting total antimicrobial usage to WOAH. Estimate for terrestrial livestock based on terrestrial biomass as a proportion of total biomass."),
-            #         html.P("B*: Estimate A extrapolated to whole region based on the proportion of terrestrial biomass for the region represented in the countries reporting."),
-            #         html.P("C*: Mulchandani et. al. (https://journals.plos.org/globalpublichealth/article?id=10.1371/journal.pgph.0001305)."),
-            #     ]),
-            #     # dbc.Col([
-            #     #      html.P("Expenditure distributions constructed by resampling from usage and price distributions and taking the product."),
-            #     #      # html.P("Expenditure distributions constructed from product of realizations resampled from usage and price distributions."),
-            #     # ]),
-            # ], style={'margin-left':"30px", 'font-style': 'italic'}
-            # ),
+               ]),
 
            # AMU for terrestrial animals, with uncertainty
            # dbc.Row([
@@ -8856,6 +8857,7 @@ def update_regional_display_amu(input_json):
 
     return [
             html.H4("Extended Regional Data"),
+            html.P("Including regional estimates from Mulchandani et al. Contact the authors for national estimates." ,style={'font-style':'italic'}),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 # fixed_rows={'headers': True, 'data': 0},
@@ -9069,14 +9071,14 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
                                                                 "Africa": 'rgb(135,197,95)',
                                                                 "Middle East": 'rgb(254,136,177)'}
                                             )
-               
+
             else:
                 amu_map_fig = go.Figure()
                 amu_map_fig.update_layout(
                        xaxis =  { "visible": False },
                        yaxis = { "visible": False },
                        annotations = [
-                           {   
+                           {
                                "text": "No data available, please choose a different antimicrobial or pathogen",
                                "xref": "paper",
                                "yref": "paper",
@@ -9087,7 +9089,7 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
                            }
                        ]
                    )
-                   
+
         elif quantity == 'AM expenditure: total'\
             or quantity == 'AM expenditure: per kg biomass'\
                 or quantity == 'Drug Resistance Index (region level)':
@@ -9096,8 +9098,8 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
         else:
             # Use create map defined above for AMU
             amu_map_fig = create_map_display_amu(input_df, map_value)
-    
-        
+
+
 
         # Add title
         if quantity == 'Antimicrobial Resistance (country level)':
@@ -9589,7 +9591,7 @@ def update_am_usage_comparison(input_json):
         ,'terr_amu_tonnes_mulch_2020':'C*'
         }
     input_df = input_df.rename(columns=rename_plot_cols)
-    
+
     # Set custom colors to sync across all visuals
     colors = {"Asia, Far East and Oceania": 'rgb(102,197,204)',
               "Americas": 'rgb(248,156,116)',
@@ -9597,7 +9599,7 @@ def update_am_usage_comparison(input_json):
               "Africa": 'rgb(135,197,95)',
               "Middle East": 'rgb(254,136,177)'}
     input_df['Color']= input_df['region'].map(colors)
-    
+
     bar_fig = go.Figure(data=[
         go.Bar(name='A*', x=input_df['region'], y=input_df["A*"], marker_pattern_shape="x", marker_color="black",),
         go.Bar(name='B*', x=input_df['region'], y=input_df["B*"], marker_pattern_shape=".",),
@@ -9607,12 +9609,12 @@ def update_am_usage_comparison(input_json):
     bar_fig.update_layout(barmode='group')
 
     # Sync colors across visuals
-    bar_fig.update_traces(marker=dict(color=input_df['Color'], 
+    bar_fig.update_traces(marker=dict(color=input_df['Color'],
                                        pattern_fgcolor='black',
                                        pattern_bgcolor='white',
                                       ))
 
-    bar_fig.update_layout(title_text='Comparing antimicrobial usage estimates<br><sup>Terrestrial Livestock',
+    bar_fig.update_layout(title_text='Comparing reported antimicrobial usage to other estimates<br><sup>Terrestrial Livestock',
                           font_size=15,
                           legend=dict(
                               title="",
@@ -9638,7 +9640,7 @@ def update_am_usage_comparison(input_json):
     )
 def update_am_price_comparison(input_json):
     input_df = pd.read_json(input_json, orient='split')
-    
+
     # Set custom colors to sync across all visuals
     colors = {"Asia, Far East and Oceania": 'rgb(102,197,204)',
               "Americas": 'rgb(248,156,116)',
@@ -9670,7 +9672,7 @@ def update_am_price_comparison(input_json):
             ,mode='markers'
         )
     )
-    
+
     # Set size of points
     fig.update_traces(marker_size=10)
 

@@ -1,6 +1,6 @@
 # Exploring variability in usage and price
 <p>
-This section shows a range of estimates for regional antimicrobial usage and price.
+This section shows a range of possible values for antimicrobial usage and price in each region. These are based on extrapolations from disparate data sources and are largely illustrative.
 </p>
 
 ```{figure} ../Images/amu_comparing_usage_and_price.png
@@ -21,46 +21,64 @@ Antimicrobial expenditure with adjustable usage and price
 
 <h3>Usage Estimates</h3>
 <p>
-Antimicrobial usage estimates are produced for terrestrial livestock as follows:
+Illustrative antimicrobial usage values are produced as follows:
 </p>
+
 <p><b>A:</b><br />
-Limited to countries reporting total antimicrobial usage to WOAH. Estimate for terrestrial livestock based on terrestrial biomass as a proportion of total biomass. Extended to 2020 by assuming the trend from 2016-2018 continues.
+Limited to countries reporting total antimicrobial usage to WOAH. Estimate for terrestrial livestock based on terrestrial biomass as a proportion of total biomass. Extended to 2020 by assuming the trend from 2016-2018 continues. All components sourced from <a href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf'>WOAH 2018.</a>
 </p>
+
 <p><b>B:</b><br />
-Estimate A extrapolated to whole region based on the proportion of terrestrial biomass for the region represented in the countries reporting.
+Estimate A extrapolated to whole region based on the proportion of terrestrial biomass for the region represented in the countries reporting. Source: <a href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf'>WOAH 2018.</a>
 </p>
+
 <p><b>C:</b><br />
-Whole-region estimate for terrestrial livestock from Mulchandani et. al. (Mulchandani AMU).
+Whole-region estimate for terrestrial livestock from <a href='https://doi.org/10.1371/journal.pgph.0001305'>Mulchandani et al., 2023.</a>
 </p>
 
 <h3>Price Estimates</h3>
 <p>
-Price estimates are from the following sources:
+Illustrative price values are produced for each region as follows:
 </p>
-<p><b>Low:</b><br />
-For Africa, the Americas, and the Middle East: the average price in Brazil (source: OECD Brazil).
+
+<p><b>Africa:</b><br />
+Low: the average price in Brazil. Source: <a href='https://www.oecd-ilibrary.org/agriculture-and-food/antimicrobial-use-resistance-and-economic-benefits-and-costs-to-livestock-producers-in-brazil_27137b1e-en'>OECD Brazil.</a>
 <br />
-For Asia, Far East and Oceania: the price of Tetracyclin in China (source: OECD China).
+Medium: 22% increase from price in Europe.
 <br />
-For Europe: the average price in 2020 (source: European Medicines Agency).
+High: 42% increase from price in Europe.
 </p>
-<p><b>Medium:</b><br />
-For Africa: 22% increase from price in Europe.
+
+<p><b>Americas:</b><br />
+Low: the average price in Brazil. Source: <a href='https://www.oecd-ilibrary.org/agriculture-and-food/antimicrobial-use-resistance-and-economic-benefits-and-costs-to-livestock-producers-in-brazil_27137b1e-en'>OECD Brazil.</a>
 <br />
-For the Americas: midpoint between high and low estimates.
+Medium: midpoint between high and low estimates.
 <br />
-For Asia, Far East and Oceania: (source: OECD China)
-<br />
-For Europe: the average price in 2019 (source: European Medicines Agency).
-<br />
-For the Middle East: 25% decrease from price in Europe.
+High: the lower average price reported in Europe.
 </p>
-<p><b>High:</b><br />
-For Africa: 42% increase from price in Europe.
+
+<p><b>Asia, Far East and Oceania:</b><br />
+Low: the price of Tetracyclin in China. Source: <a href='https://one.oecd.org/document/TAD/CA/APM/WP(2018)19/FINAL/En/pdf'>OECD China.</a>
 <br />
-For the Americas and Asia, Far East and Oceania: the lower average price reported in Europe.
+Medium: Source: <a href='https://one.oecd.org/document/TAD/CA/APM/WP(2018)19/FINAL/En/pdf'>OECD China.</a>
 <br />
-For Europe: the average price in 2018 (source: European Medicines Agency).
+High: the lower average price reported in Europe.
+</p>
+
+<p><b>Europe:</b><br />
+All prices for Europe are from the <a href='https://www.ema.europa.eu/en/documents/report/sales-veterinary-antimicrobial-agents-31-european-countries-2019-2020-trends-2010-2020-eleventh_en.pdf'>European Medicines Agency.</a>
 <br />
-For the Middle East: 15% decrease from price in Europe.
+Low: the average price in 2020.
+<br />
+Medium: the average price in 2019.
+<br />
+High: the average price in 2018.
+</p>
+
+<p><b>Middle East:</b><br />
+Low: the average price in Brazil. Source: <a href='https://www.oecd-ilibrary.org/agriculture-and-food/antimicrobial-use-resistance-and-economic-benefits-and-costs-to-livestock-producers-in-brazil_27137b1e-en'>OECD Brazil.</a>
+<br />
+Medium: 25% decrease from price in Europe.
+<br />
+High: 15% decrease from price in Europe.
 </p>

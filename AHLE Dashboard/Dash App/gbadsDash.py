@@ -964,8 +964,8 @@ for i in options['country'].unique():
 #### Antimicrobial Usage (AMU) options
 # =============================================================================
 # Map display
-amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["AMU: tonnes",
-                                                                                  "AMU: mg per kg biomass",
+amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Antimicrobial usage: tonnes",
+                                                                                  "Antimicrobial usage: mg per kg biomass",
                                                                                   "Biomass",
                                                                                   "Antimicrobial Resistance (country level)",
                                                                                   "Drug Resistance Index (region level)",
@@ -2603,7 +2603,7 @@ gbadsDash.layout = html.Div([
                 # html.P("Using morbidity and mortality rates according to income group"),
                 ]),
             # # Regional AM Expenditure Estimator
-            # dbc.Col([   
+            # dbc.Col([
             #     dcc.Link(
             #         dbc.Button(children='Antimicrobial Expenditure',
             #                     # style={'color': 'white',
@@ -2617,7 +2617,7 @@ gbadsDash.layout = html.Div([
             #                     ),
             #         href='#AMU-regional-expenditure', refresh=True),
             #     ]),
-           
+
             dbc.Col([
                 # Line chart
                 html.P(""),
@@ -3678,7 +3678,7 @@ gbadsDash.layout = html.Div([
         #### ANTIMICROBIAL USAGE TAB
 
        dcc.Tab(label="Antimicrobial Usage (AMU) [WIP]", id='AMU-tab', children =[
-           
+
             #### -- NAVIGATION BUTTONS
             dbc.Row([
                 # Regional & Global AMU
@@ -3796,7 +3796,7 @@ gbadsDash.layout = html.Div([
 
            #### -- DROPDOWN CONTROLS
            html.H3("Livestock Antimicrobial Usage by Region & Antimicrobial Importance/Classes", id="AMU-Regional-Global"),
-           html.P("Displaying antimicrobial usage as reported to WOAH" ,style={'font-style':'italic'}),
+           html.P("Displaying antimicrobial usage as reported to WOAH (source: WOAH 2018)" ,style={'font-style':'italic'}),
            dbc.Row([
 
                # Bar Chart selection
@@ -3936,56 +3936,58 @@ gbadsDash.layout = html.Div([
 
             html.Br(),
 
-            #### -- VISUALIZATION SWITCH
+            #### -- MAP/DRILLDOWN CONTROLS
             dbc.Card([
                 dbc.CardBody([
                     html.H3("Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region", id="AMU-Biomass-AMR-Costs-Viz",
                             className="card-title"),
-                    html.P("Drill Down: show antimicrobial usage by region and importance category", style={'font-style': 'italic'}),
-                    html.P("Map: show antimicrobial usage, antimicrobial resistance, or antimicrobial expenditure", style={'font-style': 'italic'}),
 
             dbc.Row([
-            # Visualization Switch
-            dbc.Col([
-                html.H6("Global Visualization"),
-                dcc.RadioItems(id='select-viz-switch-amu',
-                              options=['Drill Down', 'Map'],
-                              value='Drill Down',
-                              labelStyle={'display': 'block'},
-                              inputStyle={"margin-right": "10px"},
-                              ),
-                ],  width=1),
+                # Visualization Switch
+                dbc.Col([
+                    html.H6("Global Visualization"),
+                    dcc.RadioItems(id='select-viz-switch-amu',
+                                  options=['Drill Down', 'Map'],
+                                  value='Drill Down',
+                                  labelStyle={'display': 'block'},
+                                  inputStyle={"margin-right": "10px"},
+                                  ),
+                    ],  width=1),
 
-            # Map Display/Drill Down switch
-            dbc.Col([
-                html.H6("Map Display", id='select-map-display-drilldown-amu-title'),
-                dcc.Dropdown(id='select-map-display-drilldown-amu',
-                      clearable=False,
-                      ),
-                ]),
+                # Map Display/Drill Down switch
+                dbc.Col([
+                    html.H6("Map Display", id='select-map-display-drilldown-amu-title'),
+                    dcc.Dropdown(id='select-map-display-drilldown-amu',
+                          clearable=False,
+                          ),
+                    ]),
 
-            # Antimicrobial Class
-            dbc.Col([
-                html.H6("Antimicrobials", id='select-antimicrobial-importance-class-amu-title'),
-                dcc.Dropdown(id='select-antimicrobial-importance-class-amu',
-                      # options=amu_antimicrobial_class_options,
-                      value='Aminoglycosides',
-                      clearable=False,
-                      ),
-                ]),
+                # Antimicrobial Class
+                dbc.Col([
+                    html.H6("Antimicrobials", id='select-antimicrobial-importance-class-amu-title'),
+                    dcc.Dropdown(id='select-antimicrobial-importance-class-amu',
+                          # options=amu_antimicrobial_class_options,
+                          value='Aminoglycosides',
+                          clearable=False,
+                          ),
+                    ]),
 
-            # Pathogens
-            dbc.Col([
-                html.H6("Pathogen", id='select-pathogens-amu-title'),
-                dcc.Dropdown(id='select-pathogens-amu',
-                      options=amu_pathogen_options,
-                      value='All',
-                      clearable=False,
-                      ),
-                ]),
+                # Pathogens
+                dbc.Col([
+                    html.H6("Pathogen", id='select-pathogens-amu-title'),
+                    dcc.Dropdown(id='select-pathogens-amu',
+                          options=amu_pathogen_options,
+                          value='All',
+                          clearable=False,
+                          ),
+                    ]),
 
             # END OF CARD OPTIONS ROW
             ]),
+            dbc.Row([
+                html.P("Drill Down: show antimicrobial usage by region and importance category", style={'font-style': 'italic'}),
+                html.P("Map: show antimicrobial usage, antimicrobial resistance, or antimicrobial expenditure on a world map", style={'font-style': 'italic'}),
+                ]),
 
             # END OF CARD BODY
             ]),
@@ -4046,6 +4048,27 @@ gbadsDash.layout = html.Div([
            #     ]),
            # html.Br(),
 
+           # Control and note for usage and price charts
+           dbc.Row([
+               # Usage units
+               dbc.Col([
+                   html.H6("Display antimicrobial usage as:"),
+                   dcc.RadioItems(id='select-usage-units-amu',
+                         options=['total tonnes', 'mg per kg biomass'],
+                         value='total tonnes',
+                         labelStyle={'display': 'inline-block'},
+                         inputStyle={"margin": "0 5px 0 15px",},
+                         ),
+                   ]),
+               # Note for prices
+               # dbc.Col([
+               #       html.P("*Click on 'A*', 'B*', or 'C*' to jump to those values.",
+               #              style={'font-weight': '600', 'font-style': 'italic'}),
+               #       ],
+               #     style={'margin-top': '30px',}, width=7,),
+
+               ]), #END OF ROW
+
            # Plots comparing different estimates of usage and price
            dbc.Row([
                dbc.Col([    # Side-by-side bars comparing usage estimates for each region
@@ -4104,13 +4127,13 @@ gbadsDash.layout = html.Div([
            #### -- FOOTNOTES PT.2
            dbc.Row([
                dbc.Col([
-                   html.P("Bars represent usage from the following sources:"),
-                   html.P("A*: Countries reporting 2018 data to WOAH, extended to 2020 by assuming the trend from 2016-2018 continues (source: WOAH AMU Report)."),
-                   html.P("B*: Estimate A extended to whole region based on the proportion of region total biomass represented in the countries reporting (source: WOAH AMU Report)."),
-                   html.P("C*: Region-total estimate from Mulchandani et. al. (source: Mulchandani AMU)."),
+                   html.P("Bars represent usage from the following sources. Please refer to the user guide for details."),
+                   html.P("A*: Countries reporting 2018 data to WOAH, extended to 2020 by assuming the trend from 2016-2018 continues (source: WOAH 2018)."),
+                   html.P("B*: Estimate A extended to whole region based on the proportion of region total biomass represented in the countries reporting (source: WOAH 2018)."),
+                   html.P("C*: Region-total estimate from Mulchandani et al. (source: Mulchandani et al., 2023)."),
                    ]),
                dbc.Col([
-                   html.P("Price estimates are based on data from the European Medicines Agency and the OECD. See the user guide for details."),
+                   html.P("Price points for antimicrobials were extracted from a range of sources. Extrapolations were made for regions where price data was not available. Please refer to the user guide for details."),
                    ]),
                ], style={'margin-left':"10px", 'font-style': 'italic'}
                ),
@@ -4121,15 +4144,15 @@ gbadsDash.layout = html.Div([
            #### -- GRAPHICS PT.3
            # Usage and Price Sliders with Expenditure chart
            html.H3("Regional Veterinary Antimicrobial Expenditure Estimator", id="AMU-regional-expenditure"),
-           
+
            # Control and note for sliders and expenditure chart
            dbc.Row([
                # Expenditure units
                dbc.Col([
-                   html.H6("Antimcirobial Expenditure (USD)"),
+                   html.H6("Display antimicrobial expenditure as:"),
                    dcc.RadioItems(id='select-expenditure-units-amu',
-                         options=['per kg biomass', 'total'],
-                         value='per kg biomass',
+                         options=['total', 'per kg biomass'],
+                         value='total',
                          labelStyle={'display': 'inline-block'},
                          inputStyle={"margin": "0 5px 0 15px",},
                          ),
@@ -4140,9 +4163,9 @@ gbadsDash.layout = html.Div([
                             style={'font-weight': '600', 'font-style': 'italic'}),
                      ],
                    style={'margin-top': '30px',}, width=7,),
-               
+
                ]), #END OF ROW
-           
+
            # Gaphics Row
            dbc.Row([
                dbc.Col([
@@ -4369,7 +4392,7 @@ gbadsDash.layout = html.Div([
            ]),
 
             ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
-          
+
 
         #### USER GUIDE TAB
         dcc.Tab(label="User Guide & References", children =[
@@ -4767,7 +4790,7 @@ def update_background_data_poultry(input_json, country ,producerprice ,rationpri
                 # Source tooltip and styling
                 # Hover-over for column headers
                 tooltip_header=column_tooltips,
-                tooltip_delay=1500,
+                tooltip_delay= 500,
                 tooltip_duration=50000,
 
                 # Underline columns with tooltips
@@ -5550,7 +5573,7 @@ def update_background_data_swine(input_json, country ,producerprice ,rationprice
 
                 # Hover-over for column headers
                 tooltip_header=column_tooltips,
-                tooltip_delay=1500,
+                tooltip_delay= 500,
                 tooltip_duration=50000,
 
                 # Underline columns with tooltips
@@ -7683,7 +7706,7 @@ def update_overview_table_ga(species, income, region, country):
 
                 # Hover-over for column headers
                 tooltip_header=column_tooltips,
-                tooltip_delay=1500,
+                tooltip_delay= 500,
                 tooltip_duration=50000,
 
                 # Underline columns with tooltips
@@ -7926,7 +7949,7 @@ def update_display_table_ga(selected_region ,selected_incgrp ,selected_country):
 
             # Hover-over for column headers
             tooltip_header=column_tooltips,
-            tooltip_delay=1500,
+            tooltip_delay= 500,
             tooltip_duration=50000,
 
             # Underline columns with tooltips
@@ -8116,10 +8139,10 @@ def update_bio_ahle_visual_ga(viz_selection, species, country, region, display, 
     Input('select-year-ga','value'),
     Input('select-display-ga','value'),
     )
-def update_ahle_waterfall_ga(amu_data, selected_region ,selected_incgrp ,selected_country ,selected_year, display):
+def update_ahle_waterfall_ga(amu_data_json, selected_region ,selected_incgrp ,selected_country ,selected_year, display):
     # Read data
     input_df = ga_countries_biomass.copy()
-    input_df_amu = pd.read_json(amu_data, orient='split')
+    input_df_amu = pd.read_json(amu_data_json, orient='split')
 
     # Add mortality, morbidity, and vetmed rate columns
     input_df = ga.add_mortality_rate(input_df)
@@ -8406,11 +8429,11 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
 def update_map_display_drilldown_switch(viz_switch):
     if viz_switch == 'Map':
         options = amu_map_display_options
-        value = 'AMU: tonnes'
+        value = 'Antimicrobial usage: tonnes'
         title = 'Map Display'
     else:
-        options = ['AMU: tonnes', 'AMU: mg per kg biomass']
-        value = 'AMU: mg per kg biomass'
+        options = ['Antimicrobial usage: tonnes', 'Antimicrobial usage: mg per kg biomass']
+        value = 'Antimicrobial usage: mg per kg biomass'
         title = 'Drill Down Display'
 
     return options, value, title
@@ -8753,7 +8776,7 @@ def update_table_display_amu(dummy_input):
     columns_to_display_with_labels = {
        'region':'Region'
        ,'scope':'Scope'
-       ,'number_of_countries':'Number of Countries'
+       ,'number_of_countries':'Number of Countries Reporting'
        ,'biomass_total_kg_reporting':'Total Biomass in Countries Reporting (kg)'
        ,'biomass_total_kg_region':'Total Biomass in Region (kg)'
        ,'biomass_prpn_reporting':'Percent of Region Biomass in Countries Reporting'
@@ -8764,6 +8787,15 @@ def update_table_display_amu(dummy_input):
        ,'amu_tonnes': 'Total AM Usage (tonnes)'
        ,'amu_mg_perkgbiomass':'AM Usage (mg per kg biomass)'
     }
+
+    # ------------------------------------------------------------------------------
+    # Hover-over text
+    # ------------------------------------------------------------------------------
+    column_tooltips = {
+        'who_importance_ctg':'Source: World Health Organization'
+        ,'woah_importance_ctg':'Source: WOAH'
+        ,'onehealth_importance_ctg':'Source: Venkateswaran et al., 2023'
+        }
 
     # ------------------------------------------------------------------------------
     # Format data to display in the table
@@ -8792,6 +8824,9 @@ def update_table_display_amu(dummy_input):
 
     return [
             html.H4("WOAH Antimicrobial Data 2018"),
+            html.A("Source: WOAH 2018"
+                   ,href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf'
+                   ,style={'font-style':'italic'}),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 # fixed_rows={'headers': True, 'data': 0},
@@ -8805,6 +8840,18 @@ def update_table_display_amu(dummy_input):
                               'height': '350px',
                               'overflowY': 'auto'},
                 page_action='none',
+
+                # Hover-over for column headers
+                tooltip_header=column_tooltips,
+                tooltip_delay= 500,
+                tooltip_duration=50000,
+
+                # Underline columns with tooltips
+                style_header_conditional=[{
+                    'if': {'column_id': col},
+                    'textDecoration': 'underline',
+                    'textDecorationStyle': 'dotted',
+                    } for col in list(column_tooltips)],
             )
         ]
 
@@ -8841,6 +8888,13 @@ def update_regional_display_amu(input_json):
 
         ,'resistance_rate_wtavg':'Average antimicrobial resistance rate'
         ,'drug_resistance_index':'Drug resistance index'
+        }
+
+    # ------------------------------------------------------------------------------
+    # Hover-over text
+    # ------------------------------------------------------------------------------
+    column_tooltips = {
+        'terr_amu_tonnes_mulch_2020':'Source: Mulchandani et al., 2023'
         }
 
     # ------------------------------------------------------------------------------
@@ -8894,18 +8948,13 @@ def update_regional_display_amu(input_json):
         ,'am_expenditure_usd_selected'
     ]].applymap('$ {:,.0f}'.format))
 
-    # ------------------------------------------------------------------------------
-    # Hover-over text
-    # ------------------------------------------------------------------------------
-    column_tooltips = {
-        'am_price_usdpertonne_low':'Source:'
-        ,'am_price_usdpertonne_mid':'Source:'
-        ,'am_price_usdpertonne_high':'Source:'
-        }
-
     return [
             html.H4("Extended Regional Data"),
-            html.P("Including regional estimates from resistancebank.org. Contact the authors for national estimates." ,style={'font-style':'italic'}),
+            # html.P("Including regional estimates from Mulchandani et al., 2023. Contact the authors for national estimates." ,style={'font-style':'italic'}),
+            html.P(children=[
+                html.P("Including regional estimates from Mulchandani et al., 2023. Contact the authors for national estimates."),
+                html.A("Source: Mulchandani et al., 2023.", href='https://doi.org/10.1371/journal.pgph.0001305'),
+                ],style={'font-style':'italic'}),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 # fixed_rows={'headers': True, 'data': 0},
@@ -8921,7 +8970,7 @@ def update_regional_display_amu(input_json):
 
                 # Hover-over for column headers
                 tooltip_header=column_tooltips,
-                tooltip_delay=1500,
+                tooltip_delay= 500,
                 tooltip_duration=50000,
 
                 # Underline columns with tooltips
@@ -9038,7 +9087,7 @@ def update_regional_display_amu(input_json):
 
 #                 # Hover-over for column headers
 #                 tooltip_header=column_tooltips,
-#                 tooltip_delay=1500,
+#                 tooltip_delay= 500,
 #                 tooltip_duration=50000,
 
 #                 # Underline columns with tooltips
@@ -9077,10 +9126,10 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
     input_df_amr = input_df_amr.sort_values(by=['woah_region'])
 
     # Use selected quantity value (AMU & AMR)
-    if quantity == 'AMU: tonnes':
+    if quantity == 'Antimicrobial usage: tonnes':
         value = input_df['amu_tonnes']
         map_value = input_df['amu_tonnes_by_region'] = input_df['amu_tonnes'].groupby(input_df['region']).transform('sum')
-    elif quantity == 'AMU: mg per kg biomass':
+    elif quantity == 'Antimicrobial usage: mg per kg biomass':
         value = input_df['amu_mg_perkgbiomass']
         map_value = input_df['amu_mg_perkgbiomass_by_region'] = input_df['amu_mg_perkgbiomass'].groupby(input_df['region']).transform('sum')
     elif quantity == 'Biomass':
@@ -9179,13 +9228,13 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
             ))
 
         # Update hoverover
-        if quantity == 'AMU: tonnes':
+        if quantity == 'Antimicrobial usage: tonnes':
             amu_map_fig.update_traces(hovertemplate=
                                       "<b>%{customdata[0]}</b><br>" +
                                       "AMU: %{customdata[1]:,.0f} tonnes<br>" +
                                       "# of countries reporting: %{customdata[2]}" +
                                       "<extra></extra>",)
-        elif quantity == 'AMU: mg per kg biomass':
+        elif quantity == 'Antimicrobial usage: mg per kg biomass':
             amu_map_fig.update_traces(hovertemplate=
                                       "<b>%{customdata[0]}</b><br>" +
                                       "AMU: %{customdata[1]:,.0f} mg per kg biomass<br>" +
@@ -9224,9 +9273,9 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
 
     else:
         # Add custom data for hoverover
-        if quantity == 'AMU: tonnes':
+        if quantity == 'Antimicrobial usage: tonnes':
             customdata = list(pd.DataFrame(['amu_tonnes']).to_numpy())
-        elif quantity == 'AMU: mg per kg biomass':
+        elif quantity == 'Antimicrobial usage: mg per kg biomass':
             customdata = list(pd.DataFrame(['amu_mg_perkgbiomass_by_region']).to_numpy())
 
         # Determine which categorization to use
@@ -9244,14 +9293,14 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
         amu_map_fig = create_tree_map_amu(input_df, value, categories)
 
         # treemap_hierarchy = ['region_with_countries_reporting', categories, 'antimicrobial_class']
-        # if quantity == 'AMU: tonnes':
+        # if quantity == 'Antimicrobial usage: tonnes':
         #     amu_map_fig = create_treemap_withagg(
         #         input_df
         #         ,HIERARCHY=treemap_hierarchy
         #         ,COLOR_BY='region_with_countries_reporting'
         #         ,VALUE_VAR='amu_tonnes'
         #         )
-        # elif quantity == 'AMU: mg per kg biomass':
+        # elif quantity == 'Antimicrobial usage: mg per kg biomass':
         #     amu_map_fig = create_treemap_withagg(
         #         input_df
         #         ,HIERARCHY=treemap_hierarchy
@@ -9268,7 +9317,7 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
                                   )
 
         # Update hoverover
-        if quantity == 'AMU: tonnes':
+        if quantity == 'Antimicrobial usage: tonnes':
             amu_map_fig.update_traces(customdata=customdata,
                 hovertemplate=
                 "<b>%{label}</b><br>" +
@@ -9628,9 +9677,21 @@ def update_donut_chart_amu (quantity, region, classification):
 @gbadsDash.callback(
     Output('am-usage-comparison','figure'),
     Input('amu-regional-data', 'data'),
+    Input('select-usage-units-amu' ,'value'),
     )
-def update_am_usage_comparison(input_json):
+def update_am_usage_comparison(input_json, units):
     input_df = pd.read_json(input_json, orient='split')
+
+    # Recalculate units if needed
+    if units == 'mg per kg biomass':
+        input_df['terr_amu_tonnes_reporting_2020'] = 1e9 * input_df['terr_amu_tonnes_reporting_2020'] / input_df['biomass_terr_kg_region']
+        input_df['terr_amu_tonnes_region_2020'] = 1e9 * input_df['terr_amu_tonnes_region_2020'] / input_df['biomass_terr_kg_region']
+        input_df['terr_amu_tonnes_mulch_2020'] = 1e9 * input_df['terr_amu_tonnes_mulch_2020'] / input_df['biomass_terr_kg_region']
+
+        yaxis_title = 'Antimicrobial Usage (mg per kg biomass)'
+    else:   # Otherwise use columns as they are
+        yaxis_title = 'Antimicrobial Usage (tonnes)'
+
     # Rename columns to plot
     # Workaround to fix names in legend
     rename_plot_cols = {
@@ -9657,11 +9718,11 @@ def update_am_usage_comparison(input_json):
     bar_fig.update_layout(barmode='group')
 
     # Sync colors across visuals and update text
-    bar_fig.update_traces(marker=dict(color=input_df['Color'], 
+    bar_fig.update_traces(marker=dict(color=input_df['Color'],
                                        pattern_fgcolor='black',
                                        pattern_bgcolor='white',
                                       ),
-                          texttemplate='%{text:,.0f}', 
+                          texttemplate='%{text:,.0f}',
                           textposition="outside",
                           textfont = {'size': 11,},
                           cliponaxis=False)
@@ -9681,7 +9742,7 @@ def update_am_usage_comparison(input_json):
     bar_fig.update_xaxes(title_text=''
                          ,tickangle=20
                          )
-    bar_fig.update_yaxes(title_text='Antimicrobial Usage (tonnes)')
+    bar_fig.update_yaxes(title_text=yaxis_title)
 
     return bar_fig
 
@@ -9748,13 +9809,13 @@ def update_am_price_comparison(input_json):
     )
 def update_expenditure_amu(input_json, expenditure_units):
     input_df = pd.read_json(input_json, orient='split')
-    
+
     # Set the units based on the expenditure selected
     if expenditure_units == 'per kg biomass':
         y='am_expenditure_usd_perkg_selected'
     else:
         y='am_expenditure_usd_selected'
-    
+
     bar_fig = px.bar(
         input_df,
         x='region',

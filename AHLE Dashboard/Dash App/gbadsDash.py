@@ -3285,7 +3285,7 @@ gbadsDash.layout = html.Div([
                                 ),
                     ],style={
                             # "margin-top":"10px",
-                            "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                            "margin-bottom":"30px", # Adding this to account for the additional space created by the radio buttons
                             }
                     ),
                 dbc.Col([
@@ -3356,7 +3356,7 @@ gbadsDash.layout = html.Div([
                                               )
                                 ],style={
                                           # "margin-top":"10px",
-                                          "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                                          "margin-bottom":"30px", # Adding this to account for the additional space created by the radio buttons
                                           },
                                 ),
 
@@ -3439,7 +3439,7 @@ gbadsDash.layout = html.Div([
                                        clearable = False,
                                       ),
                         ], style={
-                            "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                            "margin-bottom":"30px", # Adding this to account for the additional space created by the radio buttons
                             },
                         ),
                     # Drill Down 2
@@ -3451,7 +3451,7 @@ gbadsDash.layout = html.Div([
                                       clearable = False,
                                       ),
                         ], style={
-                            "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                            "margin-bottom":"30px", # Adding this to account for the additional space created by the radio buttons
                             },
                         ),
 
@@ -4101,6 +4101,26 @@ gbadsDash.layout = html.Div([
            #### -- GRAPHICS PT.3
            # Usage and Price Sliders with Expenditure chart
            html.H3("Regional Veterinary Antimicrobial Expenditure Estimator", id="AMU-regional-expenditure"),
+           
+           # Expenditure units
+           dbc.Col([
+               html.H6("Antimcirobial Expenditure (USD)"),
+               dcc.RadioItems(id='select-expenditure-units-amu',
+                     options=['per kg biomass', 'total'],
+                     value='per kg biomass',
+                     labelStyle={'display': 'inline-block'},
+                     inputStyle={"margin": "0 5px 0 15px",},
+                     ),
+               ]),
+           dbc.Row([
+               dbc.Col([
+                   html.P("Numbers in parenthesis show the number of countries in each region reporting to WOAH and the percent of region total biomass they represent."),
+                   ]),
+               dbc.Col([   # Empty column so footnotes line up with charts
+                     html.P("Click on an antimicrobial name/importance category in the legend to remove it from the visual"),
+                     ], style={'margin-left':"10px", 'font-style': 'italic'},),
+               ]),
+           
            dbc.Row([
                dbc.Col([
                    dbc.Spinner(children=[
@@ -9612,18 +9632,22 @@ def update_am_usage_comparison(input_json):
     input_df['Color']= input_df['region'].map(colors)
     
     bar_fig = go.Figure(data=[
-        go.Bar(name='A*', x=input_df['region'], y=input_df["A*"], marker_pattern_shape="x", marker_color="black",),
-        go.Bar(name='B*', x=input_df['region'], y=input_df["B*"], marker_pattern_shape=".",),
-        go.Bar(name='C*', x=input_df['region'], y=input_df["C*"], marker_pattern_shape="+",),
+        go.Bar(name='A*', x=input_df['region'], y=input_df["A*"], marker_pattern_shape="x", marker_color="black",text=input_df["A*"]),
+        go.Bar(name='B*', x=input_df['region'], y=input_df["B*"], marker_pattern_shape=".",text=input_df["B*"]),
+        go.Bar(name='C*', x=input_df['region'], y=input_df["C*"], marker_pattern_shape="+",text=input_df["C*"]),
     ])
     # Change the bar mode
     bar_fig.update_layout(barmode='group')
 
-    # Sync colors across visuals
+    # Sync colors across visuals and update text
     bar_fig.update_traces(marker=dict(color=input_df['Color'], 
                                        pattern_fgcolor='black',
                                        pattern_bgcolor='white',
-                                      ))
+                                      ),
+                          texttemplate='%{text:,.0f}', 
+                          textposition="outside",
+                          textfont = {'size': 11,},
+                          cliponaxis=False)
 
     bar_fig.update_layout(title_text='Comparing antimicrobial usage estimates<br><sup>Terrestrial Livestock',
                           font_size=15,
@@ -9703,14 +9727,22 @@ def update_am_price_comparison(input_json):
 @gbadsDash.callback(
     Output('amu-expenditure','figure'),
     Input('amu-regional-data', 'data'),
+    Input('select-expenditure-units-amu', 'value'),
     )
-def update_expenditure_amu(input_json):
+def update_expenditure_amu(input_json, expenditure_units):
     input_df = pd.read_json(input_json, orient='split')
+    
+    # Set the units based on the expenditure selected
+    if expenditure_units == 'per kg biomass':
+        y='am_expenditure_usd_perkg_selected'
+    else:
+        y='am_expenditure_usd_selected'
+    
     bar_fig = px.bar(
         input_df,
         x='region',
-        # y='am_expenditure_usd_selected',
-        y='am_expenditure_usd_perkg_selected',
+        y=y,
+        text_auto='$,.5r',
         labels={
             'am_expenditure_usd_selected':'Expenditure (USD)',
             'am_expenditure_usd_perkg_selected':'Expenditure per kg biomass (USD)',

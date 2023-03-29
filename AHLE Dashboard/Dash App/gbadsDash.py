@@ -4102,25 +4102,28 @@ gbadsDash.layout = html.Div([
            # Usage and Price Sliders with Expenditure chart
            html.H3("Regional Veterinary Antimicrobial Expenditure Estimator", id="AMU-regional-expenditure"),
            
-           # Expenditure units
-           dbc.Col([
-               html.H6("Antimcirobial Expenditure (USD)"),
-               dcc.RadioItems(id='select-expenditure-units-amu',
-                     options=['per kg biomass', 'total'],
-                     value='per kg biomass',
-                     labelStyle={'display': 'inline-block'},
-                     inputStyle={"margin": "0 5px 0 15px",},
-                     ),
-               ]),
+           # Control and note for sliders and expenditure chart
            dbc.Row([
+               # Expenditure units
                dbc.Col([
-                   html.P("Numbers in parenthesis show the number of countries in each region reporting to WOAH and the percent of region total biomass they represent."),
+                   html.H6("Antimcirobial Expenditure (USD)"),
+                   dcc.RadioItems(id='select-expenditure-units-amu',
+                         options=['per kg biomass', 'total'],
+                         value='per kg biomass',
+                         labelStyle={'display': 'inline-block'},
+                         inputStyle={"margin": "0 5px 0 15px",},
+                         ),
                    ]),
-               dbc.Col([   # Empty column so footnotes line up with charts
-                     html.P("Click on an antimicrobial name/importance category in the legend to remove it from the visual"),
-                     ], style={'margin-left':"10px", 'font-style': 'italic'},),
-               ]),
+               # Note for sliders
+               dbc.Col([
+                     html.P("*Click on 'A*', 'B*', or 'C*' to jump to those values.",
+                            style={'font-weight': '600', 'font-style': 'italic'}),
+                     ],
+                   style={'margin-top': '30px',}, width=7,),
+               
+               ]), #END OF ROW
            
+           # Gaphics Row
            dbc.Row([
                dbc.Col([
                    dbc.Spinner(children=[
@@ -4166,7 +4169,9 @@ gbadsDash.layout = html.Div([
                                    html.H6("Usage"),
                                    daq.Slider(
                                        id='am-usage-slider-africa',
-                                       handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
+                                       handleLabel={"showCurrentValue":
+                                                    True ,"label":"Tonnes",
+                                                    'style':{'fontSize':'1'}},
                                        vertical=True,
                                        color= 'rgb(135,197,95)',
                                        ),

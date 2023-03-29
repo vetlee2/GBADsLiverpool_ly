@@ -2602,21 +2602,21 @@ gbadsDash.layout = html.Div([
                 html.P("Antimicrobial Expenditure shown is the estimated global total based on usage and price selected on the Antimicrobial Usage tab."),
                 # html.P("Using morbidity and mortality rates according to income group"),
                 ]),
-            # Regional AM Expenditure Estimator
-            dbc.Col([   
-                dcc.Link(
-                    dbc.Button(children='Antimicrobial Expenditure',
-                                # style={'color': 'white',
-                                #        'backgroundColor': '#101820',
-                                #        'fontSize': '15px ',
-                                #        'width': '150px',
-                                #        'height': '50px',
-                                #        'marginLeft': '10px',
-                                #        'marginRight': '100px',
-                                #        }
-                                ),
-                    href='#AMU-regional-expenditure', refresh=True),
-                ]),
+            # # Regional AM Expenditure Estimator
+            # dbc.Col([   
+            #     dcc.Link(
+            #         dbc.Button(children='Antimicrobial Expenditure',
+            #                     # style={'color': 'white',
+            #                     #        'backgroundColor': '#101820',
+            #                     #        'fontSize': '15px ',
+            #                     #        'width': '150px',
+            #                     #        'height': '50px',
+            #                     #        'marginLeft': '10px',
+            #                     #        'marginRight': '100px',
+            #                     #        }
+            #                     ),
+            #         href='#AMU-regional-expenditure', refresh=True),
+            #     ]),
            
             dbc.Col([
                 # Line chart

@@ -38,29 +38,29 @@ Whole-region estimate for terrestrial livestock from Mulchandani et. al. (https:
 Price estimates are from the following sources:
 </p>
 <p><b>A:</b><br />
-For Africa, the Americas, and the Middle East: the average price in Brazil (https://www.oecd-ilibrary.org/agriculture-and-food/antimicrobial-use-resistance-and-economic-benefits-and-costs-to-livestock-producers-in-brazil_27137b1e-en).
+For Africa, the Americas, and the Middle East: the average price in Brazil (source: OECD Brazil).
 <br />
-For Asia, Far East and Oceania: the price of Tetracyclin in China (https://one.oecd.org/document/TAD/CA/APM/WP(2018)19/FINAL/En/pdf (page 25)).
+For Asia, Far East and Oceania: the price of Tetracyclin in China (source: OECD China).
 <br />
-For Europe: https://animalhealtheurope.eu/about-us/annual-reports/2020-2/key-figures/.
+For Europe: the average price in 2020 (source: European Medicines Agency).
 </p>
 <p><b>B:</b><br />
 For Africa: 22% increase from price in Europe.
 <br />
 For the Americas: midpoint between high and low estimates.
 <br />
-For Asia, Far East and Oceania: .
+For Asia, Far East and Oceania: (source: OECD China)
 <br />
-For Europe: .
+For Europe: the average price in 2019 (source: European Medicines Agency).
 <br />
 For the Middle East: 25% decrease from price in Europe.
 </p>
 <p><b>C:</b><br />
 For Africa: 42% increase from price in Europe.
 <br />
-For the Americas and Asia, Far East and Oceania: the average price reported in Europe.
+For the Americas and Asia, Far East and Oceania: the lower average price reported in Europe.
 <br />
-For Europe: .
+For Europe: the average price in 2018 (source: European Medicines Agency).
 <br />
 For the Middle East: 15% decrease from price in Europe.
 </p>

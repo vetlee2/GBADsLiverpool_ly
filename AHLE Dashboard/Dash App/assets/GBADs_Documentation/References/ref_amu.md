@@ -1,11 +1,15 @@
-# Antimicrobial Use and Resistance
+# Antimicrobial Usage
 
-<h3>Antimicrobial Use</h3>
+<h3>Antimicrobial Usage and Price</h3>
 
 Short name | Organization or Publisher | Table or Paper | URL
 ---|---|---|---
 WOAH AMU | World Organization for Animal Health | OIE annual report on antimicrobial agents intended for use in animals. 6th ed; 2022 | https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf
 Mulchandani AMU | PLOS Global Public Health | Mulchandani et al., 2023. Global trends in antimicrobial use in food-producing animals: 2020 to 2030, PLOS Global Public Health | https://doi.org/10.1371/journal.pgph.0001305
+European Medicines Agency | European Medicines Agency | Sales of veterinary antimicrobial agents in 31 European countries in 2019 and 2020 | https://www.ema.europa.eu/en/documents/report/sales-veterinary-antimicrobial-agents-31-european-countries-2019-2020-trends-2010-2020-eleventh_en.pdf
+Animal Health Europe | Animal Health Europe | Key Figures 2020 | https://animalhealtheurope.eu/about-us/annual-reports/2020-2/key-figures/
+OECD Brazil | Organisation for Economic Co-operation and Development | Antimicrobial use, resistance and economic benefits and costs to livestock producers in Brazil | https://www.oecd-ilibrary.org/agriculture-and-food/antimicrobial-use-resistance-and-economic-benefits-and-costs-to-livestock-producers-in-brazil_27137b1e-en
+OECD China | Organisation for Economic Co-operation and Development | Antibiotic Use and Antibiotic Resistance in Food Producing Animals in China (2019) | https://one.oecd.org/document/TAD/CA/APM/WP(2018)19/FINAL/En/pdf
 
 
 <h3>Antimicrobial Resistance and Importance Categories</h3>

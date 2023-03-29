@@ -2005,14 +2005,6 @@ def create_donut_chart_amu(input_df, value, names):
                                       hovertemplate = "%{label}: <br>%{percent} </br><extra></extra>"
                                       )])
 
-    # pie_fig = px.pie(input_df,
-    #                  names=names,
-    #                  values=value,
-    #                  hole=.4,
-    #                  color_discrete_map=color_mapping
-    #                  # hovertemplate = "%{label}: <br>%{percent} </br><extra></extra>"
-    #                  )
-
     # show % values inside
     pie_fig.update_traces(textposition='inside')
     pie_fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide')
@@ -2131,7 +2123,7 @@ gbadsDash.layout = html.Div([
         dbc.Col(html.Div([
             html.A(href="https://animalhealthmetrics.org/",
             children=[
-                html.Img(alt="Link to GBADS site",src='/assets/GBADs-LOGO-Black-sm.png')
+                html.Img(title="Link to GBADS site",src='/assets/GBADs-LOGO-Black-sm.png')
             ],),
                 html.H3("Inclusiveness Challenge Delivery Rigour Transparency",
                         style={"font-style": "italic",
@@ -3968,7 +3960,6 @@ gbadsDash.layout = html.Div([
             dbc.Col([
                 html.H6("Antimicrobials", id='select-antimicrobial-importance-class-amu-title'),
                 dcc.Dropdown(id='select-antimicrobial-importance-class-amu',
-                      # options=amu_antimicrobial_class_options,
                       value='Aminoglycosides',
                       clearable=False,
                       ),
@@ -4176,6 +4167,15 @@ gbadsDash.layout = html.Div([
                                    className="card-title",
                                    style={"font-weight": "bold"}
                                    ),
+                           
+                           # Reset to midpoint button
+                           dbc.Col([
+                               html.Button('Reset to midpoint (B*)', id='reset-sliders-amu', n_clicks=0),
+                           ],style={'width': "auto",
+                                     'textAlign':'center',
+                                     'margin':'auto',}
+                           ),
+                                    
                            dbc.Row([    # Region names
                                dbc.Col([html.H5("Africa")]),
                                dbc.Col([html.H5("Americas")]),
@@ -4366,6 +4366,23 @@ gbadsDash.layout = html.Div([
                ]),# END OF COL
                # End of Spinner
                ],size="md", color="#393375", fullscreen=False),
+           ]),
+           
+           # Add naviagation button to top of page
+           dbc.Row([
+               dbc.Col(html.Div([
+                   html.A(href="#AMU-tab",
+                   children=[
+                       html.Img(title="Back to top",src='/assets/up_arrow_icon_black-modified.png')
+                   ], style={'width':'80px'},
+                   ),
+                       ], style = {'margin-left':"10px",
+                                   "margin-bottom":"10px",
+                                   'margin-right':"10px",
+                                   'position': 'fixed',
+                                   'bottom':0,
+                                   },
+               )),
            ]),
 
             ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
@@ -8564,10 +8581,11 @@ def update_map_amr_options(display_option, antimicrobial_class):
     Output('am-price-slider-mideast', 'step'),
     Output('am-price-slider-mideast', 'marks'),
 
-    Input('select-species-ga','value'),
+    Input('reset-sliders-amu','n_clicks'),
     )
-def update_usage_price_sliders(dummy_input):
+def update_usage_price_sliders(reset_button):
     regional_usage_price_data = amu_combined_regional.copy()
+
 
     # Steps will be the same for all
     usage_step = 1
@@ -9075,6 +9093,11 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
     # Update: AMR data now includes only a single year selected for each region based on the most data available
     input_df_amr = input_df_amr.query(f"antimicrobial_class == '{antimicrobial_class}'").query(f"pathogen == '{pathogens}'")
     input_df_amr = input_df_amr.sort_values(by=['woah_region'])
+    
+    # Fix antimicrobial class names
+    input_df = input_df.replace(['aggregated_class_data', 'other_important', 'sulfonamides__including_trimethoprim'], 
+                                ['aggregated class data', 'other (important)', 'sulfonamides (with trimethoprim)'])
+
 
     # Use selected quantity value (AMU & AMR)
     if quantity == 'AMU: tonnes':
@@ -9308,6 +9331,16 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
     stackedbar_df = amu2018_combined_tall.copy()
     stackedbar_df = stackedbar_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
 
+    # Workaround to fix names in legend
+    stackedbar_df = stackedbar_df.replace(['aggregated_class_data', 'other_important', 'sulfonamides__including_trimethoprim'], 
+                                          ['aggregated class data', 'other (important)', 'sulfonamides (with trimethoprim)'])
+
+    # Create region labels with proportion of biomass represented in countries reporting and adding a break
+    stackedbar_df["region_with_countries_reporting"] = stackedbar_df['region'] \
+            + '<br>' \
+            + " (" + round(stackedbar_df['number_of_countries'] ,0).astype(int).astype(str) \
+            + " | " + round(stackedbar_df['biomass_prpn_reporting'] * 100 ,1).astype(str) + "%)"
+            
     x_var = 'region_with_countries_reporting'
 
     if quantity.upper() == 'TONNES':
@@ -9332,23 +9365,6 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
         color = 'antimicrobial_class_group2'
         stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class_group2']).ngroup()
 
-    # Specify additonal colors
-    # Taking the 10 colors from the default 'Plotly' (px.colors.qualitative.Plotly) color sequence and adding to it
-    # additional_colors = ['#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', '#19D3F3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52',"#C6CAFD", "#F7A799", "#33FFC9"]
-    # {"A: Critically Important": '#EF553B',
-    #   "Important": '#EF553B',
-    #   "B: Highly Important": '#00CC96',
-    #   "C: Other": '#636EFA',
-    #   "Other": '#636EFA',
-    #   "D: Unknown": '#AB63FA',
-    #   "Unknown": '#AB63FA',
-    #   # Individual classes/top classes
-    #   "macrolides": '#19D3F3',
-    #   "penicillins": '#FF6692',
-    #   "tetracyclines": '#C6CAFD',
-    #   "others": '#AB63FA'
-    #   }
-
     # Options to change between graphs
     if select_amu_graph.upper() == 'TOTAL':
         amu_bar_fig = px.histogram(stackedbar_df,
@@ -9363,18 +9379,18 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
                                       "D: Unknown": '#AB63FA',
                                       "Unknown": '#AB63FA',
                                       # Individual classes/top classes
-                                      "aggregated_class_data": '#636EFA',
+                                      "aggregated class _data": '#636EFA',
                                       "aminoglycosides": '#EF553B',
                                       "amphenicols": '#00CC96',
                                       "fluoroquinolones": '#AB63FA',
                                       "macrolides": '#AAFFE1',
                                       "others": '#C6CAFD',
                                       "other": '#C6CAFD',
-                                      "other_important": '#FF6692',
+                                      "other (important)": '#FF6692',
                                       "penicillins": '#FECB52',
                                       "pleuromutilins": '#F7A799',
                                       "polypeptides": '#FFA15A',
-                                      "sulfonamides__including_trimethoprim": '#B6E880',
+                                      "sulfonamides (with trimethoprim)": '#B6E880',
                                       "tetracyclines": '#FF97FF',
                                       },
                                    labels={
@@ -9487,7 +9503,10 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
     )
 def update_donut_chart_amu (quantity, region, classification):
     input_df = amu2018_combined_tall.copy()
-
+    
+    # Workaround to fix names in legend
+    input_df = input_df.replace(['aggregated_class_data', 'other_important', 'sulfonamides__including_trimethoprim'], 
+                                ['aggregated class data', 'other (important)', 'sulfonamides (with trimethoprim)'])
 
     # Filter scope to All and remove nulls from importance category
     # Filter by region selected
@@ -9605,21 +9624,20 @@ def update_donut_chart_amu (quantity, region, classification):
 
     # Sync colors across visuals
     amu_donut_fig.update_traces(marker=dict(colors=summarize_df['Color']))
+    
+    # Standardize number of decimal places displayed
+    amu_donut_fig.update_traces(texttemplate='%{percent:.2%}')
 
-    # Move legend to bottom
+    # Legend font smaller to not touch the graph 
     amu_donut_fig.update_layout(legend=dict(
-        # orientation="h",
-        font=dict(size=15),
+        font=dict(size=14),
         bgcolor='rgba(0,0,0,0)', # makes legend background transparent
-        # yanchor="bottom",
-        # y=0.02,
-        xanchor="left",
-        # x=1
         ))
 
-    # Adjust margins
+    # Adjust margins and move legend to left
     amu_donut_fig.update_layout(
-        margin=dict(l=20, r=20, b=40),
+        margin=dict(l=20, r=20, b=20),
+        legend_x=-.5,
         )
 
     return amu_donut_fig

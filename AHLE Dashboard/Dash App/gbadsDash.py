@@ -969,8 +969,8 @@ amu_map_display_options = [{'label': i, 'value': i, 'disabled': False} for i in 
                                                                                   "Biomass",
                                                                                   "Antimicrobial Resistance (country level)",
                                                                                   "Drug Resistance Index (region level)",
-                                                                                  "AM expenditure: total",
-                                                                                  "AM expenditure: per kg biomass",]]
+                                                                                  "Antimicrobial expenditure: total",
+                                                                                  "Antimicrobial expenditure: per kg biomass",]]
 
 
 # Antimicrobial Class
@@ -4018,6 +4018,19 @@ gbadsDash.layout = html.Div([
 
              # END OF SECOND GRAPHICS ROW
             ]),
+
+            #### -- MAP/DRILLDOWN FOOTNOTES
+            dbc.Row([
+                dbc.Col([
+                    html.P("Data sources for drill down and map are as follows:"),
+                    html.P("Antimicrobial usage in tonnes or mg per kg bimoass: countries reporting total usage to WOAH (WOAH 2018)."),
+                    html.P("Biomass: total biomass for countries reporting to WOAH (WOAH 2018)."),
+                    html.P("Antimicrobial Resistance (country level):"),
+                    html.P("Drug Resistance Index (region level):"),
+                    html.P("Antimicrobial Expenditure:"),
+                    ]),
+                ], style={'margin-left':"10px", 'font-style': 'italic'}
+                ),
 
            #### -- GRAPHICS PT.2
            # Separator for WOAH data above, estimates/variations below
@@ -8462,7 +8475,7 @@ def update_antimicrobial_importance_class_switch(display_option, viz_switch):
                 block = {'display': 'block'}
                 d['disabled']=False
                 value = 'Aminoglycosides'
-                title = 'Antimircobials'
+                title = 'Antimicrobials'
             else:
                 block = {'display': 'none'} # hide antimicrobial class dropdown
                 d['disabled']=True
@@ -9138,9 +9151,9 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
         map_value = input_df_amr['overall_prev']
     elif quantity == 'Drug Resistance Index (region level)':
         map_value = input_df_am_expend['drug_resistance_index']
-    elif quantity == 'AM expenditure: total':
+    elif quantity == 'Antimicrobial expenditure: total':
         map_value = input_df_am_expend['am_expenditure_usd_selected']
-    elif quantity == 'AM expenditure: per kg biomass':
+    elif quantity == 'Antimicrobial expenditure: per kg biomass':
         map_value = input_df_am_expend['am_expenditure_usd_perkg_selected']
 
 
@@ -9187,8 +9200,8 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
                        ]
                    )
 
-        elif quantity == 'AM expenditure: total'\
-            or quantity == 'AM expenditure: per kg biomass'\
+        elif quantity == 'Antimicrobial expenditure: total'\
+            or quantity == 'Antimicrobial expenditure: per kg biomass'\
                 or quantity == 'Drug Resistance Index (region level)':
             # Use create map defined above for AM expenditure
             amu_map_fig = create_map_display_amu(input_df_am_expend, map_value)
@@ -9207,11 +9220,11 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
             amu_map_fig.update_layout(title_text=f'{quantity}',
                                           font_size=15,
                                           plot_bgcolor="#ededed",)
-        elif quantity == 'AM expenditure: total':
+        elif quantity == 'Antimicrobial expenditure: total':
             amu_map_fig.update_layout(title_text='Total Antimicrobial Expenditure by Region',
                                           font_size=15,
                                           plot_bgcolor="#ededed",)
-        elif quantity == 'AM expenditure: per kg biomass':
+        elif quantity == 'Antimicrobial expenditure: per kg biomass':
             amu_map_fig.update_layout(title_text= 'Antimicrobial Expenditure per kg Biomass by Region',
                                           font_size=15,
                                           plot_bgcolor="#ededed",)
@@ -9259,12 +9272,12 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
                                       "<b>%{customdata[0]}</b><br>" +
                                       "Drug Resistance Index: %{customdata[1]:,.2f}" +
                                       "<extra></extra>",)
-        elif quantity == 'AM expenditure: total':
+        elif quantity == 'Antimicrobial expenditure: total':
             amu_map_fig.update_traces(hovertemplate=
                                       "<b>%{customdata[0]}</b><br>" +
                                       "Expenditure (USD): $%{customdata[1]:,.0f}" +
                                       "<extra></extra>",)
-        elif quantity == 'AM expenditure: per kg biomass':
+        elif quantity == 'Antimicrobial expenditure: per kg biomass':
             amu_map_fig.update_traces(hovertemplate=
                                       "<b>%{customdata[0]}</b><br>" +
                                       "Expenditure (USD): $%{customdata[1]:,.0f} per kg biomass" +

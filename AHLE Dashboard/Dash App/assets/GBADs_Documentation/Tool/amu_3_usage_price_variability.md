@@ -1,6 +1,6 @@
 # Exploring variability in usage and price
 <p>
-This section shows a range of possible values for antimicrobial usage and price in each region. These are based on extrapolations from disparate data sources and are largely illustrative.
+This section shows a range of possible values for antimicrobial usage and price in each region. These are based on extrapolations from disparate data sources and are largely illustrative. Sliders allow the user to select usage and price values within the illustrated range.
 </p>
 
 ```{figure} ../Images/amu_comparing_usage_and_price.png

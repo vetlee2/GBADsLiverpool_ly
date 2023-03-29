@@ -9161,6 +9161,10 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
     input_df = input_df.replace(['aggregated_class_data', 'other_important', 'sulfonamides__including_trimethoprim'], 
                                 ['aggregated class data', 'other (important)', 'sulfonamides (with trimethoprim)'])
 
+    # Convert antimicrobial classes to title case
+    input_df.antimicrobial_class = input_df.antimicrobial_class.str.title()
+    input_df.antimicrobial_class_group = input_df.antimicrobial_class_group.str.title()
+    input_df.antimicrobial_class_group2 = input_df.antimicrobial_class_group2.str.title()
 
     # Use selected quantity value (AMU & AMR)
     if quantity == 'Antimicrobial usage: tonnes':
@@ -9398,6 +9402,11 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
     stackedbar_df = stackedbar_df.replace(['aggregated_class_data', 'other_important', 'sulfonamides__including_trimethoprim'], 
                                           ['aggregated class data', 'other (important)', 'sulfonamides (with trimethoprim)'])
 
+    # Convert antimicrobial classes to title case
+    stackedbar_df.antimicrobial_class = stackedbar_df.antimicrobial_class.str.title()
+    stackedbar_df.antimicrobial_class_group = stackedbar_df.antimicrobial_class_group.str.title()
+    stackedbar_df.antimicrobial_class_group2 = stackedbar_df.antimicrobial_class_group2.str.title()
+    
     # Create region labels with proportion of biomass represented in countries reporting and adding a break
     stackedbar_df["region_with_countries_reporting"] = stackedbar_df['region'] \
             + '<br>' \
@@ -9442,19 +9451,19 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
                                       "D: Unknown": '#AB63FA',
                                       "Unknown": '#AB63FA',
                                       # Individual classes/top classes
-                                      "aggregated class _data": '#636EFA',
-                                      "aminoglycosides": '#EF553B',
-                                      "amphenicols": '#00CC96',
-                                      "fluoroquinolones": '#AB63FA',
-                                      "macrolides": '#AAFFE1',
-                                      "others": '#C6CAFD',
-                                      "other": '#C6CAFD',
-                                      "other (important)": '#FF6692',
-                                      "penicillins": '#FECB52',
-                                      "pleuromutilins": '#F7A799',
-                                      "polypeptides": '#FFA15A',
-                                      "sulfonamides (with trimethoprim)": '#B6E880',
-                                      "tetracyclines": '#FF97FF',
+                                      "Aggregated Class Data": '#636EFA',
+                                      "Aminoglycosides": '#EF553B',
+                                      "Amphenicols": '#00CC96',
+                                      "Fluoroquinolones": '#AB63FA',
+                                      "Macrolides": '#AAFFE1',
+                                      "Other": '#C6CAFD',
+                                      "Others": '#C6CAFD',
+                                      "Other (Important)": '#FF6692',
+                                      "Penicillins": '#FECB52',
+                                      "Pleuromutilins": '#F7A799',
+                                      "Polypeptides": '#FFA15A',
+                                      "Sulfonamides (With Trimethoprim)": '#B6E880',
+                                      "Tetracyclines": '#FF97FF',
                                       },
                                    labels={
                                        x_var: "",
@@ -9472,8 +9481,6 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
                                   plot_bgcolor="#ededed",
                                   )
         amu_bar_fig.update_yaxes(title_text=f"AMU {quantity}")
-
-
 
         # # TODO: WIP for layout adjustments
         # amu_bar_fig = go.Figure()
@@ -9569,7 +9576,11 @@ def update_donut_chart_amu (quantity, region, classification):
     
     # Workaround to fix names in legend
     input_df = input_df.replace(['aggregated_class_data', 'other_important', 'sulfonamides__including_trimethoprim'], 
-                                ['aggregated class data', 'other (important)', 'sulfonamides (with trimethoprim)'])
+                                ['Aggregated Class Data', 'Other (Important)', 'Sulfonamides (With Trimethoprim)'])
+    
+    # Convert antimicrobial classes to title case
+    input_df.antimicrobial_class_group = input_df.antimicrobial_class_group.str.title()
+    input_df.antimicrobial_class_group2 = input_df.antimicrobial_class_group2.str.title()
 
     # Filter scope to All and remove nulls from importance category
     # Filter by region selected
@@ -9587,18 +9598,18 @@ def update_donut_chart_amu (quantity, region, classification):
         names = summarize_df['antimicrobial_class_group']
         # Set colors to sync across visuals
         colors = {
-        "aggregated_class_data": '#636EFA',
-        "aminoglycosides": '#EF553B',
-        "amphenicols": '#00CC96',
-        "fluoroquinolones": '#AB63FA',
-        "macrolides": '#AAFFE1',
-        "other": '#C6CAFD',
-        "other_important": '#FF6692',
-        "penicillins": '#FECB52',
-        "pleuromutilins": '#F7A799',
-        "polypeptides": '#FFA15A',
-        "sulfonamides__including_trimethoprim": '#B6E880',
-        "tetracyclines": '#FF97FF',
+        "Aggregated Class Data": '#636EFA',
+        "Aminoglycosides": '#EF553B',
+        "Amphenicols": '#00CC96',
+        "Fluoroquinolones": '#AB63FA',
+        "Macrolides": '#AAFFE1',
+        "Other": '#C6CAFD',
+        "Other (Important)": '#FF6692',
+        "Penicillins": '#FECB52',
+        "Pleuromutilins": '#F7A799',
+        "Polypeptides": '#FFA15A',
+        "Sulfonamides (With Trimethoprim)": '#B6E880',
+        "Tetracyclines": '#FF97FF',
         }
         summarize_df['Color']= summarize_df['antimicrobial_class_group'].map(colors)
 
@@ -9650,10 +9661,10 @@ def update_donut_chart_amu (quantity, region, classification):
         names = summarize_df['antimicrobial_class_group2']
         # Set colors to sync across visuals
         colors = {
-        "macrolides": '#AAFFE1',
-        "penicillins": '#FECB52',
-        "tetracyclines": '#FF97FF',
-        "others": '#C6CAFD'
+        "Macrolides": '#AAFFE1',
+        "Penicillins": '#FECB52',
+        "Tetracyclines": '#FF97FF',
+        "Others": '#C6CAFD'
         }
         summarize_df['Color']= summarize_df['antimicrobial_class_group2'].map(colors)
 
@@ -9689,7 +9700,7 @@ def update_donut_chart_amu (quantity, region, classification):
     amu_donut_fig.update_traces(marker=dict(colors=summarize_df['Color']))
     
     # Standardize number of decimal places displayed
-    amu_donut_fig.update_traces(texttemplate='%{percent:.2%}')
+    amu_donut_fig.update_traces(texttemplate='%{percent:.1%}')
 
     # Legend font smaller to not touch the graph 
     amu_donut_fig.update_layout(legend=dict(

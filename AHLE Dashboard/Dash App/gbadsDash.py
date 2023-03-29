@@ -9722,7 +9722,7 @@ def update_am_price_comparison(input_json):
                 ,arrayminus=input_df["am_price_usdpertonne_low_err"]
             ),
             mode="markers+text",
-            text=["B*", "B*", "B*", "B*","B*"],
+            # text=["B*", "B*", "B*", "B*","B*"],
             textposition="middle right"
         )
     )

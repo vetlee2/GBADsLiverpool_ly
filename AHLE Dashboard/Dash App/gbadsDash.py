@@ -3925,6 +3925,8 @@ gbadsDash.layout = html.Div([
                 dbc.CardBody([
                     html.H3("Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region", id="AMU-Biomass-AMR-Costs-Viz",
                             className="card-title"),
+                    html.P("Drill Down: show antimicrobial usage by region and importance category", style={'font-style': 'italic'}),
+                    html.P("Map: show antimicrobial usage, antimicrobial resistance, or antimicrobial expenditure", style={'font-style': 'italic'}),
 
             dbc.Row([
             # Visualization Switch
@@ -4087,12 +4089,12 @@ gbadsDash.layout = html.Div([
            dbc.Row([
                dbc.Col([
                    html.P("Bars represent usage from the following sources:"),
-                   html.P("A*: Countries reporting 2018 data to WOAH, extended to 2020 by assuming the trend from 2016-2018 continues."),
-                   html.P("B*: Estimate A extended to whole region based on the proportion of region total biomass represented in the countries reporting."),
-                   html.P("C*: Region-total estimate from Mulchandani et. al. (https://journals.plos.org/globalpublichealth/article?id=10.1371/journal.pgph.0001305)."),
+                   html.P("A*: Countries reporting 2018 data to WOAH, extended to 2020 by assuming the trend from 2016-2018 continues (source: WOAH AMU Report)."),
+                   html.P("B*: Estimate A extended to whole region based on the proportion of region total biomass represented in the countries reporting (source: WOAH AMU Report)."),
+                   html.P("C*: Region-total estimate from Mulchandani et. al. (source: Mulchandani AMU)."),
                    ]),
                dbc.Col([
-                   html.P("Price estimates"),
+                   html.P("Price estimates are based on data from the European Medicines Agency and the OECD. See the user guide for details."),
                    ]),
                ], style={'margin-left':"10px", 'font-style': 'italic'}
                ),
@@ -8783,7 +8785,7 @@ def update_regional_display_amu(input_json):
         ,'biomass_total_kg_region':'Total Biomass for region'
         ,'biomass_terr_kg_reporting':'Terrestrial Biomass for countries reporting'
         ,'biomass_terr_kg_region':'Terrestrial Biomass for region'
-        ,'biomass_terr_prpn_reporting':'Proportion of terrestrial biomass'
+        ,'biomass_terr_prpn_reporting':'Proportion of terrestrial biomass in countries reporting'
         ,'terr_amu_tonnes_reporting':'Estimated antimicrobials for terrestrial species in countries reporting 2018 (tonnes)'
         ,'prpn_change_2018to2020':'AM Usage Trend 2016 to 2018'
         ,'terr_amu_tonnes_reporting_2020':'Estimated antimicrobials for terrestrial species in countries reporting 2020 (tonnes)'
@@ -8813,6 +8815,11 @@ def update_regional_display_amu(input_json):
         ,'biomass_total_kg_region'
         ,'biomass_terr_kg_reporting'
         ,'biomass_terr_kg_region'
+        ,'total_antimicrobials_tonnes'
+        ,'terr_amu_tonnes_reporting'
+        ,'terr_amu_tonnes_reporting_2020'
+        ,'terr_amu_tonnes_region_2020'
+        ,'terr_amu_tonnes_mulch_2020'
     ]].applymap('{:,.0f}'.format))
 
     # One decimal place
@@ -8822,6 +8829,8 @@ def update_regional_display_amu(input_json):
     # Two decimal places
     display_data.update(display_data[[
         'drug_resistance_index'
+        ,'biomass_terr_prpn_reporting'
+        ,'biomass_terr_reporting_prpnofregion'
     ]].applymap('{:,.2f}'.format))
 
     # Percent
@@ -8857,7 +8866,7 @@ def update_regional_display_amu(input_json):
 
     return [
             html.H4("Extended Regional Data"),
-            html.P("Including regional estimates from Mulchandani et al. Contact the authors for national estimates." ,style={'font-style':'italic'}),
+            html.P("Including regional estimates from resistancebank.org. Contact the authors for national estimates." ,style={'font-style':'italic'}),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 # fixed_rows={'headers': True, 'data': 0},

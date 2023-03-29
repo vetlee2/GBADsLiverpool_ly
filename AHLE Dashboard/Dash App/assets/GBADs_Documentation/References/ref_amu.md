@@ -4,7 +4,7 @@
 
 Short name | Organization or Publisher | Table or Paper | URL
 ---|---|---|---
-WOAH AMU | World Organization for Animal Health | OIE annual report on antimicrobial agents intended for use in animals. 6th ed; 2022 | https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf
+WOAH AMU Report | World Organization for Animal Health | OIE annual report on antimicrobial agents intended for use in animals. 6th ed; 2022 | https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf
 Mulchandani AMU | PLOS Global Public Health | Mulchandani et al., 2023. Global trends in antimicrobial use in food-producing animals: 2020 to 2030, PLOS Global Public Health | https://doi.org/10.1371/journal.pgph.0001305
 European Medicines Agency | European Medicines Agency | Sales of veterinary antimicrobial agents in 31 European countries in 2019 and 2020 | https://www.ema.europa.eu/en/documents/report/sales-veterinary-antimicrobial-agents-31-european-countries-2019-2020-trends-2010-2020-eleventh_en.pdf
 Animal Health Europe | Animal Health Europe | Key Figures 2020 | https://animalhealtheurope.eu/about-us/annual-reports/2020-2/key-figures/

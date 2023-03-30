@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Exploring variability in usage and price &#8212; AHLE Interactive Dashboard</title>
+    <title>Exploring Variability of Veterinary Antimicrobial Usage and Price by Data Source &#8212; AHLE Interactive Dashboard</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -53,7 +53,7 @@ const thebe_selector_output = ".output, .cell_output"
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Reading the data tables" href="amu_readingthedata.html" />
-    <link rel="prev" title="Map and drilldown" href="amu_2_map_and_drilldown.html" />
+    <link rel="prev" title="Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region" href="amu_2_map_and_drilldown.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -356,17 +356,17 @@ const thebe_selector_output = ".output, .cell_output"
   <ul class="current">
    <li class="toctree-l2">
     <a class="reference internal" href="amu_1_bar_and_donut.html">
-     Antimicrobial usage by region and class
+     Livestock Antimicrobial Usage by Region &amp; Antimicrobial Importance/Classes
     </a>
    </li>
    <li class="toctree-l2">
     <a class="reference internal" href="amu_2_map_and_drilldown.html">
-     Map and drilldown
+     Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region
     </a>
    </li>
    <li class="toctree-l2 current active">
     <a class="current reference internal" href="#">
-     Exploring variability in usage and price
+     Exploring Variability of Veterinary Antimicrobial Usage and Price by Data Source
     </a>
    </li>
   </ul>
@@ -383,29 +383,17 @@ const thebe_selector_output = ".output, .cell_output"
   <ul>
    <li class="toctree-l2">
     <a class="reference internal" href="amu_main_table.html">
-     Antimicrobial class data
+     WOAH Antimicrobial Data 2018
     </a>
    </li>
    <li class="toctree-l2">
     <a class="reference internal" href="amu_region_table.html">
-     Regional data
+     Extended Regional Data
     </a>
    </li>
-  </ul>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../Analysis/amu_details.html">
-   AMU Analysis Details
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
-  <label for="toctree-checkbox-8">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
    <li class="toctree-l2">
-    <a class="reference internal" href="../Analysis/amu_dri.html">
-     Drug Resistance Index
+    <a class="reference internal" href="amu_amr_table.html">
+     Antimicrobial Resistance Data
     </a>
    </li>
   </ul>
@@ -564,7 +552,7 @@ title="Print to PDF"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Exploring variability in usage and price</h1>
+                <h1>Exploring Variability of Veterinary Antimicrobial Usage and Price by Data Source</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -576,10 +564,13 @@ title="Print to PDF"
                 
               <div>
                 
-  <section class="tex2jax_ignore mathjax_ignore" id="exploring-variability-in-usage-and-price">
-<h1>Exploring variability in usage and price<a class="headerlink" href="#exploring-variability-in-usage-and-price" title="Permalink to this headline">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="exploring-variability-of-veterinary-antimicrobial-usage-and-price-by-data-source">
+<h1>Exploring Variability of Veterinary Antimicrobial Usage and Price by Data Source<a class="headerlink" href="#exploring-variability-of-veterinary-antimicrobial-usage-and-price-by-data-source" title="Permalink to this headline">#</a></h1>
 <p>
 This section shows a range of possible values for antimicrobial usage and price in each region. These are based on extrapolations from disparate data sources and are largely illustrative.
+</p>
+<p>
+Sliders allow the user to select usage and price values within the illustrated range. The user-selected values are used to calculate total antimicrobial expenditure for each region and displayed in the expenditure chart. This calculated antimicrobial expenditure is also incorporated into the estimated global aggregate animal health loss envelope and displayed on the <i>Global AHLE Details</i> tab.
 </p>
 <figure class="align-default" id="amu-comparing-usage-and-price">
 <img alt="../_images/amu_comparing_usage_and_price.png" src="../_images/amu_comparing_usage_and_price.png" />
@@ -608,14 +599,16 @@ Whole-region estimate for terrestrial livestock from <a href='https://doi.org/10
 </p>
 <h3>Price Estimates</h3>
 <p>
-Illustrative price values are produced for each region as follows:
+Illustrative price values are produced for each region as follows. The most consistent data is from the <a href='https://www.ema.europa.eu/en/documents/report/sales-veterinary-antimicrobial-agents-31-european-countries-2019-2020-trends-2010-2020-eleventh_en.pdf'>European Medicines Agency</a> regarding prices for Europe. Prices for other regions are extrapolated from this and OECD data.
 </p>
-<p><b>Africa:</b><br />
-Low: the average price in Brazil. Source: <a href='https://www.oecd-ilibrary.org/agriculture-and-food/antimicrobial-use-resistance-and-economic-benefits-and-costs-to-livestock-producers-in-brazil_27137b1e-en'>OECD Brazil.</a>
+<p><b>Europe:</b><br />
+All prices for Europe are from the <a href='https://www.ema.europa.eu/en/documents/report/sales-veterinary-antimicrobial-agents-31-european-countries-2019-2020-trends-2010-2020-eleventh_en.pdf'>European Medicines Agency.</a>
 <br />
-Medium: 22% increase from price in Europe.
+Low: the average price in 2020.
 <br />
-High: 42% increase from price in Europe.
+Medium: the average price in 2019.
+<br />
+High: the average price in 2018.
 </p>
 <p><b>Americas:</b><br />
 Low: the average price in Brazil. Source: <a href='https://www.oecd-ilibrary.org/agriculture-and-food/antimicrobial-use-resistance-and-economic-benefits-and-costs-to-livestock-producers-in-brazil_27137b1e-en'>OECD Brazil.</a>
@@ -631,14 +624,12 @@ Medium: Source: <a href='https://one.oecd.org/document/TAD/CA/APM/WP(2018)19/FIN
 <br />
 High: the lower average price reported in Europe.
 </p>
-<p><b>Europe:</b><br />
-All prices for Europe are from the <a href='https://www.ema.europa.eu/en/documents/report/sales-veterinary-antimicrobial-agents-31-european-countries-2019-2020-trends-2010-2020-eleventh_en.pdf'>European Medicines Agency.</a>
+<p><b>Africa:</b><br />
+Low: the average price in Brazil. Source: <a href='https://www.oecd-ilibrary.org/agriculture-and-food/antimicrobial-use-resistance-and-economic-benefits-and-costs-to-livestock-producers-in-brazil_27137b1e-en'>OECD Brazil.</a>
 <br />
-Low: the average price in 2020.
+Medium: 22% increase from price in Europe.
 <br />
-Medium: the average price in 2019.
-<br />
-High: the average price in 2018.
+High: 42% increase from price in Europe.
 </p>
 <p><b>Middle East:</b><br />
 Low: the average price in Brazil. Source: <a href='https://www.oecd-ilibrary.org/agriculture-and-food/antimicrobial-use-resistance-and-economic-benefits-and-costs-to-livestock-producers-in-brazil_27137b1e-en'>OECD Brazil.</a>
@@ -680,7 +671,7 @@ High: 15% decrease from price in Europe.
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Map and drilldown</p>
+            <p class="prev-next-title">Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region</p>
         </div>
     </a>
     <a class='right-next' id="next-link" href="amu_readingthedata.html" title="next page">

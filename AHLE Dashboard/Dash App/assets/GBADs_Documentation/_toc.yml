@@ -62,9 +62,10 @@ parts:
       sections:
       - file: Tool/amu_main_table
       - file: Tool/amu_region_table
-    - file: Analysis/amu_details
-      sections:
-      - file: Analysis/amu_dri
+      - file: Tool/amu_amr_table
+    #- file: Analysis/amu_details
+    #  sections:
+    #  - file: Analysis/amu_dri
   - caption: References
     chapters:
     - file: References/General

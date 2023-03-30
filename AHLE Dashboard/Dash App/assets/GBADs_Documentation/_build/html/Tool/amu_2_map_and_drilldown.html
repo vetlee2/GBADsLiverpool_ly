@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Map and drilldown &#8212; AHLE Interactive Dashboard</title>
+    <title>Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region &#8212; AHLE Interactive Dashboard</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -52,8 +52,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="../_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Exploring variability in usage and price" href="amu_3_usage_price_variability.html" />
-    <link rel="prev" title="Antimicrobial usage by region and class" href="amu_1_bar_and_donut.html" />
+    <link rel="next" title="Exploring Variability of Veterinary Antimicrobial Usage and Price by Data Source" href="amu_3_usage_price_variability.html" />
+    <link rel="prev" title="Livestock Antimicrobial Usage by Region &amp; Antimicrobial Importance/Classes" href="amu_1_bar_and_donut.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -356,17 +356,17 @@ const thebe_selector_output = ".output, .cell_output"
   <ul class="current">
    <li class="toctree-l2">
     <a class="reference internal" href="amu_1_bar_and_donut.html">
-     Antimicrobial usage by region and class
+     Livestock Antimicrobial Usage by Region &amp; Antimicrobial Importance/Classes
     </a>
    </li>
    <li class="toctree-l2 current active">
     <a class="current reference internal" href="#">
-     Map and drilldown
+     Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region
     </a>
    </li>
    <li class="toctree-l2">
     <a class="reference internal" href="amu_3_usage_price_variability.html">
-     Exploring variability in usage and price
+     Exploring Variability of Veterinary Antimicrobial Usage and Price by Data Source
     </a>
    </li>
   </ul>
@@ -383,29 +383,17 @@ const thebe_selector_output = ".output, .cell_output"
   <ul>
    <li class="toctree-l2">
     <a class="reference internal" href="amu_main_table.html">
-     Antimicrobial class data
+     WOAH Antimicrobial Data 2018
     </a>
    </li>
    <li class="toctree-l2">
     <a class="reference internal" href="amu_region_table.html">
-     Regional data
+     Extended Regional Data
     </a>
    </li>
-  </ul>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../Analysis/amu_details.html">
-   AMU Analysis Details
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
-  <label for="toctree-checkbox-8">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
    <li class="toctree-l2">
-    <a class="reference internal" href="../Analysis/amu_dri.html">
-     Drug Resistance Index
+    <a class="reference internal" href="amu_amr_table.html">
+     Antimicrobial Resistance Data
     </a>
    </li>
   </ul>
@@ -564,7 +552,7 @@ title="Print to PDF"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Map and drilldown</h1>
+                <h1>Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -576,10 +564,10 @@ title="Print to PDF"
                 
               <div>
                 
-  <section class="tex2jax_ignore mathjax_ignore" id="map-and-drilldown">
-<h1>Map and drilldown<a class="headerlink" href="#map-and-drilldown" title="Permalink to this headline">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="visualization-of-antimicrobial-usage-resistance-and-expenditure-in-livestock-by-region">
+<h1>Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region<a class="headerlink" href="#visualization-of-antimicrobial-usage-resistance-and-expenditure-in-livestock-by-region" title="Permalink to this headline">#</a></h1>
 <p>
-This section shows either a hierarchical treemap of antimicrobial usage or a world map.
+This section shows either a drill down (hierarchical treemap) or a world map. Further options for the chart will appear depending on the chart type and the selection made in the first dropdown box.
 </p>
 <figure class="align-default" id="amu-drilldown-1">
 <img alt="../_images/amu_drilldown_1.png" src="../_images/amu_drilldown_1.png" />
@@ -593,6 +581,37 @@ This section shows either a hierarchical treemap of antimicrobial usage or a wor
 <p><span class="caption-number">Fig. 18 </span><span class="caption-text">World map</span><a class="headerlink" href="#amu-map-1" title="Permalink to this image">#</a></p>
 </figcaption>
 </figure>
+<h3>Drill Down</h3>
+<p>
+The hierarchical treemap displays antimicrobial usage by region and importance category. You can click on any box in this interactive visual to see usage for the individual antimicrobial classes represented in each importance category. There are 2 dropdown boxes to customize the display.
+</p>
+<p><b>Drill Down Display</b><br />
+Select <i>Antimicrobial Usage: tonnes</i> to display usage in tonnes of each antimicrobial group. Select <i>Antimicrobial Usage: mg per kg biomass</i> to display usage in mg per kg biomass, defined for each antimicrobial group and region as (tonnes of antimicrobial) x 1e9 / (kg total biomass for countries reporting in the region).
+</p>
+<p><b>Importance Categories</b><br />
+Determines which importance category definitions are used to group antimicrobial classes within regions. Options are:
+<br /><br />
+<i>WHO Importance Categories:</i> Groups antimicrobial classes according to the <a href='https://apps.who.int/iris/bitstream/handle/10665/312266/9789241515528-eng.pdf'>World Health Organization's definitions</a> of importance for human health.
+<br /><br />
+<i>WOAH Importance Categories:</i> Groups antimicrobial classes according to the <a href='https://www.woah.org/app/uploads/2021/06/a-oie-list-antimicrobials-june2021.pdf'>World Organization for Animal Health definitions</a> of importance.
+<br /><br />
+<i>OneHealth Importance Categories:</i> Groups antimicrobial classes according to the <a href='https://ssrn.com/abstract=4346767'>Venkateswaran et al., 2023 definitions</a> of importance.
+</p>
+<h3>Map</h3>
+<p>
+The map can display several different metrics. Options are:
+</p>
+<b>Antimicrobial Usage</b><br />
+Displays a dot for each region sized by total antimicrobial usage. Select either <i>Antimicrobial Usage: tonnes</i> or <i>Antimicrobial Usage: mg per kg biomass</i> to display this as total tonnes or mg per kg biomass.
+<p><b>Biomass</b><br />
+Displays a dot for each region sized by total biomass (kg) for countries reporting to WOAH.</p>
+<p><b>Antimicrobial Resistance (country level)</b><br />
+Displays country-level antimicrobial resistance from <a href='https://ssrn.com/abstract=4346767'>Venkateswaran et al., 2023</a>. Selecting this option will cause 2 other dropdown boxes to appear: <b>Antimicrobial Class</b> and <b>Pathogen</b>. A dot will appear for each country in the data, sized by the percent of isolates of the selected pathogen that were resistant to the selected antimicrobial class. If a pathogen/antimicrobial class combination is selected for which there is no data, a notification will be displayed.</p>
+<p><b>Drug Resistance Index (region level)</b><br />
+Displays the drug resistance index for each region, calculated as follows: for each region, we calculate the average resistance rate of an indicator pathogen (E. coli) across all antimicrobials tested (<a href='https://ssrn.com/abstract=4346767'>Venkateswaran et al., 2023</a>), weighted by the proportion of region-total antimicrobial use that each antimicrobial accounts for in <a href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf'>WOAH 2018</a>. This is based on the drug resistance index specified in <a href='https://bmjopen.bmj.com/content/1/2/e000135'>Laxminarayan 2011</a>, except that we use proportion of region-total antimicrobial use in place of a direct measure of the frequency of use of each antimicrobial. We use E. coli as the indicator pathogen consistent with the rationale in <a href='https://www.efsa.europa.eu/en/efsajournal/pub/5017'>EFSA AMR Indicators 2017</a>.</p>
+<p><b>Antimicrobial expenditure</b><br />
+Displays the antimicrobial expenditure in each region, calculated using the antimicrobial usage and price values selected in the <i>Regional Veterinary Antimicrobial Expenditure Estimator</i> section. By default, this will use the middle values of usage and price for each region, and will update as the user changes those inputs.</p>
+</p>
 </section>
 
     <script type="text/x-thebe-config">
@@ -626,13 +645,13 @@ This section shows either a hierarchical treemap of antimicrobial usage or a wor
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Antimicrobial usage by region and class</p>
+            <p class="prev-next-title">Livestock Antimicrobial Usage by Region &amp; Antimicrobial Importance/Classes</p>
         </div>
     </a>
     <a class='right-next' id="next-link" href="amu_3_usage_price_variability.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Exploring variability in usage and price</p>
+        <p class="prev-next-title">Exploring Variability of Veterinary Antimicrobial Usage and Price by Data Source</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>

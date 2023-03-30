@@ -3788,7 +3788,12 @@ gbadsDash.layout = html.Div([
 
            #### -- DROPDOWN CONTROLS
            html.H3("Livestock Antimicrobial Usage by Region & Antimicrobial Importance/Classes", id="AMU-Regional-Global"),
-           html.P("Displaying antimicrobial usage as reported to WOAH (source: WOAH 2018)" ,style={'font-style':'italic'}),
+           html.P("Displaying antimicrobial usage as reported to WOAH" ,style={'font-style':'italic'}),
+           html.A("Source: WOAH 2018"
+                  ,href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf'
+                  ,style={'font-style':'italic'}
+                  ),
+           html.Br(),
            dbc.Row([
 
                # Bar Chart selection
@@ -4017,9 +4022,9 @@ gbadsDash.layout = html.Div([
                     html.P("Data sources for drill down and map are as follows:"),
                     html.P("Antimicrobial usage in tonnes or mg per kg bimoass: countries reporting total usage to WOAH (WOAH 2018)."),
                     html.P("Biomass: total biomass for countries reporting to WOAH (WOAH 2018)."),
-                    html.P("Antimicrobial Resistance (country level):"),
-                    html.P("Drug Resistance Index (region level):"),
-                    html.P("Antimicrobial Expenditure:"),
+                    html.P("Antimicrobial Resistance (country level): rate of resistance among isolates tested in each country for the selected antimicrobial class and pathogen (source: Venkateswaran et al., 2023)."),
+                    html.P("Drug Resistance Index (region level): drug resistance index based on the average resistance rate across all antimicrobials tested in the region, weighted by the frequency of use of those antimicrobials. Using data from (Venkateswaran et al., 2023) and methods from (Laxminarayan 2011) and (EFSA AMR Indicators 2017). See the user guide for more details."),
+                    html.P("Antimicrobial Expenditure in total USD or USD per kg biomass: calculated from antimicrobial usage and price selected below."),
                     ]),
                 ], style={'margin-left':"10px", 'font-style': 'italic'}
                 ),
@@ -4029,7 +4034,7 @@ gbadsDash.layout = html.Div([
            html.Hr(style={'margin-right':'10px',}),
            dbc.Row([
                html.H3("Exploring Variability of Veterinary Antimicrobial Usage and Price by Data Source", id="AMU-exploring-variability"),
-               html.P("Use the charts and sliders below to compare antimicrobial usage and price estimates from different sources. To facilitate comparison with other sources, antimicrobial usage reported to WOAH is extended to 2020 and extrapolated to cover whole regions. See the user guide for full descriptions of these estimates."),
+               html.P("Use the charts and sliders below to compare illustrative antimicrobial usage and price variations. To facilitate comparison with other sources, antimicrobial usage reported to WOAH is extended to 2020 and extrapolated to cover whole regions. See the user guide for full descriptions of these estimates."),
                ]),
            # dbc.Row([
            #     dbc.Col([
@@ -4204,7 +4209,7 @@ gbadsDash.layout = html.Div([
                                    className="card-title",
                                    style={"font-weight": "bold"}
                                    ),
-                           
+
                            # Reset to midpoint button
                            dbc.Col([
                                html.Button('Reset to midpoint (B*)', id='reset-sliders-amu', n_clicks=0),
@@ -4212,7 +4217,7 @@ gbadsDash.layout = html.Div([
                                      'textAlign':'center',
                                      'margin':'auto',}
                            ),
-                                    
+
                            dbc.Row([    # Region names
                                dbc.Col([html.H5("Africa")]),
                                dbc.Col([html.H5("Americas")]),
@@ -4376,7 +4381,7 @@ gbadsDash.layout = html.Div([
            #     ]),
            html.Hr(style={'margin-right':'10px',}),
 
-           #### -- DATATABLE
+           #### -- DATATABLES
            html.H3("Data Export", id="AMU-data-export"),
            dbc.Row([
                dbc.Spinner(children=[
@@ -4404,7 +4409,19 @@ gbadsDash.layout = html.Div([
                # End of Spinner
                ],size="md", color="#393375", fullscreen=False),
            ]),
-           
+
+           dbc.Row([
+               dbc.Spinner(children=[
+               dbc.Col([
+                   html.Div([
+                         html.Div(id='amr-todisplay'),
+                   ], style={'margin-left':"20px"}),
+               html.Br() # Spacer for bottom of page
+               ]),# END OF COL
+               # End of Spinner
+               ],size="md", color="#393375", fullscreen=False),
+           ]),
+
            # Add naviagation button to top of page
            dbc.Row([
                dbc.Col(html.Div([
@@ -4429,7 +4446,7 @@ gbadsDash.layout = html.Div([
         dcc.Tab(label="User Guide & References", children =[
             html.Iframe(src="assets/GBADs_Documentation/_build/html/index.html", # this is for the jupyter books
                         style={"width":"100%",
-                                "height":"3000px",   # Set large enough for your largest page and guide will use browser scroll bar. Otherwise, longer pages will get their own scroll bars.
+                                "height":"3600px",   # Set large enough for your largest page and guide will use browser scroll bar. Otherwise, longer pages will get their own scroll bars.
                                 },)
         ### END OF USER GUIDE TAB
             ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
@@ -9014,6 +9031,67 @@ def update_regional_display_amu(input_json):
             )
         ]
 
+# Antimicrobial Resistance data
+@gbadsDash.callback(
+    Output('amr-todisplay', 'children'),
+    Input('amu-regional-data', 'data'),
+    )
+def update_amr_display_amu(dummy_input):
+    display_data = amr_withsmry.copy()
+
+    columns_to_display_with_labels = {
+        'woah_region':'Region'
+        ,'location_name':'Country'
+        ,'antimicrobial_class':'Antimicrobial Class'
+        ,'pathogen':'Pathogen'
+        ,'sum_isolates':'Number of Isolates'
+        ,'overall_prev':'Percent Isolates Resistant'
+        ,'reporting_year':'Reporting Year'
+        }
+
+    # ------------------------------------------------------------------------------
+    # Format data to display in the table
+    # ------------------------------------------------------------------------------
+    # Order does not matter in these lists
+    # Zero decimal places
+    display_data.update(display_data[[
+        'sum_isolates'
+    ]].applymap('{:,.0f}'.format))
+
+    # One decimal place
+    # display_data.update(display_data[[
+    # ]].applymap('{:,.1f}'.format))
+
+    # Two decimal places
+    # display_data.update(display_data[[
+    # ]].applymap('{:,.2f}'.format))
+
+    # Percent
+    display_data.update(display_data[[
+        'overall_prev'
+    ]].applymap('{:,.1%}'.format))
+
+    return [
+            html.H4("Antimicrobial Resistance Data"),
+            html.P(children=[
+                html.A("Source: Venkateswaran et al., 2023", href='https://ssrn.com/abstract=4346767'),
+                ],style={'font-style':'italic'}),
+            dash_table.DataTable(
+                columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+                # fixed_rows={'headers': True, 'data': 0},
+                data=display_data.to_dict('records'),
+                export_format="csv",
+                sort_action='native',
+                style_cell={
+                    'font-family':'sans-serif',
+                    },
+                style_table={'overflowX':'scroll',
+                             'height': '350px',
+                              'overflowY': 'auto'},
+                page_action='none',
+            )
+        ]
+
 # Usage and Price uncertainty data
 # @gbadsDash.callback(
 #     Output('amu-uncertainty-todisplay', 'children'),
@@ -9156,9 +9234,9 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
     # Update: AMR data now includes only a single year selected for each region based on the most data available
     input_df_amr = input_df_amr.query(f"antimicrobial_class == '{antimicrobial_class}'").query(f"pathogen == '{pathogens}'")
     input_df_amr = input_df_amr.sort_values(by=['woah_region'])
-    
+
     # Fix antimicrobial class names
-    input_df = input_df.replace(['aggregated_class_data', 'other_important', 'sulfonamides__including_trimethoprim'], 
+    input_df = input_df.replace(['aggregated_class_data', 'other_important', 'sulfonamides__including_trimethoprim'],
                                 ['aggregated class data', 'other (important)', 'sulfonamides (with trimethoprim)'])
 
     # Convert antimicrobial classes to title case
@@ -9399,20 +9477,20 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
     stackedbar_df = stackedbar_df.query("scope == 'All'").query("antimicrobial_class != 'total_antimicrobials'")
 
     # Workaround to fix names in legend
-    stackedbar_df = stackedbar_df.replace(['aggregated_class_data', 'other_important', 'sulfonamides__including_trimethoprim'], 
+    stackedbar_df = stackedbar_df.replace(['aggregated_class_data', 'other_important', 'sulfonamides__including_trimethoprim'],
                                           ['aggregated class data', 'other (important)', 'sulfonamides (with trimethoprim)'])
 
     # Convert antimicrobial classes to title case
     stackedbar_df.antimicrobial_class = stackedbar_df.antimicrobial_class.str.title()
     stackedbar_df.antimicrobial_class_group = stackedbar_df.antimicrobial_class_group.str.title()
     stackedbar_df.antimicrobial_class_group2 = stackedbar_df.antimicrobial_class_group2.str.title()
-    
+
     # Create region labels with proportion of biomass represented in countries reporting and adding a break
     stackedbar_df["region_with_countries_reporting"] = stackedbar_df['region'] \
             + '<br>' \
             + " (" + round(stackedbar_df['number_of_countries'] ,0).astype(int).astype(str) \
             + " | " + round(stackedbar_df['biomass_prpn_reporting'] * 100 ,1).astype(str) + "%)"
-            
+
     x_var = 'region_with_countries_reporting'
 
     if quantity.upper() == 'TONNES':
@@ -9573,11 +9651,11 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
     )
 def update_donut_chart_amu (quantity, region, classification):
     input_df = amu2018_combined_tall.copy()
-    
+
     # Workaround to fix names in legend
-    input_df = input_df.replace(['aggregated_class_data', 'other_important', 'sulfonamides__including_trimethoprim'], 
+    input_df = input_df.replace(['aggregated_class_data', 'other_important', 'sulfonamides__including_trimethoprim'],
                                 ['Aggregated Class Data', 'Other (Important)', 'Sulfonamides (With Trimethoprim)'])
-    
+
     # Convert antimicrobial classes to title case
     input_df.antimicrobial_class_group = input_df.antimicrobial_class_group.str.title()
     input_df.antimicrobial_class_group2 = input_df.antimicrobial_class_group2.str.title()
@@ -9698,11 +9776,11 @@ def update_donut_chart_amu (quantity, region, classification):
 
     # Sync colors across visuals
     amu_donut_fig.update_traces(marker=dict(colors=summarize_df['Color']))
-    
+
     # Standardize number of decimal places displayed
     amu_donut_fig.update_traces(texttemplate='%{percent:.1%}')
 
-    # Legend font smaller to not touch the graph 
+    # Legend font smaller to not touch the graph
     amu_donut_fig.update_layout(legend=dict(
         font=dict(size=14),
         bgcolor='rgba(0,0,0,0)', # makes legend background transparent

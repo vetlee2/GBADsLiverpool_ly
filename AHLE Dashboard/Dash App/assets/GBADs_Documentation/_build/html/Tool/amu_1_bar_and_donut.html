@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Antimicrobial usage by region and class &#8212; AHLE Interactive Dashboard</title>
+    <title>Livestock Antimicrobial Usage by Region &amp; Antimicrobial Importance/Classes &#8212; AHLE Interactive Dashboard</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -52,7 +52,7 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="../_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Map and drilldown" href="amu_2_map_and_drilldown.html" />
+    <link rel="next" title="Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region" href="amu_2_map_and_drilldown.html" />
     <link rel="prev" title="Reading the charts" href="amu_readingthecharts.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
@@ -356,17 +356,17 @@ const thebe_selector_output = ".output, .cell_output"
   <ul class="current">
    <li class="toctree-l2 current active">
     <a class="current reference internal" href="#">
-     Antimicrobial usage by region and class
+     Livestock Antimicrobial Usage by Region &amp; Antimicrobial Importance/Classes
     </a>
    </li>
    <li class="toctree-l2">
     <a class="reference internal" href="amu_2_map_and_drilldown.html">
-     Map and drilldown
+     Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region
     </a>
    </li>
    <li class="toctree-l2">
     <a class="reference internal" href="amu_3_usage_price_variability.html">
-     Exploring variability in usage and price
+     Exploring Variability of Veterinary Antimicrobial Usage and Price by Data Source
     </a>
    </li>
   </ul>
@@ -383,29 +383,17 @@ const thebe_selector_output = ".output, .cell_output"
   <ul>
    <li class="toctree-l2">
     <a class="reference internal" href="amu_main_table.html">
-     Antimicrobial class data
+     WOAH Antimicrobial Data 2018
     </a>
    </li>
    <li class="toctree-l2">
     <a class="reference internal" href="amu_region_table.html">
-     Regional data
+     Extended Regional Data
     </a>
    </li>
-  </ul>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../Analysis/amu_details.html">
-   AMU Analysis Details
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
-  <label for="toctree-checkbox-8">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
    <li class="toctree-l2">
-    <a class="reference internal" href="../Analysis/amu_dri.html">
-     Drug Resistance Index
+    <a class="reference internal" href="amu_amr_table.html">
+     Antimicrobial Resistance Data
     </a>
    </li>
   </ul>
@@ -564,7 +552,7 @@ title="Print to PDF"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Antimicrobial usage by region and class</h1>
+                <h1>Livestock Antimicrobial Usage by Region & Antimicrobial Importance/Classes</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -576,10 +564,10 @@ title="Print to PDF"
                 
               <div>
                 
-  <section class="tex2jax_ignore mathjax_ignore" id="antimicrobial-usage-by-region-and-class">
-<h1>Antimicrobial usage by region and class<a class="headerlink" href="#antimicrobial-usage-by-region-and-class" title="Permalink to this headline">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="livestock-antimicrobial-usage-by-region-antimicrobial-importance-classes">
+<h1>Livestock Antimicrobial Usage by Region &amp; Antimicrobial Importance/Classes<a class="headerlink" href="#livestock-antimicrobial-usage-by-region-antimicrobial-importance-classes" title="Permalink to this headline">#</a></h1>
 <p>
-This section shows 2 charts: a bar chart displaying regional usage of each antimicrobial class and a donut chart displaying the proportion of global usage each class makes up.
+This section displays the antimicrobial usage data reported to WOAH in 2 charts: a bar chart displaying regional usage of each antimicrobial class or group and a donut chart displaying the proportion of global usage each class makes up.
 </p>
 <figure class="align-default" id="amu-usage-1">
 <img alt="../_images/amu_bar_and_donut.png" src="../_images/amu_bar_and_donut.png" />
@@ -587,6 +575,31 @@ This section shows 2 charts: a bar chart displaying regional usage of each antim
 <p><span class="caption-number">Fig. 16 </span><span class="caption-text">Antimicrobial usage by region and class</span><a class="headerlink" href="#amu-usage-1" title="Permalink to this image">#</a></p>
 </figcaption>
 </figure>
+<p>
+Use the controls along the top of the page to change how you view the data.
+</p>
+<p><b>Regional AMU Bar Display</b><br />
+Modifies the bar chart. Select <i>Total</i> to display usage totals for each antimicrobial group within each region. Select <i>Percent</i> to display the percent of the region's total attributed to each antimicrobial group (a 100% stacked bar).
+</p>
+<p><b>AMU Units</b><br />
+Modifies the bar chart and the donut chart. Select <i>Tonnes</i> to display usage in tonnes of each antimicrobial group. Select <i>mg per kg biomass</i> to display usage in mg per kg biomass, defined for each antimicrobial group and region as (tonnes of antimicrobial) x 1e9 / (kg total biomass for countries reporting in the region).
+</p>
+<p><b>Antimicrobial Grouping</b><br />
+Determines how antimicrobials are grouped in both the bar chart and donut chart. Options are:
+<br /><br />
+<i>Top Global Classes:</i> Shows the 3 antimicrobial classes with the highest global usage with all other classes grouped into "Others".
+<br /><br />
+<i>WHO Importance Categories:</i> Groups antimicrobial classes according to the <a href='https://apps.who.int/iris/bitstream/handle/10665/312266/9789241515528-eng.pdf'>World Health Organization's definitions</a> of importance for human health.
+<br /><br />
+<i>WOAH Importance Categories:</i> Groups antimicrobial classes according to the <a href='https://www.woah.org/app/uploads/2021/06/a-oie-list-antimicrobials-june2021.pdf'>World Organization for Animal Health definitions</a> of importance.
+<br /><br />
+<i>OneHealth Importance Categories:</i> Groups antimicrobial classes according to the <a href='https://ssrn.com/abstract=4346767'>Venkateswaran et al., 2023 definitions</a> of importance.
+<br /><br />
+<i>Individual Classes:</i> Shows all antimicrobial classes individually. Very small classes making up less than 2% of global usage are grouped into "Other", or "Other (Important)" if they are classified as important by the OneHealth importance categorization.
+</p>
+<p><b>Region</b><br />
+Modifies the donut chart. Select <i>All</i> to show the proportion of global usage accounted for by each antimicrobial group. Select a region to show the proportion of usage of each antimicrobial group just within that region.
+</p>
 </section>
 
     <script type="text/x-thebe-config">
@@ -626,7 +639,7 @@ This section shows 2 charts: a bar chart displaying regional usage of each antim
     <a class='right-next' id="next-link" href="amu_2_map_and_drilldown.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Map and drilldown</p>
+        <p class="prev-next-title">Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>

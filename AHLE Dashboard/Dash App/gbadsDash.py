@@ -3796,8 +3796,8 @@ gbadsDash.layout = html.Div([
             #        ,href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf'
             #        ,style={'font-style':'italic'}
             #        ),
-            html.Label(['"Displaying antimicrobial usage as reported to ', 
-                        html.A('WOAH (2018)', 
+            html.Label(['"Displaying antimicrobial usage as reported to ',
+                        html.A('WOAH (2018)',
                         href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf')],
                         style={'font-style':'italic'}),
            html.Br(),
@@ -3936,7 +3936,7 @@ gbadsDash.layout = html.Div([
                 dbc.Col([   # Empty column so footnotes line up with charts
                       html.P("Click on an antimicrobial name/importance category in the legend to remove it from the visual"),
                       ]),
-                ], style={'margin-left':"10px", 
+                ], style={'margin-left':"10px",
                           'font-style': 'italic',}
                 ),
 
@@ -3991,10 +3991,10 @@ gbadsDash.layout = html.Div([
             # END OF CARD OPTIONS ROW
             ]),
             dbc.Row([
-                html.P("Drill Down: show antimicrobial usage by region and importance category", 
+                html.P("Drill Down: show antimicrobial usage by region and importance category",
                        style={'font-style': 'italic',
                               'margin-bottom':0,}),
-                html.P("Map: show antimicrobial usage, antimicrobial resistance, or antimicrobial expenditure on a world map", 
+                html.P("Map: show antimicrobial usage, antimicrobial resistance, or antimicrobial expenditure on a world map",
                        style={'font-style': 'italic',
                               'margin-bottom':0,}),
                 ]),
@@ -4035,7 +4035,7 @@ gbadsDash.layout = html.Div([
                     html.P("Data sources for drill down and map are as follows:"),
                     html.P("Antimicrobial usage in tonnes or mg per kg bimoass: countries reporting total usage to WOAH (WOAH 2018)."),
                     html.P("Biomass: total biomass for countries reporting to WOAH (WOAH 2018)."),
-                    html.P("Antimicrobial Resistance (country level): rate of resistance among isolates tested in each country for the selected antimicrobial class and pathogen (source: Venkateswaran et al., 2023)."),
+                    html.P("Antimicrobial Resistance (country level): percent of pathogen positive samples for the selected pathogen that are resistant to the selected antimicrobial class (source: Venkateswaran et al., 2023)."),
                     html.P("Drug Resistance Index (region level): drug resistance index based on the average resistance rate across all antimicrobials tested in the region, weighted by the frequency of use of those antimicrobials. Using data from (Venkateswaran et al., 2023) and methods from (Laxminarayan 2011) and (EFSA AMR Indicators 2017). See the user guide for more details."),
                     html.P("Antimicrobial Expenditure in total USD or USD per kg biomass: calculated from antimicrobial usage and price selected below."),
                     ]),
@@ -4151,7 +4151,7 @@ gbadsDash.layout = html.Div([
            dbc.Row([
                dbc.Col([
                    html.P("Bars represent usage from the following sources. Please refer to the user guide for details.",),
-                   html.P("A*: Countries reporting 2018 data to WOAH, extended to 2020 by assuming the trend from 2016-2018 continues (source: WOAH 2018).", 
+                   html.P("A*: Countries reporting 2018 data to WOAH, extended to 2020 by assuming the trend from 2016-2018 continues (source: WOAH 2018).",
                           style={'margin-bottom':0,}),
                    html.P("B*: Estimate A extended to whole region based on the proportion of region total biomass represented in the countries reporting (source: WOAH 2018).",
                           style={'margin-bottom':0,}),
@@ -4161,7 +4161,7 @@ gbadsDash.layout = html.Div([
                dbc.Col([
                    html.P("Price points for antimicrobials were extracted from a range of sources. Extrapolations were made for regions where price data was not available. Please refer to the user guide for details."),
                    ]),
-               ], style={'margin-left':"10px", 
+               ], style={'margin-left':"10px",
                          'font-style': 'italic',}
                ),
 
@@ -8676,9 +8676,9 @@ def update_usage_price_sliders(reset_button):
     price_africa_mid = regional_usage_price_data.query("region == 'Africa'")['am_price_usdpertonne_mid'].values[0].astype(int)
     price_africa_max = regional_usage_price_data.query("region == 'Africa'")['am_price_usdpertonne_high'].values[0].astype(int)
     price_africa_marks = {
-        price_africa_min.astype(str):'A*'
-        ,price_africa_mid.astype(str):'B*'
-        ,price_africa_max.astype(str):'C*'
+        price_africa_min.astype(str):'Low'
+        ,price_africa_mid.astype(str):'Med'
+        ,price_africa_max.astype(str):'High'
         }
 
     # Americas
@@ -8695,9 +8695,9 @@ def update_usage_price_sliders(reset_button):
     price_americas_mid = regional_usage_price_data.query("region == 'Americas'")['am_price_usdpertonne_mid'].values[0].astype(int)
     price_americas_max = regional_usage_price_data.query("region == 'Americas'")['am_price_usdpertonne_high'].values[0].astype(int)
     price_americas_marks = {
-        price_americas_min.astype(str):'A*'
-        ,price_americas_mid.astype(str):'B*'
-        ,price_americas_max.astype(str):'C*'
+        price_americas_min.astype(str):'Low'
+        ,price_americas_mid.astype(str):'Med'
+        ,price_americas_max.astype(str):'High'
         }
 
     # Asia, Far East and Oceania
@@ -8714,9 +8714,9 @@ def update_usage_price_sliders(reset_button):
     price_asia_mid = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['am_price_usdpertonne_mid'].values[0].astype(int)
     price_asia_max = regional_usage_price_data.query("region == 'Asia, Far East and Oceania'")['am_price_usdpertonne_high'].values[0].astype(int)
     price_asia_marks = {
-        price_asia_min.astype(str):'A*'
-        ,price_asia_mid.astype(str):'B*'
-        ,price_asia_max.astype(str):'C*'
+        price_asia_min.astype(str):'Low'
+        ,price_asia_mid.astype(str):'Med'
+        ,price_asia_max.astype(str):'High'
         }
 
     # Europe
@@ -8733,9 +8733,9 @@ def update_usage_price_sliders(reset_button):
     price_europe_mid = regional_usage_price_data.query("region == 'Europe'")['am_price_usdpertonne_mid'].values[0].astype(int)
     price_europe_max = regional_usage_price_data.query("region == 'Europe'")['am_price_usdpertonne_high'].values[0].astype(int)
     price_europe_marks = {
-        price_europe_min.astype(str):'A*'
-        ,price_europe_mid.astype(str):'B*'
-        ,price_europe_max.astype(str):'C*'
+        price_europe_min.astype(str):'Low'
+        ,price_europe_mid.astype(str):'Med'
+        ,price_europe_max.astype(str):'High'
         }
 
     # Middle East
@@ -8752,9 +8752,9 @@ def update_usage_price_sliders(reset_button):
     price_mideast_mid = regional_usage_price_data.query("region == 'Middle East'")['am_price_usdpertonne_mid'].values[0].astype(int)
     price_mideast_max = regional_usage_price_data.query("region == 'Middle East'")['am_price_usdpertonne_high'].values[0].astype(int)
     price_mideast_marks = {
-        price_mideast_min.astype(str):'A*'
-        ,price_mideast_mid.astype(str):'B*'
-        ,price_mideast_max.astype(str):'C*'
+        price_mideast_min.astype(str):'Low'
+        ,price_mideast_mid.astype(str):'Med'
+        ,price_mideast_max.astype(str):'High'
         }
 
     return usage_africa_min ,usage_africa_max ,usage_africa_mid ,usage_step ,usage_africa_marks \
@@ -9020,9 +9020,9 @@ def update_regional_display_amu(input_json):
             #     html.P("Including regional estimates from Mulchandani et al., 2023. Contact the authors for national estimates."),
             #     html.A("Source: Mulchandani et al., 2023.", href='https://doi.org/10.1371/journal.pgph.0001305'),
             #     ],style={'font-style':'italic'}),
-            
-            html.Label(['Displaying antimicrobial usage as reported to ', 
-                        html.A('Mulchandani et al., 2023.', 
+
+            html.Label(['Displaying antimicrobial usage as reported to ',
+                        html.A('Mulchandani et al., 2023.',
                         href='https://doi.org/10.1371/journal.pgph.0001305'),
                         html.Label("Contact the authors for national estimates.")],
                         style={'font-style':'italic',

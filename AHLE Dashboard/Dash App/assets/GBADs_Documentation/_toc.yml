@@ -52,7 +52,7 @@ parts:
     - file: Analysis/Compartmental population model
   - caption: Antimicrobial Usage
     chapters:
-    - file: Analysis/amu_overview
+    #- file: Analysis/amu_overview
     - file: Tool/amu_readingthecharts
       sections:
       - file: Tool/amu_1_bar_and_donut

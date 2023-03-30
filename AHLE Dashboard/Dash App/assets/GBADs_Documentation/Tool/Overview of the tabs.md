@@ -35,3 +35,7 @@ The tabs are grouped by level of geography, from most aggregate (global) to most
 	<br />
 	A detailed analysis of the burden of disease for selected species in Ethiopia.
 	</p>
+<h3>Antimicrobial Usage</h3>
+	<p>
+	The antimicrobial usage tab shows data on global antimicrobial usage and prices and develops an estimate of the global expenditure on antimicrobials.  It also displays available data on antimicrobial resistance.
+	</p>

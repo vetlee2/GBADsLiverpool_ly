@@ -4140,7 +4140,7 @@ gbadsDash.layout = html.Div([
                    html.P("Bars represent usage from the following sources. Please refer to the user guide for details."),
                    html.P("A*: Countries reporting 2018 data to WOAH, extended to 2020 by assuming the trend from 2016-2018 continues (source: WOAH 2018)."),
                    html.P("B*: Estimate A extended to whole region based on the proportion of region total biomass represented in the countries reporting (source: WOAH 2018)."),
-                   html.P("C*: Region-total estimate from Mulchandani et al. (source: Mulchandani et al., 2023)."),
+                   html.P("C*: Region-total estimate from (Mulchandani et al., 2023)."),
                    ]),
                dbc.Col([
                    html.P("Price points for antimicrobials were extracted from a range of sources. Extrapolations were made for regions where price data was not available. Please refer to the user guide for details."),

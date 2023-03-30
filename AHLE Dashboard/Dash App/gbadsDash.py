@@ -3706,7 +3706,8 @@ gbadsDash.layout = html.Div([
                                     #        'marginRight': '100px',
                                     #        }
                                     ),
-                        href='#AMU-Biomass-AMR-Costs-Viz', refresh=True)),
+                        href='#AMU-Biomass-AMR-Costs-Viz', refresh=True),
+                        style={'justify-content':'center'}),
                     ],width="auto"),
 
                 # Exploring AMU/price Variability
@@ -3722,7 +3723,8 @@ gbadsDash.layout = html.Div([
                                     #        'marginRight': '100px',
                                     #        }
                                     ),
-                        href='#AMU-exploring-variability', refresh=True)),
+                        href='#AMU-exploring-variability', refresh=True),
+                        style={'justify-content':'center'}),
                     ]),
 
                 # Regional AM Expenditure Estimator
@@ -3738,7 +3740,8 @@ gbadsDash.layout = html.Div([
                                     #        'marginRight': '100px',
                                     #        }
                                     ),
-                        href='#AMU-regional-expenditure', refresh=True)),
+                        href='#AMU-regional-expenditure', refresh=True),
+                        style={'justify-content':'center'}),
                     ]),
 
                 # Data Export
@@ -3747,12 +3750,12 @@ gbadsDash.layout = html.Div([
                         dbc.Button(children='Data Export',
                                     # style=nav_btn_style,
                                     ),
-                        href='#AMU-data-export', refresh=True)),
+                        href='#AMU-data-export', refresh=True),
+                        style={'justify-content':'center'}),
                     ],
                     style={
+                            # TODO: Change colors in CSS
                               # "border":"2px #C5DAB8 solid",
-                              # 'display': 'flex',
-                              'justify-content': 'center',
                               }
                     ),
 
@@ -3788,11 +3791,15 @@ gbadsDash.layout = html.Div([
 
            #### -- DROPDOWN CONTROLS
            html.H3("Livestock Antimicrobial Usage by Region & Antimicrobial Importance/Classes", id="AMU-Regional-Global"),
-           html.P("Displaying antimicrobial usage as reported to WOAH" ,style={'font-style':'italic'}),
-           html.A("Source: WOAH 2018"
-                  ,href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf'
-                  ,style={'font-style':'italic'}
-                  ),
+            # html.P("Displaying antimicrobial usage as reported to WOAH" ,style={'font-style':'italic'}),
+            # html.A("Source: WOAH 2018"
+            #        ,href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf'
+            #        ,style={'font-style':'italic'}
+            #        ),
+            html.Label(['"Displaying antimicrobial usage as reported to ', 
+                        html.A('WOAH (2018)', 
+                        href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf')],
+                        style={'font-style':'italic'}),
            html.Br(),
            dbc.Row([
 
@@ -3923,12 +3930,14 @@ gbadsDash.layout = html.Div([
            #### -- FOOTNOTES PT.1
             dbc.Row([
                 dbc.Col([
-                    html.P("Numbers in parenthesis show the number of countries in each region reporting to WOAH and the percent of region total biomass they represent."),
+                    html.P("Numbers in parenthesis show the number of countries in each region reporting to WOAH and the percent of region total biomass they represent.",
+                           style={'margin-bottom':0,}),
                     ]),
                 dbc.Col([   # Empty column so footnotes line up with charts
                       html.P("Click on an antimicrobial name/importance category in the legend to remove it from the visual"),
                       ]),
-                ], style={'margin-left':"10px", 'font-style': 'italic'}
+                ], style={'margin-left':"10px", 
+                          'font-style': 'italic',}
                 ),
 
             html.Br(),
@@ -3982,8 +3991,12 @@ gbadsDash.layout = html.Div([
             # END OF CARD OPTIONS ROW
             ]),
             dbc.Row([
-                html.P("Drill Down: show antimicrobial usage by region and importance category", style={'font-style': 'italic'}),
-                html.P("Map: show antimicrobial usage, antimicrobial resistance, or antimicrobial expenditure on a world map", style={'font-style': 'italic'}),
+                html.P("Drill Down: show antimicrobial usage by region and importance category", 
+                       style={'font-style': 'italic',
+                              'margin-bottom':0,}),
+                html.P("Map: show antimicrobial usage, antimicrobial resistance, or antimicrobial expenditure on a world map", 
+                       style={'font-style': 'italic',
+                              'margin-bottom':0,}),
                 ]),
 
             # END OF CARD BODY
@@ -4137,15 +4150,19 @@ gbadsDash.layout = html.Div([
            #### -- FOOTNOTES PT.2
            dbc.Row([
                dbc.Col([
-                   html.P("Bars represent usage from the following sources. Please refer to the user guide for details."),
-                   html.P("A*: Countries reporting 2018 data to WOAH, extended to 2020 by assuming the trend from 2016-2018 continues (source: WOAH 2018)."),
-                   html.P("B*: Estimate A extended to whole region based on the proportion of region total biomass represented in the countries reporting (source: WOAH 2018)."),
-                   html.P("C*: Region-total estimate from (Mulchandani et al., 2023)."),
+                   html.P("Bars represent usage from the following sources. Please refer to the user guide for details.",),
+                   html.P("A*: Countries reporting 2018 data to WOAH, extended to 2020 by assuming the trend from 2016-2018 continues (source: WOAH 2018).", 
+                          style={'margin-bottom':0,}),
+                   html.P("B*: Estimate A extended to whole region based on the proportion of region total biomass represented in the countries reporting (source: WOAH 2018).",
+                          style={'margin-bottom':0,}),
+                   html.P("C*: Region-total estimate from (Mulchandani et al., 2023).",
+                          style={'margin-bottom':0,}),
                    ]),
                dbc.Col([
                    html.P("Price points for antimicrobials were extracted from a range of sources. Extrapolations were made for regions where price data was not available. Please refer to the user guide for details."),
                    ]),
-               ], style={'margin-left':"10px", 'font-style': 'italic'}
+               ], style={'margin-left':"10px", 
+                         'font-style': 'italic',}
                ),
 
 
@@ -4324,7 +4341,6 @@ gbadsDash.layout = html.Div([
                            ]),
                        ]),
                    ]
-                   # ,style={'margin-left':'20px'}
                    ,width=7
                    ),
 
@@ -9000,10 +9016,17 @@ def update_regional_display_amu(input_json):
     return [
             html.H4("Extended Regional Data"),
             # html.P("Including regional estimates from Mulchandani et al., 2023. Contact the authors for national estimates." ,style={'font-style':'italic'}),
-            html.P(children=[
-                html.P("Including regional estimates from Mulchandani et al., 2023. Contact the authors for national estimates."),
-                html.A("Source: Mulchandani et al., 2023.", href='https://doi.org/10.1371/journal.pgph.0001305'),
-                ],style={'font-style':'italic'}),
+            # html.P(children=[
+            #     html.P("Including regional estimates from Mulchandani et al., 2023. Contact the authors for national estimates."),
+            #     html.A("Source: Mulchandani et al., 2023.", href='https://doi.org/10.1371/journal.pgph.0001305'),
+            #     ],style={'font-style':'italic'}),
+            
+            html.Label(['Displaying antimicrobial usage as reported to ', 
+                        html.A('Mulchandani et al., 2023.', 
+                        href='https://doi.org/10.1371/journal.pgph.0001305'),
+                        html.Label("Contact the authors for national estimates.")],
+                        style={'font-style':'italic',
+                               'margin-bottom':0,}),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 # fixed_rows={'headers': True, 'data': 0},
@@ -9075,7 +9098,8 @@ def update_amr_display_amu(dummy_input):
             html.H4("Antimicrobial Resistance Data"),
             html.P(children=[
                 html.A("Source: Venkateswaran et al., 2023", href='https://ssrn.com/abstract=4346767'),
-                ],style={'font-style':'italic'}),
+                ],style={'font-style':'italic',
+                         'margin-bottom':0,}),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 # fixed_rows={'headers': True, 'data': 0},

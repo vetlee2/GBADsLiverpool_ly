@@ -9316,7 +9316,8 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
                                                          map_value,
                                                          'location_name',
                                                          'antimicrobial_class',
-                                                         'pathogen'],
+                                                         'pathogen',
+                                                         'sum_isolates'],
                                             color_discrete_map={"Asia, Far East and Oceania": 'rgb(102,197,204)',
                                                                 "Americas": 'rgb(248,156,116)',
                                                                 "Europe": 'rgb(220,176,242)',
@@ -9406,6 +9407,7 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
                                       "<b>%{customdata[0]}</b><br>" +
                                       "Country: %{customdata[2]}<br>" +
                                       "Overall prevalence: %{customdata[1]:,.1%}<br>" +
+                                      "Total isolates: %{customdata[5]}<br>"
                                       'Antimicrobial Class: %{customdata[3]}<br>'+
                                       'Pathogen: %{customdata[4]}'
                                       "<extra></extra>",)

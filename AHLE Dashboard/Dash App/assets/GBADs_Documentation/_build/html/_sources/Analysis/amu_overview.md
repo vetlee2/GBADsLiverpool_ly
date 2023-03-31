@@ -1,6 +1,7 @@
 # Overview of the Approach
 <p>
-Focused on Livestock
-Primary goal: estimate global expenditure on antimicrobials as this is a component of the animal health loss envelope.
-Secondary goal: Allow user to explore reported data on antimicrobial use and compare different estimates
+The primary goal of this work is to estimate the global expenditure on antimicrobials used for livestock, as this is an important component of the burden of disease.
+</p>
+<p>
+A secondary goal is to display antimicrobial resistance 
 </p>

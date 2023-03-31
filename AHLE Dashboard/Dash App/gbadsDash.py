@@ -9260,8 +9260,20 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
     input_df_amr = input_df_amr.sort_values(by=['woah_region'])
 
     # Fix antimicrobial class names
-    input_df = input_df.replace(['aggregated_class_data', 'other_important', 'sulfonamides__including_trimethoprim'],
-                                ['aggregated class data', 'other (important)', 'sulfonamides (with trimethoprim)'])
+    input_df = input_df.replace(['aggregated_class_data', 
+                                 'other_important', 
+                                 'sulfonamides__including_trimethoprim', 
+                                 'cephalosporins__all_generations',
+                                 '1_2_gen__cephalosporins',
+                                 '3_4_gen_cephalosporins',
+                                 'other_quinolones'],
+                                ['aggregated class data', 
+                                 'other (important)', 
+                                 'sulfonamides (with trimethoprim)',
+                                 'cephalosporins (all gens)',
+                                 'cephalosporins (1 & 2 gen)',
+                                 'cephalosporins (3 & 4 gen)',
+                                 'other quinolones'])
 
     # Convert antimicrobial classes to title case
     input_df.antimicrobial_class = input_df.antimicrobial_class.str.title()
@@ -9524,20 +9536,71 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
 
     if classification.upper() == 'WHO IMPORTANCE CATEGORIES':
         color = 'who_importance_ctg'
-        stackedbar_df['id'] = stackedbar_df.groupby(['who_importance_ctg']).ngroup()
+        color_map = {"A: Critically Important": '#EF553B',
+           "Important": '#EF553B',
+           "B: Highly Important": '#00CC96',
+           "C: Other": '#636EFA',
+           "Other": '#636EFA',
+           "D: Unknown": '#AB63FA',
+           "Unknown": '#AB63FA'}
+        stackedbar_df['id'] = stackedbar_df.groupby(['who_importance_ctg']).ngroup()              
     elif classification.upper() == 'WOAH IMPORTANCE CATEGORIES':
         color = 'woah_importance_ctg'
+        color_map = {"A: Critically Important": '#EF553B',
+           "Important": '#EF553B',
+           "B: Highly Important": '#00CC96',
+           "C: Other": '#636EFA',
+           "Other": '#636EFA',
+           "D: Unknown": '#AB63FA',
+           "Unknown": '#AB63FA'}
         stackedbar_df['id'] = stackedbar_df.groupby(['woah_importance_ctg']).ngroup()
     elif classification.upper() == 'ONEHEALTH IMPORTANCE CATEGORIES':
         color = 'onehealth_importance_ctg'
+        color_map = {"A: Critically Important": '#EF553B',
+           "Important": '#EF553B',
+           "B: Highly Important": '#00CC96',
+           "C: Other": '#636EFA',
+           "Other": '#636EFA',
+           "D: Unknown": '#AB63FA',
+           "Unknown": '#AB63FA'}
         stackedbar_df['id'] = stackedbar_df.groupby(['onehealth_importance_ctg']).ngroup()
     elif classification.upper() == 'INDIVIDUAL CLASSES':
         color = 'antimicrobial_class_group'
+        color_map = {# Individual classes/top classes
+                     "Aggregated Class Data": '#636EFA',
+                     "Aminoglycosides": '#EF553B',
+                     "Amphenicols": '#00CC96',
+                     "Fluoroquinolones": '#AB63FA',
+                     "Macrolides": '#AAFFE1',
+                     "Other": '#C6CAFD',
+                     "Others": '#C6CAFD',
+                     "Other (Important)": '#FF6692',
+                     "Penicillins": '#FECB52',
+                     "Pleuromutilins": '#F7A799',
+                     "Polypeptides": '#FFA15A',
+                     "Sulfonamides (With Trimethoprim)": '#B6E880',
+                     "Tetracyclines": '#FF97FF', }
         stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class']).ngroup()
         # stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class_group']).ngroup()
     elif classification.upper() == 'TOP GLOBAL CLASSES':
         color = 'antimicrobial_class_group2'
+        color_map = {# Individual classes/top classes
+                     "Aggregated Class Data": '#636EFA',
+                     "Aminoglycosides": '#EF553B',
+                     "Amphenicols": '#00CC96',
+                     "Fluoroquinolones": '#AB63FA',
+                     "Macrolides": '#AAFFE1',
+                     "Other": '#C6CAFD',
+                     "Others": '#C6CAFD',
+                     "Other (Important)": '#FF6692',
+                     "Penicillins": '#FECB52',
+                     "Pleuromutilins": '#F7A799',
+                     "Polypeptides": '#FFA15A',
+                     "Sulfonamides (With Trimethoprim)": '#B6E880',
+                     "Tetracyclines": '#FF97FF', }
         stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class_group2']).ngroup()
+        
+    
 
     # Options to change between graphs
     if select_amu_graph.upper() == 'TOTAL':
@@ -9545,28 +9608,7 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
                                    x=x_var,
                                    y=y_var,
                                    color=color,
-                                   color_discrete_map= {"A: Critically Important": '#EF553B',
-                                      "Important": '#EF553B',
-                                      "B: Highly Important": '#00CC96',
-                                      "C: Other": '#636EFA',
-                                      "Other": '#636EFA',
-                                      "D: Unknown": '#AB63FA',
-                                      "Unknown": '#AB63FA',
-                                      # Individual classes/top classes
-                                      "Aggregated Class Data": '#636EFA',
-                                      "Aminoglycosides": '#EF553B',
-                                      "Amphenicols": '#00CC96',
-                                      "Fluoroquinolones": '#AB63FA',
-                                      "Macrolides": '#AAFFE1',
-                                      "Other": '#C6CAFD',
-                                      "Others": '#C6CAFD',
-                                      "Other (Important)": '#FF6692',
-                                      "Penicillins": '#FECB52',
-                                      "Pleuromutilins": '#F7A799',
-                                      "Polypeptides": '#FFA15A',
-                                      "Sulfonamides (With Trimethoprim)": '#B6E880',
-                                      "Tetracyclines": '#FF97FF',
-                                      },
+                                   color_discrete_map=color_map,
                                    labels={
                                        x_var: "",
                                        "who_importance_ctg": "WHO Importance Category",

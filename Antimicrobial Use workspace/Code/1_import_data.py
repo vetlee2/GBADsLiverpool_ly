@@ -186,7 +186,8 @@ datainfo(amu2018)
 # profile.to_file(os.path.join(PRODATA_FOLDER ,'amu2018_profile.html'))
 
 # Export
-amu2018.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018.csv') ,index=False)
+# amu2018.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018.csv') ,index=False)
+amu2018.to_pickle(os.path.join(PRODATA_FOLDER ,'amu2018.pkl.gz'))
 
 # -----------------------------------------------------------------------------
 # Reshape
@@ -202,7 +203,8 @@ amu2018_m['antimicrobial_class'] = amu2018_m['antimicrobial_class'].str.replace(
 datainfo(amu2018_m)
 
 # Export
-amu2018_m.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_tall.csv') ,index=False)
+# amu2018_m.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_tall.csv') ,index=False)
+amu2018_m.to_pickle(os.path.join(PRODATA_FOLDER ,'amu2018_tall.pkl.gz'))
 
 # =============================================================================
 #### Species
@@ -229,7 +231,8 @@ amu2018_species_dtl = amu2018_species_dtl.rename(columns={'region_n_countries':'
 datainfo(amu2018_species_dtl)
 
 # Export
-amu2018_species_dtl.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_species_dtl.csv') ,index=False)
+# amu2018_species_dtl.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_species_dtl.csv') ,index=False)
+amu2018_species_dtl.to_pickle(os.path.join(PRODATA_FOLDER ,'amu2018_species_dtl.pkl.gz'))
 
 # -----------------------------------------------------------------------------
 # Species groups
@@ -256,7 +259,8 @@ amu2018_species_grp = amu2018_species_grp.dropna(axis=1)    # 0 = drop rows, 1 =
 datainfo(amu2018_species_grp)
 
 # Export
-amu2018_species_grp.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_species_grp.csv') ,index=False)
+# amu2018_species_grp.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_species_grp.csv') ,index=False)
+amu2018_species_grp.to_pickle(os.path.join(PRODATA_FOLDER ,'amu2018_species_grp.pkl.gz'))
 
 # =============================================================================
 #### Biomass
@@ -475,7 +479,8 @@ datainfo(amu2018_biomass)
 # profile.to_file(os.path.join(PRODATA_FOLDER ,'amu2018_biomass_profile.html'))
 
 # Export
-amu2018_biomass.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_biomass.csv') ,index=False)
+# amu2018_biomass.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_biomass.csv') ,index=False)
+amu2018_biomass.to_pickle(os.path.join(PRODATA_FOLDER ,'amu2018_biomass.pkl.gz'))
 
 #%% Import antimicrobial importance categories
 
@@ -518,6 +523,9 @@ def combine_importance(INPUT_ROW):
     return pd.Series([who_ctg ,woah_ctg ,onehealth_ctg])
 amu_importance[['who_importance_ctg' ,'woah_importance_ctg' ,'onehealth_importance_ctg']] = amu_importance.apply(combine_importance ,axis=1)      # Apply to each row of the dataframe (axis=1)
 datainfo(amu_importance)
+
+# Export
+amu_importance.to_pickle(os.path.join(PRODATA_FOLDER ,'amu_importance.pkl.gz'))
 
 #%% Import price data
 
@@ -562,6 +570,12 @@ amu_prices = amu_prices.eval(
     am_price_usdpertonne_high = am_price_eurospertonne_high / {wb_exchg_eurosperusd}
     '''
 )
+
+# =============================================================================
+#### Export
+# =============================================================================
+amu_prices.to_pickle(os.path.join(PRODATA_FOLDER ,'amu_prices.pkl.gz'))
+
 '''
 EARLY PARTIAL DATA
 REPLACED WITH Burden - slider inputs.xlsx
@@ -724,6 +738,9 @@ print(amu_mulch_withrgn['_merge'].value_counts())
 amu_mulch_withrgn = amu_mulch_withrgn.drop(columns=['country_tomatch' ,'_merge'])
 datainfo(amu_mulch_withrgn)
 
+# Export
+amu_mulch_withrgn.to_pickle(os.path.join(PRODATA_FOLDER ,'amu_mulch_withrgn.pkl.gz'))
+
 #%% Import AMR data - summarized version
 
 amr = pd.read_csv(os.path.join(RAWDATA_FOLDER ,'SBM_JSA_AMR_livestock.csv'))
@@ -808,7 +825,10 @@ amr_withrgn['prop_97_5'] = amr_withrgn['prop_97_5'] / 100
 #### Export
 # =============================================================================
 datainfo(amr_withrgn)
-amr_withrgn.to_csv(os.path.join(PRODATA_FOLDER ,'amr.csv') ,index=False)
+# amr_withrgn.to_csv(os.path.join(PRODATA_FOLDER ,'amr.csv') ,index=False)
+amr_withrgn.to_pickle(os.path.join(PRODATA_FOLDER ,'amr.pkl.gz'))
+
+# For Dash
 amr_withrgn.to_csv(os.path.join(DASH_DATA_FOLDER ,'amr.csv') ,index=False)
 
 #%% Import AMR data - raw version
@@ -879,7 +899,10 @@ amr_full_withrgn['rescom'] = amr_full_withrgn['rescom'] / 100
 #### Export
 # =============================================================================
 datainfo(amr_full_withrgn)
-amr_full_withrgn.to_csv(os.path.join(PRODATA_FOLDER ,'amr_full.csv') ,index=False)
+# amr_full_withrgn.to_csv(os.path.join(PRODATA_FOLDER ,'amr_full.csv') ,index=False)
+amr_full_withrgn.to_pickle(os.path.join(PRODATA_FOLDER ,'amr_full.pkl.gz'))
+
+# For Dash
 amr_full_withrgn.to_csv(os.path.join(DASH_DATA_FOLDER ,'amr_full.csv') ,index=False)
 
 #%% Checks

@@ -1,73 +1,19 @@
 #%% About
 '''
 '''
-#%% Functions
-
-# Translate a PERT distribution to the equivalent Beta
-# Output a dataframe with samples generated from the distribution and a histogram
-# Usage: pert_samples = generate_pert(10000, 1, 8, 10)
-def generate_pert(N_SAMPLES ,MIN ,MODE ,MAX ,LAMBDA=4):
-    funcname = inspect.currentframe().f_code.co_name
-
-    mean = (MIN + (LAMBDA * MODE) + MAX) / (LAMBDA + 2)
-    alpha = (mean - MIN) * (2*MODE - MIN - MAX) / ((MODE - mean) * (MAX - MIN))
-    beta = alpha * (MAX - mean) / (mean - MIN)
-
-    print(f"<{funcname}> PERT distribution: ({MIN}, {MODE}, {MAX}) with lambda={LAMBDA}")
-    print(f"<{funcname}> Equivalent Beta distribution: {alpha=:.3f}, {beta=:.3f}")
-
-    # Generate samples
-    beta_distr = sps.beta(alpha ,beta)
-    generated_df = pd.DataFrame(index=range(N_SAMPLES))
-    generated_df['rand_beta'] = beta_distr.rvs(size=generated_df.shape[0])      # Generate random numbers from Beta distribution (on scale 0,1)
-    generated_df['rand_pert'] = (generated_df['rand_beta'] * (MAX - MIN)) + MIN   # Translate from (0,1) to scale of PERT
-
-    # Plot
-    snplt = sns.displot(
-    	data=generated_df
-    	,x='rand_pert'
-    	,kind='hist'
-        ,stat='probability'
-        ,bins=20
-    )
-    plt.title(f"PERT({MIN}, {MODE}, {MAX}) with lambda={LAMBDA}\n Recreated as Beta({alpha:.2f}, {beta:.2f})\n {N_SAMPLES:,} samples")
-
-    return generated_df
-
-pert_samples = generate_pert(10000, 1, 8, 10)
-
-# Translate a PERT distribution to the equivalent Beta
-# Output the beta distribution object for further processing
-def pert_to_beta(MIN ,MODE ,MAX ,LAMBDA=4):
-    funcname = inspect.currentframe().f_code.co_name
-
-    mean = (MIN + (LAMBDA * MODE) + MAX) / (LAMBDA + 2)
-    alpha = (mean - MIN) * (2*MODE - MIN - MAX) / ((MODE - mean) * (MAX - MIN))
-    beta = alpha * (MAX - mean) / (mean - MIN)
-    beta_distr = sps.beta(alpha ,beta)
-
-    print(f"<{funcname}> PERT distribution: ({MIN}, {MODE}, {MAX}) with lambda={LAMBDA}")
-    print(f"<{funcname}> Equivalent Beta distribution: {alpha=:.3f}, {beta=:.3f}")
-
-    return beta_distr
-
-beta_distr = pert_to_beta(1, 8, 10)
-
-# Endpoints of the range that contains alpha percent of the distribution
-beta_distr_ci95 = beta_distr.interval(0.95)
-pert_distr_ci95_low = (beta_distr_ci95[0] * (10 - 1)) + 1   # Translate from (0,1) to scale of PERT
-pert_distr_ci95_high = (beta_distr_ci95[1] * (10 - 1)) + 1   # Translate from (0,1) to scale of PERT
-
 #%% Structure: one row per region & antimicrobial
 
 # =============================================================================
 #### Prepare AM usage
 # =============================================================================
+amu2018_m = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'amu2018_tall.pkl.gz'))
 amu2018_m_tomerge = amu2018_m.copy()
 
 # =============================================================================
 #### Add importance
 # =============================================================================
+amu_importance = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'amu_importance.pkl.gz'))
+
 # Modify antimicrobial names in importance data to match
 amu_importance_tomerge = amu_importance.copy()
 
@@ -134,6 +80,8 @@ amu2018_combined_tall.loc[amu2018_combined_tall['antimicrobial_class'].isin(top3
 # =============================================================================
 #### Add biomass data
 # =============================================================================
+amu2018_biomass = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'amu2018_biomass.pkl.gz'))
+
 # Pivot Biomass to get countries reporting and total region into columns
 # Keep total biomass and terrestrial biomass
 amu2018_biomass_p = amu2018_biomass.query("region != 'Global'").pivot(
@@ -192,6 +140,8 @@ amu2018_combined_tall.to_csv(os.path.join(PRODATA_FOLDER ,'amu2018_combined_tall
 amu2018_combined_tall.to_csv(os.path.join(DASH_DATA_FOLDER ,'amu2018_combined_tall.csv') ,index=False)
 
 #%% Structure: one row per region
+
+amu2018 = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'amu2018.pkl.gz'))
 
 # =============================================================================
 #### Combine biomass and AM usage
@@ -278,6 +228,8 @@ datainfo(amu_combined_regional)
 # =============================================================================
 #### Add Mulchandani data
 # =============================================================================
+amu_mulch_withrgn = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'amu_mulch_withrgn.pkl.gz'))
+
 # Sum Mulchandani to region level
 amu_mulch_regional = amu_mulch_withrgn.pivot_table(
     index='woah_region'
@@ -310,6 +262,8 @@ datainfo(amu_combined_regional)
 # =============================================================================
 #### Add prices
 # =============================================================================
+amu_prices = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'amu_prices.pkl.gz'))
+
 amu_combined_regional = pd.merge(
     left=amu_combined_regional
     ,right=amu_prices
@@ -349,6 +303,8 @@ datainfo(amu_combined_regional)
 # - What about Aminopenicillins in AMR data?
 # -- Include in Penicillins in AMU
 # -----------------------------------------------------------------------------
+amr_full_withrgn = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'amr_full.pkl.gz'))
+
 amr_full_withrgn_working = amr_full_withrgn.copy()
 
 # Add resistance weighted by number of isolates for each pathogen
@@ -527,6 +483,7 @@ amu_combined_regional.to_csv(os.path.join(DASH_DATA_FOLDER ,'amu_combined_region
 This will be used to allow users to explore the AMR data in detail, so retains the full
 granularity: country, year, antimicrobial class, and pathogen.
 '''
+amr_withrgn = pd.read_pickle(os.path.join(PRODATA_FOLDER ,'amr.pkl.gz'))
 
 amr_withrgn_working = amr_withrgn.copy()
 
@@ -590,6 +547,64 @@ amr_withsmry.to_csv(os.path.join(PRODATA_FOLDER ,'amr_withsmry.csv') ,index=Fals
 amr_withsmry.to_csv(os.path.join(DASH_DATA_FOLDER ,'amr_withsmry.csv') ,index=False)
 
 #%% Illustrate AM Usage and Price with uncertainty
+
+# =============================================================================
+#### Functions
+# =============================================================================
+# Translate a PERT distribution to the equivalent Beta
+# Output a dataframe with samples generated from the distribution and a histogram
+# Usage: pert_samples = generate_pert(10000, 1, 8, 10)
+def generate_pert(N_SAMPLES ,MIN ,MODE ,MAX ,LAMBDA=4):
+    funcname = inspect.currentframe().f_code.co_name
+
+    mean = (MIN + (LAMBDA * MODE) + MAX) / (LAMBDA + 2)
+    alpha = (mean - MIN) * (2*MODE - MIN - MAX) / ((MODE - mean) * (MAX - MIN))
+    beta = alpha * (MAX - mean) / (mean - MIN)
+
+    print(f"<{funcname}> PERT distribution: ({MIN}, {MODE}, {MAX}) with lambda={LAMBDA}")
+    print(f"<{funcname}> Equivalent Beta distribution: {alpha=:.3f}, {beta=:.3f}")
+
+    # Generate samples
+    beta_distr = sps.beta(alpha ,beta)
+    generated_df = pd.DataFrame(index=range(N_SAMPLES))
+    generated_df['rand_beta'] = beta_distr.rvs(size=generated_df.shape[0])      # Generate random numbers from Beta distribution (on scale 0,1)
+    generated_df['rand_pert'] = (generated_df['rand_beta'] * (MAX - MIN)) + MIN   # Translate from (0,1) to scale of PERT
+
+    # Plot
+    snplt = sns.displot(
+    	data=generated_df
+    	,x='rand_pert'
+    	,kind='hist'
+        ,stat='probability'
+        ,bins=20
+    )
+    plt.title(f"PERT({MIN}, {MODE}, {MAX}) with lambda={LAMBDA}\n Recreated as Beta({alpha:.2f}, {beta:.2f})\n {N_SAMPLES:,} samples")
+
+    return generated_df
+
+pert_samples = generate_pert(10000, 1, 8, 10)
+
+# Translate a PERT distribution to the equivalent Beta
+# Output the beta distribution object for further processing
+def pert_to_beta(MIN ,MODE ,MAX ,LAMBDA=4):
+    funcname = inspect.currentframe().f_code.co_name
+
+    mean = (MIN + (LAMBDA * MODE) + MAX) / (LAMBDA + 2)
+    alpha = (mean - MIN) * (2*MODE - MIN - MAX) / ((MODE - mean) * (MAX - MIN))
+    beta = alpha * (MAX - mean) / (mean - MIN)
+    beta_distr = sps.beta(alpha ,beta)
+
+    print(f"<{funcname}> PERT distribution: ({MIN}, {MODE}, {MAX}) with lambda={LAMBDA}")
+    print(f"<{funcname}> Equivalent Beta distribution: {alpha=:.3f}, {beta=:.3f}")
+
+    return beta_distr
+
+beta_distr = pert_to_beta(1, 8, 10)
+
+# Endpoints of the range that contains alpha percent of the distribution
+beta_distr_ci95 = beta_distr.interval(0.95)
+pert_distr_ci95_low = (beta_distr_ci95[0] * (10 - 1)) + 1   # Translate from (0,1) to scale of PERT
+pert_distr_ci95_high = (beta_distr_ci95[1] * (10 - 1)) + 1   # Translate from (0,1) to scale of PERT
 
 # =============================================================================
 #### Create data based on spreadsheet from Sara

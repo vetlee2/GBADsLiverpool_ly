@@ -1385,13 +1385,13 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
    # Trim the data to keep things needed for the waterfall
    ecs_ahle_waterfall = working_df[['species',
                                     'production_system',
-                                    # 'age_group',
-                                    # 'sex',
                                     'agesex_scenario',
                                     'item',
                                     'year',
                                     'mean_current',
+                                    'stdev_current',
                                     'mean_ideal',
+                                    'stdev_ideal',
                                     'mean_mortality_zero',
                                     'mean_current_usd',
                                     'mean_ideal_usd',
@@ -1488,6 +1488,7 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
 
    # Create AHLE difference columns
    ecs_ahle_waterfall['mean_AHLE'] = ecs_ahle_waterfall['mean_ideal'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_AHLE'] = np.sqrt(ecs_ahle_waterfall['stdev_ideal']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_AHLE_mortality'] = ecs_ahle_waterfall['mean_mortality_zero'] - ecs_ahle_waterfall['mean_current']
    ecs_ahle_waterfall['mean_AHLE_usd'] = ecs_ahle_waterfall['mean_ideal_usd'] - ecs_ahle_waterfall['mean_current_usd']
    ecs_ahle_waterfall['mean_AHLE_mortality_usd'] = ecs_ahle_waterfall['mean_mortality_zero_usd'] - ecs_ahle_waterfall['mean_current_usd']
@@ -3707,7 +3708,8 @@ gbadsDash.layout = html.Div([
                                     #        }
                                     ),
                         href='#AMU-Biomass-AMR-Costs-Viz', refresh=True),
-                        style={'justify-content':'center'}),
+                        style={'justify-content':'center',
+                               'display':'flex'}),
                     ],width="auto"),
 
                 # Exploring AMU/price Variability
@@ -3724,7 +3726,8 @@ gbadsDash.layout = html.Div([
                                     #        }
                                     ),
                         href='#AMU-exploring-variability', refresh=True),
-                        style={'justify-content':'center'}),
+                        style={'justify-content':'center',
+                               'display':'flex'}),
                     ]),
 
                 # Regional AM Expenditure Estimator
@@ -3741,7 +3744,8 @@ gbadsDash.layout = html.Div([
                                     #        }
                                     ),
                         href='#AMU-regional-expenditure', refresh=True),
-                        style={'justify-content':'center'}),
+                        style={'justify-content':'center',
+                               'display':'flex'}),
                     ]),
 
                 # Data Export
@@ -6613,8 +6617,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
     if graph_options == "By Year":
 
         # Filter to a specific year
-        lst = year_or_item
-        prep_df = prep_df.query('year == @lst')
+        prep_df = prep_df.query('year == @year_or_item')
 
         # Filters
         if species == "Cattle":     # Cattle have draught
@@ -6701,6 +6704,28 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
             # Create graph
             name = 'AHLE'
             ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
+            
+            # Add error bars
+            # Get cumulative sum value for Y
+            for i in x.values:
+                if i != 'Gross Margin':
+                    y_error_sum = np.cumsum(y)
+                else:
+                    y_error_sum = y
+            
+            ecs_waterfall_fig.add_trace(
+                go.Scatter(
+                 	x=x
+                 	,y=y_error_sum
+                    ,marker=dict(color='black')
+                 	,error_y=dict(
+                        type='data'
+                        ,array=prep_df['stdev_AHLE']
+                    ),
+                    mode="markers",
+                )
+            )
+            
             # Add title
             ecs_waterfall_fig.update_layout(
                 title_text=f'Values and Costs (Difference) | {species}, {prodsys} <br><sup>Difference between Current and {compare} scenario applied to {agesex}</sup><br>',
@@ -9974,8 +9999,6 @@ def update_am_price_comparison(input_json):
                 ,arrayminus=input_df["am_price_usdpertonne_low_err"]
             ),
             mode="markers+text",
-            # text=["B*", "B*", "B*", "B*","B*"],
-            textposition="middle right"
         )
     )
 

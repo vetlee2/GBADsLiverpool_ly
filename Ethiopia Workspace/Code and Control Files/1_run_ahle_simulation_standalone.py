@@ -98,14 +98,10 @@ ETHIOPIA_DATA_FOLDER = os.path.join(PARENT_FOLDER ,'Data')
 r_executable = 'C:\\Program Files\\R\\R-4.2.1\\bin\\x64\\Rscript.exe'
 
 #%% Run AHLE simulation - Small ruminants
-'''
-OLD RUN TIMES
 
-N runs | Run time
-10       32s
-100      1m 53s
-1000     14m 40s
-'''
+# =============================================================================
+#### Using Gemma's original AHLE function
+# =============================================================================
 # Full path to the R program you want to run
 r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table_SMALLRUMINANTS.R')
 
@@ -129,6 +125,15 @@ r_args = [
 timerstart()
 run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
 timerstop()
+
+# =============================================================================
+#### Using Stephen's updated AHLE function
+# =============================================================================
+# This file defines the function
+r_script = os.path.join(CURRENT_FOLDER ,'ahle_sr.R')
+run_cmd([r_executable ,r_script] ,SHOW_MAXLINES=999)
+
+# Now call the function and pass arguments
 
 #%% Run AHLE simulation - Cattle
 

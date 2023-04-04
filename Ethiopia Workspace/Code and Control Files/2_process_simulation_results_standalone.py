@@ -101,7 +101,7 @@ ETHIOPIA_DATA_FOLDER = os.path.join(PARENT_FOLDER ,'Data')
 
 DASH_DATA_FOLDER = os.path.join(GRANDPARENT_FOLDER, 'AHLE Dashboard' ,'Dash App' ,'data')
 
-#%% Data prep
+#%% External data
 
 # =============================================================================
 #### Prepare currency conversion data

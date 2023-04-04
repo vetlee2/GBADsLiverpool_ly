@@ -168,7 +168,7 @@ DASH_DATA_FOLDER = os.path.join(GRANDPARENT_FOLDER, 'AHLE Dashboard' ,'Dash App'
 # Full path to rscript.exe
 r_executable = 'C:\\Program Files\\R\\R-4.2.1\\bin\\x64\\Rscript.exe'
 
-#%% Data prep
+#%% External data
 
 # =============================================================================
 #### Read currency conversion data
@@ -333,7 +333,7 @@ ahle_combo_forattr_smallrum = ahle_combo_forattr_1.loc[_row_selection].reset_ind
 # =============================================================================
 #### Create aggregate groups
 #!!! Note: I am using the SUM here even though AHLE estimates don't exactly sum
-# over agesex scenarios. This is because there is no way to exactly estimate the
+# over agesex scenarios. This is because there is no way to exactly calculate the
 # AHLE for a scenario that hasn't been run through the simulation model.
 # =============================================================================
 # -----------------------------------------------------------------------------

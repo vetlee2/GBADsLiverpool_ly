@@ -3751,7 +3751,8 @@ gbadsDash.layout = html.Div([
                                     # style=nav_btn_style,
                                     ),
                         href='#AMU-data-export', refresh=True),
-                        style={'justify-content':'center'}),
+                        style={'justify-content':'center',
+                               'display':'flex'}),
                     ],
                     style={
                             # TODO: Change colors in CSS
@@ -9297,6 +9298,7 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
         map_value = input_df_am_expend['am_expenditure_usd_selected']
     elif quantity == 'Antimicrobial expenditure: per kg biomass':
         map_value = input_df_am_expend['am_expenditure_usd_perkg_selected']
+
 
 
     # Visualization switch between map and tree map

@@ -203,7 +203,7 @@ ahle_combo_scensmry_withahle_sub = pd.read_pickle(os.path.join(ETHIOPIA_OUTPUT_F
 datainfo(ahle_combo_scensmry_withahle_sub)
 
 #!!! Until I can incorporate yearly data into this, apply a top-level filter for a single year
-ahle_combo_scensmry_withahle_sub = ahle_combo_scensmry_withahle_sub.query("year == 2021")
+# ahle_combo_scensmry_withahle_sub = ahle_combo_scensmry_withahle_sub.query("year == 2021")
 
 # =============================================================================
 #### Fill in missing components
@@ -241,13 +241,13 @@ ahle_dueto_productionloss_mean = ahle_total_mean - ahle_dueto_mortality_mean - a
 #### Restructure for Attribution function
 # =============================================================================
 ahle_combo_forattr_means = ahle_combo_scensmry_withahle_sub.melt(
-   id_vars=['species' ,'production_system' ,'agesex_scenario']
+   id_vars=['species' ,'production_system' ,'agesex_scenario' ,'year']
    ,value_vars=['ahle_dueto_mortality_mean' ,'ahle_dueto_healthcost_mean' ,'ahle_dueto_productionloss_mean']
    ,var_name='ahle_component'
    ,value_name='mean'
 )
 ahle_combo_forattr_stdev = ahle_combo_scensmry_withahle_sub.melt(
-   id_vars=['species' ,'production_system' ,'agesex_scenario']
+   id_vars=['species' ,'production_system' ,'agesex_scenario' ,'year']
    ,value_vars=['ahle_dueto_mortality_stdev' ,'ahle_dueto_healthcost_stdev' ,'ahle_dueto_productionloss_stdev']
    ,var_name='ahle_component'
    ,value_name='stdev'
@@ -270,7 +270,7 @@ ahle_combo_forattr_stdev['ahle_component'] = ahle_combo_forattr_stdev['ahle_comp
 ahle_combo_forattr_1 = pd.merge(
    left=ahle_combo_forattr_means
    ,right=ahle_combo_forattr_stdev
-   ,on=['species' ,'production_system' ,'agesex_scenario' ,'ahle_component']
+   ,on=['species' ,'production_system' ,'agesex_scenario' ,'ahle_component' ,'year']
    ,how='outer'
 )
 del ahle_combo_forattr_means ,ahle_combo_forattr_stdev
@@ -314,7 +314,7 @@ ahle_combo_forattr_1.loc[_mortrows] = ahle_combo_forattr_1.loc[_mortrows].replac
 # Drop duplicates
 # Different processing for different species may have produced duplicates
 ahle_combo_forattr_1 = ahle_combo_forattr_1.drop_duplicates(
- 	subset=['species' ,'production_system' ,'agesex_scenario' ,'ahle_component']
+ 	subset=['species' ,'production_system' ,'agesex_scenario' ,'ahle_component' ,'year']
  	,keep='first'                   # String: which occurrence to keep, 'first' or 'last'
 )
 
@@ -344,7 +344,7 @@ ahle_combo_forattr_smallrum = ahle_combo_forattr_1.loc[_row_selection].reset_ind
 _agg_juv = (ahle_combo_forattr_smallrum['agesex_scenario'].str.contains('Juvenile')) \
     & (ahle_combo_forattr_smallrum['ahle_component'] != 'Mortality')
 ahle_combo_forattr_smallrum_aggjuv = ahle_combo_forattr_smallrum.loc[_agg_juv].pivot_table(
-	index=['species' ,'production_system' ,'ahle_component']
+	index=['species' ,'production_system' ,'ahle_component' ,'year']
 	,values=['mean' ,'variance']
 	,aggfunc='sum'
 )
@@ -356,7 +356,7 @@ ahle_combo_forattr_smallrum_aggjuv['stdev'] = np.sqrt(ahle_combo_forattr_smallru
 _agg_neo = (ahle_combo_forattr_smallrum['agesex_scenario'].str.contains('Neonatal')) \
     & (ahle_combo_forattr_smallrum['ahle_component'] != 'Mortality')
 ahle_combo_forattr_smallrum_aggneo = ahle_combo_forattr_smallrum.loc[_agg_neo].pivot_table(
-	index=['species' ,'production_system' ,'ahle_component']
+	index=['species' ,'production_system' ,'ahle_component' ,'year']
 	,values=['mean' ,'variance']
 	,aggfunc='sum'
 )
@@ -412,13 +412,11 @@ colnames = {
    ,"production_system":"Production system"
    ,"agesex_scenario":"Age class"
    ,"ahle_component":"AHLE"
+   ,"year":"Year"
    ,"mean":"mean"
    ,"stdev":"sd"
 }
 ahle_combo_forattr_smallrum = ahle_combo_forattr_smallrum[list(colnames)].rename(columns=colnames)
-
-# Write CSV
-ahle_combo_forattr_smallrum.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_forattr_smallrum.csv') ,index=False)
 
 #%% Prep for Attribution - Cattle
 '''
@@ -450,7 +448,7 @@ ahle_combo_forattr_cattle = ahle_combo_forattr_1.loc[_row_selection].reset_index
 _agg_juv = (ahle_combo_forattr_cattle['agesex_scenario'].str.contains('Juvenile')) \
     & (ahle_combo_forattr_cattle['ahle_component'] != 'Mortality')
 ahle_combo_forattr_cattle_aggjuv = ahle_combo_forattr_cattle.loc[_agg_juv].pivot_table(
-	index=['species' ,'production_system' ,'ahle_component']
+	index=['species' ,'production_system' ,'ahle_component' ,'year']
 	,values=['mean' ,'variance']
 	,aggfunc='sum'
 )
@@ -463,7 +461,7 @@ ahle_combo_forattr_cattle_aggjuv['stdev'] = np.sqrt(ahle_combo_forattr_cattle_ag
 _agg_neo = (ahle_combo_forattr_cattle['agesex_scenario'].str.contains('Neonatal')) \
     & (ahle_combo_forattr_cattle['ahle_component'] != 'Mortality')
 ahle_combo_forattr_cattle_aggneo = ahle_combo_forattr_cattle.loc[_agg_neo].pivot_table(
-	index=['species' ,'production_system' ,'ahle_component']
+	index=['species' ,'production_system' ,'ahle_component' ,'year']
 	,values=['mean' ,'variance']
 	,aggfunc='sum'
 )
@@ -475,7 +473,7 @@ ahle_combo_forattr_cattle_aggneo['stdev'] = np.sqrt(ahle_combo_forattr_cattle_ag
 # Including mortality
 _agg_adt = (ahle_combo_forattr_cattle['agesex_scenario'].str.contains('Adult'))
 ahle_combo_forattr_cattle_aggadt = ahle_combo_forattr_cattle.loc[_agg_adt].pivot_table(
-	index=['species' ,'production_system' ,'ahle_component']
+	index=['species' ,'production_system' ,'ahle_component' ,'year']
 	,values=['mean' ,'variance']
 	,aggfunc='sum'
 )
@@ -549,13 +547,11 @@ colnames = {
    ,"production_system":"Production system"
    ,"agesex_scenario":"Age class"
    ,"ahle_component":"AHLE"
+   ,"year":"Year"
    ,"mean":"mean"
    ,"stdev":"sd"
 }
 ahle_combo_forattr_cattle = ahle_combo_forattr_cattle[list(colnames)].rename(columns=colnames)
-
-# Write CSV
-ahle_combo_forattr_cattle.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_forattr_cattle.csv') ,index=False)
 
 #%% Prep for Attribution - Poultry
 '''
@@ -578,7 +574,7 @@ ahle_combo_forattr_poultry = ahle_combo_forattr_1.loc[_row_selection].reset_inde
 # Combine subspecies (hybrid and indegenous)
 # -----------------------------------------------------------------------------
 ahle_combo_forattr_poultry = ahle_combo_forattr_poultry.pivot_table(
-	index=['production_system' ,'agesex_scenario' ,'ahle_component']
+	index=['production_system' ,'agesex_scenario' ,'ahle_component' ,'year']
 	,values=['mean' ,'variance']
 	,aggfunc='sum'
 )
@@ -620,13 +616,11 @@ colnames = {
    ,"production_system":"Production system"
    ,"agesex_scenario":"Age class"
    ,"ahle_component":"AHLE"
+   ,"year":"Year"
    ,"mean":"mean"
    ,"stdev":"sd"
 }
 ahle_combo_forattr_poultry = ahle_combo_forattr_poultry[list(colnames)].rename(columns=colnames)
-
-# Write CSV
-ahle_combo_forattr_poultry.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_forattr_poultry.csv') ,index=False)
 
 #%% Run Attribution
 
@@ -635,59 +629,128 @@ r_script = os.path.join(ETHIOPIA_CODE_FOLDER ,'Attribution function.R')    # Ful
 # =============================================================================
 #### Small ruminants
 # =============================================================================
-# Arguments to R function, as list of strings.
-# ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
-r_args = [
-   os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_forattr_smallrum.csv')  # String: full path to AHLE estimates file (csv)
-   ,os.path.join(ETHIOPIA_CODE_FOLDER ,'attribution_experts_smallruminants.csv')    # String: full path to expert opinion attribution file (csv)
-   ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_smallruminants.csv')    # String: full path to output file (csv)
-]
-timerstart()
-run_cmd([r_executable ,r_script] + r_args)
-timerstop()
+attribution_summary_smallruminants = pd.DataFrame()     # Initialize to hold all years
+
+# Loop over years
+for YEAR in ahle_combo_forattr_smallrum['Year'].unique():
+    print(f'Running attribution for small ruminants, {YEAR=}...')
+
+    # Filter to year and write CSV
+    ahle_combo_forattr_smallrum_oneyear = ahle_combo_forattr_smallrum.query(f"Year == {YEAR}")
+    ahle_combo_forattr_smallrum_oneyear.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_combo_forattr_smallrum_oneyear.csv') ,index=False)
+
+    # Run attribution
+    # Arguments to R function, as list of strings.
+    # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
+    r_args = [
+       os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_combo_forattr_smallrum_oneyear.csv')  # String: full path to AHLE estimates file (csv)
+       ,os.path.join(ETHIOPIA_CODE_FOLDER ,'attribution_experts_smallruminants.csv')    # String: full path to expert opinion attribution file (csv)
+       ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_smallruminants_oneyear.csv')    # String: full path to output file (csv)
+    ]
+    timerstart()
+    run_cmd([r_executable ,r_script] + r_args)
+    timerstop()
+
+    # Read CSV with attribution and append to result dataframe
+    attribution_summary_smallruminants_oneyear = pd.read_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_smallruminants_oneyear.csv'))
+    attribution_summary_smallruminants_oneyear['year'] = YEAR
+    attribution_summary_smallruminants = pd.concat([attribution_summary_smallruminants ,attribution_summary_smallruminants_oneyear] ,ignore_index=True)
+
+# Add species label
+attribution_summary_smallruminants['species'] = 'All Small Ruminants'
+
+# Delete intermediate data frames
+del ahle_combo_forattr_smallrum_oneyear ,attribution_summary_smallruminants_oneyear
+
+# Delete intermediate CSVs
+os.remove(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_combo_forattr_smallrum_oneyear.csv'))
+os.remove(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_smallruminants_oneyear.csv'))
 
 # =============================================================================
 #### Cattle
 # =============================================================================
-# Arguments to R function, as list of strings.
-# ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
-r_args = [
-   os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_forattr_cattle.csv')  # String: full path to AHLE estimates file (csv)
-   ,os.path.join(ETHIOPIA_CODE_FOLDER ,'attribution_experts_cattle.csv')    # String: full path to expert opinion attribution file (csv)
-   ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_cattle.csv')    # String: full path to output file (csv)
-]
-timerstart()
-run_cmd([r_executable ,r_script] + r_args)
-timerstop()
+attribution_summary_cattle = pd.DataFrame()     # Initialize to hold all years
+
+# Loop over years
+for YEAR in ahle_combo_forattr_cattle['Year'].unique():
+    print(f'Running attribution for cattle, {YEAR=}...')
+
+    # Filter to year and write CSV
+    ahle_combo_forattr_cattle_oneyear = ahle_combo_forattr_cattle.query(f"Year == {YEAR}")
+    ahle_combo_forattr_cattle_oneyear.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_combo_forattr_cattle_oneyear.csv') ,index=False)
+
+    # Run attribution
+    # Arguments to R function, as list of strings.
+    # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
+    r_args = [
+       os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_combo_forattr_cattle_oneyear.csv')  # String: full path to AHLE estimates file (csv)
+       ,os.path.join(ETHIOPIA_CODE_FOLDER ,'attribution_experts_cattle.csv')    # String: full path to expert opinion attribution file (csv)
+       ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_cattle_oneyear.csv')    # String: full path to output file (csv)
+    ]
+    timerstart()
+    run_cmd([r_executable ,r_script] + r_args)
+    timerstop()
+
+    # Read CSV with attribution and append to result dataframe
+    attribution_summary_cattle_oneyear = pd.read_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_cattle_oneyear.csv'))
+    attribution_summary_cattle_oneyear['year'] = YEAR
+    attribution_summary_cattle = pd.concat([attribution_summary_cattle ,attribution_summary_cattle_oneyear] ,ignore_index=True)
+
+# Add species label
+attribution_summary_cattle['species'] = 'Cattle'
+
+# Delete intermediate data frames
+del ahle_combo_forattr_cattle_oneyear ,attribution_summary_cattle_oneyear
+
+# Delete intermediate CSVs
+os.remove(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_combo_forattr_cattle_oneyear.csv'))
+os.remove(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_cattle_oneyear.csv'))
 
 # =============================================================================
 #### Poultry
 # =============================================================================
-# Arguments to R function, as list of strings.
-# ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
-r_args = [
-   os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_forattr_poultry.csv')  # String: full path to AHLE estimates file (csv)
-   ,os.path.join(ETHIOPIA_CODE_FOLDER ,'attribution_experts_chickens.csv')    # String: full path to expert opinion attribution file (csv)
-   ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_poultry.csv')    # String: full path to output file (csv)
-]
-timerstart()
-run_cmd([r_executable ,r_script] + r_args)
-timerstop()
+attribution_summary_poultry = pd.DataFrame()     # Initialize to hold all years
+
+# Loop over years
+for YEAR in ahle_combo_forattr_poultry['Year'].unique():
+    print(f'Running attribution for poultry, {YEAR=}...')
+
+    # Filter to year and write CSV
+    ahle_combo_forattr_poultry_oneyear = ahle_combo_forattr_poultry.query(f"Year == {YEAR}")
+    ahle_combo_forattr_poultry_oneyear.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_combo_forattr_poultry_oneyear.csv') ,index=False)
+
+    # Run attribution
+    # Arguments to R function, as list of strings.
+    # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
+    r_args = [
+       os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_combo_forattr_poultry_oneyear.csv')  # String: full path to AHLE estimates file (csv)
+       ,os.path.join(ETHIOPIA_CODE_FOLDER ,'attribution_experts_chickens.csv')    # String: full path to expert opinion attribution file (csv)
+       ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_poultry_oneyear.csv')    # String: full path to output file (csv)
+    ]
+    timerstart()
+    run_cmd([r_executable ,r_script] + r_args)
+    timerstop()
+
+    # Read CSV with attribution and append to result dataframe
+    attribution_summary_poultry_oneyear = pd.read_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_poultry_oneyear.csv'))
+    attribution_summary_poultry_oneyear['year'] = YEAR
+    attribution_summary_poultry = pd.concat([attribution_summary_poultry ,attribution_summary_poultry_oneyear] ,ignore_index=True)
+
+# Add species label
+attribution_summary_poultry['species'] = 'All Poultry'
+
+# Delete intermediate data frames
+del ahle_combo_forattr_poultry_oneyear ,attribution_summary_poultry_oneyear
+
+# Delete intermediate CSVs
+os.remove(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_combo_forattr_poultry_oneyear.csv'))
+os.remove(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_poultry_oneyear.csv'))
 
 #%% Process attribution results
 
 # =============================================================================
-#### Import and combine attribution results
+#### Combine attribution results
 # =============================================================================
-attribution_summary_smallruminants = pd.read_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_smallruminants.csv'))
-attribution_summary_smallruminants['species'] = 'All Small Ruminants'
-
-attribution_summary_cattle = pd.read_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_cattle.csv'))
-attribution_summary_cattle['species'] = 'Cattle'
-
-attribution_summary_poultry = pd.read_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_poultry.csv'))
-attribution_summary_poultry['species'] = 'All Poultry'
-
 ahle_combo_withattr = pd.concat(
     [attribution_summary_smallruminants ,attribution_summary_cattle ,attribution_summary_poultry]
     ,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
@@ -705,9 +768,11 @@ datainfo(ahle_combo_withattr)
 # -----------------------------------------------------------------------------
 # healthcost_category_list = ['Treatment' ,'Prevention' ,'Professional time' ,'Other']
 healthcost_category_list = ['Infectious' ,'Non-infectious' ,'External']
-healthcost_category_df = pd.DataFrame({'cause':healthcost_category_list
-                                       ,'ahle':'Health cost'}
-                                      )
+healthcost_category_df = pd.DataFrame(
+    {'cause':healthcost_category_list
+     ,'ahle':'Health cost'
+     }
+)
 
 # -----------------------------------------------------------------------------
 # Small Ruminants
@@ -721,14 +786,19 @@ cleancolnames(healthcost_smallrum)
 # Sum sheep and goats
 healthcost_smallrum['sqrd_sd'] = healthcost_smallrum['sd']**2       # Calculate variance for summing
 healthcost_smallrum = healthcost_smallrum.pivot_table(
-   index=['production_system' ,'age_class' ,'ahle']
+   index=['production_system' ,'age_class' ,'ahle' ,'year']
    ,values=['mean' ,'sqrd_sd']
    ,aggfunc='sum'
 ).reset_index()
 healthcost_smallrum['species'] = 'All Small Ruminants'
 
 # Add placeholder attribution categories
-healthcost_smallrum = pd.merge(left=healthcost_smallrum ,right=healthcost_category_df ,on='ahle' ,how='outer')
+healthcost_smallrum = pd.merge(
+    left=healthcost_smallrum
+    ,right=healthcost_category_df
+    ,on='ahle'
+    ,how='outer'
+)
 
 # Allocate health cost AHLE equally to categories
 healthcost_smallrum['mean'] = healthcost_smallrum['mean'] / len(healthcost_category_list)               # Mean(1/3 X) = 1/3 Mean(X)
@@ -759,7 +829,12 @@ healthcost_cattle = ahle_combo_forattr_cattle.loc[_row_selection].reset_index(dr
 cleancolnames(healthcost_cattle)
 
 # Add placeholder attribution categories
-healthcost_cattle = pd.merge(left=healthcost_cattle ,right=healthcost_category_df ,on='ahle' ,how='outer')
+healthcost_cattle = pd.merge(
+    left=healthcost_cattle
+    ,right=healthcost_category_df
+    ,on='ahle'
+    ,how='outer'
+)
 
 # Allocate health cost AHLE equally to categories
 healthcost_cattle['sqrd_sd'] = healthcost_cattle['sd']**2       # Calculate variance for summing
@@ -791,7 +866,12 @@ healthcost_poultry = ahle_combo_forattr_poultry.loc[_row_selection].reset_index(
 cleancolnames(healthcost_poultry)
 
 # Add placeholder attribution categories
-healthcost_poultry = pd.merge(left=healthcost_poultry ,right=healthcost_category_df ,on='ahle' ,how='outer')
+healthcost_poultry = pd.merge(
+    left=healthcost_poultry
+    ,right=healthcost_category_df
+    ,on='ahle'
+    ,how='outer'
+)
 
 # Allocate health cost AHLE equally to categories
 healthcost_poultry['sqrd_sd'] = healthcost_poultry['sd']**2       # Calculate variance for summing
@@ -872,7 +952,8 @@ ahle_combo_withattr['country_name'] = 'Ethiopia'     # Add country for joining
 ahle_combo_withattr = pd.merge(
     left=ahle_combo_withattr
     ,right=exchg_data_tomerge
-    ,on='country_name'
+    ,left_on=['country_name' ,'year']
+    ,right_on=['country_name' ,'time']
     ,how='left'
     )
 del ahle_combo_withattr['country_name']
@@ -919,7 +1000,7 @@ recode_prodsys = {
 ahle_combo_withattr['production_system'] = ahle_combo_withattr['production_system'].replace(recode_prodsys)
 
 # Reorder columns
-cols_first = ['species' ,'production_system' ,'group' ,'age_group' ,'sex' ,'ahle_component' ,'cause']
+cols_first = ['species' ,'production_system' ,'group' ,'age_group' ,'sex' ,'year' ,'ahle_component' ,'cause']
 cols_other = [i for i in list(ahle_combo_withattr) if i not in cols_first]
 ahle_combo_withattr = ahle_combo_withattr.reindex(columns=cols_first + cols_other)
 ahle_combo_withattr = ahle_combo_withattr.sort_values(by=cols_first ,ignore_index=True)

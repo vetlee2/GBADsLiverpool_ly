@@ -6476,8 +6476,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
     if graph_options == "Over Time":
         # Apply user filters
         # Filter based on selected item
-        lst = year_or_item
-        prep_df = prep_df.query('item in @lst')
+        prep_df = prep_df.query('item in @year_or_item')
 
 
         # Sort data by year
@@ -6672,6 +6671,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
             x = prep_df['item']
             if compare == 'Ideal':
                 y = prep_df['mean_AHLE']
+                stdev = prep_df['stdev_AHLE']
             elif compare == 'Zero Mortality':
                 y = prep_df['mean_AHLE_mortality']
             else:
@@ -6706,24 +6706,32 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
             ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
             
             # Add error bars
-            # Get cumulative sum value for Y
+            # Reset indicies
+            x = x.reset_index(drop=True)
+            y = y.reset_index(drop=True)
+
+            # Get cumulative sum value for Y unless Gross Margin
+            y_error_sum=[]
             for i in x.values:
-                if i != 'Gross Margin':
+                if i != 'Gross Margin (AHLE)':
                     y_error_sum = np.cumsum(y)
-                else:
-                    y_error_sum = y
-            
+                elif i == 'Gross Margin (AHLE)':
+                    GM_index = x[x == 'Gross Margin (AHLE)'].index[0]
+                    y_error_sum[GM_index] = y[GM_index]
+                    
+            # Add trace for error
             ecs_waterfall_fig.add_trace(
                 go.Scatter(
-                 	x=x
-                 	,y=y_error_sum
-                    ,marker=dict(color='black')
-                 	,error_y=dict(
-                        type='data'
-                        ,array=prep_df['stdev_AHLE']
+                 	x=x,
+                 	y=y_error_sum,
+                    marker=dict(color='black'),
+                 	error_y=dict(
+                        type='data',
+                        array=prep_df['stdev_AHLE']
                     ),
                     mode="markers",
-                )
+                    hoverinfo='none'
+                ), 
             )
             
             # Add title
@@ -6736,23 +6744,84 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
         else:
             if compare == 'Ideal':
                 y = prep_df['mean_ideal']
+                stdev = prep_df['stdev_ideal']
                 name = "Ideal (solid)"
                 # Create graph
                 ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
+                
+                # Add error bars
+                # Reset indicies
+                x = x.reset_index(drop=True)
+                y = y.reset_index(drop=True)
+                # Get cumulative sum value for Y unless Gross Margin
+                y_error_sum=[]
+                for i in x.values:
+                    if i != 'Gross Margin (AHLE)':
+                        y_error_sum = np.cumsum(y)
+                    elif i == 'Gross Margin (AHLE)':
+                        GM_index = x[x == 'Gross Margin (AHLE)'].index[0]
+                        y_error_sum[GM_index] = y[GM_index]                        
+                # Add trace for error
+                ecs_waterfall_fig.add_trace(
+                    go.Scatter(
+                     	x=x,
+                     	y=y_error_sum,
+                        marker=dict(color='black'),
+                     	error_y=dict(
+                            type='data',
+                            array=stdev
+                        ),
+                        mode="markers",
+                        hoverinfo='none'
+                    ), 
+                )
+                
                 # Add current with lag
+                y = prep_df['mean_current']
                 ecs_waterfall_fig.add_trace(go.Waterfall(
                     name = 'Current (outline)',
                     measure = measure,
                     x = x,
-                    y = prep_df['mean_current'],
+                    y = y,
                     decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
                     increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
                     totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
                     connector = {"line":{"dash":"dot"}},
-                    customdata=prep_df['mean_current'],
+                    customdata=y,
                     ))
+                
+                # Add error bars
+                # Reset indicies
+                y = prep_df['mean_current']
+                x = x.reset_index(drop=True)
+                y = y.reset_index(drop=True)
+                # Get cumulative sum value for Y unless Gross Margin
+                y_error_sum=[]
+                for i in x.values:
+                    if i != 'Gross Margin (AHLE)':
+                        y_error_sum = np.cumsum(y)
+                    elif i == 'Gross Margin (AHLE)':
+                        GM_index = x[x == 'Gross Margin (AHLE)'].index[0]
+                        y_error_sum[GM_index] = y[GM_index]                        
+                # Add trace for error
+                ecs_waterfall_fig.add_trace(
+                    go.Scatter(
+                     	x=x,
+                     	y=y_error_sum,
+                        marker=dict(color='black'),
+                     	error_y=dict(
+                            type='data',
+                            array=prep_df['stdev_current']
+                        ),
+                        mode="markers",
+                        hoverinfo='none'
+                    ), 
+                )
+                
                 ecs_waterfall_fig.update_layout(
                     waterfallgroupgap = 0.5,
+                    # scattermode="group", 
+                    scattergap=1.5
                     )
                 # Add title
                 ecs_waterfall_fig.update_layout(
@@ -6873,6 +6942,36 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                                             '<br>Value: %{customdata:,.0f} <extra></extra>'+
                                             '<br>Cumulative Value: %{y:,.0f} '
                                             )
+            
+        # # Add error bars
+        # # Reset indicies
+        # x = x.reset_index(drop=True)
+        # y = y.reset_index(drop=True)
+
+        # # Get cumulative sum value for Y
+        # y_error_sum=[]
+        # for i in x.values:
+        #     if i != 'Gross Margin (AHLE)':
+        #         y_error_sum = np.cumsum(y)
+        #     elif i == 'Gross Margin (AHLE)':
+        #         GM_index = x[x == 'Gross Margin (AHLE)'].index[0]
+        #         y_error_sum[GM_index] = y[GM_index]
+                
+        # # Add trace for error
+        # ecs_waterfall_fig.add_trace(
+        #     go.Scatter(
+        #      	x=x,
+        #      	y=y_error_sum,
+        #         marker=dict(color='black'),
+        #      	error_y=dict(
+        #             type='data',
+        #             array=prep_df['stdev_AHLE']
+        #         ),
+        #         mode="markers",
+        #         hoverinfo='none',
+        #         name='Est. range'
+        #     ), 
+        # )
 
     return ecs_waterfall_fig
 

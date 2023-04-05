@@ -6756,10 +6756,10 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                 # Get cumulative sum value for Y unless Gross Margin
                 y_error_sum=[]
                 for i in x.values:
-                    if i != 'Gross Margin (AHLE)':
+                    if i != 'Gross Margin':
                         y_error_sum = np.cumsum(y)
-                    elif i == 'Gross Margin (AHLE)':
-                        GM_index = x[x == 'Gross Margin (AHLE)'].index[0]
+                    elif i == 'Gross Margin':
+                        GM_index = x[x == 'Gross Margin'].index[0]
                         y_error_sum[GM_index] = y[GM_index]                        
                 # Add trace for error
                 ecs_waterfall_fig.add_trace(
@@ -6798,10 +6798,10 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                 # Get cumulative sum value for Y unless Gross Margin
                 y_error_sum=[]
                 for i in x.values:
-                    if i != 'Gross Margin (AHLE)':
+                    if i != 'Gross Margin':
                         y_error_sum = np.cumsum(y)
-                    elif i == 'Gross Margin (AHLE)':
-                        GM_index = x[x == 'Gross Margin (AHLE)'].index[0]
+                    elif i == 'Gross Margin':
+                        GM_index = x[x == 'Gross Margin'].index[0]
                         y_error_sum[GM_index] = y[GM_index]                        
                 # Add trace for error
                 ecs_waterfall_fig.add_trace(
@@ -6820,9 +6820,10 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                 
                 ecs_waterfall_fig.update_layout(
                     waterfallgroupgap = 0.5,
-                    # scattermode="group", 
-                    scattergap=1.5
+                    scattermode="group", 
+                    scattergap=0.75
                     )
+                
                 # Add title
                 ecs_waterfall_fig.update_layout(
                     title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',

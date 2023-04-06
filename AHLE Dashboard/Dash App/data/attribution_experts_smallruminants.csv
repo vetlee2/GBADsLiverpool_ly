@@ -1,0 +1,433 @@
+﻿Expert,AHLE,Production system,Age class,Cause,min,avg,max
+A,Mortality,Crop livestock mixed,Neonate,Infectious,40.000,70.000,85.000
+A,Mortality,Crop livestock mixed,Neonate,Non-infectious,10.000,20.000,25.000
+A,Mortality,Crop livestock mixed,Neonate,External,1.000,5.000,10.000
+A,Mortality,Crop livestock mixed,Juvenile,Infectious,50.000,80.000,85.000
+A,Mortality,Crop livestock mixed,Juvenile,Non-infectious,5.000,15.000,20.000
+A,Mortality,Crop livestock mixed,Juvenile,External,1.000,5.000,10.000
+A,Mortality,Crop livestock mixed,Adult female,Infectious,20.000,60.000,70.000
+A,Mortality,Crop livestock mixed,Adult female,Non-infectious,10.000,30.000,35.000
+A,Mortality,Crop livestock mixed,Adult female,External,2.000,10.000,15.000
+A,Mortality,Crop livestock mixed,Adult male,Infectious,20.000,70.000,75.000
+A,Mortality,Crop livestock mixed,Adult male,Non-infectious,10.000,20.000,25.000
+A,Mortality,Crop livestock mixed,Adult male,External,2.000,10.000,15.000
+B,Mortality,Crop livestock mixed,Neonate,Infectious,10.000,35.000,60.000
+B,Mortality,Crop livestock mixed,Neonate,Non-infectious,5.000,30.000,50.000
+B,Mortality,Crop livestock mixed,Neonate,External,10.000,35.000,60.000
+B,Mortality,Crop livestock mixed,Juvenile,Infectious,15.000,40.000,70.000
+B,Mortality,Crop livestock mixed,Juvenile,Non-infectious,5.000,30.000,40.000
+B,Mortality,Crop livestock mixed,Juvenile,External,10.000,30.000,50.000
+B,Mortality,Crop livestock mixed,Adult female,Infectious,10.000,50.000,60.000
+B,Mortality,Crop livestock mixed,Adult female,Non-infectious,8.000,20.000,40.000
+B,Mortality,Crop livestock mixed,Adult female,External,10.000,30.000,45.000
+B,Mortality,Crop livestock mixed,Adult male,Infectious,15.000,55.000,56.000
+B,Mortality,Crop livestock mixed,Adult male,Non-infectious,6.000,10.000,20.000
+B,Mortality,Crop livestock mixed,Adult male,External,10.000,35.000,50.000
+C,Mortality,Crop livestock mixed,Neonate,Infectious,35.000,40.000,41.000
+C,Mortality,Crop livestock mixed,Neonate,Non-infectious,30.000,35.000,36.000
+C,Mortality,Crop livestock mixed,Neonate,External,20.000,25.000,26.000
+C,Mortality,Crop livestock mixed,Juvenile,Infectious,32.000,35.000,36.000
+C,Mortality,Crop livestock mixed,Juvenile,Non-infectious,30.000,35.000,36.000
+C,Mortality,Crop livestock mixed,Juvenile,External,25.000,30.000,31.000
+C,Mortality,Crop livestock mixed,Adult female,Infectious,35.000,40.000,42.000
+C,Mortality,Crop livestock mixed,Adult female,Non-infectious,37.000,40.000,41.000
+C,Mortality,Crop livestock mixed,Adult female,External,19.000,20.000,21.000
+C,Mortality,Crop livestock mixed,Adult male,Infectious,37.000,40.000,41.000
+C,Mortality,Crop livestock mixed,Adult male,Non-infectious,32.000,35.000,36.000
+C,Mortality,Crop livestock mixed,Adult male,External,23.000,25.000,26.000
+D,Mortality,Crop livestock mixed,Neonate,Infectious,65.000,70.000,80.000
+D,Mortality,Crop livestock mixed,Neonate,Non-infectious,25.000,30.000,45.000
+D,Mortality,Crop livestock mixed,Neonate,External,5.000,6.000,10.000
+D,Mortality,Crop livestock mixed,Juvenile,Infectious,50.000,51.000,60.000
+D,Mortality,Crop livestock mixed,Juvenile,Non-infectious,25.000,45.000,55.000
+D,Mortality,Crop livestock mixed,Juvenile,External,10.000,15.000,20.000
+D,Mortality,Crop livestock mixed,Adult female,Infectious,40.000,50.000,60.000
+D,Mortality,Crop livestock mixed,Adult female,Non-infectious,20.000,35.000,40.000
+D,Mortality,Crop livestock mixed,Adult female,External,5.000,10.000,20.000
+D,Mortality,Crop livestock mixed,Adult male,Infectious,35.000,50.000,60.000
+D,Mortality,Crop livestock mixed,Adult male,Non-infectious,25.000,35.000,40.000
+D,Mortality,Crop livestock mixed,Adult male,External,5.000,10.000,20.000
+E,Mortality,Crop livestock mixed,Neonate,Infectious,50.000,80.000,90.000
+E,Mortality,Crop livestock mixed,Neonate,Non-infectious,3.000,5.000,8.000
+E,Mortality,Crop livestock mixed,Neonate,External,10.000,15.000,30.000
+E,Mortality,Crop livestock mixed,Juvenile,Infectious,55.000,70.000,80.000
+E,Mortality,Crop livestock mixed,Juvenile,Non-infectious,3.000,5.000,8.000
+E,Mortality,Crop livestock mixed,Juvenile,External,20.000,25.000,30.000
+E,Mortality,Crop livestock mixed,Adult female,Infectious,20.000,50.000,70.000
+E,Mortality,Crop livestock mixed,Adult female,Non-infectious,10.000,25.000,30.000
+E,Mortality,Crop livestock mixed,Adult female,External,10.000,25.000,30.000
+E,Mortality,Crop livestock mixed,Adult male,Infectious,20.000,50.000,70.000
+E,Mortality,Crop livestock mixed,Adult male,Non-infectious,10.000,25.000,30.000
+E,Mortality,Crop livestock mixed,Adult male,External,10.000,25.000,30.000
+F,Mortality,Crop livestock mixed,Neonate,Infectious,20.000,50.000,70.000
+F,Mortality,Crop livestock mixed,Neonate,Non-infectious,15.000,35.000,50.000
+F,Mortality,Crop livestock mixed,Neonate,External,10.000,15.000,25.000
+F,Mortality,Crop livestock mixed,Juvenile,Infectious,20.000,40.000,60.000
+F,Mortality,Crop livestock mixed,Juvenile,Non-infectious,20.000,40.000,60.000
+F,Mortality,Crop livestock mixed,Juvenile,External,10.000,20.000,30.000
+F,Mortality,Crop livestock mixed,Adult female,Infectious,20.000,40.000,50.000
+F,Mortality,Crop livestock mixed,Adult female,Non-infectious,15.000,35.000,50.000
+F,Mortality,Crop livestock mixed,Adult female,External,15.000,25.000,30.000
+F,Mortality,Crop livestock mixed,Adult male,Infectious,20.000,40.000,50.000
+F,Mortality,Crop livestock mixed,Adult male,Non-infectious,15.000,30.000,40.000
+F,Mortality,Crop livestock mixed,Adult male,External,15.000,30.000,40.000
+G,Mortality,Crop livestock mixed,Neonate,Infectious,20.000,45.000,55.000
+G,Mortality,Crop livestock mixed,Neonate,Non-infectious,15.000,30.000,35.000
+G,Mortality,Crop livestock mixed,Neonate,External,10.000,20.000,25.000
+G,Mortality,Crop livestock mixed,Juvenile,Infectious,25.000,40.000,50.000
+G,Mortality,Crop livestock mixed,Juvenile,Non-infectious,20.000,35.000,40.000
+G,Mortality,Crop livestock mixed,Juvenile,External,15.000,25.000,30.000
+G,Mortality,Crop livestock mixed,Adult female,Infectious,40.000,50.000,60.000
+G,Mortality,Crop livestock mixed,Adult female,Non-infectious,15.000,25.000,30.000
+G,Mortality,Crop livestock mixed,Adult female,External,15.000,25.000,35.000
+G,Mortality,Crop livestock mixed,Adult male,Infectious,35.000,45.000,50.000
+G,Mortality,Crop livestock mixed,Adult male,Non-infectious,25.000,30.000,35.000
+G,Mortality,Crop livestock mixed,Adult male,External,20.000,25.000,30.000
+H,Mortality,Crop livestock mixed,Neonate,Infectious,20.000,40.000,45.000
+H,Mortality,Crop livestock mixed,Neonate,Non-infectious,10.000,30.000,40.000
+H,Mortality,Crop livestock mixed,Neonate,External,10.000,30.000,40.000
+H,Mortality,Crop livestock mixed,Juvenile,Infectious,15.000,35.000,45.000
+H,Mortality,Crop livestock mixed,Juvenile,Non-infectious,15.000,35.000,40.000
+H,Mortality,Crop livestock mixed,Juvenile,External,10.000,30.000,40.000
+H,Mortality,Crop livestock mixed,Adult female,Infectious,15.000,35.000,40.000
+H,Mortality,Crop livestock mixed,Adult female,Non-infectious,10.000,35.000,40.000
+H,Mortality,Crop livestock mixed,Adult female,External,5.000,30.000,35.000
+H,Mortality,Crop livestock mixed,Adult male,Infectious,15.000,35.000,40.000
+H,Mortality,Crop livestock mixed,Adult male,Non-infectious,10.000,35.000,40.000
+H,Mortality,Crop livestock mixed,Adult male,External,5.000,30.000,35.000
+I,Mortality,Crop livestock mixed,Neonate,Infectious,30.000,55.000,65.000
+I,Mortality,Crop livestock mixed,Neonate,Non-infectious,10.000,20.000,25.000
+I,Mortality,Crop livestock mixed,Neonate,External,20.000,25.000,35.000
+I,Mortality,Crop livestock mixed,Juvenile,Infectious,25.000,50.000,60.000
+I,Mortality,Crop livestock mixed,Juvenile,Non-infectious,10.000,20.000,25.000
+I,Mortality,Crop livestock mixed,Juvenile,External,15.000,30.000,35.000
+I,Mortality,Crop livestock mixed,Adult female,Infectious,20.000,45.000,50.000
+I,Mortality,Crop livestock mixed,Adult female,Non-infectious,5.000,25.000,30.000
+I,Mortality,Crop livestock mixed,Adult female,External,10.000,30.000,35.000
+I,Mortality,Crop livestock mixed,Adult male,Infectious,15.000,40.000,45.000
+I,Mortality,Crop livestock mixed,Adult male,Non-infectious,5.000,25.000,30.000
+I,Mortality,Crop livestock mixed,Adult male,External,10.000,30.000,35.000
+A,Mortality,Pastoral,Neonate,Infectious,20.000,60.000,65.000
+A,Mortality,Pastoral,Neonate,Non-infectious,5.000,10.000,15.000
+A,Mortality,Pastoral,Neonate,External,10.000,30.000,50.000
+A,Mortality,Pastoral,Juvenile,Infectious,50.000,80.000,85.000
+A,Mortality,Pastoral,Juvenile,Non-infectious,2.000,5.000,10.000
+A,Mortality,Pastoral,Juvenile,External,5.000,15.000,25.000
+A,Mortality,Pastoral,Adult female,Infectious,40.000,70.000,80.000
+A,Mortality,Pastoral,Adult female,Non-infectious,2.000,10.000,15.000
+A,Mortality,Pastoral,Adult female,External,19.000,20.000,40.000
+A,Mortality,Pastoral,Adult male,Infectious,40.000,65.000,75.000
+A,Mortality,Pastoral,Adult male,Non-infectious,2.000,5.000,10.000
+A,Mortality,Pastoral,Adult male,External,20.000,30.000,40.000
+B,Mortality,Pastoral,Neonate,Infectious,10.000,30.000,50.000
+B,Mortality,Pastoral,Neonate,Non-infectious,5.000,35.000,60.000
+B,Mortality,Pastoral,Neonate,External,5.000,35.000,65.000
+B,Mortality,Pastoral,Juvenile,Infectious,20.000,40.000,70.000
+B,Mortality,Pastoral,Juvenile,Non-infectious,5.000,25.000,45.000
+B,Mortality,Pastoral,Juvenile,External,10.000,35.000,60.000
+B,Mortality,Pastoral,Adult female,Infectious,12.000,35.000,60.000
+B,Mortality,Pastoral,Adult female,Non-infectious,10.000,25.000,50.000
+B,Mortality,Pastoral,Adult female,External,15.000,40.000,55.000
+B,Mortality,Pastoral,Adult male,Infectious,8.000,35.000,55.000
+B,Mortality,Pastoral,Adult male,Non-infectious,5.000,20.000,40.000
+B,Mortality,Pastoral,Adult male,External,10.000,45.000,60.000
+C,Mortality,Pastoral,Neonate,Infectious,38.000,40.000,42.000
+C,Mortality,Pastoral,Neonate,Non-infectious,18.000,20.000,22.000
+C,Mortality,Pastoral,Neonate,External,38.000,40.000,42.000
+C,Mortality,Pastoral,Juvenile,Infectious,38.000,40.000,41.000
+C,Mortality,Pastoral,Juvenile,Non-infectious,23.000,25.000,26.000
+C,Mortality,Pastoral,Juvenile,External,32.000,35.000,36.000
+C,Mortality,Pastoral,Adult female,Infectious,32.000,35.000,36.000
+C,Mortality,Pastoral,Adult female,Non-infectious,28.000,30.000,32.000
+C,Mortality,Pastoral,Adult female,External,32.000,35.000,37.000
+C,Mortality,Pastoral,Adult male,Infectious,36.000,40.000,42.000
+C,Mortality,Pastoral,Adult male,Non-infectious,27.000,30.000,31.000
+C,Mortality,Pastoral,Adult male,External,28.000,30.000,32.000
+D,Mortality,Pastoral,Neonate,Infectious,35.000,45.000,50.000
+D,Mortality,Pastoral,Neonate,Non-infectious,35.000,50.000,55.000
+D,Mortality,Pastoral,Neonate,External,10.000,15.000,20.000
+D,Mortality,Pastoral,Juvenile,Infectious,30.000,45.000,50.000
+D,Mortality,Pastoral,Juvenile,Non-infectious,35.000,40.000,50.000
+D,Mortality,Pastoral,Juvenile,External,10.000,15.000,20.000
+D,Mortality,Pastoral,Adult female,Infectious,30.000,40.000,60.000
+D,Mortality,Pastoral,Adult female,Non-infectious,30.000,40.000,50.000
+D,Mortality,Pastoral,Adult female,External,10.000,20.000,30.000
+D,Mortality,Pastoral,Adult male,Infectious,20.000,30.000,50.000
+D,Mortality,Pastoral,Adult male,Non-infectious,39.000,40.000,60.000
+D,Mortality,Pastoral,Adult male,External,20.000,30.000,40.000
+E,Mortality,Pastoral,Neonate,Infectious,55.000,70.000,80.000
+E,Mortality,Pastoral,Neonate,Non-infectious,8.000,10.000,15.000
+E,Mortality,Pastoral,Neonate,External,15.000,20.000,30.000
+E,Mortality,Pastoral,Juvenile,Infectious,40.000,60.000,70.000
+E,Mortality,Pastoral,Juvenile,Non-infectious,8.000,10.000,15.000
+E,Mortality,Pastoral,Juvenile,External,20.000,30.000,40.000
+E,Mortality,Pastoral,Adult female,Infectious,30.000,50.000,60.000
+E,Mortality,Pastoral,Adult female,Non-infectious,10.000,20.000,30.000
+E,Mortality,Pastoral,Adult female,External,20.000,30.000,40.000
+E,Mortality,Pastoral,Adult male,Infectious,30.000,50.000,60.000
+E,Mortality,Pastoral,Adult male,Non-infectious,10.000,20.000,30.000
+E,Mortality,Pastoral,Adult male,External,20.000,30.000,40.000
+F,Mortality,Pastoral,Neonate,Infectious,30.000,60.000,80.000
+F,Mortality,Pastoral,Neonate,Non-infectious,10.000,20.000,30.000
+F,Mortality,Pastoral,Neonate,External,10.000,20.000,30.000
+F,Mortality,Pastoral,Juvenile,Infectious,20.000,50.000,60.000
+F,Mortality,Pastoral,Juvenile,Non-infectious,20.000,35.000,40.000
+F,Mortality,Pastoral,Juvenile,External,10.000,15.000,20.000
+F,Mortality,Pastoral,Adult female,Infectious,30.000,50.000,60.000
+F,Mortality,Pastoral,Adult female,Non-infectious,20.000,40.000,50.000
+F,Mortality,Pastoral,Adult female,External,5.000,10.000,15.000
+F,Mortality,Pastoral,Adult male,Infectious,20.000,50.000,60.000
+F,Mortality,Pastoral,Adult male,Non-infectious,15.000,30.000,45.000
+F,Mortality,Pastoral,Adult male,External,10.000,20.000,30.000
+G,Mortality,Pastoral,Neonate,Infectious,40.000,65.000,70.000
+G,Mortality,Pastoral,Neonate,Non-infectious,10.000,20.000,30.000
+G,Mortality,Pastoral,Neonate,External,10.000,15.000,20.000
+G,Mortality,Pastoral,Juvenile,Infectious,40.000,55.000,65.000
+G,Mortality,Pastoral,Juvenile,Non-infectious,20.000,25.000,40.000
+G,Mortality,Pastoral,Juvenile,External,5.000,20.000,30.000
+G,Mortality,Pastoral,Adult female,Infectious,35.000,45.000,55.000
+G,Mortality,Pastoral,Adult female,Non-infectious,20.000,30.000,45.000
+G,Mortality,Pastoral,Adult female,External,15.000,25.000,30.000
+G,Mortality,Pastoral,Adult male,Infectious,25.000,40.000,50.000
+G,Mortality,Pastoral,Adult male,Non-infectious,20.000,35.000,40.000
+G,Mortality,Pastoral,Adult male,External,10.000,25.000,30.000
+H,Mortality,Pastoral,Neonate,Infectious,15.000,35.000,40.000
+H,Mortality,Pastoral,Neonate,Non-infectious,10.000,30.000,40.000
+H,Mortality,Pastoral,Neonate,External,15.000,35.000,45.000
+H,Mortality,Pastoral,Juvenile,Infectious,20.000,40.000,50.000
+H,Mortality,Pastoral,Juvenile,Non-infectious,15.000,25.000,30.000
+H,Mortality,Pastoral,Juvenile,External,15.000,35.000,40.000
+H,Mortality,Pastoral,Adult female,Infectious,15.000,35.000,45.000
+H,Mortality,Pastoral,Adult female,Non-infectious,10.000,35.000,45.000
+H,Mortality,Pastoral,Adult female,External,10.000,30.000,40.000
+H,Mortality,Pastoral,Adult male,Infectious,15.000,35.000,45.000
+H,Mortality,Pastoral,Adult male,Non-infectious,10.000,35.000,45.000
+H,Mortality,Pastoral,Adult male,External,10.000,30.000,40.000
+I,Mortality,Pastoral,Neonate,Infectious,25.000,50.000,60.000
+I,Mortality,Pastoral,Neonate,Non-infectious,10.000,20.000,25.000
+I,Mortality,Pastoral,Neonate,External,25.000,30.000,35.000
+I,Mortality,Pastoral,Juvenile,Infectious,20.000,45.000,50.000
+I,Mortality,Pastoral,Juvenile,Non-infectious,10.000,25.000,26.000
+I,Mortality,Pastoral,Juvenile,External,20.000,30.000,35.000
+I,Mortality,Pastoral,Adult female,Infectious,20.000,40.000,50.000
+I,Mortality,Pastoral,Adult female,Non-infectious,15.000,30.000,31.000
+I,Mortality,Pastoral,Adult female,External,20.000,30.000,35.000
+I,Mortality,Pastoral,Adult male,Infectious,15.000,35.000,45.000
+I,Mortality,Pastoral,Adult male,Non-infectious,10.000,30.000,31.000
+I,Mortality,Pastoral,Adult male,External,15.000,35.000,36.000
+A,Production loss,Crop livestock mixed,Neonate,Infectious,30.000,60.000,70.000
+A,Production loss,Crop livestock mixed,Neonate,Non-infectious,20.000,35.000,45.000
+A,Production loss,Crop livestock mixed,Neonate,External,2.000,5.000,10.000
+A,Production loss,Crop livestock mixed,Juvenile,Infectious,40.000,70.000,80.000
+A,Production loss,Crop livestock mixed,Juvenile,Non-infectious,15.000,25.000,35.000
+A,Production loss,Crop livestock mixed,Juvenile,External,2.000,5.000,10.000
+A,Production loss,Crop livestock mixed,Adult female,Infectious,40.000,70.000,80.000
+A,Production loss,Crop livestock mixed,Adult female,Non-infectious,15.000,25.000,35.000
+A,Production loss,Crop livestock mixed,Adult female,External,2.000,5.000,10.000
+A,Production loss,Crop livestock mixed,Adult male,Infectious,30.000,65.000,70.000
+A,Production loss,Crop livestock mixed,Adult male,Non-infectious,10.000,25.000,35.000
+A,Production loss,Crop livestock mixed,Adult male,External,2.000,5.000,10.000
+B,Production loss,Crop livestock mixed,Neonate,Infectious,15.000,35.000,50.000
+B,Production loss,Crop livestock mixed,Neonate,Non-infectious,15.000,30.000,60.000
+B,Production loss,Crop livestock mixed,Neonate,External,20.000,35.000,70.000
+B,Production loss,Crop livestock mixed,Juvenile,Infectious,10.000,40.000,50.000
+B,Production loss,Crop livestock mixed,Juvenile,Non-infectious,5.000,30.000,55.000
+B,Production loss,Crop livestock mixed,Juvenile,External,5.000,30.000,50.000
+B,Production loss,Crop livestock mixed,Adult female,Infectious,10.000,45.000,60.000
+B,Production loss,Crop livestock mixed,Adult female,Non-infectious,10.000,25.000,50.000
+B,Production loss,Crop livestock mixed,Adult female,External,15.000,30.000,55.000
+B,Production loss,Crop livestock mixed,Adult male,Infectious,10.000,55.000,60.000
+B,Production loss,Crop livestock mixed,Adult male,Non-infectious,5.000,20.000,40.000
+B,Production loss,Crop livestock mixed,Adult male,External,5.000,25.000,45.000
+C,Production loss,Crop livestock mixed,Neonate,Infectious,25.000,30.000,34.000
+C,Production loss,Crop livestock mixed,Neonate,Non-infectious,25.000,30.000,32.000
+C,Production loss,Crop livestock mixed,Neonate,External,36.000,40.000,41.000
+C,Production loss,Crop livestock mixed,Juvenile,Infectious,32.000,35.000,37.000
+C,Production loss,Crop livestock mixed,Juvenile,Non-infectious,28.000,30.000,32.000
+C,Production loss,Crop livestock mixed,Juvenile,External,32.000,35.000,37.000
+C,Production loss,Crop livestock mixed,Adult female,Infectious,28.000,30.000,31.000
+C,Production loss,Crop livestock mixed,Adult female,Non-infectious,35.000,40.000,42.000
+C,Production loss,Crop livestock mixed,Adult female,External,28.000,30.000,32.000
+C,Production loss,Crop livestock mixed,Adult male,Infectious,34.000,35.000,38.000
+C,Production loss,Crop livestock mixed,Adult male,Non-infectious,27.000,30.000,32.000
+C,Production loss,Crop livestock mixed,Adult male,External,28.000,35.000,37.000
+D,Production loss,Crop livestock mixed,Neonate,Infectious,30.000,40.000,50.000
+D,Production loss,Crop livestock mixed,Neonate,Non-infectious,49.000,50.000,60.000
+D,Production loss,Crop livestock mixed,Neonate,External,10.000,20.000,30.000
+D,Production loss,Crop livestock mixed,Juvenile,Infectious,30.000,40.000,45.000
+D,Production loss,Crop livestock mixed,Juvenile,Non-infectious,40.000,45.000,50.000
+D,Production loss,Crop livestock mixed,Juvenile,External,15.000,25.000,30.000
+D,Production loss,Crop livestock mixed,Adult female,Infectious,30.000,35.000,40.000
+D,Production loss,Crop livestock mixed,Adult female,Non-infectious,40.000,45.000,50.000
+D,Production loss,Crop livestock mixed,Adult female,External,15.000,20.000,25.000
+D,Production loss,Crop livestock mixed,Adult male,Infectious,25.000,30.000,40.000
+D,Production loss,Crop livestock mixed,Adult male,Non-infectious,45.000,50.000,51.000
+D,Production loss,Crop livestock mixed,Adult male,External,15.000,20.000,30.000
+E,Production loss,Crop livestock mixed,Neonate,Infectious,85.000,90.000,95.000
+E,Production loss,Crop livestock mixed,Neonate,Non-infectious,2.000,5.000,8.000
+E,Production loss,Crop livestock mixed,Neonate,External,2.000,5.000,8.000
+E,Production loss,Crop livestock mixed,Juvenile,Infectious,50.000,70.000,90.000
+E,Production loss,Crop livestock mixed,Juvenile,Non-infectious,10.000,20.000,30.000
+E,Production loss,Crop livestock mixed,Juvenile,External,5.000,10.000,20.000
+E,Production loss,Crop livestock mixed,Adult female,Infectious,50.000,60.000,80.000
+E,Production loss,Crop livestock mixed,Adult female,Non-infectious,20.000,30.000,50.000
+E,Production loss,Crop livestock mixed,Adult female,External,5.000,10.000,20.000
+E,Production loss,Crop livestock mixed,Adult male,Infectious,50.000,60.000,80.000
+E,Production loss,Crop livestock mixed,Adult male,Non-infectious,20.000,30.000,50.000
+E,Production loss,Crop livestock mixed,Adult male,External,5.000,10.000,20.000
+F,Production loss,Crop livestock mixed,Neonate,Infectious,30.000,60.000,80.000
+F,Production loss,Crop livestock mixed,Neonate,Non-infectious,10.000,20.000,30.000
+F,Production loss,Crop livestock mixed,Neonate,External,10.000,20.000,30.000
+F,Production loss,Crop livestock mixed,Juvenile,Infectious,20.000,50.000,60.000
+F,Production loss,Crop livestock mixed,Juvenile,Non-infectious,20.000,30.000,40.000
+F,Production loss,Crop livestock mixed,Juvenile,External,10.000,20.000,30.000
+F,Production loss,Crop livestock mixed,Adult female,Infectious,30.000,50.000,60.000
+F,Production loss,Crop livestock mixed,Adult female,Non-infectious,30.000,40.000,50.000
+F,Production loss,Crop livestock mixed,Adult female,External,5.000,10.000,15.000
+F,Production loss,Crop livestock mixed,Adult male,Infectious,30.000,50.000,60.000
+F,Production loss,Crop livestock mixed,Adult male,Non-infectious,15.000,30.000,35.000
+F,Production loss,Crop livestock mixed,Adult male,External,10.000,20.000,30.000
+G,Production loss,Crop livestock mixed,Neonate,Infectious,45.000,65.000,75.000
+G,Production loss,Crop livestock mixed,Neonate,Non-infectious,20.000,25.000,30.000
+G,Production loss,Crop livestock mixed,Neonate,External,15.000,20.000,25.000
+G,Production loss,Crop livestock mixed,Juvenile,Infectious,40.000,60.000,70.000
+G,Production loss,Crop livestock mixed,Juvenile,Non-infectious,25.000,30.000,40.000
+G,Production loss,Crop livestock mixed,Juvenile,External,5.000,10.000,20.000
+G,Production loss,Crop livestock mixed,Adult female,Infectious,45.000,50.000,65.000
+G,Production loss,Crop livestock mixed,Adult female,Non-infectious,15.000,25.000,35.000
+G,Production loss,Crop livestock mixed,Adult female,External,10.000,25.000,30.000
+G,Production loss,Crop livestock mixed,Adult male,Infectious,30.000,45.000,50.000
+G,Production loss,Crop livestock mixed,Adult male,Non-infectious,20.000,35.000,45.000
+G,Production loss,Crop livestock mixed,Adult male,External,5.000,20.000,30.000
+H,Production loss,Crop livestock mixed,Neonate,Infectious,20.000,40.000,50.000
+H,Production loss,Crop livestock mixed,Neonate,Non-infectious,15.000,35.000,40.000
+H,Production loss,Crop livestock mixed,Neonate,External,10.000,25.000,35.000
+H,Production loss,Crop livestock mixed,Juvenile,Infectious,20.000,40.000,50.000
+H,Production loss,Crop livestock mixed,Juvenile,Non-infectious,15.000,35.000,40.000
+H,Production loss,Crop livestock mixed,Juvenile,External,10.000,25.000,30.000
+H,Production loss,Crop livestock mixed,Adult female,Infectious,20.000,35.000,45.000
+H,Production loss,Crop livestock mixed,Adult female,Non-infectious,20.000,35.000,45.000
+H,Production loss,Crop livestock mixed,Adult female,External,15.000,30.000,40.000
+H,Production loss,Crop livestock mixed,Adult male,Infectious,20.000,35.000,45.000
+H,Production loss,Crop livestock mixed,Adult male,Non-infectious,20.000,35.000,40.000
+H,Production loss,Crop livestock mixed,Adult male,External,15.000,30.000,35.000
+I,Production loss,Crop livestock mixed,Neonate,Infectious,25.000,40.000,50.000
+I,Production loss,Crop livestock mixed,Neonate,Non-infectious,10.000,30.000,35.000
+I,Production loss,Crop livestock mixed,Neonate,External,15.000,30.000,35.000
+I,Production loss,Crop livestock mixed,Juvenile,Infectious,25.000,45.000,50.000
+I,Production loss,Crop livestock mixed,Juvenile,Non-infectious,15.000,25.000,35.000
+I,Production loss,Crop livestock mixed,Juvenile,External,20.000,30.000,40.000
+I,Production loss,Crop livestock mixed,Adult female,Infectious,30.000,50.000,55.000
+I,Production loss,Crop livestock mixed,Adult female,Non-infectious,20.000,25.000,30.000
+I,Production loss,Crop livestock mixed,Adult female,External,24.000,25.000,30.000
+I,Production loss,Crop livestock mixed,Adult male,Infectious,25.000,40.000,45.000
+I,Production loss,Crop livestock mixed,Adult male,Non-infectious,15.000,25.000,26.000
+I,Production loss,Crop livestock mixed,Adult male,External,24.000,25.000,30.000
+A,Production loss,Pastoral,Neonate,Infectious,30.000,70.000,80.000
+A,Production loss,Pastoral,Neonate,Non-infectious,2.000,5.000,10.000
+A,Production loss,Pastoral,Neonate,External,10.000,25.000,35.000
+A,Production loss,Pastoral,Juvenile,Infectious,30.000,75.000,80.000
+A,Production loss,Pastoral,Juvenile,Non-infectious,2.000,5.000,10.000
+A,Production loss,Pastoral,Juvenile,External,10.000,20.000,30.000
+A,Production loss,Pastoral,Adult female,Infectious,30.000,60.000,70.000
+A,Production loss,Pastoral,Adult female,Non-infectious,2.000,5.000,10.000
+A,Production loss,Pastoral,Adult female,External,20.000,35.000,45.000
+A,Production loss,Pastoral,Adult male,Infectious,30.000,60.000,70.000
+A,Production loss,Pastoral,Adult male,Non-infectious,5.000,10.000,15.000
+A,Production loss,Pastoral,Adult male,External,20.000,30.000,45.000
+B,Production loss,Pastoral,Neonate,Infectious,5.000,35.000,50.000
+B,Production loss,Pastoral,Neonate,Non-infectious,10.000,25.000,45.000
+B,Production loss,Pastoral,Neonate,External,10.000,40.000,60.000
+B,Production loss,Pastoral,Juvenile,Infectious,10.000,40.000,55.000
+B,Production loss,Pastoral,Juvenile,Non-infectious,5.000,25.000,50.000
+B,Production loss,Pastoral,Juvenile,External,5.000,35.000,55.000
+B,Production loss,Pastoral,Adult female,Infectious,5.000,35.000,50.000
+B,Production loss,Pastoral,Adult female,Non-infectious,5.000,30.000,45.000
+B,Production loss,Pastoral,Adult female,External,10.000,35.000,60.000
+B,Production loss,Pastoral,Adult male,Infectious,10.000,40.000,60.000
+B,Production loss,Pastoral,Adult male,Non-infectious,5.000,20.000,30.000
+B,Production loss,Pastoral,Adult male,External,10.000,40.000,60.000
+C,Production loss,Pastoral,Neonate,Infectious,26.000,30.000,32.000
+C,Production loss,Pastoral,Neonate,Non-infectious,28.000,30.000,32.000
+C,Production loss,Pastoral,Neonate,External,32.000,40.000,43.000
+C,Production loss,Pastoral,Juvenile,Infectious,32.000,35.000,37.000
+C,Production loss,Pastoral,Juvenile,Non-infectious,28.000,30.000,32.000
+C,Production loss,Pastoral,Juvenile,External,32.000,35.000,37.000
+C,Production loss,Pastoral,Adult female,Infectious,32.000,35.000,38.000
+C,Production loss,Pastoral,Adult female,Non-infectious,37.000,40.000,43.000
+C,Production loss,Pastoral,Adult female,External,22.000,25.000,26.000
+C,Production loss,Pastoral,Adult male,Infectious,31.000,35.000,38.000
+C,Production loss,Pastoral,Adult male,Non-infectious,32.000,35.000,37.000
+C,Production loss,Pastoral,Adult male,External,27.000,30.000,35.000
+D,Production loss,Pastoral,Neonate,Infectious,25.000,30.000,40.000
+D,Production loss,Pastoral,Neonate,Non-infectious,45.000,50.000,60.000
+D,Production loss,Pastoral,Neonate,External,15.000,20.000,30.000
+D,Production loss,Pastoral,Juvenile,Infectious,20.000,25.000,30.000
+D,Production loss,Pastoral,Juvenile,Non-infectious,49.000,50.000,51.000
+D,Production loss,Pastoral,Juvenile,External,15.000,20.000,30.000
+D,Production loss,Pastoral,Adult female,Infectious,30.000,40.000,50.000
+D,Production loss,Pastoral,Adult female,Non-infectious,30.000,40.000,50.000
+D,Production loss,Pastoral,Adult female,External,15.000,20.000,30.000
+D,Production loss,Pastoral,Adult male,Infectious,20.000,25.000,30.000
+D,Production loss,Pastoral,Adult male,Non-infectious,40.000,55.000,70.000
+D,Production loss,Pastoral,Adult male,External,15.000,20.000,30.000
+E,Production loss,Pastoral,Neonate,Infectious,70.000,80.000,90.000
+E,Production loss,Pastoral,Neonate,Non-infectious,2.000,5.000,8.000
+E,Production loss,Pastoral,Neonate,External,5.000,15.000,20.000
+E,Production loss,Pastoral,Juvenile,Infectious,50.000,60.000,70.000
+E,Production loss,Pastoral,Juvenile,Non-infectious,5.000,10.000,15.000
+E,Production loss,Pastoral,Juvenile,External,20.000,30.000,40.000
+E,Production loss,Pastoral,Adult female,Infectious,30.000,50.000,60.000
+E,Production loss,Pastoral,Adult female,Non-infectious,10.000,15.000,20.000
+E,Production loss,Pastoral,Adult female,External,20.000,35.000,50.000
+E,Production loss,Pastoral,Adult male,Infectious,30.000,50.000,60.000
+E,Production loss,Pastoral,Adult male,Non-infectious,10.000,15.000,20.000
+E,Production loss,Pastoral,Adult male,External,20.000,35.000,50.000
+F,Production loss,Pastoral,Neonate,Infectious,30.000,60.000,90.000
+F,Production loss,Pastoral,Neonate,Non-infectious,20.000,30.000,40.000
+F,Production loss,Pastoral,Neonate,External,5.000,10.000,15.000
+F,Production loss,Pastoral,Juvenile,Infectious,30.000,50.000,60.000
+F,Production loss,Pastoral,Juvenile,Non-infectious,20.000,40.000,50.000
+F,Production loss,Pastoral,Juvenile,External,5.000,10.000,20.000
+F,Production loss,Pastoral,Adult female,Infectious,40.000,50.000,60.000
+F,Production loss,Pastoral,Adult female,Non-infectious,20.000,40.000,50.000
+F,Production loss,Pastoral,Adult female,External,5.000,10.000,15.000
+F,Production loss,Pastoral,Adult male,Infectious,40.000,50.000,60.000
+F,Production loss,Pastoral,Adult male,Non-infectious,20.000,35.000,40.000
+F,Production loss,Pastoral,Adult male,External,15.000,25.000,30.000
+G,Production loss,Pastoral,Neonate,Infectious,50.000,70.000,80.000
+G,Production loss,Pastoral,Neonate,Non-infectious,5.000,20.000,30.000
+G,Production loss,Pastoral,Neonate,External,5.000,10.000,15.000
+G,Production loss,Pastoral,Juvenile,Infectious,55.000,60.000,75.000
+G,Production loss,Pastoral,Juvenile,Non-infectious,20.000,25.000,40.000
+G,Production loss,Pastoral,Juvenile,External,10.000,15.000,25.000
+G,Production loss,Pastoral,Adult female,Infectious,30.000,50.000,65.000
+G,Production loss,Pastoral,Adult female,Non-infectious,10.000,30.000,45.000
+G,Production loss,Pastoral,Adult female,External,10.000,20.000,35.000
+G,Production loss,Pastoral,Adult male,Infectious,30.000,45.000,60.000
+G,Production loss,Pastoral,Adult male,Non-infectious,15.000,30.000,40.000
+G,Production loss,Pastoral,Adult male,External,15.000,25.000,35.000
+H,Production loss,Pastoral,Neonate,Infectious,20.000,40.000,60.000
+H,Production loss,Pastoral,Neonate,Non-infectious,15.000,30.000,50.000
+H,Production loss,Pastoral,Neonate,External,15.000,30.000,45.000
+H,Production loss,Pastoral,Juvenile,Infectious,20.000,40.000,50.000
+H,Production loss,Pastoral,Juvenile,Non-infectious,10.000,25.000,35.000
+H,Production loss,Pastoral,Juvenile,External,15.000,35.000,40.000
+H,Production loss,Pastoral,Adult female,Infectious,20.000,35.000,50.000
+H,Production loss,Pastoral,Adult female,Non-infectious,15.000,35.000,45.000
+H,Production loss,Pastoral,Adult female,External,10.000,30.000,40.000
+H,Production loss,Pastoral,Adult male,Infectious,15.000,35.000,50.000
+H,Production loss,Pastoral,Adult male,Non-infectious,15.000,35.000,45.000
+H,Production loss,Pastoral,Adult male,External,10.000,30.000,40.000
+I,Production loss,Pastoral,Neonate,Infectious,25.000,35.000,40.000
+I,Production loss,Pastoral,Neonate,Non-infectious,15.000,30.000,35.000
+I,Production loss,Pastoral,Neonate,External,15.000,35.000,36.000
+I,Production loss,Pastoral,Juvenile,Infectious,25.000,40.000,45.000
+I,Production loss,Pastoral,Juvenile,Non-infectious,15.000,30.000,35.000
+I,Production loss,Pastoral,Juvenile,External,20.000,30.000,40.000
+I,Production loss,Pastoral,Adult female,Infectious,30.000,45.000,50.000
+I,Production loss,Pastoral,Adult female,Non-infectious,15.000,20.000,30.000
+I,Production loss,Pastoral,Adult female,External,25.000,35.000,40.000
+I,Production loss,Pastoral,Adult male,Infectious,25.000,40.000,45.000
+I,Production loss,Pastoral,Adult male,Non-infectious,10.000,25.000,30.000
+I,Production loss,Pastoral,Adult male,External,20.000,30.000,35.000

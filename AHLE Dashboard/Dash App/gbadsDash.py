@@ -200,6 +200,11 @@ ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary
 # ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr.csv'))
 ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv'))
 
+# Expert opinion files
+ecs_expertattr_smallrum = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'attribution_experts_smallruminants.csv'))
+ecs_expertattr_cattle = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'attribution_experts_cattle.csv'))
+ecs_expertattr_poultry = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'attribution_experts_chickens.csv'))
+
 # -----------------------------------------------------------------------------
 # Global Aggregate
 # -----------------------------------------------------------------------------
@@ -3641,7 +3646,7 @@ gbadsDash.layout = html.Div([
             ], style={'margin-left':"40px", 'font-style': 'italic'}
             ),
 
-            #### -- DATATABLE
+            #### -- DATATABLES
             dbc.Row([
 
                 dbc.Col([
@@ -3655,7 +3660,11 @@ gbadsDash.layout = html.Div([
                     html.Div([  # Core data for attribution
                           html.Div( id='ecs-attr-datatable'),
                     ], style={'margin-left':"20px",}),
-                html.Br(), # Spacer for bottom of page
+                    html.Br(),
+                    # html.Div([  # Attribution expert opinion
+                    #       html.Div( id='ecs-attr-expert-opinion'),
+                    # ], style={'margin-left':"20px",}),
+                    # html.Br(), # Spacer for bottom of page
                 ]),  # END OF COL
 
                 # END OF COL
@@ -6333,16 +6342,19 @@ def update_ecs_ahle_data(currency, species, prodsys, agesex):
 def update_ecs_attr_data(currency, prodsys, species):
     # Read in data
     input_df = ecs_ahle_all_withattr
+
     # Production System filter
     # If All production systems, don't filter. Attribution data is not aggregated to that level.
     if prodsys == 'All Production Systems':
         input_df=input_df
     else:
         input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+
     # Species filter
     # Goat and Sheep do not appear separately. These get all small ruminants results.
     if species == 'Goat' or species == "Sheep":
         input_df=input_df.loc[(input_df['species'] == 'All Small Ruminants')]
+
     # Poultry subspecies do not appear separately. These get all poultry results.
     elif species == 'Poultry hybrid' or species == "Poultry indigenous":
         input_df=input_df.loc[(input_df['species'] == 'All Poultry')]
@@ -6396,6 +6408,19 @@ def update_ecs_attr_data(currency, prodsys, species):
             )
         ]
 
+# Attribution expert opinion
+@gbadsDash.callback(
+    Output('ecs-attr-expert-opinion', 'children'),
+    Input('select-species-ecs','value'),
+    )
+def update_ecs_attr_expert_data(species):
+    # Read in data depending on species selected
+    if species.isin(["All Small Ruminants", "Goat", "Sheep"]):
+        input_df = ecs_expertattr_smallrum
+    elif species == "Cattle":
+        input_df = ecs_expertattr_cattle
+    elif species.isin(["All Poultry", "Poultry hybrid", "Poultry indigenous"]):
+        input_df = ecs_expertattr_poultry
 
 # ------------------------------------------------------------------------------
 #### -- Figures

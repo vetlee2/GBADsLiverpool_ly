@@ -1916,21 +1916,22 @@ def create_stacked_bar_ecs(input_df, x, y, text, color, yaxis_title):
 # Define Ethiopia subnation level map
 def create_map_display_ecs(input_df, geometry, location):
     ecs_map_fig = px.choropleth_mapbox(input_df, 
-                                             geojson=geometry, 
-                                             locations=location, 
-                                             # color='unemp',
-                                             # color_continuous_scale="Viridis",
-                                             # range_color=(0, 12),
-                                             # mapbox_style="carto-positron",
-                                             # opacity=0.5,
-                                             # labels={'unemp':'unemployment rate'}
-                                             )
+                                       geojson=geometry, 
+                                       locations=location, 
+                                       # color='unemp',
+                                       # color_continuous_scale="Viridis",
+                                       # range_color=(0, 12),
+                                       # mapbox_style="carto-positron",
+                                       # opacity=0.5,
+                                       # labels={'unemp':'unemployment rate'}
+                                       )
     
     return ecs_map_fig
 
 # Define the Biomass map
 def create_biomass_map_ga(input_df, iso_alpha3, value, country, display):
-    biomass_map_fig = px.choropleth(input_df, locations=iso_alpha3,
+    biomass_map_fig = px.choropleth(input_df, 
+                                    locations=iso_alpha3,
                                     color=value,
                                     hover_name=country, # column to add to hover information
                                     animation_frame="year",
@@ -7670,7 +7671,7 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
     return ahle_bar_ecs_fig
 
 
-# # Update Stacked bar chart
+# # Update subnational map
 # @gbadsDash.callback(
 #     Output('ecs-map','figure'),
 #     Input('select-prodsys-ecs','value'),

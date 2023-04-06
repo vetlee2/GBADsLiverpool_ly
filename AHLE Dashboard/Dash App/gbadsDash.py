@@ -35,6 +35,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
+import geopandas as gpd
 
 # private (fa) libraries
 import lib.fa_dash_utils as fa
@@ -199,6 +200,14 @@ ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary
 # Attribution Summary
 # ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr.csv'))
 ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv'))
+
+# Ethiopia geojson files from S3
+# Most granular level
+url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm3_csa_bofedb_2021.geojson'
+# Second most granular level
+# url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm2_csa_bofedb_2021.geojson'
+r = requests.get(url, allow_redirects=True)
+area = r.json()
 
 # -----------------------------------------------------------------------------
 # Global Aggregate
@@ -1383,42 +1392,44 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
    working_df.fillna(0)
 
    # Trim the data to keep things needed for the waterfall
-   ecs_ahle_waterfall = working_df[['species',
-                                    'production_system',
-                                    # 'age_group',
-                                    # 'sex',
-                                    'agesex_scenario',
-                                    'item',
-                                    'year',
-                                    'mean_current',
-                                    'mean_ideal',
-                                    'mean_mortality_zero',
-                                    'mean_current_usd',
-                                    'mean_ideal_usd',
-                                    'mean_mortality_zero_usd',
-                                    'mean_all_mort_25_imp',
-                                    'mean_all_mort_50_imp',
-                                    'mean_all_mort_75_imp',
-                                    'mean_current_repro_25_imp',
-                                    'mean_current_repro_50_imp',
-                                    'mean_current_repro_75_imp',
-                                    'mean_current_repro_100_imp',
-                                    'mean_current_growth_25_imp_all',
-                                    'mean_current_growth_50_imp_all',
-                                    'mean_current_growth_75_imp_all',
-                                    'mean_current_growth_100_imp_all',
-                                    'mean_all_mort_25_imp_usd',
-                                    'mean_all_mort_50_imp_usd',
-                                    'mean_all_mort_75_imp_usd',
-                                    'mean_current_repro_25_imp_usd',
-                                    'mean_current_repro_50_imp_usd',
-                                    'mean_current_repro_75_imp_usd',
-                                    'mean_current_repro_100_imp_usd',
-                                    'mean_current_growth_25_imp_all_usd',
-                                    'mean_current_growth_50_imp_all_usd',
-                                    'mean_current_growth_75_imp_all_usd',
-                                    'mean_current_growth_100_imp_all_usd',
-                                    ]]
+   # ecs_ahle_waterfall = working_df[['species',
+   #                                  'production_system',
+   #                                  'agesex_scenario',
+   #                                  'item',
+   #                                  'year',
+   #                                  'mean_current',
+   #                                  'stdev_current',
+   #                                  'mean_ideal',
+   #                                  'stdev_ideal',
+   #                                  'mean_mortality_zero',
+   #                                  'mean_current_usd',
+   #                                  'mean_ideal_usd',
+   #                                  'mean_mortality_zero_usd',
+   #                                  'mean_all_mort_25_imp',
+   #                                  'mean_all_mort_50_imp',
+   #                                  'mean_all_mort_75_imp',
+   #                                  'mean_current_repro_25_imp',
+   #                                  'mean_current_repro_50_imp',
+   #                                  'mean_current_repro_75_imp',
+   #                                  'mean_current_repro_100_imp',
+   #                                  'mean_current_growth_25_imp_all',
+   #                                  'mean_current_growth_50_imp_all',
+   #                                  'mean_current_growth_75_imp_all',
+   #                                  'mean_current_growth_100_imp_all',
+   #                                  'mean_all_mort_25_imp_usd',
+   #                                  'mean_all_mort_50_imp_usd',
+   #                                  'mean_all_mort_75_imp_usd',
+   #                                  'mean_current_repro_25_imp_usd',
+   #                                  'mean_current_repro_50_imp_usd',
+   #                                  'mean_current_repro_75_imp_usd',
+   #                                  'mean_current_repro_100_imp_usd',
+   #                                  'mean_current_growth_25_imp_all_usd',
+   #                                  'mean_current_growth_50_imp_all_usd',
+   #                                  'mean_current_growth_75_imp_all_usd',
+   #                                  'mean_current_growth_100_imp_all_usd',
+   #                                  ]]
+   
+   ecs_ahle_waterfall = working_df
 
    # Keep only items for the waterfall
    waterfall_plot_values = ('Value of Offtake',
@@ -1488,34 +1499,60 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
 
    # Create AHLE difference columns
    ecs_ahle_waterfall['mean_AHLE'] = ecs_ahle_waterfall['mean_ideal'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_AHLE'] = np.sqrt(ecs_ahle_waterfall['stdev_ideal']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_AHLE_mortality'] = ecs_ahle_waterfall['mean_mortality_zero'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_AHLE_mortality'] = np.sqrt(ecs_ahle_waterfall['stdev_mortality_zero']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_AHLE_usd'] = ecs_ahle_waterfall['mean_ideal_usd'] - ecs_ahle_waterfall['mean_current_usd']
+   ecs_ahle_waterfall['stdev_AHLE_usd'] = np.sqrt(ecs_ahle_waterfall['stdev_ideal_usd']**2 + ecs_ahle_waterfall['stdev_current_usd']**2)
    ecs_ahle_waterfall['mean_AHLE_mortality_usd'] = ecs_ahle_waterfall['mean_mortality_zero_usd'] - ecs_ahle_waterfall['mean_current_usd']
+   ecs_ahle_waterfall['stdev_AHLE_mortality_usd'] = np.sqrt(ecs_ahle_waterfall['stdev_mortality_zero_usd']**2 + ecs_ahle_waterfall['stdev_current_usd']**2)
    # For Mortality
    ecs_ahle_waterfall['mean_all_mort_25_AHLE'] = ecs_ahle_waterfall['mean_all_mort_25_imp'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_mort_25_AHLE'] = np.sqrt(ecs_ahle_waterfall['stdev_all_mort_25_imp']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_mort_50_AHLE'] = ecs_ahle_waterfall['mean_all_mort_50_imp'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_mort_50_AHLE'] = np.sqrt(ecs_ahle_waterfall['stdev_all_mort_50_imp']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_mort_75_AHLE'] = ecs_ahle_waterfall['mean_all_mort_75_imp'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_mort_75_AHLE'] = np.sqrt(ecs_ahle_waterfall['stdev_all_mort_75_imp']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_mort_25_AHLE_usd'] = ecs_ahle_waterfall['mean_all_mort_25_imp_usd'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_mort_25_AHLE_usd'] = np.sqrt(ecs_ahle_waterfall['stdev_all_mort_25_imp_usd']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_mort_50_AHLE_usd'] = ecs_ahle_waterfall['mean_all_mort_50_imp_usd'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_mort_50_AHLE_usd'] = np.sqrt(ecs_ahle_waterfall['stdev_all_mort_50_imp_usd']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_mort_75_AHLE_usd'] = ecs_ahle_waterfall['mean_all_mort_75_imp_usd'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_mort_75_AHLE_usd'] = np.sqrt(ecs_ahle_waterfall['stdev_all_mort_75_imp_usd']**2 + ecs_ahle_waterfall['stdev_current']**2)
    # For Parturition
    ecs_ahle_waterfall['mean_all_current_repro_25_AHLE'] = ecs_ahle_waterfall['mean_current_repro_25_imp'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_current_repro_25_AHLE'] = np.sqrt(ecs_ahle_waterfall['stdev_current_repro_25_imp']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_current_repro_50_AHLE'] = ecs_ahle_waterfall['mean_current_repro_50_imp'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_current_repro_50_AHLE'] = np.sqrt(ecs_ahle_waterfall['stdev_current_repro_50_imp']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_current_repro_75_AHLE'] = ecs_ahle_waterfall['mean_current_repro_75_imp'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_current_repro_75_AHLE'] = np.sqrt(ecs_ahle_waterfall['stdev_current_repro_75_imp']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_current_repro_100_AHLE'] = ecs_ahle_waterfall['mean_current_repro_100_imp'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_current_repro_100_AHLE'] = np.sqrt(ecs_ahle_waterfall['stdev_current_repro_100_imp']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_current_repro_25_AHLE_usd'] = ecs_ahle_waterfall['mean_current_repro_25_imp_usd'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_current_repro_25_AHLE_usd'] = np.sqrt(ecs_ahle_waterfall['stdev_current_repro_25_imp_usd']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_current_repro_50_AHLE_usd'] = ecs_ahle_waterfall['mean_current_repro_50_imp_usd'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_current_repro_50_AHLE_usd'] = np.sqrt(ecs_ahle_waterfall['stdev_current_repro_50_imp_usd']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_current_repro_75_AHLE_usd'] = ecs_ahle_waterfall['mean_current_repro_75_imp_usd'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_current_repro_75_AHLE_usd'] = np.sqrt(ecs_ahle_waterfall['stdev_current_repro_75_imp_usd']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_current_repro_100_AHLE_usd'] = ecs_ahle_waterfall['mean_current_repro_100_imp_usd'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_current_repro_100_AHLE_usd'] = np.sqrt(ecs_ahle_waterfall['stdev_current_repro_100_imp_usd']**2 + ecs_ahle_waterfall['stdev_current']**2)
    # For Live Weight
    ecs_ahle_waterfall['mean_all_current_growth_25_AHLE'] = ecs_ahle_waterfall['mean_current_growth_25_imp_all'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_current_growth_25_AHLE'] = np.sqrt(ecs_ahle_waterfall['stdev_current_growth_25_imp_all']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_current_growth_50_AHLE'] = ecs_ahle_waterfall['mean_current_growth_50_imp_all'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_current_growth_50_AHLE'] = np.sqrt(ecs_ahle_waterfall['stdev_current_growth_50_imp_all']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_current_growth_75_AHLE'] = ecs_ahle_waterfall['mean_current_growth_75_imp_all'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_current_growth_75_AHLE'] = np.sqrt(ecs_ahle_waterfall['stdev_current_growth_75_imp_all']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_current_growth_100_AHLE'] = ecs_ahle_waterfall['mean_current_growth_100_imp_all'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_current_growth_100_AHLE'] = np.sqrt(ecs_ahle_waterfall['stdev_current_growth_100_imp_all']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_current_growth_25_AHLE_usd'] = ecs_ahle_waterfall['mean_current_growth_25_imp_all_usd'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_current_growth_25_AHLE_usd'] = np.sqrt(ecs_ahle_waterfall['stdev_current_growth_25_imp_all_usd']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_current_growth_50_AHLE_usd'] = ecs_ahle_waterfall['mean_current_growth_50_imp_all_usd'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_current_growth_50_AHLE_usd'] = np.sqrt(ecs_ahle_waterfall['stdev_current_growth_50_imp_all_usd']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_current_growth_75_AHLE_usd'] = ecs_ahle_waterfall['mean_current_growth_75_imp_all_usd'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_current_growth_75_AHLE_usd'] = np.sqrt(ecs_ahle_waterfall['stdev_current_growth_75_imp_all_usd']**2 + ecs_ahle_waterfall['stdev_current']**2)
    ecs_ahle_waterfall['mean_all_current_growth_100_AHLE_usd'] = ecs_ahle_waterfall['mean_current_growth_100_imp_all_usd'] - ecs_ahle_waterfall['mean_current']
+   ecs_ahle_waterfall['stdev_all_current_growth_100_AHLE_usd'] = np.sqrt(ecs_ahle_waterfall['stdev_current_growth_100_imp_all_usd']**2 + ecs_ahle_waterfall['stdev_current']**2)
 
    OUTPUT_DF = ecs_ahle_waterfall
 
@@ -1870,6 +1907,20 @@ def create_stacked_bar_ecs(input_df, x, y, text, color, yaxis_title):
         )
     return bar_fig
 
+# Define Ethiopia subnation level map
+def create_map_display_ecs(input_df, geometry, location):
+    ecs_map_fig = px.choropleth_mapbox(input_df, 
+                                             geojson=geometry, 
+                                             locations=location, 
+                                             # color='unemp',
+                                             # color_continuous_scale="Viridis",
+                                             # range_color=(0, 12),
+                                             # mapbox_style="carto-positron",
+                                             # opacity=0.5,
+                                             # labels={'unemp':'unemployment rate'}
+                                             )
+    
+    return ecs_map_fig
 
 # Define the Biomass map
 def create_biomass_map_ga(input_df, iso_alpha3, value, country, display):
@@ -3495,7 +3546,7 @@ gbadsDash.layout = html.Div([
 
             html.Br(),
 
-            #### -- GRAPHICS
+            #### -- GRAPHICS PT.1
                 dbc.Row([  # Row with GRAPHICS
 
                     # Values and Costs Waterfall
@@ -3557,7 +3608,7 @@ gbadsDash.layout = html.Div([
                     ]),
                 html.Br(),
 
-            #### -- FOOTNOTES
+            #### -- FOOTNOTES PT.1
             dbc.Row([
                 dbc.Col([
                   # Waterfall explanation
@@ -3577,7 +3628,7 @@ gbadsDash.layout = html.Div([
             ### END OF FOOTNOTES
 
 
-            #### -- ADDITIONAL VISUALS
+            #### -- GRAPHICS PT.2
             dbc.Row([
                 dbc.Col([ # AHLE Stacked Bar
                     dbc.Spinner(children=[
@@ -3626,7 +3677,7 @@ gbadsDash.layout = html.Div([
             html.Br(),
             ### END OF ADDITIONAL VISUALS
 
-            #### -- ADDITIONAL FOOTNOTES
+            #### -- FOOTNOTES PT.2
             dbc.Row([
                 dbc.Col([
                   # Stacked bar
@@ -3639,6 +3690,42 @@ gbadsDash.layout = html.Div([
                 ]),
             ], style={'margin-left':"40px", 'font-style': 'italic'}
             ),
+            
+            #### -- MAP
+            dbc.Card([
+                dbc.CardBody([
+                    html.H3("Ethiopian Subnational Graph"),
+                    
+            # END OF CARD BODY
+            ]),
+
+            ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF CARD
+
+            html.Hr(style={'margin-right':'10px',}),
+
+            # Map viz
+            dbc.Row([
+                dbc.Col([ # Ethiopian subnation level
+                    dbc.Spinner(children=[
+                    dcc.Graph(id='ecs-map',
+                                style = {"height":"650px"},
+                              config = {
+                                  "displayModeBar" : True,
+                                  "displaylogo": False,
+                                  'toImageButtonOptions': {
+                                      'format': 'png', # one of png, svg, jpeg, webp
+                                      'filename': 'GBADs_Ethiopia_Sub_National_Viz'
+                                      },
+                                  }
+                              )
+                # End of Spinner
+                ],size="md", color="#393375", fullscreen=False),
+                # End of Map
+                ]),
+
+             # END OF GRAPHICS PT.3 ROW
+            ]),
+
 
             #### -- DATATABLE
             dbc.Row([
@@ -3707,7 +3794,8 @@ gbadsDash.layout = html.Div([
                                     #        }
                                     ),
                         href='#AMU-Biomass-AMR-Costs-Viz', refresh=True),
-                        style={'justify-content':'center'}),
+                        style={'justify-content':'center',
+                               'display':'flex'}),
                     ],width="auto"),
 
                 # Exploring AMU/price Variability
@@ -3724,7 +3812,8 @@ gbadsDash.layout = html.Div([
                                     #        }
                                     ),
                         href='#AMU-exploring-variability', refresh=True),
-                        style={'justify-content':'center'}),
+                        style={'justify-content':'center',
+                               'display':'flex'}),
                     ]),
 
                 # Regional AM Expenditure Estimator
@@ -3741,7 +3830,8 @@ gbadsDash.layout = html.Div([
                                     #        }
                                     ),
                         href='#AMU-regional-expenditure', refresh=True),
-                        style={'justify-content':'center'}),
+                        style={'justify-content':'center',
+                               'display':'flex'}),
                     ]),
 
                 # Data Export
@@ -3751,7 +3841,8 @@ gbadsDash.layout = html.Div([
                                     # style=nav_btn_style,
                                     ),
                         href='#AMU-data-export', refresh=True),
-                        style={'justify-content':'center'}),
+                        style={'justify-content':'center',
+                               'display':'flex'}),
                     ],
                     style={
                             # TODO: Change colors in CSS
@@ -6460,6 +6551,34 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
         prep_df['mean_all_current_growth_50_AHLE']  = prep_df['mean_all_current_growth_50_AHLE_usd']
         prep_df['mean_all_current_growth_75_AHLE']  = prep_df['mean_all_current_growth_75_AHLE_usd']
         prep_df['mean_all_current_growth_100_AHLE'] = prep_df['mean_all_current_growth_100_AHLE_usd']
+        
+        prep_df['stdev_current']                     = prep_df['stdev_current_usd']
+        prep_df['stdev_mortality_zero']              = prep_df['stdev_mortality_zero_usd']
+        prep_df['stdev_ideal']                       = prep_df['stdev_ideal_usd']
+        prep_df['stdev_AHLE']                        = prep_df['stdev_AHLE_usd']
+        prep_df['stdev_AHLE_mortality']              = prep_df['stdev_AHLE_mortality_usd']
+        prep_df['stdev_all_mort_25_imp']             = prep_df['stdev_all_mort_25_imp_usd']
+        prep_df['stdev_all_mort_50_imp']             = prep_df['stdev_all_mort_50_imp_usd']
+        prep_df['stdev_all_mort_75_imp']             = prep_df['stdev_all_mort_75_imp_usd']
+        prep_df['stdev_all_mort_25_AHLE']            = prep_df['stdev_all_mort_25_AHLE_usd']
+        prep_df['stdev_all_mort_50_AHLE']            = prep_df['stdev_all_mort_50_AHLE_usd']
+        prep_df['stdev_all_mort_75_AHLE']            = prep_df['stdev_all_mort_75_AHLE_usd']
+        prep_df['stdev_current_repro_25_imp']        = prep_df['stdev_current_repro_25_imp_usd']
+        prep_df['stdev_current_repro_50_imp']        = prep_df['stdev_current_repro_50_imp_usd']
+        prep_df['stdev_current_repro_75_imp']        = prep_df['stdev_current_repro_75_imp_usd']
+        prep_df['stdev_current_repro_100_imp']       = prep_df['stdev_current_repro_100_imp_usd']
+        prep_df['stdev_all_current_repro_25_AHLE']   = prep_df['stdev_all_current_repro_25_AHLE_usd']
+        prep_df['stdev_all_current_repro_50_AHLE']   = prep_df['stdev_all_current_repro_50_AHLE_usd']
+        prep_df['stdev_all_current_repro_75_AHLE']   = prep_df['stdev_all_current_repro_75_AHLE_usd']
+        prep_df['stdev_all_current_repro_100_AHLE']  = prep_df['stdev_all_current_repro_100_AHLE_usd']
+        prep_df['stdev_current_growth_25_imp_all']   = prep_df['stdev_current_growth_25_imp_all_usd']
+        prep_df['stdev_current_growth_50_imp_all']   = prep_df['stdev_current_growth_50_imp_all_usd']
+        prep_df['stdev_current_growth_75_imp_all']   = prep_df['stdev_current_growth_75_imp_all_usd']
+        prep_df['stdev_current_growth_100_imp_all']  = prep_df['stdev_current_growth_100_imp_all_usd']
+        prep_df['stdev_all_current_growth_25_AHLE']  = prep_df['stdev_all_current_growth_25_AHLE_usd']
+        prep_df['stdev_all_current_growth_50_AHLE']  = prep_df['stdev_all_current_growth_50_AHLE_usd']
+        prep_df['stdev_all_current_growth_75_AHLE']  = prep_df['stdev_all_current_growth_75_AHLE_usd']
+        prep_df['stdev_all_current_growth_100_AHLE'] = prep_df['stdev_all_current_growth_100_AHLE_usd']
 
     # Item is being read in as a list the first time, ensuring it does not affect the visuals here
     if isinstance(year_or_item, list):
@@ -6471,8 +6590,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
     if graph_options == "Over Time":
         # Apply user filters
         # Filter based on selected item
-        lst = year_or_item
-        prep_df = prep_df.query('item in @lst')
+        prep_df = prep_df.query('item in @year_or_item')
 
 
         # Sort data by year
@@ -6612,8 +6730,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
     if graph_options == "By Year":
 
         # Filter to a specific year
-        lst = year_or_item
-        prep_df = prep_df.query('year == @lst')
+        prep_df = prep_df.query('year == @year_or_item')
 
         # Filters
         if species == "Cattle":     # Cattle have draught
@@ -6668,38 +6785,67 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
             x = prep_df['item']
             if compare == 'Ideal':
                 y = prep_df['mean_AHLE']
+                stdev = prep_df['stdev_AHLE']
             elif compare == 'Zero Mortality':
                 y = prep_df['mean_AHLE_mortality']
+                stdev = prep_df['stdev_AHLE_mortality']
             else:
                 compare = impvmnt_factor + "- " + impvmnt_value
                 if impvmnt_factor == 'Mortality' and impvmnt_value == '25%':
                     y = prep_df['mean_all_mort_25_AHLE']
+                    stdev = prep_df['stdev_all_mort_25_AHLE']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '50%':
                     y = prep_df['mean_all_mort_50_AHLE']
+                    stdev = prep_df['stdev_all_mort_50_AHLE']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
                     y = prep_df['mean_all_mort_75_AHLE']
+                    stdev = prep_df['stdev_all_mort_75_AHLE']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
                     y = prep_df['mean_AHLE_mortality']
-                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '25%':
-                    y = prep_df['mean_all_current_repro_25_AHLE']
-                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '50%':
-                    y = prep_df['mean_all_current_repro_50_AHLE']
-                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '75%':
-                    y = prep_df['mean_all_current_repro_75_AHLE']
-                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '100%':
-                    y = prep_df['mean_all_current_repro_100_AHLE']
-                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '25%':
-                    y = prep_df['mean_all_current_growth_25_AHLE']
-                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '50%':
-                    y = prep_df['mean_all_current_growth_50_AHLE']
-                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '75%':
-                    y = prep_df['mean_all_current_growth_75_AHLE']
-                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
-                    y = prep_df['mean_all_current_growth_100_AHLE']
+                    stdev = prep_df['stdev_AHLE_mortality']
+                elif impvmnt_factor == 'Parturition Rate':
+                    number_split = impvmnt_value.split('%')[0]
+                    y = prep_df[f'mean_all_current_repro_{number_split}_AHLE']
+                    stdev = prep_df[f'stdev_all_current_repro_{number_split}_AHLE']
+                elif impvmnt_factor == 'Live Weight':
+                    number_split = impvmnt_value.split('%')[0]
+                    y = prep_df[f'mean_all_current_growth_{number_split}_AHLE']
+                    stdev = prep_df[f'stdev_all_current_growth_{number_split}_AHLE']
 
             # Create graph
             name = 'AHLE'
             ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
+            
+            # Add error bars
+            # Reset indicies
+            x = x.reset_index(drop=True)
+            y = y.reset_index(drop=True)
+
+            # Get cumulative sum value for Y unless Gross Margin
+            y_error_sum=[]
+            for i in x.values:
+                if i != 'Gross Margin (AHLE)':
+                    y_error_sum = np.cumsum(y)
+                elif i == 'Gross Margin (AHLE)':
+                    GM_index = x[x == 'Gross Margin (AHLE)'].index[0]
+                    y_error_sum[GM_index] = y[GM_index]
+                    
+            # Add trace for error
+            ecs_waterfall_fig.add_trace(
+                go.Scatter(
+                 	x=x,
+                 	y=y_error_sum,
+                    marker=dict(color='black'),
+                 	error_y=dict(
+                        type='data',
+                        array=prep_df['stdev_AHLE']
+                    ),
+                    mode="markers",
+                    hoverinfo='none',
+                    name='Est. range'
+                ), 
+            )
+            
             # Add title
             ecs_waterfall_fig.update_layout(
                 title_text=f'Values and Costs (Difference) | {species}, {prodsys} <br><sup>Difference between Current and {compare} scenario applied to {agesex}</sup><br>',
@@ -6710,24 +6856,86 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
         else:
             if compare == 'Ideal':
                 y = prep_df['mean_ideal']
+                stdev = prep_df['stdev_ideal']
                 name = "Ideal (solid)"
                 # Create graph
                 ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
+                
+                # Add error bars
+                # Reset indicies
+                x = x.reset_index(drop=True)
+                y = y.reset_index(drop=True)
+                # Get cumulative sum value for Y unless Gross Margin
+                y_error_sum=[]
+                for i in x.values:
+                    if i != 'Gross Margin':
+                        y_error_sum = np.cumsum(y)
+                    elif i == 'Gross Margin':
+                        GM_index = x[x == 'Gross Margin'].index[0]
+                        y_error_sum[GM_index] = y[GM_index]                        
+                # Add trace for error
+                ecs_waterfall_fig.add_trace(
+                    go.Scatter(
+                     	x=x,
+                     	y=y_error_sum,
+                        marker=dict(color='black'),
+                     	error_y=dict(
+                            type='data',
+                            array=stdev
+                        ),
+                        mode="markers",
+                        hoverinfo='none'
+                    ), 
+                )
+                
                 # Add current with lag
+                y = prep_df['mean_current']
                 ecs_waterfall_fig.add_trace(go.Waterfall(
                     name = 'Current (outline)',
                     measure = measure,
                     x = x,
-                    y = prep_df['mean_current'],
+                    y = y,
                     decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
                     increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
                     totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
                     connector = {"line":{"dash":"dot"}},
-                    customdata=prep_df['mean_current'],
+                    customdata=y,
                     ))
+                
+                # Add error bars
+                # Reset indicies
+                y = prep_df['mean_current']
+                x = x.reset_index(drop=True)
+                y = y.reset_index(drop=True)
+                # Get cumulative sum value for Y unless Gross Margin
+                y_error_sum=[]
+                for i in x.values:
+                    if i != 'Gross Margin':
+                        y_error_sum = np.cumsum(y)
+                    elif i == 'Gross Margin':
+                        GM_index = x[x == 'Gross Margin'].index[0]
+                        y_error_sum[GM_index] = y[GM_index]                        
+                # Add trace for error
+                ecs_waterfall_fig.add_trace(
+                    go.Scatter(
+                     	x=x,
+                     	y=y_error_sum,
+                        marker=dict(color='black'),
+                     	error_y=dict(
+                            type='data',
+                            array=prep_df['stdev_current']
+                        ),
+                        mode="markers",
+                        hoverinfo='none'
+                    ), 
+                )
+                
                 ecs_waterfall_fig.update_layout(
                     waterfallgroupgap = 0.5,
+                    scattermode="group", 
+                    scattergap=0.75
                     )
+                
                 # Add title
                 ecs_waterfall_fig.update_layout(
                     title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
@@ -6847,6 +7055,36 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                                             '<br>Value: %{customdata:,.0f} <extra></extra>'+
                                             '<br>Cumulative Value: %{y:,.0f} '
                                             )
+            
+        # # Add error bars
+        # # Reset indicies
+        # x = x.reset_index(drop=True)
+        # y = y.reset_index(drop=True)
+
+        # # Get cumulative sum value for Y
+        # y_error_sum=[]
+        # for i in x.values:
+        #     if i != 'Gross Margin (AHLE)':
+        #         y_error_sum = np.cumsum(y)
+        #     elif i == 'Gross Margin (AHLE)':
+        #         GM_index = x[x == 'Gross Margin (AHLE)'].index[0]
+        #         y_error_sum[GM_index] = y[GM_index]
+                
+        # # Add trace for error
+        # ecs_waterfall_fig.add_trace(
+        #     go.Scatter(
+        #      	x=x,
+        #      	y=y_error_sum,
+        #         marker=dict(color='black'),
+        #      	error_y=dict(
+        #             type='data',
+        #             array=stdev
+        #         ),
+        #         mode="markers",
+        #         hoverinfo='none',
+        #         name='Est. range'
+        #     ), 
+        # )
 
     return ecs_waterfall_fig
 
@@ -7375,6 +7613,29 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
     #     ahle_bar_ecs_fig.update_traces(hovertemplate='Category=%{color}<br>Value=%{y:,.0f} USD<extra></extra>')
 
     return ahle_bar_ecs_fig
+
+
+# # Update Stacked bar chart
+# @gbadsDash.callback(
+#     Output('ecs-map','figure'),
+#     Input('select-prodsys-ecs','value'),
+#     )
+# def update_map_display_ecs(dummy_var):
+#     # Ethiopia subnational level map data from S3
+#     input_df = gpd.GeoDataFrame.from_features(area["features"])
+    
+#     ecs_map_fig = px.choropleth_mapbox(input_df,
+#                                    geojson=input_df, 
+#                                    locations='geometry', 
+#                                    color='ADM1_EN',
+#                                      # color_continuous_scale="Viridis",
+#                                      # range_color=(0, 12),
+#                                      # mapbox_style="carto-positron",
+#                                      # opacity=0.5,
+#                                      # labels={'unemp':'unemployment rate'}
+#                                      )
+    
+#     return ecs_map_fig
 
 # ==============================================================================
 #### UPDATE GLOBAL AGGREGATE
@@ -9299,6 +9560,7 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
         map_value = input_df_am_expend['am_expenditure_usd_perkg_selected']
 
 
+
     # Visualization switch between map and tree map
     if viz_switch == 'Map':
 
@@ -9972,8 +10234,6 @@ def update_am_price_comparison(input_json):
                 ,arrayminus=input_df["am_price_usdpertonne_low_err"]
             ),
             mode="markers+text",
-            # text=["B*", "B*", "B*", "B*","B*"],
-            textposition="middle right"
         )
     )
 

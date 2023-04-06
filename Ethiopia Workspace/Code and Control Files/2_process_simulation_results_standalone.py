@@ -101,7 +101,7 @@ ETHIOPIA_DATA_FOLDER = os.path.join(PARENT_FOLDER ,'Data')
 
 DASH_DATA_FOLDER = os.path.join(GRANDPARENT_FOLDER, 'AHLE Dashboard' ,'Dash App' ,'data')
 
-#%% Data prep
+#%% External data
 
 # =============================================================================
 #### Prepare currency conversion data
@@ -111,9 +111,19 @@ exchg_data = pd.read_csv(os.path.join(ETHIOPIA_DATA_FOLDER ,'worldbank_inflation
 cleancolnames(exchg_data)
 datainfo(exchg_data)
 
+# Filter and rename
 exchg_data_tomerge = exchg_data.query("country_name == 'Ethiopia'")
 exchg_data_tomerge = exchg_data_tomerge.rename(columns={'official_exchange_rate__lcu_per_us_dol___period_average___pa_nus_fcrf_':'exchg_rate_lcuperusdol'})
+
+# Fill coded values with nan
 exchg_data_tomerge['exchg_rate_lcuperusdol'] = exchg_data_tomerge['exchg_rate_lcuperusdol'].replace('..' ,np.nan).astype('float64')
+
+# Year 2021 is missing. Fill with 2020.
+exchg_data_tomerge['exchg_rate_lcuperusdol_prev'] = exchg_data_tomerge['exchg_rate_lcuperusdol'].shift(periods=1)
+exchg_data_tomerge['exchg_rate_lcuperusdol'] = \
+    exchg_data_tomerge['exchg_rate_lcuperusdol'].fillna(exchg_data_tomerge['exchg_rate_lcuperusdol_prev'])
+
+# Limit to needed columns
 exchg_data_tomerge = exchg_data_tomerge[['country_name' ,'time' ,'exchg_rate_lcuperusdol']]
 datainfo(exchg_data_tomerge)
 

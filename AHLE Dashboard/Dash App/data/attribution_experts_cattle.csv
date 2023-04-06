@@ -1,0 +1,451 @@
+Expert,AHLE,Production system,Age class,Cause,min,avg,max
+FS_1n7ul98Wd3jq5xD,Mortality,Pastoral,Juvenile,Infectious,50,65,75
+FS_1n7ul98Wd3jq5xD,Mortality,Pastoral,Juvenile,Non-infectious,5,10,20
+FS_1n7ul98Wd3jq5xD,Mortality,Pastoral,Juvenile,External,10,25,35
+FS_1n7ul98Wd3jq5xD,Mortality,Pastoral,Sub-adult,Infectious,30,50,70
+FS_1n7ul98Wd3jq5xD,Mortality,Pastoral,Sub-adult,Non-infectious,5,15,20
+FS_1n7ul98Wd3jq5xD,Mortality,Pastoral,Sub-adult,External,10,35,55
+FS_1n7ul98Wd3jq5xD,Mortality,Pastoral,Adult,Infectious,25,45,70
+FS_1n7ul98Wd3jq5xD,Mortality,Pastoral,Adult,Non-infectious,10,20,45
+FS_1n7ul98Wd3jq5xD,Mortality,Pastoral,Adult,External,5,35,50
+FS_1n7ul98Wd3jq5xD,Mortality,Crop livestock mixed,Juvenile,Infectious,50,70,80
+FS_1n7ul98Wd3jq5xD,Mortality,Crop livestock mixed,Juvenile,Non-infectious,5,15,25
+FS_1n7ul98Wd3jq5xD,Mortality,Crop livestock mixed,Juvenile,External,5,15,25
+FS_1n7ul98Wd3jq5xD,Mortality,Crop livestock mixed,Sub-adult,Infectious,45,50,70
+FS_1n7ul98Wd3jq5xD,Mortality,Crop livestock mixed,Sub-adult,Non-infectious,10,25,30
+FS_1n7ul98Wd3jq5xD,Mortality,Crop livestock mixed,Sub-adult,External,5,25,45
+FS_1n7ul98Wd3jq5xD,Mortality,Crop livestock mixed,Adult,Infectious,30,45,65
+FS_1n7ul98Wd3jq5xD,Mortality,Crop livestock mixed,Adult,Non-infectious,15,35,45
+FS_1n7ul98Wd3jq5xD,Mortality,Crop livestock mixed,Adult,External,10,20,30
+FS_1n7ul98Wd3jq5xD,Mortality,Crop livestock mixed,Oxen,Infectious,20,35,50
+FS_1n7ul98Wd3jq5xD,Mortality,Crop livestock mixed,Oxen,Non-infectious,25,30,40
+FS_1n7ul98Wd3jq5xD,Mortality,Crop livestock mixed,Oxen,External,20,35,40
+FS_1n7ul98Wd3jq5xD,Mortality,Dairy,Juvenile,Infectious,30,65,80
+FS_1n7ul98Wd3jq5xD,Mortality,Dairy,Juvenile,Non-infectious,20,30,50
+FS_1n7ul98Wd3jq5xD,Mortality,Dairy,Juvenile,External,2,5,10
+FS_1n7ul98Wd3jq5xD,Mortality,Dairy,Sub-adult,Infectious,35,55,80
+FS_1n7ul98Wd3jq5xD,Mortality,Dairy,Sub-adult,Non-infectious,20,30,50
+FS_1n7ul98Wd3jq5xD,Mortality,Dairy,Sub-adult,External,5,15,25
+FS_1n7ul98Wd3jq5xD,Mortality,Dairy,Adult,Infectious,25,45,60
+FS_1n7ul98Wd3jq5xD,Mortality,Dairy,Adult,Non-infectious,20,30,50
+FS_1n7ul98Wd3jq5xD,Mortality,Dairy,Adult,External,14,25,40
+FS_2657HfYsAz1NpeC,Mortality,Pastoral,Juvenile,Infectious,45,65,85
+FS_2657HfYsAz1NpeC,Mortality,Pastoral,Juvenile,Non-infectious,10,20,30
+FS_2657HfYsAz1NpeC,Mortality,Pastoral,Juvenile,External,10,15,25
+FS_2657HfYsAz1NpeC,Mortality,Pastoral,Sub-adult,Infectious,20,50,60
+FS_2657HfYsAz1NpeC,Mortality,Pastoral,Sub-adult,Non-infectious,15,25,35
+FS_2657HfYsAz1NpeC,Mortality,Pastoral,Sub-adult,External,15,25,30
+FS_2657HfYsAz1NpeC,Mortality,Pastoral,Adult,Infectious,40,50,60
+FS_2657HfYsAz1NpeC,Mortality,Pastoral,Adult,Non-infectious,15,20,25
+FS_2657HfYsAz1NpeC,Mortality,Pastoral,Adult,External,25,30,35
+FS_2657HfYsAz1NpeC,Mortality,Crop livestock mixed,Juvenile,Infectious,30,60,65
+FS_2657HfYsAz1NpeC,Mortality,Crop livestock mixed,Juvenile,Non-infectious,15,20,35
+FS_2657HfYsAz1NpeC,Mortality,Crop livestock mixed,Juvenile,External,15,20,40
+FS_2657HfYsAz1NpeC,Mortality,Crop livestock mixed,Sub-adult,Infectious,25,40,55
+FS_2657HfYsAz1NpeC,Mortality,Crop livestock mixed,Sub-adult,Non-infectious,30,35,40
+FS_2657HfYsAz1NpeC,Mortality,Crop livestock mixed,Sub-adult,External,20,25,40
+FS_2657HfYsAz1NpeC,Mortality,Crop livestock mixed,Adult,Infectious,30,35,40
+FS_2657HfYsAz1NpeC,Mortality,Crop livestock mixed,Adult,Non-infectious,35,45,60
+FS_2657HfYsAz1NpeC,Mortality,Crop livestock mixed,Adult,External,15,20,25
+FS_2657HfYsAz1NpeC,Mortality,Crop livestock mixed,Oxen,Infectious,25,30,35
+FS_2657HfYsAz1NpeC,Mortality,Crop livestock mixed,Oxen,Non-infectious,30,40,50
+FS_2657HfYsAz1NpeC,Mortality,Crop livestock mixed,Oxen,External,20,30,40
+FS_2657HfYsAz1NpeC,Mortality,Dairy,Juvenile,Infectious,50,60,65
+FS_2657HfYsAz1NpeC,Mortality,Dairy,Juvenile,Non-infectious,25,30,40
+FS_2657HfYsAz1NpeC,Mortality,Dairy,Juvenile,External,5,10,15
+FS_2657HfYsAz1NpeC,Mortality,Dairy,Sub-adult,Infectious,40,50,60
+FS_2657HfYsAz1NpeC,Mortality,Dairy,Sub-adult,Non-infectious,20,30,40
+FS_2657HfYsAz1NpeC,Mortality,Dairy,Sub-adult,External,5,20,25
+FS_2657HfYsAz1NpeC,Mortality,Dairy,Adult,Infectious,15,20,25
+FS_2657HfYsAz1NpeC,Mortality,Dairy,Adult,Non-infectious,40,45,55
+FS_2657HfYsAz1NpeC,Mortality,Dairy,Adult,External,30,35,40
+FS_3oOceuOtz7hPifX,Mortality,Pastoral,Juvenile,Infectious,30,60,70
+FS_3oOceuOtz7hPifX,Mortality,Pastoral,Juvenile,Non-infectious,15,20,30
+FS_3oOceuOtz7hPifX,Mortality,Pastoral,Juvenile,External,10,20,30
+FS_3oOceuOtz7hPifX,Mortality,Pastoral,Sub-adult,Infectious,20,50,60
+FS_3oOceuOtz7hPifX,Mortality,Pastoral,Sub-adult,Non-infectious,10,30,40
+FS_3oOceuOtz7hPifX,Mortality,Pastoral,Sub-adult,External,5,20,25
+FS_3oOceuOtz7hPifX,Mortality,Pastoral,Adult,Infectious,20,50,60
+FS_3oOceuOtz7hPifX,Mortality,Pastoral,Adult,Non-infectious,15,30,40
+FS_3oOceuOtz7hPifX,Mortality,Pastoral,Adult,External,10,20,30
+FS_3oOceuOtz7hPifX,Mortality,Crop livestock mixed,Juvenile,Infectious,10,50,60
+FS_3oOceuOtz7hPifX,Mortality,Crop livestock mixed,Juvenile,Non-infectious,15,30,40
+FS_3oOceuOtz7hPifX,Mortality,Crop livestock mixed,Juvenile,External,5,20,30
+FS_3oOceuOtz7hPifX,Mortality,Crop livestock mixed,Sub-adult,Infectious,20,50,60
+FS_3oOceuOtz7hPifX,Mortality,Crop livestock mixed,Sub-adult,Non-infectious,15,30,40
+FS_3oOceuOtz7hPifX,Mortality,Crop livestock mixed,Sub-adult,External,10,20,30
+FS_3oOceuOtz7hPifX,Mortality,Crop livestock mixed,Adult,Infectious,20,50,60
+FS_3oOceuOtz7hPifX,Mortality,Crop livestock mixed,Adult,Non-infectious,10,30,40
+FS_3oOceuOtz7hPifX,Mortality,Crop livestock mixed,Adult,External,10,20,30
+FS_3oOceuOtz7hPifX,Mortality,Crop livestock mixed,Oxen,Infectious,20,50,60
+FS_3oOceuOtz7hPifX,Mortality,Crop livestock mixed,Oxen,Non-infectious,10,30,40
+FS_3oOceuOtz7hPifX,Mortality,Crop livestock mixed,Oxen,External,10,20,30
+FS_3oOceuOtz7hPifX,Mortality,Dairy,Juvenile,Infectious,30,60,70
+FS_3oOceuOtz7hPifX,Mortality,Dairy,Juvenile,Non-infectious,10,20,30
+FS_3oOceuOtz7hPifX,Mortality,Dairy,Juvenile,External,10,20,30
+FS_3oOceuOtz7hPifX,Mortality,Dairy,Sub-adult,Infectious,10,50,60
+FS_3oOceuOtz7hPifX,Mortality,Dairy,Sub-adult,Non-infectious,10,25,30
+FS_3oOceuOtz7hPifX,Mortality,Dairy,Sub-adult,External,10,25,30
+FS_3oOceuOtz7hPifX,Mortality,Dairy,Adult,Infectious,20,45,60
+FS_3oOceuOtz7hPifX,Mortality,Dairy,Adult,Non-infectious,10,30,35
+FS_3oOceuOtz7hPifX,Mortality,Dairy,Adult,External,10,25,30
+FS_2ZDjQkTL3mq5HAl,Mortality,Pastoral,Juvenile,Infectious,40,60,75
+FS_2ZDjQkTL3mq5HAl,Mortality,Pastoral,Juvenile,Non-infectious,20,35,50
+FS_2ZDjQkTL3mq5HAl,Mortality,Pastoral,Juvenile,External,3,5,10
+FS_2ZDjQkTL3mq5HAl,Mortality,Pastoral,Sub-adult,Infectious,40,55,65
+FS_2ZDjQkTL3mq5HAl,Mortality,Pastoral,Sub-adult,Non-infectious,30,35,50
+FS_2ZDjQkTL3mq5HAl,Mortality,Pastoral,Sub-adult,External,5,10,20
+FS_2ZDjQkTL3mq5HAl,Mortality,Pastoral,Adult,Infectious,45,60,75
+FS_2ZDjQkTL3mq5HAl,Mortality,Pastoral,Adult,Non-infectious,20,35,50
+FS_2ZDjQkTL3mq5HAl,Mortality,Pastoral,Adult,External,3,5,10
+FS_2ZDjQkTL3mq5HAl,Mortality,Crop livestock mixed,Juvenile,Infectious,40,65,75
+FS_2ZDjQkTL3mq5HAl,Mortality,Crop livestock mixed,Juvenile,Non-infectious,20,30,40
+FS_2ZDjQkTL3mq5HAl,Mortality,Crop livestock mixed,Juvenile,External,3,5,10
+FS_2ZDjQkTL3mq5HAl,Mortality,Crop livestock mixed,Sub-adult,Infectious,40,50,65
+FS_2ZDjQkTL3mq5HAl,Mortality,Crop livestock mixed,Sub-adult,Non-infectious,20,35,45
+FS_2ZDjQkTL3mq5HAl,Mortality,Crop livestock mixed,Sub-adult,External,3,15,20
+FS_2ZDjQkTL3mq5HAl,Mortality,Crop livestock mixed,Adult,Infectious,40,55,70
+FS_2ZDjQkTL3mq5HAl,Mortality,Crop livestock mixed,Adult,Non-infectious,25,35,45
+FS_2ZDjQkTL3mq5HAl,Mortality,Crop livestock mixed,Adult,External,5,10,20
+FS_2ZDjQkTL3mq5HAl,Mortality,Crop livestock mixed,Oxen,Infectious,40,65,75
+FS_2ZDjQkTL3mq5HAl,Mortality,Crop livestock mixed,Oxen,Non-infectious,15,25,35
+FS_2ZDjQkTL3mq5HAl,Mortality,Crop livestock mixed,Oxen,External,5,10,15
+FS_2ZDjQkTL3mq5HAl,Mortality,Dairy,Juvenile,Infectious,40,53,65
+FS_2ZDjQkTL3mq5HAl,Mortality,Dairy,Juvenile,Non-infectious,25,37,46
+FS_2ZDjQkTL3mq5HAl,Mortality,Dairy,Juvenile,External,4,10,17
+FS_2ZDjQkTL3mq5HAl,Mortality,Dairy,Sub-adult,Infectious,43,56,68
+FS_2ZDjQkTL3mq5HAl,Mortality,Dairy,Sub-adult,Non-infectious,24,32,44
+FS_2ZDjQkTL3mq5HAl,Mortality,Dairy,Sub-adult,External,8,12,20
+FS_2ZDjQkTL3mq5HAl,Mortality,Dairy,Adult,Infectious,40,62,75
+FS_2ZDjQkTL3mq5HAl,Mortality,Dairy,Adult,Non-infectious,20,28,40
+FS_2ZDjQkTL3mq5HAl,Mortality,Dairy,Adult,External,6,10,20
+R_1I9HkTnOS6BMsRM,Mortality,Pastoral,Juvenile,Infectious,20,30,60
+R_1I9HkTnOS6BMsRM,Mortality,Pastoral,Juvenile,Non-infectious,20,30,60
+R_1I9HkTnOS6BMsRM,Mortality,Pastoral,Juvenile,External,30,40,80
+R_1I9HkTnOS6BMsRM,Mortality,Pastoral,Sub-adult,Infectious,10,25,60
+R_1I9HkTnOS6BMsRM,Mortality,Pastoral,Sub-adult,Non-infectious,8,15,50
+R_1I9HkTnOS6BMsRM,Mortality,Pastoral,Sub-adult,External,40,60,80
+R_1I9HkTnOS6BMsRM,Mortality,Pastoral,Adult,Infectious,10,30,50
+R_1I9HkTnOS6BMsRM,Mortality,Pastoral,Adult,Non-infectious,10,30,50
+R_1I9HkTnOS6BMsRM,Mortality,Pastoral,Adult,External,20,40,60
+R_1I9HkTnOS6BMsRM,Mortality,Crop livestock mixed,Juvenile,Infectious,20,40,60
+R_1I9HkTnOS6BMsRM,Mortality,Crop livestock mixed,Juvenile,Non-infectious,10,25,40
+R_1I9HkTnOS6BMsRM,Mortality,Crop livestock mixed,Juvenile,External,5,35,60
+R_1I9HkTnOS6BMsRM,Mortality,Crop livestock mixed,Sub-adult,Infectious,10,35,45
+R_1I9HkTnOS6BMsRM,Mortality,Crop livestock mixed,Sub-adult,Non-infectious,10,30,45
+R_1I9HkTnOS6BMsRM,Mortality,Crop livestock mixed,Sub-adult,External,15,35,60
+R_1I9HkTnOS6BMsRM,Mortality,Crop livestock mixed,Adult,Infectious,10,30,40
+R_1I9HkTnOS6BMsRM,Mortality,Crop livestock mixed,Adult,Non-infectious,20,35,60
+R_1I9HkTnOS6BMsRM,Mortality,Crop livestock mixed,Adult,External,20,35,70
+R_1I9HkTnOS6BMsRM,Mortality,Crop livestock mixed,Oxen,Infectious,20,30,50
+R_1I9HkTnOS6BMsRM,Mortality,Crop livestock mixed,Oxen,Non-infectious,20,30,50
+R_1I9HkTnOS6BMsRM,Mortality,Crop livestock mixed,Oxen,External,20,40,60
+R_1I9HkTnOS6BMsRM,Mortality,Dairy,Juvenile,Infectious,20,55,65
+R_1I9HkTnOS6BMsRM,Mortality,Dairy,Juvenile,Non-infectious,5,20,30
+R_1I9HkTnOS6BMsRM,Mortality,Dairy,Juvenile,External,10,25,45
+R_1I9HkTnOS6BMsRM,Mortality,Dairy,Sub-adult,Infectious,20,35,50
+R_1I9HkTnOS6BMsRM,Mortality,Dairy,Sub-adult,Non-infectious,10,25,40
+R_1I9HkTnOS6BMsRM,Mortality,Dairy,Sub-adult,External,20,40,70
+R_1I9HkTnOS6BMsRM,Mortality,Dairy,Adult,Infectious,10,25,45
+R_1I9HkTnOS6BMsRM,Mortality,Dairy,Adult,Non-infectious,25,45,65
+R_1I9HkTnOS6BMsRM,Mortality,Dairy,Adult,External,15,30,60
+R_31yeAXPbVjnl37n,Mortality,Pastoral,Juvenile,Infectious,65,75,80
+R_31yeAXPbVjnl37n,Mortality,Pastoral,Juvenile,Non-infectious,10,15,20
+R_31yeAXPbVjnl37n,Mortality,Pastoral,Juvenile,External,8,10,12
+R_31yeAXPbVjnl37n,Mortality,Pastoral,Sub-adult,Infectious,65,70,75
+R_31yeAXPbVjnl37n,Mortality,Pastoral,Sub-adult,Non-infectious,23,25,30
+R_31yeAXPbVjnl37n,Mortality,Pastoral,Sub-adult,External,3,5,10
+R_31yeAXPbVjnl37n,Mortality,Pastoral,Adult,Infectious,45,55,65
+R_31yeAXPbVjnl37n,Mortality,Pastoral,Adult,Non-infectious,25,35,45
+R_31yeAXPbVjnl37n,Mortality,Pastoral,Adult,External,8,10,15
+R_31yeAXPbVjnl37n,Mortality,Crop livestock mixed,Juvenile,Infectious,75,80,85
+R_31yeAXPbVjnl37n,Mortality,Crop livestock mixed,Juvenile,Non-infectious,10,15,20
+R_31yeAXPbVjnl37n,Mortality,Crop livestock mixed,Juvenile,External,3,5,8
+R_31yeAXPbVjnl37n,Mortality,Crop livestock mixed,Sub-adult,Infectious,60,65,70
+R_31yeAXPbVjnl37n,Mortality,Crop livestock mixed,Sub-adult,Non-infectious,20,30,35
+R_31yeAXPbVjnl37n,Mortality,Crop livestock mixed,Sub-adult,External,3,5,7
+R_31yeAXPbVjnl37n,Mortality,Crop livestock mixed,Adult,Infectious,55,60,65
+R_31yeAXPbVjnl37n,Mortality,Crop livestock mixed,Adult,Non-infectious,28,30,35
+R_31yeAXPbVjnl37n,Mortality,Crop livestock mixed,Adult,External,8,10,12
+R_31yeAXPbVjnl37n,Mortality,Crop livestock mixed,Oxen,Infectious,55,65,70
+R_31yeAXPbVjnl37n,Mortality,Crop livestock mixed,Oxen,Non-infectious,25,30,40
+R_31yeAXPbVjnl37n,Mortality,Crop livestock mixed,Oxen,External,3,5,10
+R_31yeAXPbVjnl37n,Mortality,Dairy,Juvenile,Infectious,65,70,75
+R_31yeAXPbVjnl37n,Mortality,Dairy,Juvenile,Non-infectious,15,20,25
+R_31yeAXPbVjnl37n,Mortality,Dairy,Juvenile,External,5,10,15
+R_31yeAXPbVjnl37n,Mortality,Dairy,Sub-adult,Infectious,65,70,75
+R_31yeAXPbVjnl37n,Mortality,Dairy,Sub-adult,Non-infectious,20,25,28
+R_31yeAXPbVjnl37n,Mortality,Dairy,Sub-adult,External,3,5,8
+R_31yeAXPbVjnl37n,Mortality,Dairy,Adult,Infectious,50,55,60
+R_31yeAXPbVjnl37n,Mortality,Dairy,Adult,Non-infectious,30,35,40
+R_31yeAXPbVjnl37n,Mortality,Dairy,Adult,External,5,10,12
+R_3qvPdvNDWTub7X8,Mortality,Pastoral,Juvenile,Infectious,20,40,50
+R_3qvPdvNDWTub7X8,Mortality,Pastoral,Juvenile,Non-infectious,10,25,35
+R_3qvPdvNDWTub7X8,Mortality,Pastoral,Juvenile,External,20,35,60
+R_3qvPdvNDWTub7X8,Mortality,Pastoral,Sub-adult,Infectious,20,45,50
+R_3qvPdvNDWTub7X8,Mortality,Pastoral,Sub-adult,Non-infectious,10,20,30
+R_3qvPdvNDWTub7X8,Mortality,Pastoral,Sub-adult,External,30,35,60
+R_3qvPdvNDWTub7X8,Mortality,Pastoral,Adult,Infectious,40,50,80
+R_3qvPdvNDWTub7X8,Mortality,Pastoral,Adult,Non-infectious,10,20,30
+R_3qvPdvNDWTub7X8,Mortality,Pastoral,Adult,External,20,30,40
+R_3qvPdvNDWTub7X8,Mortality,Crop livestock mixed,Juvenile,Infectious,40,55,90
+R_3qvPdvNDWTub7X8,Mortality,Crop livestock mixed,Juvenile,Non-infectious,10,35,40
+R_3qvPdvNDWTub7X8,Mortality,Crop livestock mixed,Juvenile,External,0,10,20
+R_3qvPdvNDWTub7X8,Mortality,Crop livestock mixed,Sub-adult,Infectious,40,60,80
+R_3qvPdvNDWTub7X8,Mortality,Crop livestock mixed,Sub-adult,Non-infectious,15,30,50
+R_3qvPdvNDWTub7X8,Mortality,Crop livestock mixed,Sub-adult,External,5,10,20
+R_3qvPdvNDWTub7X8,Mortality,Crop livestock mixed,Adult,Infectious,40,60,90
+R_3qvPdvNDWTub7X8,Mortality,Crop livestock mixed,Adult,Non-infectious,10,30,40
+R_3qvPdvNDWTub7X8,Mortality,Crop livestock mixed,Adult,External,5,10,30
+R_3qvPdvNDWTub7X8,Mortality,Crop livestock mixed,Oxen,Infectious,40,65,90
+R_3qvPdvNDWTub7X8,Mortality,Crop livestock mixed,Oxen,Non-infectious,15,25,40
+R_3qvPdvNDWTub7X8,Mortality,Crop livestock mixed,Oxen,External,5,10,30
+R_3qvPdvNDWTub7X8,Mortality,Dairy,Juvenile,Infectious,40,65,90
+R_3qvPdvNDWTub7X8,Mortality,Dairy,Juvenile,Non-infectious,20,25,50
+R_3qvPdvNDWTub7X8,Mortality,Dairy,Juvenile,External,5,10,20
+R_3qvPdvNDWTub7X8,Mortality,Dairy,Sub-adult,Infectious,40,60,70
+R_3qvPdvNDWTub7X8,Mortality,Dairy,Sub-adult,Non-infectious,10,35,40
+R_3qvPdvNDWTub7X8,Mortality,Dairy,Sub-adult,External,0,5,10
+R_3qvPdvNDWTub7X8,Mortality,Dairy,Adult,Infectious,30,50,80
+R_3qvPdvNDWTub7X8,Mortality,Dairy,Adult,Non-infectious,30,40,50
+R_3qvPdvNDWTub7X8,Mortality,Dairy,Adult,External,5,10,20
+R_1PcNnt3F8hG4Ppa,Mortality,Pastoral,Juvenile,Infectious,25,40,65
+R_1PcNnt3F8hG4Ppa,Mortality,Pastoral,Juvenile,Non-infectious,10,20,30
+R_1PcNnt3F8hG4Ppa,Mortality,Pastoral,Juvenile,External,15,40,50
+R_1PcNnt3F8hG4Ppa,Mortality,Pastoral,Sub-adult,Infectious,20,40,60
+R_1PcNnt3F8hG4Ppa,Mortality,Pastoral,Sub-adult,Non-infectious,25,35,40
+R_1PcNnt3F8hG4Ppa,Mortality,Pastoral,Sub-adult,External,5,25,30
+R_1PcNnt3F8hG4Ppa,Mortality,Pastoral,Adult,Infectious,25,50,65
+R_1PcNnt3F8hG4Ppa,Mortality,Pastoral,Adult,Non-infectious,20,40,50
+R_1PcNnt3F8hG4Ppa,Mortality,Pastoral,Adult,External,5,10,25
+R_1PcNnt3F8hG4Ppa,Mortality,Crop livestock mixed,Juvenile,Infectious,20,55,70
+R_1PcNnt3F8hG4Ppa,Mortality,Crop livestock mixed,Juvenile,Non-infectious,15,30,40
+R_1PcNnt3F8hG4Ppa,Mortality,Crop livestock mixed,Juvenile,External,5,15,35
+R_1PcNnt3F8hG4Ppa,Mortality,Crop livestock mixed,Sub-adult,Infectious,25,55,75
+R_1PcNnt3F8hG4Ppa,Mortality,Crop livestock mixed,Sub-adult,Non-infectious,20,35,50
+R_1PcNnt3F8hG4Ppa,Mortality,Crop livestock mixed,Sub-adult,External,3,10,30
+R_1PcNnt3F8hG4Ppa,Mortality,Crop livestock mixed,Adult,Infectious,30,50,60
+R_1PcNnt3F8hG4Ppa,Mortality,Crop livestock mixed,Adult,Non-infectious,25,40,65
+R_1PcNnt3F8hG4Ppa,Mortality,Crop livestock mixed,Adult,External,5,10,30
+R_1PcNnt3F8hG4Ppa,Mortality,Crop livestock mixed,Oxen,Infectious,40,60,75
+R_1PcNnt3F8hG4Ppa,Mortality,Crop livestock mixed,Oxen,Non-infectious,25,30,50
+R_1PcNnt3F8hG4Ppa,Mortality,Crop livestock mixed,Oxen,External,5,10,20
+R_1PcNnt3F8hG4Ppa,Mortality,Dairy,Juvenile,Infectious,20,50,70
+R_1PcNnt3F8hG4Ppa,Mortality,Dairy,Juvenile,Non-infectious,25,40,60
+R_1PcNnt3F8hG4Ppa,Mortality,Dairy,Juvenile,External,2,10,20
+R_1PcNnt3F8hG4Ppa,Mortality,Dairy,Sub-adult,Infectious,20,50,70
+R_1PcNnt3F8hG4Ppa,Mortality,Dairy,Sub-adult,Non-infectious,20,40,50
+R_1PcNnt3F8hG4Ppa,Mortality,Dairy,Sub-adult,External,5,10,15
+R_1PcNnt3F8hG4Ppa,Mortality,Dairy,Adult,Infectious,30,55,70
+R_1PcNnt3F8hG4Ppa,Mortality,Dairy,Adult,Non-infectious,20,30,50
+R_1PcNnt3F8hG4Ppa,Mortality,Dairy,Adult,External,10,15,20
+R_1k2qSQp8BEKrvj3,Mortality,Pastoral,Juvenile,Infectious,5,45,60
+R_1k2qSQp8BEKrvj3,Mortality,Pastoral,Juvenile,Non-infectious,5,15,40
+R_1k2qSQp8BEKrvj3,Mortality,Pastoral,Juvenile,External,15,40,65
+R_1k2qSQp8BEKrvj3,Mortality,Pastoral,Sub-adult,Infectious,20,40,60
+R_1k2qSQp8BEKrvj3,Mortality,Pastoral,Sub-adult,Non-infectious,15,30,50
+R_1k2qSQp8BEKrvj3,Mortality,Pastoral,Sub-adult,External,20,30,40
+R_1k2qSQp8BEKrvj3,Mortality,Pastoral,Adult,Infectious,15,40,60
+R_1k2qSQp8BEKrvj3,Mortality,Pastoral,Adult,Non-infectious,15,25,50
+R_1k2qSQp8BEKrvj3,Mortality,Pastoral,Adult,External,15,35,60
+R_1k2qSQp8BEKrvj3,Mortality,Crop livestock mixed,Juvenile,Infectious,10,35,45
+R_1k2qSQp8BEKrvj3,Mortality,Crop livestock mixed,Juvenile,Non-infectious,10,30,45
+R_1k2qSQp8BEKrvj3,Mortality,Crop livestock mixed,Juvenile,External,10,35,45
+R_1k2qSQp8BEKrvj3,Mortality,Crop livestock mixed,Sub-adult,Infectious,20,40,50
+R_1k2qSQp8BEKrvj3,Mortality,Crop livestock mixed,Sub-adult,Non-infectious,15,20,40
+R_1k2qSQp8BEKrvj3,Mortality,Crop livestock mixed,Sub-adult,External,20,40,50
+R_1k2qSQp8BEKrvj3,Mortality,Crop livestock mixed,Adult,Infectious,25,45,60
+R_1k2qSQp8BEKrvj3,Mortality,Crop livestock mixed,Adult,Non-infectious,25,35,50
+R_1k2qSQp8BEKrvj3,Mortality,Crop livestock mixed,Adult,External,15,20,40
+R_1k2qSQp8BEKrvj3,Mortality,Crop livestock mixed,Oxen,Infectious,20,45,50
+R_1k2qSQp8BEKrvj3,Mortality,Crop livestock mixed,Oxen,Non-infectious,15,35,40
+R_1k2qSQp8BEKrvj3,Mortality,Crop livestock mixed,Oxen,External,15,20,40
+R_1k2qSQp8BEKrvj3,Mortality,Dairy,Juvenile,Infectious,25,45,55
+R_1k2qSQp8BEKrvj3,Mortality,Dairy,Juvenile,Non-infectious,20,30,50
+R_1k2qSQp8BEKrvj3,Mortality,Dairy,Juvenile,External,10,25,30
+R_1k2qSQp8BEKrvj3,Mortality,Dairy,Sub-adult,Infectious,15,45,60
+R_1k2qSQp8BEKrvj3,Mortality,Dairy,Sub-adult,Non-infectious,15,35,60
+R_1k2qSQp8BEKrvj3,Mortality,Dairy,Sub-adult,External,10,20,50
+R_1k2qSQp8BEKrvj3,Mortality,Dairy,Adult,Infectious,25,40,50
+R_1k2qSQp8BEKrvj3,Mortality,Dairy,Adult,Non-infectious,20,35,50
+R_1k2qSQp8BEKrvj3,Mortality,Dairy,Adult,External,15,25,35
+FS_3oOceuOtz7hPifX,Production loss,Pastoral,Juvenile,Infectious,40,50,70
+FS_3oOceuOtz7hPifX,Production loss,Pastoral,Juvenile,Non-infectious,10,30,35
+FS_3oOceuOtz7hPifX,Production loss,Pastoral,Juvenile,External,5,20,25
+FS_3oOceuOtz7hPifX,Production loss,Pastoral,Sub-adult,Infectious,20,40,60
+FS_3oOceuOtz7hPifX,Production loss,Pastoral,Sub-adult,Non-infectious,20,30,40
+FS_3oOceuOtz7hPifX,Production loss,Pastoral,Sub-adult,External,10,30,35
+FS_3oOceuOtz7hPifX,Production loss,Pastoral,Adult,Infectious,30,40,60
+FS_3oOceuOtz7hPifX,Production loss,Pastoral,Adult,Non-infectious,20,30,40
+FS_3oOceuOtz7hPifX,Production loss,Pastoral,Adult,External,10,30,40
+FS_3oOceuOtz7hPifX,Production loss,Crop livestock mixed,Juvenile,Infectious,30,60,70
+FS_3oOceuOtz7hPifX,Production loss,Crop livestock mixed,Juvenile,Non-infectious,10,20,30
+FS_3oOceuOtz7hPifX,Production loss,Crop livestock mixed,Juvenile,External,10,20,30
+FS_3oOceuOtz7hPifX,Production loss,Crop livestock mixed,Sub-adult,Infectious,30,50,60
+FS_3oOceuOtz7hPifX,Production loss,Crop livestock mixed,Sub-adult,Non-infectious,20,30,40
+FS_3oOceuOtz7hPifX,Production loss,Crop livestock mixed,Sub-adult,External,10,20,30
+FS_3oOceuOtz7hPifX,Production loss,Crop livestock mixed,Adult,Infectious,20,40,50
+FS_3oOceuOtz7hPifX,Production loss,Crop livestock mixed,Adult,Non-infectious,20,40,50
+FS_3oOceuOtz7hPifX,Production loss,Crop livestock mixed,Adult,External,10,20,30
+FS_3oOceuOtz7hPifX,Production loss,Crop livestock mixed,Oxen,Infectious,20,40,50
+FS_3oOceuOtz7hPifX,Production loss,Crop livestock mixed,Oxen,Non-infectious,20,40,50
+FS_3oOceuOtz7hPifX,Production loss,Crop livestock mixed,Oxen,External,10,20,30
+FS_3oOceuOtz7hPifX,Production loss,Dairy,Juvenile,Infectious,30,60,70
+FS_3oOceuOtz7hPifX,Production loss,Dairy,Juvenile,Non-infectious,20,25,30
+FS_3oOceuOtz7hPifX,Production loss,Dairy,Juvenile,External,10,15,20
+FS_3oOceuOtz7hPifX,Production loss,Dairy,Sub-adult,Infectious,30,45,50
+FS_3oOceuOtz7hPifX,Production loss,Dairy,Sub-adult,Non-infectious,20,35,60
+FS_3oOceuOtz7hPifX,Production loss,Dairy,Sub-adult,External,10,20,30
+FS_3oOceuOtz7hPifX,Production loss,Dairy,Adult,Infectious,30,40,50
+FS_3oOceuOtz7hPifX,Production loss,Dairy,Adult,Non-infectious,30,40,50
+FS_3oOceuOtz7hPifX,Production loss,Dairy,Adult,External,10,20,30
+R_1I9HkTnOS6BMsRM,Production loss,Pastoral,Juvenile,Infectious,10,30,40
+R_1I9HkTnOS6BMsRM,Production loss,Pastoral,Juvenile,Non-infectious,20,50,60
+R_1I9HkTnOS6BMsRM,Production loss,Pastoral,Juvenile,External,10,20,30
+R_1I9HkTnOS6BMsRM,Production loss,Pastoral,Sub-adult,Infectious,15,35,55
+R_1I9HkTnOS6BMsRM,Production loss,Pastoral,Sub-adult,Non-infectious,35,40,60
+R_1I9HkTnOS6BMsRM,Production loss,Pastoral,Sub-adult,External,15,25,45
+R_1I9HkTnOS6BMsRM,Production loss,Pastoral,Adult,Infectious,15,35,50
+R_1I9HkTnOS6BMsRM,Production loss,Pastoral,Adult,Non-infectious,20,40,60
+R_1I9HkTnOS6BMsRM,Production loss,Pastoral,Adult,External,10,25,40
+R_1I9HkTnOS6BMsRM,Production loss,Crop livestock mixed,Juvenile,Infectious,20,40,50
+R_1I9HkTnOS6BMsRM,Production loss,Crop livestock mixed,Juvenile,Non-infectious,20,40,50
+R_1I9HkTnOS6BMsRM,Production loss,Crop livestock mixed,Juvenile,External,10,20,30
+R_1I9HkTnOS6BMsRM,Production loss,Crop livestock mixed,Sub-adult,Infectious,15,30,45
+R_1I9HkTnOS6BMsRM,Production loss,Crop livestock mixed,Sub-adult,Non-infectious,25,50,65
+R_1I9HkTnOS6BMsRM,Production loss,Crop livestock mixed,Sub-adult,External,10,20,30
+R_1I9HkTnOS6BMsRM,Production loss,Crop livestock mixed,Adult,Infectious,15,30,45
+R_1I9HkTnOS6BMsRM,Production loss,Crop livestock mixed,Adult,Non-infectious,25,55,65
+R_1I9HkTnOS6BMsRM,Production loss,Crop livestock mixed,Adult,External,8,15,25
+R_1I9HkTnOS6BMsRM,Production loss,Crop livestock mixed,Oxen,Infectious,20,40,55
+R_1I9HkTnOS6BMsRM,Production loss,Crop livestock mixed,Oxen,Non-infectious,20,40,60
+R_1I9HkTnOS6BMsRM,Production loss,Crop livestock mixed,Oxen,External,10,20,30
+R_1I9HkTnOS6BMsRM,Production loss,Dairy,Juvenile,Infectious,10,40,45
+R_1I9HkTnOS6BMsRM,Production loss,Dairy,Juvenile,Non-infectious,35,50,80
+R_1I9HkTnOS6BMsRM,Production loss,Dairy,Juvenile,External,5,10,20
+R_1I9HkTnOS6BMsRM,Production loss,Dairy,Sub-adult,Infectious,25,45,55
+R_1I9HkTnOS6BMsRM,Production loss,Dairy,Sub-adult,Non-infectious,25,45,65
+R_1I9HkTnOS6BMsRM,Production loss,Dairy,Sub-adult,External,5,10,20
+R_1I9HkTnOS6BMsRM,Production loss,Dairy,Adult,Infectious,20,35,50
+R_1I9HkTnOS6BMsRM,Production loss,Dairy,Adult,Non-infectious,40,60,80
+R_1I9HkTnOS6BMsRM,Production loss,Dairy,Adult,External,2,5,20
+R_31yeAXPbVjnl37n,Production loss,Pastoral,Juvenile,Infectious,25,35,38
+R_31yeAXPbVjnl37n,Production loss,Pastoral,Juvenile,Non-infectious,45,50,60
+R_31yeAXPbVjnl37n,Production loss,Pastoral,Juvenile,External,10,15,20
+R_31yeAXPbVjnl37n,Production loss,Pastoral,Sub-adult,Infectious,38,40,45
+R_31yeAXPbVjnl37n,Production loss,Pastoral,Sub-adult,Non-infectious,40,45,50
+R_31yeAXPbVjnl37n,Production loss,Pastoral,Sub-adult,External,6,15,17
+R_31yeAXPbVjnl37n,Production loss,Pastoral,Adult,Infectious,35,40,45
+R_31yeAXPbVjnl37n,Production loss,Pastoral,Adult,Non-infectious,45,50,55
+R_31yeAXPbVjnl37n,Production loss,Pastoral,Adult,External,5,10,15
+R_31yeAXPbVjnl37n,Production loss,Crop livestock mixed,Juvenile,Infectious,45,50,55
+R_31yeAXPbVjnl37n,Production loss,Crop livestock mixed,Juvenile,Non-infectious,38,40,50
+R_31yeAXPbVjnl37n,Production loss,Crop livestock mixed,Juvenile,External,6,10,12
+R_31yeAXPbVjnl37n,Production loss,Crop livestock mixed,Sub-adult,Infectious,30,40,45
+R_31yeAXPbVjnl37n,Production loss,Crop livestock mixed,Sub-adult,Non-infectious,45,55,60
+R_31yeAXPbVjnl37n,Production loss,Crop livestock mixed,Sub-adult,External,3,5,8
+R_31yeAXPbVjnl37n,Production loss,Crop livestock mixed,Adult,Infectious,40,45,65
+R_31yeAXPbVjnl37n,Production loss,Crop livestock mixed,Adult,Non-infectious,45,50,55
+R_31yeAXPbVjnl37n,Production loss,Crop livestock mixed,Adult,External,3,5,10
+R_31yeAXPbVjnl37n,Production loss,Crop livestock mixed,Oxen,Infectious,30,45,50
+R_31yeAXPbVjnl37n,Production loss,Crop livestock mixed,Oxen,Non-infectious,45,50,60
+R_31yeAXPbVjnl37n,Production loss,Crop livestock mixed,Oxen,External,2,5,8
+R_31yeAXPbVjnl37n,Production loss,Dairy,Juvenile,Infectious,40,55,60
+R_31yeAXPbVjnl37n,Production loss,Dairy,Juvenile,Non-infectious,35,40,55
+R_31yeAXPbVjnl37n,Production loss,Dairy,Juvenile,External,3,5,10
+R_31yeAXPbVjnl37n,Production loss,Dairy,Sub-adult,Infectious,35,40,45
+R_31yeAXPbVjnl37n,Production loss,Dairy,Sub-adult,Non-infectious,40,45,50
+R_31yeAXPbVjnl37n,Production loss,Dairy,Sub-adult,External,10,15,20
+R_31yeAXPbVjnl37n,Production loss,Dairy,Adult,Infectious,40,45,50
+R_31yeAXPbVjnl37n,Production loss,Dairy,Adult,Non-infectious,48,50,60
+R_31yeAXPbVjnl37n,Production loss,Dairy,Adult,External,3,5,10
+R_3qvPdvNDWTub7X8,Production loss,Pastoral,Juvenile,Infectious,20,40,50
+R_3qvPdvNDWTub7X8,Production loss,Pastoral,Juvenile,Non-infectious,30,45,60
+R_3qvPdvNDWTub7X8,Production loss,Pastoral,Juvenile,External,10,15,30
+R_3qvPdvNDWTub7X8,Production loss,Pastoral,Sub-adult,Infectious,30,40,60
+R_3qvPdvNDWTub7X8,Production loss,Pastoral,Sub-adult,Non-infectious,20,35,50
+R_3qvPdvNDWTub7X8,Production loss,Pastoral,Sub-adult,External,10,25,35
+R_3qvPdvNDWTub7X8,Production loss,Pastoral,Adult,Infectious,30,40,60
+R_3qvPdvNDWTub7X8,Production loss,Pastoral,Adult,Non-infectious,20,25,40
+R_3qvPdvNDWTub7X8,Production loss,Pastoral,Adult,External,20,35,50
+R_3qvPdvNDWTub7X8,Production loss,Crop livestock mixed,Juvenile,Infectious,35,50,60
+R_3qvPdvNDWTub7X8,Production loss,Crop livestock mixed,Juvenile,Non-infectious,30,40,50
+R_3qvPdvNDWTub7X8,Production loss,Crop livestock mixed,Juvenile,External,0,10,20
+R_3qvPdvNDWTub7X8,Production loss,Crop livestock mixed,Sub-adult,Infectious,40,55,60
+R_3qvPdvNDWTub7X8,Production loss,Crop livestock mixed,Sub-adult,Non-infectious,30,40,50
+R_3qvPdvNDWTub7X8,Production loss,Crop livestock mixed,Sub-adult,External,0,5,10
+R_3qvPdvNDWTub7X8,Production loss,Crop livestock mixed,Adult,Infectious,40,60,70
+R_3qvPdvNDWTub7X8,Production loss,Crop livestock mixed,Adult,Non-infectious,20,30,60
+R_3qvPdvNDWTub7X8,Production loss,Crop livestock mixed,Adult,External,5,10,20
+R_3qvPdvNDWTub7X8,Production loss,Crop livestock mixed,Oxen,Infectious,35,55,70
+R_3qvPdvNDWTub7X8,Production loss,Crop livestock mixed,Oxen,Non-infectious,20,40,60
+R_3qvPdvNDWTub7X8,Production loss,Crop livestock mixed,Oxen,External,0,5,10
+R_3qvPdvNDWTub7X8,Production loss,Dairy,Juvenile,Infectious,30,50,60
+R_3qvPdvNDWTub7X8,Production loss,Dairy,Juvenile,Non-infectious,30,40,60
+R_3qvPdvNDWTub7X8,Production loss,Dairy,Juvenile,External,5,10,20
+R_3qvPdvNDWTub7X8,Production loss,Dairy,Sub-adult,Infectious,40,55,70
+R_3qvPdvNDWTub7X8,Production loss,Dairy,Sub-adult,Non-infectious,30,40,60
+R_3qvPdvNDWTub7X8,Production loss,Dairy,Sub-adult,External,0,5,15
+R_3qvPdvNDWTub7X8,Production loss,Dairy,Adult,Infectious,30,50,60
+R_3qvPdvNDWTub7X8,Production loss,Dairy,Adult,Non-infectious,35,45,60
+R_3qvPdvNDWTub7X8,Production loss,Dairy,Adult,External,0,5,10
+R_1PcNnt3F8hG4Ppa,Production loss,Pastoral,Juvenile,Infectious,20,50,75
+R_1PcNnt3F8hG4Ppa,Production loss,Pastoral,Juvenile,Non-infectious,25,35,45
+R_1PcNnt3F8hG4Ppa,Production loss,Pastoral,Juvenile,External,5,15,25
+R_1PcNnt3F8hG4Ppa,Production loss,Pastoral,Sub-adult,Infectious,20,40,70
+R_1PcNnt3F8hG4Ppa,Production loss,Pastoral,Sub-adult,Non-infectious,10,25,40
+R_1PcNnt3F8hG4Ppa,Production loss,Pastoral,Sub-adult,External,10,35,50
+R_1PcNnt3F8hG4Ppa,Production loss,Pastoral,Adult,Infectious,25,60,75
+R_1PcNnt3F8hG4Ppa,Production loss,Pastoral,Adult,Non-infectious,10,30,40
+R_1PcNnt3F8hG4Ppa,Production loss,Pastoral,Adult,External,5,10,25
+R_1PcNnt3F8hG4Ppa,Production loss,Crop livestock mixed,Juvenile,Infectious,25,50,60
+R_1PcNnt3F8hG4Ppa,Production loss,Crop livestock mixed,Juvenile,Non-infectious,20,35,50
+R_1PcNnt3F8hG4Ppa,Production loss,Crop livestock mixed,Juvenile,External,5,15,25
+R_1PcNnt3F8hG4Ppa,Production loss,Crop livestock mixed,Sub-adult,Infectious,25,60,75
+R_1PcNnt3F8hG4Ppa,Production loss,Crop livestock mixed,Sub-adult,Non-infectious,20,30,50
+R_1PcNnt3F8hG4Ppa,Production loss,Crop livestock mixed,Sub-adult,External,5,10,25
+R_1PcNnt3F8hG4Ppa,Production loss,Crop livestock mixed,Adult,Infectious,20,55,70
+R_1PcNnt3F8hG4Ppa,Production loss,Crop livestock mixed,Adult,Non-infectious,10,40,55
+R_1PcNnt3F8hG4Ppa,Production loss,Crop livestock mixed,Adult,External,2,5,15
+R_1PcNnt3F8hG4Ppa,Production loss,Crop livestock mixed,Oxen,Infectious,25,60,80
+R_1PcNnt3F8hG4Ppa,Production loss,Crop livestock mixed,Oxen,Non-infectious,20,30,50
+R_1PcNnt3F8hG4Ppa,Production loss,Crop livestock mixed,Oxen,External,5,10,20
+R_1PcNnt3F8hG4Ppa,Production loss,Dairy,Juvenile,Infectious,25,55,65
+R_1PcNnt3F8hG4Ppa,Production loss,Dairy,Juvenile,Non-infectious,10,35,50
+R_1PcNnt3F8hG4Ppa,Production loss,Dairy,Juvenile,External,5,10,20
+R_1PcNnt3F8hG4Ppa,Production loss,Dairy,Sub-adult,Infectious,20,40,60
+R_1PcNnt3F8hG4Ppa,Production loss,Dairy,Sub-adult,Non-infectious,10,50,70
+R_1PcNnt3F8hG4Ppa,Production loss,Dairy,Sub-adult,External,5,10,20
+R_1PcNnt3F8hG4Ppa,Production loss,Dairy,Adult,Infectious,20,55,70
+R_1PcNnt3F8hG4Ppa,Production loss,Dairy,Adult,Non-infectious,10,35,50
+R_1PcNnt3F8hG4Ppa,Production loss,Dairy,Adult,External,5,10,25
+R_1k2qSQp8BEKrvj3,Production loss,Pastoral,Juvenile,Infectious,25,45,50
+R_1k2qSQp8BEKrvj3,Production loss,Pastoral,Juvenile,Non-infectious,25,30,45
+R_1k2qSQp8BEKrvj3,Production loss,Pastoral,Juvenile,External,15,25,35
+R_1k2qSQp8BEKrvj3,Production loss,Pastoral,Sub-adult,Infectious,25,40,50
+R_1k2qSQp8BEKrvj3,Production loss,Pastoral,Sub-adult,Non-infectious,15,25,30
+R_1k2qSQp8BEKrvj3,Production loss,Pastoral,Sub-adult,External,25,35,45
+R_1k2qSQp8BEKrvj3,Production loss,Pastoral,Adult,Infectious,20,40,45
+R_1k2qSQp8BEKrvj3,Production loss,Pastoral,Adult,Non-infectious,15,30,35
+R_1k2qSQp8BEKrvj3,Production loss,Pastoral,Adult,External,15,30,35
+R_1k2qSQp8BEKrvj3,Production loss,Crop livestock mixed,Juvenile,Infectious,25,45,50
+R_1k2qSQp8BEKrvj3,Production loss,Crop livestock mixed,Juvenile,Non-infectious,15,25,40
+R_1k2qSQp8BEKrvj3,Production loss,Crop livestock mixed,Juvenile,External,15,30,35
+R_1k2qSQp8BEKrvj3,Production loss,Crop livestock mixed,Sub-adult,Infectious,25,50,60
+R_1k2qSQp8BEKrvj3,Production loss,Crop livestock mixed,Sub-adult,Non-infectious,20,30,40
+R_1k2qSQp8BEKrvj3,Production loss,Crop livestock mixed,Sub-adult,External,15,20,30
+R_1k2qSQp8BEKrvj3,Production loss,Crop livestock mixed,Adult,Infectious,25,45,60
+R_1k2qSQp8BEKrvj3,Production loss,Crop livestock mixed,Adult,Non-infectious,20,35,50
+R_1k2qSQp8BEKrvj3,Production loss,Crop livestock mixed,Adult,External,15,20,35
+R_1k2qSQp8BEKrvj3,Production loss,Crop livestock mixed,Oxen,Infectious,25,40,50
+R_1k2qSQp8BEKrvj3,Production loss,Crop livestock mixed,Oxen,Non-infectious,25,40,50
+R_1k2qSQp8BEKrvj3,Production loss,Crop livestock mixed,Oxen,External,15,20,30
+R_1k2qSQp8BEKrvj3,Production loss,Dairy,Juvenile,Infectious,25,45,55
+R_1k2qSQp8BEKrvj3,Production loss,Dairy,Juvenile,Non-infectious,20,35,45
+R_1k2qSQp8BEKrvj3,Production loss,Dairy,Juvenile,External,15,20,30
+R_1k2qSQp8BEKrvj3,Production loss,Dairy,Sub-adult,Infectious,30,50,60
+R_1k2qSQp8BEKrvj3,Production loss,Dairy,Sub-adult,Non-infectious,15,30,40
+R_1k2qSQp8BEKrvj3,Production loss,Dairy,Sub-adult,External,15,20,40
+R_1k2qSQp8BEKrvj3,Production loss,Dairy,Adult,Infectious,30,45,55
+R_1k2qSQp8BEKrvj3,Production loss,Dairy,Adult,Non-infectious,20,40,45
+R_1k2qSQp8BEKrvj3,Production loss,Dairy,Adult,External,10,15,35

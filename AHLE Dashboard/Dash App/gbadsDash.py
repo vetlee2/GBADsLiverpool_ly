@@ -209,6 +209,11 @@ url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_adm
 r = requests.get(url, allow_redirects=True)
 area = r.json()
 
+# Expert opinion files
+ecs_expertattr_smallrum = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'attribution_experts_smallruminants.csv'))
+ecs_expertattr_cattle = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'attribution_experts_cattle.csv'))
+ecs_expertattr_poultry = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'attribution_experts_chickens.csv'))
+
 # -----------------------------------------------------------------------------
 # Global Aggregate
 # -----------------------------------------------------------------------------
@@ -730,7 +735,7 @@ ecs_hierarchy_dd_attr_options = [{'label': i, 'value': i, 'disabled': False} for
 ecs_hierarchy_dd_attr_options += ecs_hierarchy_attr_options
 
 # Graph (visualization)
-ecs_graph_options = [{'label': i, 'value': i, 'disabled': False} for i in ["By Year",
+ecs_graph_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Single Year",
                                                                            "Over Time",
                                                                            ]]
 
@@ -1622,7 +1627,8 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
         ,'output_value_wool_2010usd':'Wool'
 
         ,'vetspend_farm_usd':'Producers vet & med costs'
-        ,'vetspend_public_usd':'Public vet & med costs'
+        # Update 4/5/2023: William no longer wants public expenditure to appear in calculations
+        # ,'vetspend_public_usd':'Public vet & med costs'
 
         ,'net_value_2010usd':'Net value'
     }
@@ -3357,7 +3363,7 @@ gbadsDash.layout = html.Div([
                                 html.H6("Graph Value & Cost..."),
                                 dcc.RadioItems(id='select-graph-ahle-ecs',
                                               options=ecs_graph_options,
-                                              value='By Year',
+                                              value='Single Year',
                                               labelStyle={'display': 'block'},
                                               inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                               ),
@@ -3727,7 +3733,7 @@ gbadsDash.layout = html.Div([
             ]),
 
 
-            #### -- DATATABLE
+            #### -- DATATABLES
             dbc.Row([
 
                 dbc.Col([
@@ -3741,7 +3747,11 @@ gbadsDash.layout = html.Div([
                     html.Div([  # Core data for attribution
                           html.Div( id='ecs-attr-datatable'),
                     ], style={'margin-left':"20px",}),
-                html.Br(), # Spacer for bottom of page
+                    html.Br(),
+                    # html.Div([  # Attribution expert opinion
+                    #       html.Div( id='ecs-attr-expert-opinion'),
+                    # ], style={'margin-left':"20px",}),
+                    # html.Br(), # Spacer for bottom of page
                 ]),  # END OF COL
 
                 # END OF COL
@@ -6184,7 +6194,7 @@ def update_dd4_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_
 #     Input('select-graph-ahle-ecs','value'),
 #     )
 # def update_year_item_switch(graph):
-#     if graph == 'By Year':
+#     if graph == 'Single Year':
 #         control = (html.H6("Year", id='select-year-ecs-title'),
 #             dcc.Dropdown(id='select-year-ecs',
 #                         options=ecs_year_options,
@@ -6209,7 +6219,7 @@ def update_dd4_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_
     Input('select-species-ecs','value'),
     )
 def update_year_item_switch(graph, species):
-    if graph == 'By Year':
+    if graph == 'Single Year':
         options=ecs_year_options=[]
         for i in np.sort(ecs_ahle_summary['year'].unique()):
             str(ecs_year_options.append({'label':i,'value':(i)}))
@@ -6274,12 +6284,12 @@ def update_year_item_switch(graph, species):
 #     options2 = ecs_agesex_options.copy()
 #     options3 = ecs_year_options.copy()
 #     for d in options2:
-#         if graph == 'By Year':
+#         if graph == 'Single Year':
 #             block = {'display': 'block'}
 #         else:
 #             block = {'display': 'none'} # hide
 #     for d in options3:
-#         if graph == 'By Year':
+#         if graph == 'Single Year':
 #             block = {'display': 'block'}
 #         else:
 #             block = {'display': 'none'} # hide
@@ -6423,16 +6433,19 @@ def update_ecs_ahle_data(currency, species, prodsys, agesex):
 def update_ecs_attr_data(currency, prodsys, species):
     # Read in data
     input_df = ecs_ahle_all_withattr
+
     # Production System filter
     # If All production systems, don't filter. Attribution data is not aggregated to that level.
     if prodsys == 'All Production Systems':
         input_df=input_df
     else:
         input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+
     # Species filter
     # Goat and Sheep do not appear separately. These get all small ruminants results.
     if species == 'Goat' or species == "Sheep":
         input_df=input_df.loc[(input_df['species'] == 'All Small Ruminants')]
+
     # Poultry subspecies do not appear separately. These get all poultry results.
     elif species == 'Poultry hybrid' or species == "Poultry indigenous":
         input_df=input_df.loc[(input_df['species'] == 'All Poultry')]
@@ -6486,6 +6499,19 @@ def update_ecs_attr_data(currency, prodsys, species):
             )
         ]
 
+# Attribution expert opinion
+@gbadsDash.callback(
+    Output('ecs-attr-expert-opinion', 'children'),
+    Input('select-species-ecs','value'),
+    )
+def update_ecs_attr_expert_data(species):
+    # Read in data depending on species selected
+    if species.isin(["All Small Ruminants", "Goat", "Sheep"]):
+        input_df = ecs_expertattr_smallrum
+    elif species == "Cattle":
+        input_df = ecs_expertattr_cattle
+    elif species.isin(["All Poultry", "Poultry hybrid", "Poultry indigenous"]):
+        input_df = ecs_expertattr_poultry
 
 # ------------------------------------------------------------------------------
 #### -- Figures
@@ -6727,7 +6753,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
 
 
     # Create waterfall chart
-    if graph_options == "By Year":
+    if graph_options == "Single Year":
 
         # Filter to a specific year
         prep_df = prep_df.query('year == @year_or_item')
@@ -6848,7 +6874,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
             
             # Add title
             ecs_waterfall_fig.update_layout(
-                title_text=f'Values and Costs (Difference) | {species}, {prodsys} <br><sup>Difference between Current and {compare} scenario applied to {agesex}</sup><br>',
+                title_text=f'Animal Health Loss Envelope | {species}, {prodsys} <br><sup>Difference between Current and {compare} scenario applied to {agesex}</sup><br>',
                 yaxis_title=display_currency,
                 font_size=15,
                 margin=dict(t=100)
@@ -7100,26 +7126,55 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
     Input('select-dd-2-attr-ecs','value'),
     Input('select-dd-3-attr-ecs','value'),
     Input('select-dd-4-attr-ecs','value'),
-    )
-def update_attr_treemap_ecs(prodsys, species, currency, top_lvl_hierarchy,
-                            dd1_hierarchy, dd2_hierarchy, dd3_hierarchy, dd4_hierarchy):
+    #!!! Currently using this to specify year for attribution. Ultimately attribution needs its own control.
+    Input('select-graph-ahle-ecs', 'value'),
+    Input('select-year-item-switch-ecs', 'value'),
+)
+def update_attr_treemap_ecs(
+        prodsys,
+        species,
+        currency,
+        top_lvl_hierarchy,
+        dd1_hierarchy,
+        dd2_hierarchy,
+        dd3_hierarchy,
+        dd4_hierarchy,
+        graph_options,
+        year_or_item,
+    ):
     # Data
     input_df = ecs_ahle_all_withattr
+
     # Production System filter
     # If All production systems, don't filter. Attribution data is not aggregated to that level.
     if prodsys == 'All Production Systems':
         input_df=input_df
     else:
         input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+
     # Species filter
     # Goat and Sheep do not appear separately. These get all small ruminants results.
     if species == 'Goat' or species == "Sheep":
         input_df=input_df.loc[(input_df['species'] == 'All Small Ruminants')]
+
     # Poultry subspecies do not appear separately. These get all poultry results.
     elif species == 'Poultry hybrid' or species == "Poultry indigenous":
         input_df=input_df.loc[(input_df['species'] == 'All Poultry')]
     else:
         input_df=input_df.loc[(input_df['species'] == species)]
+
+    # Year filter
+    # Item is being read in as a list the first time, ensuring it does not affect the visuals here
+    if isinstance(year_or_item, list):
+        year_or_item = year_or_item[0]
+    else:
+        year_or_item = year_or_item
+
+    if graph_options == "Single Year":
+        selected_year = year_or_item
+    else:
+        selected_year = 2021
+    input_df = input_df.query(f'year == {selected_year}')
 
     # If currency is USD, use USD columns
     if currency == 'USD':
@@ -7157,7 +7212,7 @@ def update_attr_treemap_ecs(prodsys, species, currency, top_lvl_hierarchy,
         species_label = species
 
     ecs_treemap_fig.update_layout(
-        title_text=f'Attribution | {species_label}, {prodsys}',
+        title_text=f'Attribution | {species_label}, {prodsys}<br><sup>{selected_year}',
         font_size=15,
         margin=dict(t=100)
         )
@@ -7562,7 +7617,7 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
     # Base plot
     # -----------------------------------------------------------------------------
     # Apply year filter
-    if graph_options == "By Year":
+    if graph_options == "Single Year":
         input_df = input_df.loc[input_df['year'] == year_or_item]
     else:
         input_df = input_df.loc[input_df['year'] == 2021]
@@ -8197,7 +8252,7 @@ def update_display_table_ga(selected_region ,selected_incgrp ,selected_country):
         ,'vetspend_biomass_public_usdperkgbm'
         ,'vetspend_production_usdperkgprod'
         ,'vetspend_farm_usd'
-        ,'vetspend_public_usd'
+        # ,'vetspend_public_usd'
 
         ,'ahle_dueto_reducedoutput_2010usd'
         ,'ahle_dueto_vetandmedcost_2010usd'
@@ -8566,7 +8621,7 @@ def update_ahle_waterfall_ga(amu_data_json, selected_region ,selected_incgrp ,se
     if display =='Side by Side':
         # Create graph with current values
         name = 'Current'
-        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "total"]
         x = prep_df_sums['item']
         y = prep_df_sums['value_usd_current']
         ga_waterfall_fig = create_ahle_waterfall_ga(prep_df_sums, name, measure, x, y)
@@ -8592,7 +8647,7 @@ def update_ahle_waterfall_ga(amu_data_json, selected_region ,selected_incgrp ,se
     else:
         # Create graph with differences
         name = 'AHLE'
-        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "total"]
         x = prep_df_sums['item']
         y = prep_df_sums['value_usd_ahle_diff']
         ga_waterfall_fig = create_ahle_waterfall_ga(prep_df_sums, name, measure, x, y)
@@ -9521,15 +9576,15 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
     input_df_amr = input_df_amr.sort_values(by=['woah_region'])
 
     # Fix antimicrobial class names
-    input_df = input_df.replace(['aggregated_class_data', 
-                                 'other_important', 
-                                 'sulfonamides__including_trimethoprim', 
+    input_df = input_df.replace(['aggregated_class_data',
+                                 'other_important',
+                                 'sulfonamides__including_trimethoprim',
                                  'cephalosporins__all_generations',
                                  '1_2_gen__cephalosporins',
                                  '3_4_gen_cephalosporins',
                                  'other_quinolones'],
-                                ['aggregated class data', 
-                                 'other (important)', 
+                                ['aggregated class data',
+                                 'other (important)',
                                  'sulfonamides (with trimethoprim)',
                                  'cephalosporins (all gens)',
                                  'cephalosporins (1 & 2 gen)',
@@ -9807,7 +9862,7 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
            "Other": '#636EFA',
            "D: Unknown": '#AB63FA',
            "Unknown": '#AB63FA'}
-        stackedbar_df['id'] = stackedbar_df.groupby(['who_importance_ctg']).ngroup()              
+        stackedbar_df['id'] = stackedbar_df.groupby(['who_importance_ctg']).ngroup()
     elif classification.upper() == 'WOAH IMPORTANCE CATEGORIES':
         color = 'woah_importance_ctg'
         color_map = {"A: Critically Important": '#EF553B',
@@ -9863,8 +9918,8 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
                      "Sulfonamides (With Trimethoprim)": '#B6E880',
                      "Tetracyclines": '#FF97FF', }
         stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class_group2']).ngroup()
-        
-    
+
+
 
     # Options to change between graphs
     if select_amu_graph.upper() == 'TOTAL':

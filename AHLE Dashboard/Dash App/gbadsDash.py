@@ -3628,7 +3628,7 @@ gbadsDash.layout = html.Div([
                   # Health Cost temporary distribution
                   html.P("***Health cost attribution is currently a placeholder, and is attributed evenly among the AHLE causes.")
                 ]),
-            ], style={'margin-left':"40px", 'font-style': 'italic'}
+            ], style={'margin-left':"20px", 'font-style': 'italic'}
             ),
             html.Br(),
             ### END OF FOOTNOTES
@@ -6410,7 +6410,15 @@ def update_ecs_ahle_data(currency, species, prodsys, agesex):
 
 
     return [
-            html.H4("AHLE Data"),
+            dcc.Markdown(
+                '''
+                #### AHLE Data
+
+                Showing the major production and cost values under current and ideal scenarios
+
+                *Output of the compartmental population model*
+                '''
+                ),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 data=input_df.to_dict('records'),
@@ -6483,7 +6491,15 @@ def update_ecs_attr_data(currency, prodsys, species):
     input_df = input_df[list(columns_to_display_with_labels)]
 
     return [
-            html.H4("Processed Attribution Data"),
+            dcc.Markdown(
+                '''
+                #### Attribution Data
+
+                Attributing the AHLE components to infectious, non-infectious, and external causes
+
+                *Based on expert opinion attribution proportions*
+                '''
+                ),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 data=input_df.to_dict('records'),
@@ -6508,16 +6524,17 @@ def update_ecs_attr_expert_data(species):
     # Read in data depending on species selected
     if species in ["All Small Ruminants", "Goat", "Sheep"]:
         input_df = ecs_expertattr_smallrum
+        spec_label = "Small Ruminants"
     elif species == "Cattle":
         input_df = ecs_expertattr_cattle
+        spec_label = "Cattle"
     elif species in ["All Poultry", "Poultry hybrid", "Poultry indigenous"]:
         input_df = ecs_expertattr_poultry
+        spec_label = "Poultry"
 
     # Format numbers
-    input_df.update(input_df[['min',
-                              'avg',
-                              'max',
-                              ]].applymap('{:,.0}'.format))
+    input_df[['min' ,'avg' ,'max']] = input_df[['min' ,'avg' ,'max']] / 100     # Convert to proportions
+    input_df.update(input_df[['min', 'avg', 'max']].applymap('{:.0%}'.format))
 
     columns_to_display_with_labels = {
       'Expert':'Expert'
@@ -6530,7 +6547,13 @@ def update_ecs_attr_expert_data(species):
       ,'max':'Max'
     }
     return [
-            html.H4("Raw Expert Opinion<br><sup>for selected species group"),
+            dcc.Markdown(
+                f'''
+                #### Expert Opinion Attribution Proportions
+
+                {spec_label}
+                '''
+                ),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 data=input_df.to_dict('records'),

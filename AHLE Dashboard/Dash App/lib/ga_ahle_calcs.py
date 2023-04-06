@@ -126,6 +126,11 @@ def ahle_calcs_adj_outputs(INPUT_DF):
         vetspend_farm_usd = vetspend_biomass_farm_usd + vetspend_production_meat_usd \
             + vetspend_production_eggs_usd + vetspend_production_milk_usd + vetspend_production_wool_usd
         vetspend_public_usd = vetspend_biomass_public_usd
+        '''
+        # Update 4/5/2023: William no longer wants public expenditure to appear in calculations
+        # Setting to zero here so net value will calculate correctly
+        '''
+        vetspend_public_usd = 0
         net_value_2010usd = output_plus_biomass_value_2010usd - vetspend_farm_usd - vetspend_public_usd
 
         ideal_output_plus_biomass_value_2010usd = ideal_biomass_value_2010usd + ideal_output_value_meat_2010usd \
@@ -247,6 +252,11 @@ def ahle_calcs_adj_inputs(INPUT_DF):
         '''
         vetspend_farm_usd = vetspend_biomass_farm_usdperkgbm * input_biomass_kg
         vetspend_public_usd = vetspend_biomass_public_usdperkgbm * input_biomass_kg
+        '''
+        # Update 4/5/2023: William no longer wants public expenditure to appear in calculations
+        # Setting to zero here so net value will calculate correctly
+        '''
+        vetspend_public_usd = 0
         '''
         # Update: now that we're calculating biomass for the whole year, don't need to separately apply
         # vet & med rates to production.

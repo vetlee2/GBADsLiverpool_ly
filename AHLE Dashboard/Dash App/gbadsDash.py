@@ -1433,7 +1433,7 @@ def prep_ahle_forwaterfall_ecs(INPUT_DF):
    #                                  'mean_current_growth_75_imp_all_usd',
    #                                  'mean_current_growth_100_imp_all_usd',
    #                                  ]]
-   
+
    ecs_ahle_waterfall = working_df
 
    # Keep only items for the waterfall
@@ -1915,9 +1915,9 @@ def create_stacked_bar_ecs(input_df, x, y, text, color, yaxis_title):
 
 # Define Ethiopia subnation level map
 def create_map_display_ecs(input_df, geometry, location):
-    ecs_map_fig = px.choropleth_mapbox(input_df, 
-                                             geojson=geometry, 
-                                             locations=location, 
+    ecs_map_fig = px.choropleth_mapbox(input_df,
+                                             geojson=geometry,
+                                             locations=location,
                                              # color='unemp',
                                              # color_continuous_scale="Viridis",
                                              # range_color=(0, 12),
@@ -1925,7 +1925,7 @@ def create_map_display_ecs(input_df, geometry, location):
                                              # opacity=0.5,
                                              # labels={'unemp':'unemployment rate'}
                                              )
-    
+
     return ecs_map_fig
 
 # Define the Biomass map
@@ -3696,12 +3696,12 @@ gbadsDash.layout = html.Div([
                 ]),
             ], style={'margin-left':"40px", 'font-style': 'italic'}
             ),
-            
+
             #### -- MAP
             dbc.Card([
                 dbc.CardBody([
                     html.H3("Ethiopian Subnational Graph"),
-                    
+
             # END OF CARD BODY
             ]),
 
@@ -3748,10 +3748,10 @@ gbadsDash.layout = html.Div([
                           html.Div( id='ecs-attr-datatable'),
                     ], style={'margin-left':"20px",}),
                     html.Br(),
-                    # html.Div([  # Attribution expert opinion
-                    #       html.Div( id='ecs-attr-expert-opinion'),
-                    # ], style={'margin-left':"20px",}),
-                    # html.Br(), # Spacer for bottom of page
+                    html.Div([  # Attribution expert opinion
+                          html.Div( id='ecs-attr-expert-opinion'),
+                    ], style={'margin-left':"20px",}),
+                    html.Br(), # Spacer for bottom of page
                 ]),  # END OF COL
 
                 # END OF COL
@@ -6483,7 +6483,7 @@ def update_ecs_attr_data(currency, prodsys, species):
     input_df = input_df[list(columns_to_display_with_labels)]
 
     return [
-            html.H4("Attribution Data"),
+            html.H4("Processed Attribution Data"),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 data=input_df.to_dict('records'),
@@ -6506,12 +6506,45 @@ def update_ecs_attr_data(currency, prodsys, species):
     )
 def update_ecs_attr_expert_data(species):
     # Read in data depending on species selected
-    if species.isin(["All Small Ruminants", "Goat", "Sheep"]):
+    if species in ["All Small Ruminants", "Goat", "Sheep"]:
         input_df = ecs_expertattr_smallrum
     elif species == "Cattle":
         input_df = ecs_expertattr_cattle
-    elif species.isin(["All Poultry", "Poultry hybrid", "Poultry indigenous"]):
+    elif species in ["All Poultry", "Poultry hybrid", "Poultry indigenous"]:
         input_df = ecs_expertattr_poultry
+
+    # Format numbers
+    input_df.update(input_df[['min',
+                              'avg',
+                              'max',
+                              ]].applymap('{:,.0}'.format))
+
+    columns_to_display_with_labels = {
+      'Expert':'Expert'
+      ,'AHLE':'AHLE Component'
+      ,'Production system':'Production system'
+      ,'Age class':'Age class'
+      ,'Cause':'Cause'
+      ,'min':'Minimum'
+      ,'avg':'Average'
+      ,'max':'Max'
+    }
+    return [
+            html.H4("Raw Expert Opinion<br><sup>for selected species group"),
+            dash_table.DataTable(
+                columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+                data=input_df.to_dict('records'),
+                export_format="csv",
+                style_cell={
+                    # 'minWidth': '250px',
+                    'font-family':'sans-serif',
+                    },
+                style_table={'overflowX': 'scroll',
+                              'height': '320px',
+                              'overflowY': 'auto'},
+                page_action='none',
+            )
+        ]
 
 # ------------------------------------------------------------------------------
 #### -- Figures
@@ -6577,7 +6610,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
         prep_df['mean_all_current_growth_50_AHLE']  = prep_df['mean_all_current_growth_50_AHLE_usd']
         prep_df['mean_all_current_growth_75_AHLE']  = prep_df['mean_all_current_growth_75_AHLE_usd']
         prep_df['mean_all_current_growth_100_AHLE'] = prep_df['mean_all_current_growth_100_AHLE_usd']
-        
+
         prep_df['stdev_current']                     = prep_df['stdev_current_usd']
         prep_df['stdev_mortality_zero']              = prep_df['stdev_mortality_zero_usd']
         prep_df['stdev_ideal']                       = prep_df['stdev_ideal_usd']
@@ -6841,7 +6874,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
             # Create graph
             name = 'AHLE'
             ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
-            
+
             # Add error bars
             # Reset indicies
             x = x.reset_index(drop=True)
@@ -6855,7 +6888,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                 elif i == 'Gross Margin (AHLE)':
                     GM_index = x[x == 'Gross Margin (AHLE)'].index[0]
                     y_error_sum[GM_index] = y[GM_index]
-                    
+
             # Add trace for error
             ecs_waterfall_fig.add_trace(
                 go.Scatter(
@@ -6869,9 +6902,9 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                     mode="markers",
                     hoverinfo='none',
                     name='Est. range'
-                ), 
+                ),
             )
-            
+
             # Add title
             ecs_waterfall_fig.update_layout(
                 title_text=f'Animal Health Loss Envelope | {species}, {prodsys} <br><sup>Difference between Current and {compare} scenario applied to {agesex}</sup><br>',
@@ -6886,7 +6919,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                 name = "Ideal (solid)"
                 # Create graph
                 ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
-                
+
                 # Add error bars
                 # Reset indicies
                 x = x.reset_index(drop=True)
@@ -6898,7 +6931,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                         y_error_sum = np.cumsum(y)
                     elif i == 'Gross Margin':
                         GM_index = x[x == 'Gross Margin'].index[0]
-                        y_error_sum[GM_index] = y[GM_index]                        
+                        y_error_sum[GM_index] = y[GM_index]
                 # Add trace for error
                 ecs_waterfall_fig.add_trace(
                     go.Scatter(
@@ -6911,9 +6944,9 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                         ),
                         mode="markers",
                         hoverinfo='none'
-                    ), 
+                    ),
                 )
-                
+
                 # Add current with lag
                 y = prep_df['mean_current']
                 ecs_waterfall_fig.add_trace(go.Waterfall(
@@ -6927,7 +6960,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                     connector = {"line":{"dash":"dot"}},
                     customdata=y,
                     ))
-                
+
                 # Add error bars
                 # Reset indicies
                 y = prep_df['mean_current']
@@ -6940,7 +6973,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                         y_error_sum = np.cumsum(y)
                     elif i == 'Gross Margin':
                         GM_index = x[x == 'Gross Margin'].index[0]
-                        y_error_sum[GM_index] = y[GM_index]                        
+                        y_error_sum[GM_index] = y[GM_index]
                 # Add trace for error
                 ecs_waterfall_fig.add_trace(
                     go.Scatter(
@@ -6953,15 +6986,15 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                         ),
                         mode="markers",
                         hoverinfo='none'
-                    ), 
+                    ),
                 )
-                
+
                 ecs_waterfall_fig.update_layout(
                     waterfallgroupgap = 0.5,
-                    scattermode="group", 
+                    scattermode="group",
                     scattergap=0.75
                     )
-                
+
                 # Add title
                 ecs_waterfall_fig.update_layout(
                     title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
@@ -7081,7 +7114,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                                             '<br>Value: %{customdata:,.0f} <extra></extra>'+
                                             '<br>Cumulative Value: %{y:,.0f} '
                                             )
-            
+
         # # Add error bars
         # # Reset indicies
         # x = x.reset_index(drop=True)
@@ -7095,7 +7128,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
         #     elif i == 'Gross Margin (AHLE)':
         #         GM_index = x[x == 'Gross Margin (AHLE)'].index[0]
         #         y_error_sum[GM_index] = y[GM_index]
-                
+
         # # Add trace for error
         # ecs_waterfall_fig.add_trace(
         #     go.Scatter(
@@ -7109,7 +7142,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
         #         mode="markers",
         #         hoverinfo='none',
         #         name='Est. range'
-        #     ), 
+        #     ),
         # )
 
     return ecs_waterfall_fig
@@ -7678,10 +7711,10 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
 # def update_map_display_ecs(dummy_var):
 #     # Ethiopia subnational level map data from S3
 #     input_df = gpd.GeoDataFrame.from_features(area["features"])
-    
+
 #     ecs_map_fig = px.choropleth_mapbox(input_df,
-#                                    geojson=input_df, 
-#                                    locations='geometry', 
+#                                    geojson=input_df,
+#                                    locations='geometry',
 #                                    color='ADM1_EN',
 #                                      # color_continuous_scale="Viridis",
 #                                      # range_color=(0, 12),
@@ -7689,7 +7722,7 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
 #                                      # opacity=0.5,
 #                                      # labels={'unemp':'unemployment rate'}
 #                                      )
-    
+
 #     return ecs_map_fig
 
 # ==============================================================================

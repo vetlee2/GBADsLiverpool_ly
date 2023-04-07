@@ -1914,16 +1914,15 @@ def create_stacked_bar_ecs(input_df, x, y, text, color, yaxis_title):
     return bar_fig
 
 # Define Ethiopia subnation level map
-def create_map_display_ecs(input_df, geometry, location):
+def create_map_display_ecs(input_df, geojson, location, featurekey, color_by):
     ecs_map_fig = px.choropleth_mapbox(input_df, 
-                                       geojson=geometry, 
+                                       geojson=geojson, 
                                        locations=location, 
-                                       # color='unemp',
-                                       # color_continuous_scale="Viridis",
-                                       # range_color=(0, 12),
-                                       # mapbox_style="carto-positron",
-                                       # opacity=0.5,
-                                       # labels={'unemp':'unemployment rate'}
+                                       featureidkey=featurekey,
+                                       color=color_by,
+                                       mapbox_style="carto-positron",
+                                       zoom=4,
+                                       center = {"lat": 9.1450, "lon": 40.4897},
                                        )
     
     return ecs_map_fig
@@ -3702,6 +3701,21 @@ gbadsDash.layout = html.Div([
             dbc.Card([
                 dbc.CardBody([
                     html.H3("Ethiopian Subnational Graph"),
+                    
+                dbc.Row([
+                    # Granularity level 
+                    dbc.Col([
+                        html.H6("Select Granularity Level"),
+                        dcc.RadioItems(id='select-gran-lvl-ecs',
+                                      options=['Region', 'Subnation'],
+                                      value='Region',
+                                      labelStyle={'display': 'block'},
+                                      inputStyle={"margin-right": "10px"},
+                                      ),
+                        ]),
+                    
+                ]), # END OF MAP SELECTIONS ROW
+
                     
             # END OF CARD BODY
             ]),
@@ -7674,22 +7688,28 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
 # # Update subnational map
 # @gbadsDash.callback(
 #     Output('ecs-map','figure'),
-#     Input('select-prodsys-ecs','value'),
+#     Input('select-gran-lvl-ecs','value'),
 #     )
 # def update_map_display_ecs(dummy_var):
 #     # Ethiopia subnational level map data from S3
 #     input_df = gpd.GeoDataFrame.from_features(area["features"])
+#     geojson = area
     
-#     ecs_map_fig = px.choropleth_mapbox(input_df,
-#                                    geojson=input_df, 
-#                                    locations='geometry', 
-#                                    color='ADM1_EN',
-#                                      # color_continuous_scale="Viridis",
-#                                      # range_color=(0, 12),
-#                                      # mapbox_style="carto-positron",
-#                                      # opacity=0.5,
-#                                      # labels={'unemp':'unemployment rate'}
-#                                      )
+#     # Set granularity level
+#     location = 
+    
+#     ecs_map_fig = create_map_display_ecs(input_df, geojson, location, featurekey, color_by)
+    
+#         # ecs_map_fig = px.choropleth_mapbox(input_df, 
+#         #                                    geojson=geojson, 
+#         #                                    locations=location, 
+#         #                                    featureidkey=featurekey,
+#         #                                    color=color_by,
+#         #                                    mapbox_style="carto-positron",
+#         #                                    zoom=4,
+#         #                                    center = {"lat": 9.1450, "lon": 40.4897},
+#         #                                    )
+        
     
 #     return ecs_map_fig
 

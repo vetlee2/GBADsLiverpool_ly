@@ -203,11 +203,11 @@ ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_wit
 
 # Ethiopia geojson files from S3
 # Most granular level
-url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm3_csa_bofedb_2021.geojson'
+url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm1_csa_bofedb_2021.geojson'
 # Second most granular level
 # url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm2_csa_bofedb_2021.geojson'
 r = requests.get(url, allow_redirects=True)
-area = r.json()
+geojson_ecs = r.json()
 
 # Expert opinion files
 ecs_expertattr_smallrum = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'attribution_experts_smallruminants.csv'))
@@ -1920,6 +1920,8 @@ def create_map_display_ecs(input_df, geojson, location, featurekey, color_by):
                                        locations=location, 
                                        featureidkey=featurekey,
                                        color=color_by,
+                                       color_discrete_sequence=px.colors.qualitative.Dark24,
+                                       opacity=0.7,
                                        mapbox_style="carto-positron",
                                        zoom=4,
                                        center = {"lat": 9.1450, "lon": 40.4897},
@@ -3707,7 +3709,7 @@ gbadsDash.layout = html.Div([
                     dbc.Col([
                         html.H6("Select Granularity Level"),
                         dcc.RadioItems(id='select-gran-lvl-ecs',
-                                      options=['Region', 'Subnation'],
+                                      options=['Region'],
                                       value='Region',
                                       labelStyle={'display': 'block'},
                                       inputStyle={"margin-right": "10px"},
@@ -6879,7 +6881,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                     marker=dict(color='black'),
                  	error_y=dict(
                         type='data',
-                        array=prep_df['stdev_AHLE']
+                        array=stdev
                     ),
                     mode="markers",
                     hoverinfo='none',
@@ -7685,33 +7687,33 @@ def update_stacked_bar_ecs(prodsys, species, currency, compare, impvmnt_factor, 
     return ahle_bar_ecs_fig
 
 
-# # Update subnational map
-# @gbadsDash.callback(
-#     Output('ecs-map','figure'),
-#     Input('select-gran-lvl-ecs','value'),
-#     )
-# def update_map_display_ecs(dummy_var):
-#     # Ethiopia subnational level map data from S3
-#     input_df = gpd.GeoDataFrame.from_features(area["features"])
-#     geojson = area
+# Update subnational map
+@gbadsDash.callback(
+    Output('ecs-map','figure'),
+    Input('select-gran-lvl-ecs','value'),
+    )
+def update_map_display_ecs(granularity_lvl):
+    # Ethiopia subnational level map data from S3
+    geojson_ecs_df = geojson_ecs.copy()
+    # geojson_ecs_df = gpd.read_file('<filename>.geojson')
     
-#     # Set granularity level
-#     location = 
+    # Set location based on the selected granularity level of data
+    if granularity_lvl.upper() == 'REGION':
+       location = 'ADM1_PCODE'       
+       
+    # Set the featureid key needed fro the chrorpleth mapbox mpa
+    featurekey = (f'properties.{location}')
     
-#     ecs_map_fig = create_map_display_ecs(input_df, geojson, location, featurekey, color_by)
+    input_df = gpd.GeoDataFrame.from_features(geojson_ecs_df["features"])
     
-#         # ecs_map_fig = px.choropleth_mapbox(input_df, 
-#         #                                    geojson=geojson, 
-#         #                                    locations=location, 
-#         #                                    featureidkey=featurekey,
-#         #                                    color=color_by,
-#         #                                    mapbox_style="carto-positron",
-#         #                                    zoom=4,
-#         #                                    center = {"lat": 9.1450, "lon": 40.4897},
-#         #                                    )
-        
+    # Color by Region
+    color_by = 'ADM1_PCODE'
+    input_df = input_df.sort_values(by=[f'{color_by}'])
     
-#     return ecs_map_fig
+    ecs_map_fig = create_map_display_ecs(input_df, geojson_ecs_df, location, featurekey, color_by)
+
+    
+    return ecs_map_fig
 
 # ==============================================================================
 #### UPDATE GLOBAL AGGREGATE

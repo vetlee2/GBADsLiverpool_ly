@@ -36,7 +36,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
 import geopandas as gpd
-
+from flask import Flask, redirect
 # private (fa) libraries
 import lib.fa_dash_utils as fa
 import lib.bod_calcs as bod
@@ -10503,4 +10503,17 @@ if __name__ == "__main__":
    fa.run_server(app, use_port, debug=True)
 
 def returnApp():
-    return app.server
+    """
+    This function is used to create the app and return it to waitress in the docker container
+    """
+    if 'DASH_BASE_URL' in os.environ:
+        from werkzeug.middleware.dispatcher import DispatcherMiddleware    
+        app.wsgi_app = DispatcherMiddleware(Flask('dummy_app'), {
+            os.environ['DASH_BASE_URL']: app.server
+        })
+        # Added redirect to new path
+        @app.wsgi_app.app.route('/')
+        def redirect_to_dashboard():
+            return redirect(os.environ['DASH_BASE_URL'])
+
+    return app.wsgi_app

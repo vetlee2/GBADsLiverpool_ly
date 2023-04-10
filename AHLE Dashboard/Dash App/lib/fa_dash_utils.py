@@ -52,7 +52,13 @@ def instantiate_app(app_title='title', external_stylesheets=[]):  # returns a Da
         # app = Dash(__name__ , title=app_title, external_stylesheets=external_stylesheets)
         logit(f'Instantiating Dash with {assets_folder=}')
         logit(f'{external_stylesheets=}')
-        app = Dash(__name__ , title=app_title, 
+        if 'DASH_BASE_URL' in os.environ:
+            # if the environment variable DASH_BASE_URL is set, then we set the dash url prefix
+            app = Dash(__name__ , title=app_title, 
+                   external_stylesheets=external_stylesheets, 
+                   assets_folder=assets_folder, requests_pathname_prefix=os.environ['DASH_BASE_URL']+'/')
+        else:
+            app = Dash(__name__ , title=app_title, 
                    external_stylesheets=external_stylesheets, 
                    assets_folder=assets_folder)
     return flask_server, app

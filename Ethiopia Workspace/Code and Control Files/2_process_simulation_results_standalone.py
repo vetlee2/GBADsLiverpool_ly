@@ -119,6 +119,7 @@ exchg_data_tomerge = exchg_data_tomerge.rename(columns={'official_exchange_rate_
 exchg_data_tomerge['exchg_rate_lcuperusdol'] = exchg_data_tomerge['exchg_rate_lcuperusdol'].replace('..' ,np.nan).astype('float64')
 
 # Year 2021 is missing. Fill with 2020.
+# This fills any missing year with the previous
 exchg_data_tomerge['exchg_rate_lcuperusdol_prev'] = exchg_data_tomerge['exchg_rate_lcuperusdol'].shift(periods=1)
 exchg_data_tomerge['exchg_rate_lcuperusdol'] = \
     exchg_data_tomerge['exchg_rate_lcuperusdol'].fillna(exchg_data_tomerge['exchg_rate_lcuperusdol_prev'])
@@ -135,7 +136,7 @@ exchg_data_tomerge.to_pickle(os.path.join(ETHIOPIA_DATA_FOLDER ,'wb_exchg_data_p
 def combine_ahle_scenarios(
         input_folder
         ,input_file_prefix      # String
-        ,input_file_suffixes    # List of strings
+        ,input_file_suffixes    # List of strings. Each one combined with input_file_prefix uniquely identifies a file to be read
         ,label_species          # String: add column 'species' with this label
         ,label_prodsys          # String: add column 'production_system' with this label
         ,label_year             # Numeric: add column 'year' with this value
@@ -187,6 +188,8 @@ small_rum_suffixes=[
     ,'ideal_JM'
     ,'ideal_NF'
     ,'ideal_NM'
+
+    ,'PPR'
 
     ,'all_mortality_zero'
     ,'mortality_zero_AF'
@@ -669,6 +672,11 @@ sex_values = list(ahle_combo_indiv['sex'].unique())
 # =============================================================================
 #### Add placeholder items
 # =============================================================================
+'''
+This is no longer needed because infrastructure cost is estimated inside the
+compartmental model. I'm keeping the code in case we want to add any other item
+placeholders.
+'''
 # # Get all combinations of key variables without item
 # item_placeholder = ahle_combo_indiv[['species' ,'production_system' ,'group' ,'age_group' ,'sex' ,'year']].drop_duplicates()
 # item_placeholder['item'] = 'Cost of Infrastructure'
@@ -1002,9 +1010,13 @@ ahle_combo_withahle = ahle_combo_withagg_p.copy()
 ahle_combo_withahle.eval(
     '''
     ahle_total_mean = mean_ideal_gross_margin - mean_current_gross_margin
+
     ahle_dueto_mortality_mean = mean_mortality_zero_gross_margin - mean_current_gross_margin
     ahle_dueto_healthcost_mean = mean_current_health_cost
     ahle_dueto_productionloss_mean = ahle_total_mean - ahle_dueto_mortality_mean - ahle_dueto_healthcost_mean
+
+    ahle_dueto_ppr_mean = mean_ideal_gross_margin - mean_ppr_gross_margin
+    ahle_dueto_otherdisease_mean = ahle_total_mean - ahle_dueto_ppr_mean
 
     ahle_when_af_repro_imp25_mean = mean_current_repro_25_imp_gross_margin - mean_current_gross_margin
     ahle_when_af_repro_imp50_mean = mean_current_repro_50_imp_gross_margin - mean_current_gross_margin
@@ -1085,11 +1097,48 @@ ahle_combo_withahle.eval(
 
 # Standard deviations require summing variances and taking square root
 # Must be done outside eval()
-ahle_combo_withahle['ahle_total_stdev'] = np.sqrt(ahle_combo_withahle['stdev_ideal_gross_margin']**2 + ahle_combo_withahle['stdev_current_gross_margin']**2)
+ahle_combo_withahle['ahle_total_stdev'] = \
+    np.sqrt(ahle_combo_withahle['stdev_ideal_gross_margin']**2 \
+            + ahle_combo_withahle['stdev_current_gross_margin']**2)
 
-ahle_combo_withahle['ahle_dueto_mortality_stdev'] = np.sqrt(ahle_combo_withahle['stdev_mortality_zero_gross_margin']**2 + ahle_combo_withahle['stdev_current_gross_margin']**2)
-ahle_combo_withahle['ahle_dueto_healthcost_stdev'] = np.sqrt(ahle_combo_withahle['stdev_current_health_cost']**2)
-ahle_combo_withahle['ahle_dueto_productionloss_stdev'] = np.sqrt(ahle_combo_withahle['ahle_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_healthcost_stdev']**2)
+ahle_combo_withahle['ahle_dueto_mortality_stdev'] = \
+    np.sqrt(ahle_combo_withahle['stdev_mortality_zero_gross_margin']**2 \
+            + ahle_combo_withahle['stdev_current_gross_margin']**2)
+
+ahle_combo_withahle['ahle_dueto_healthcost_stdev'] = \
+    np.sqrt(ahle_combo_withahle['stdev_current_health_cost']**2)
+
+ahle_combo_withahle['ahle_dueto_productionloss_stdev'] = \
+    np.sqrt(ahle_combo_withahle['ahle_total_stdev']**2 \
+            + ahle_combo_withahle['ahle_dueto_mortality_stdev']**2 \
+                + ahle_combo_withahle['ahle_dueto_healthcost_stdev']**2)
+
+ahle_combo_withahle['ahle_dueto_ppr_stdev'] = \
+    np.sqrt(ahle_combo_withahle['stdev_ideal_gross_margin']**2 \
+            + ahle_combo_withahle['stdev_ppr_gross_margin']**2)
+
+
+# Check PPR calcs
+check_ppr_cols = [
+    'species'
+    ,'production_system'
+    ,'group'
+    ,'age_group'
+    ,'sex'
+    ,'year'
+    ,'mean_current_gross_margin'
+    ,'mean_current_health_cost'
+    ,'mean_ideal_gross_margin'
+    ,'mean_ideal_health_cost'
+    ,'mean_ppr_gross_margin'
+    ,'ahle_total_mean'
+    ,'ahle_dueto_mortality_mean'
+    ,'ahle_dueto_healthcost_mean'
+    ,'ahle_dueto_productionloss_mean'
+    ,'ahle_dueto_ppr_mean'
+    ,'ahle_dueto_otherdisease_mean'
+]
+check_ppr = ahle_combo_withahle[check_ppr_cols]
 
 # =============================================================================
 #### Add currency conversion
@@ -1168,16 +1217,16 @@ total system values are reported.
 
 For example, the ideal_AF scenario sets Adult Females to ideal conditions while
 leaving other age/sex groups at their current conditions; the resulting values are
-the total system values of gross margin, health cost, etc., when Adult Females are at
-their ideal.
+interpreted as the total system values of gross margin, health cost, etc., when
+Adult Females are at their ideal.
 
 Plan to minimize changes needed in Dash:
     Columns will retain names of system total scenarios, e.g:
-        mean_ideal, mean_mortality_zero, mean_all_mort_25_imp, mean_current_repro_25_imp, mean_current_growth_25_imp_all
+        mean_ideal, mean_mortality_zero, etc.
         mean_ideal_usd, mean_mortality_zero_usd, etc.
-    Rows will be added to signify the scope of each scenario, e.g.:
-        Where Group == 'Overall', entry is result of system total scenario
-        Where Group == 'AF', entry is result of AF-specific scenario
+    agesex_scenario column will signify the scope of each scenario, e.g.:
+        Where agesex_scenario == 'Overall', entry is result of system total scenario
+        Where agesex_scenario == 'Adult Female', entry is result of AF-specific scenario
         etc.
 '''
 # =============================================================================
@@ -1860,7 +1909,7 @@ Relying on the following properties of sums of random variables:
 ahle_combo_scensmry_withahle = ahle_combo_scensmry_p.copy()
 
 ahle_combo_scensmry_withahle.eval(
-    # Scenarios that change all age/sex groups
+    # Note there is a row for each age/sex-specific result
     '''
     ahle_total_mean = mean_ideal_gross_margin - mean_current_gross_margin
 
@@ -1888,11 +1937,21 @@ ahle_combo_scensmry_withahle.eval(
 
 # Standard deviations require summing variances and taking square root
 # Must be done outside eval()
-ahle_combo_scensmry_withahle['ahle_total_stdev'] = np.sqrt(ahle_combo_scensmry_withahle['stdev_ideal_gross_margin']**2 + ahle_combo_scensmry_withahle['stdev_current_gross_margin']**2)
+ahle_combo_scensmry_withahle['ahle_total_stdev'] = \
+    np.sqrt(ahle_combo_scensmry_withahle['stdev_ideal_gross_margin']**2 \
+            + ahle_combo_scensmry_withahle['stdev_current_gross_margin']**2)
 
-ahle_combo_scensmry_withahle['ahle_dueto_mortality_stdev'] = np.sqrt(ahle_combo_scensmry_withahle['stdev_mortality_zero_gross_margin']**2 + ahle_combo_scensmry_withahle['stdev_current_gross_margin']**2)
-ahle_combo_scensmry_withahle['ahle_dueto_healthcost_stdev'] = np.sqrt(ahle_combo_scensmry_withahle['stdev_current_health_cost']**2)
-ahle_combo_scensmry_withahle['ahle_dueto_productionloss_stdev'] = np.sqrt(ahle_combo_scensmry_withahle['ahle_total_stdev']**2 + ahle_combo_scensmry_withahle['ahle_dueto_mortality_stdev']**2 + ahle_combo_scensmry_withahle['ahle_dueto_healthcost_stdev']**2)
+ahle_combo_scensmry_withahle['ahle_dueto_mortality_stdev'] = \
+    np.sqrt(ahle_combo_scensmry_withahle['stdev_mortality_zero_gross_margin']**2 \
+            + ahle_combo_scensmry_withahle['stdev_current_gross_margin']**2)
+
+ahle_combo_scensmry_withahle['ahle_dueto_healthcost_stdev'] = \
+    np.sqrt(ahle_combo_scensmry_withahle['stdev_current_health_cost']**2)
+
+ahle_combo_scensmry_withahle['ahle_dueto_productionloss_stdev'] = \
+    np.sqrt(ahle_combo_scensmry_withahle['ahle_total_stdev']**2 \
+            + ahle_combo_scensmry_withahle['ahle_dueto_mortality_stdev']**2 \
+                + ahle_combo_scensmry_withahle['ahle_dueto_healthcost_stdev']**2)
 
 # =============================================================================
 #### Add currency conversion

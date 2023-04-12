@@ -1915,9 +1915,9 @@ def create_stacked_bar_ecs(input_df, x, y, text, color, yaxis_title):
 
 # Define Ethiopia subnation level map
 def create_map_display_ecs(input_df, geojson, location, featurekey, color_by):
-    ecs_map_fig = px.choropleth_mapbox(input_df, 
-                                       geojson=geojson, 
-                                       locations=location, 
+    ecs_map_fig = px.choropleth_mapbox(input_df,
+                                       geojson=geojson,
+                                       locations=location,
                                        featureidkey=featurekey,
                                        color=color_by,
                                        color_discrete_sequence=px.colors.qualitative.Dark24,
@@ -1926,12 +1926,12 @@ def create_map_display_ecs(input_df, geojson, location, featurekey, color_by):
                                        zoom=4,
                                        center = {"lat": 9.1450, "lon": 40.4897},
                                        )
-    
+
     return ecs_map_fig
 
 # Define the Biomass map
 def create_biomass_map_ga(input_df, iso_alpha3, value, country, display):
-    biomass_map_fig = px.choropleth(input_df, 
+    biomass_map_fig = px.choropleth(input_df,
                                     locations=iso_alpha3,
                                     color=value,
                                     hover_name=country, # column to add to hover information
@@ -3702,9 +3702,9 @@ gbadsDash.layout = html.Div([
             #### -- MAP
             dbc.Card([
                 dbc.CardBody([
-                    html.H3("Ethiopian Subnational Graph"),                  
+                    html.H3("Ethiopian Subnational Graph"),
                 dbc.Row([
-                    # Granularity level 
+                    # Granularity level
                     dbc.Col([
                         html.H6("Select Granularity Level"),
                         dcc.RadioItems(id='select-gran-lvl-ecs',
@@ -3714,10 +3714,10 @@ gbadsDash.layout = html.Div([
                                       inputStyle={"margin-right": "10px"},
                                       ),
                         ]),
-                    
+
                 ]), # END OF MAP SELECTIONS ROW
 
-                    
+
             # END OF CARD BODY
             ]),
 
@@ -7242,6 +7242,10 @@ def update_attr_treemap_ecs(
     else:
         year_or_item = year_or_item
 
+    # Create longitudinal chart
+    # if graph_options == "Over Time":
+
+    # Create treemap
     if graph_options == "Single Year":
         selected_year = year_or_item
     else:
@@ -7751,23 +7755,23 @@ def update_map_display_ecs(granularity_lvl):
     # Ethiopia subnational level map data from S3
     geojson_ecs_df = geojson_ecs.copy()
     # geojson_ecs_df = gpd.read_file('<filename>.geojson')
-    
+
     # Set location based on the selected granularity level of data
     if granularity_lvl.upper() == 'REGION':
-       location = 'ADM1_PCODE'       
-       
+       location = 'ADM1_PCODE'
+
     # Set the featureid key needed fro the chrorpleth mapbox mpa
     featurekey = (f'properties.{location}')
-    
+
     input_df = gpd.GeoDataFrame.from_features(geojson_ecs_df["features"])
-    
+
     # Color by Region
     color_by = 'ADM1_PCODE'
     input_df = input_df.sort_values(by=[f'{color_by}'])
-    
+
     ecs_map_fig = create_map_display_ecs(input_df, geojson_ecs_df, location, featurekey, color_by)
 
-    
+
     return ecs_map_fig
 
 # ==============================================================================

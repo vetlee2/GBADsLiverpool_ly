@@ -105,6 +105,9 @@ r_executable = 'C:\\Program Files\\R\\R-4.2.1\\bin\\x64\\Rscript.exe'
 # Full path to the R program you want to run
 r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table_SMALLRUMINANTS.R')
 
+# -----------------------------------------------------------------------------
+# Regular run
+# -----------------------------------------------------------------------------
 # Arguments to R function, as list of strings.
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
@@ -116,6 +119,28 @@ r_args = [
 
     # Arg 3: full path to scenario control file
     ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters SMALLRUMINANTS.xlsx')
+
+    # Arg 4: only run the first N scenarios from the control file
+    # -1: use all scenarios
+    # 9/28: Gemma removed the code that performed this task
+    # ,'-1'
+]
+timerstart()
+run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+timerstop()
+
+# -----------------------------------------------------------------------------
+# PPR-specific
+# -----------------------------------------------------------------------------
+r_args = [
+    # Arg 1: Number of simulation runs
+    '10'
+
+    # Arg 2: Folder location for saving output files
+    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS' ,'PPR scenarios')
+
+    # Arg 3: full path to scenario control file
+    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'PPR_AHLE scenario parameters SMALLRUMINANTS_20230329.xlsx')
 
     # Arg 4: only run the first N scenarios from the control file
     # -1: use all scenarios

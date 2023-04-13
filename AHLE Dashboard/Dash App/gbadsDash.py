@@ -740,8 +740,8 @@ ecs_graph_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Sing
                                                                            ]]
 
 # Display
-ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Side by Side",
-                                                                             "Difference (AHLE)",
+ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Difference (AHLE)",
+                                                                             "Side by Side",
                                                                             ]]
 # Item
 # Keep only items for the waterfall
@@ -3355,14 +3355,18 @@ gbadsDash.layout = html.Div([
                 dbc.Col([
                 dbc.Card([
                     dbc.CardBody([
-                        html.H5("Value & Cost Graph Controls",
+                        html.H5("Select Animal Health Loss Envelope Display",
                                 className="card-title",
                                 style={"font-weight": "bold"}),
+                        html.Label(
+                            ["Displaying the difference in gross margin and its components under the current scenario and a comparison scenario"],
+                            style={'font-style':'italic'}
+                             ),
                         dbc.Row([
 
-                            # Graph
+                            # Switch between single year and over time
                             dbc.Col([
-                                html.H6("Graph Value & Cost..."),
+                                html.H6("Display..."),
                                 dcc.RadioItems(id='select-graph-ahle-ecs',
                                               options=ecs_graph_options,
                                               value='Single Year',
@@ -3372,9 +3376,9 @@ gbadsDash.layout = html.Div([
                                 ],
                             ),
 
-                            # Display
+                            # Switch between side by side and difference
                             dbc.Col([
-                                html.H6("Display"),
+                                html.H6("Show current and comparison as..."),
                                 dcc.RadioItems(id='select-display-ecs',
                                               options=ecs_display_options,
                                               value='Difference (AHLE)',
@@ -3387,7 +3391,7 @@ gbadsDash.layout = html.Div([
 
                             # Compare
                             dbc.Col([
-                                html.H6("Compare current scenario to...", id='select-compare-ecs-title'),
+                                html.H6("Compare current to...", id='select-compare-ecs-title'),
                                 dcc.RadioItems(id='select-compare-ecs',
                                               options=ecs_compare_options,
                                               value='Ideal',
@@ -3460,10 +3464,13 @@ gbadsDash.layout = html.Div([
             dbc.Col([
             dbc.Card([
                 dbc.CardBody([
-                    html.H5("Attribution Graph Controls - Hierarchy",
+                    html.H5("Select Attribution Hierarchy",
                             className="card-title",
                             style={"font-weight": "bold"}),
-
+                    html.Label(
+                        ["Displaying how much each component contributes to the total animal health loss envelope"],
+                        style={'font-style':'italic'}
+                         ),
                     dbc.Row([
                         # # Hierarchy
                         # html.H5("Hierarchy",
@@ -3614,27 +3621,72 @@ gbadsDash.layout = html.Div([
                         style={"width":5}),
 
                     ]),
-                html.Br(),
 
             #### -- FOOTNOTES PT.1
             dbc.Row([
-                dbc.Col([
-                  # Waterfall explanation
-                  html.P("*The blue indicates an increase, the red indicates a decrease in costs/value for each category. The orange is the sum/difference of all of them."),
+                dbc.Col([   # Waterfall footnote
+                  html.P("Blue indicates an increase, red indicates a decrease in cost/value for each category. Orange is the sum/difference of all of them."),
                 ]),
-                dbc.Col([
-                  # Species groups
-                  html.P("*Attribution is reported for species groups rather than individual species."),
-                  # Cost Assumptions
-                  html.P("**AHLE Components are production loss, mortality loss, and health costs. Health costs make up the smallest proportion and may not be visible in this view."),
-                  # Health Cost temporary distribution
-                  html.P("***Health cost attribution is currently a placeholder, and is attributed evenly among the AHLE causes.")
+                dbc.Col([   # Treemap footnote
+                  html.P("Attribution is reported for species groups rather than individual species."),
+                  html.P("Attribution to infectious, non-infectious, and external causes is based on expert opinion. See the user guide for a description of the expert elicitation process."),
+                  # html.P("AHLE Components are production loss, mortality loss, and health costs. Health costs make up the smallest proportion and may not be visible in this view."),
+                  html.P("Health cost is attributed evenly to infectious, non-infectious, and external causes.")
                 ]),
             ], style={'margin-left':"20px", 'font-style': 'italic'}
             ),
             html.Br(),
             ### END OF FOOTNOTES
 
+            #### -- MAP
+            dbc.Card([
+                dbc.CardBody([
+                    html.H3("Ethiopian Subnational Graph"),
+                # dbc.Row([
+                #     # Granularity level
+                #     dbc.Col([
+                #         html.H6("Select Granularity Level"),
+                #         dcc.RadioItems(id='select-gran-lvl-ecs',
+                #                       options=['Region'],
+                #                       value='Region',
+                #                       labelStyle={'display': 'block'},
+                #                       inputStyle={"margin-right": "10px"},
+                #                       ),
+                #         ]),
+
+                # ]), # END OF MAP SELECTIONS ROW
+
+
+            # END OF CARD BODY
+            ]),
+
+            ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF CARD
+
+            html.Hr(style={'margin-right':'10px',}),
+
+            # Map viz
+            dbc.Row([
+                dbc.Col([ # Ethiopian subnational level
+                    dbc.Spinner(children=[
+                    dcc.Graph(id='ecs-map',
+                                style = {"height":"650px"},
+                              config = {
+                                  "displayModeBar" : True,
+                                  "displaylogo": False,
+                                  'toImageButtonOptions': {
+                                      'format': 'png', # one of png, svg, jpeg, webp
+                                      'filename': 'GBADs_Ethiopia_Sub_National_Viz'
+                                      },
+                                  }
+                              )
+                # End of Spinner
+                ],size="md", color="#393375", fullscreen=False),
+                # End of Map
+                ]),
+
+             # END OF GRAPHICS PT.3 ROW
+            ]),
+            html.Br(),
 
             #### -- GRAPHICS PT.2
             dbc.Row([
@@ -3682,8 +3734,6 @@ gbadsDash.layout = html.Div([
                     ]),
 
             ]), # END OF ROW
-            html.Br(),
-            ### END OF ADDITIONAL VISUALS
 
             #### -- FOOTNOTES PT.2
             dbc.Row([
@@ -3699,57 +3749,10 @@ gbadsDash.layout = html.Div([
             ], style={'margin-left':"40px", 'font-style': 'italic'}
             ),
 
-            #### -- MAP
-            dbc.Card([
-                dbc.CardBody([
-                    html.H3("Ethiopian Subnational Graph"),
-                dbc.Row([
-                    # Granularity level
-                    dbc.Col([
-                        html.H6("Select Granularity Level"),
-                        dcc.RadioItems(id='select-gran-lvl-ecs',
-                                      options=['Region'],
-                                      value='Region',
-                                      labelStyle={'display': 'block'},
-                                      inputStyle={"margin-right": "10px"},
-                                      ),
-                        ]),
-
-                ]), # END OF MAP SELECTIONS ROW
-
-
-            # END OF CARD BODY
-            ]),
-
-            ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF CARD
-
-            html.Hr(style={'margin-right':'10px',}),
-
-            # Map viz
-            dbc.Row([
-                dbc.Col([ # Ethiopian subnation level
-                    dbc.Spinner(children=[
-                    dcc.Graph(id='ecs-map',
-                                style = {"height":"650px"},
-                              config = {
-                                  "displayModeBar" : True,
-                                  "displaylogo": False,
-                                  'toImageButtonOptions': {
-                                      'format': 'png', # one of png, svg, jpeg, webp
-                                      'filename': 'GBADs_Ethiopia_Sub_National_Viz'
-                                      },
-                                  }
-                              )
-                # End of Spinner
-                ],size="md", color="#393375", fullscreen=False),
-                # End of Map
-                ]),
-
-             # END OF GRAPHICS PT.3 ROW
-            ]),
-
 
             #### -- DATATABLES
+            html.Hr(style={'margin-right':'10px',}),
+            html.H3("Data Export", id="ETH-data-export"),
             dbc.Row([
 
                 dbc.Col([
@@ -3782,7 +3785,7 @@ gbadsDash.layout = html.Div([
 
         #### ANTIMICROBIAL USAGE TAB
 
-       dcc.Tab(label="Antimicrobial Usage (AMU) [WIP]", id='AMU-tab', children =[
+       dcc.Tab(label="Antimicrobial Usage (AMU)", id='AMU-tab', children =[
 
             #### -- NAVIGATION BUTTONS
             dbc.Row([
@@ -3913,10 +3916,9 @@ gbadsDash.layout = html.Div([
             #        ,href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf'
             #        ,style={'font-style':'italic'}
             #        ),
-            html.Label(['"Displaying antimicrobial usage as reported to ',
-                        html.A('WOAH (2018)',
-                        href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf')],
-                        style={'font-style':'italic'}),
+            html.Label(['Displaying antimicrobial usage as reported to ',
+                        html.A('WOAH (2018)', href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf')
+                        ], style={'font-style':'italic'}),
            html.Br(),
            dbc.Row([
 
@@ -4460,7 +4462,6 @@ gbadsDash.layout = html.Div([
                    ]
                    ,width=7
                    ),
-
                ]),
 
            # AMU for terrestrial animals, with uncertainty
@@ -4512,9 +4513,9 @@ gbadsDash.layout = html.Div([
            #         ],size="md", color="#393375", fullscreen=False),
            #         ]),
            #     ]),
-           html.Hr(style={'margin-right':'10px',}),
 
            #### -- DATATABLES
+           html.Hr(style={'margin-right':'10px',}),
            html.H3("Data Export", id="AMU-data-export"),
            dbc.Row([
                dbc.Spinner(children=[
@@ -6750,7 +6751,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
 
             ecs_waterfall_fig = make_subplots()
             ecs_waterfall_fig.add_trace(plot_ahle_value)
-            ecs_waterfall_fig.update_layout(title=f'{year_or_item} Over Time | {species}, {prodsys} <br><sup>Current vs {compare} Difference (AHLE)</sup><br>',
+            ecs_waterfall_fig.update_layout(title=f'{year_or_item} Over Time | {species}, {prodsys} <br><sup>Difference between Current and {compare} scenario</sup><br>',
                                             yaxis_title=display_currency,
                                             font_size=15,
                                             plot_bgcolor="#ededed",)
@@ -6818,7 +6819,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
             ecs_waterfall_fig = make_subplots()
             ecs_waterfall_fig.add_trace(plot_compare_value)
             ecs_waterfall_fig.add_trace(plot_current_value)
-            ecs_waterfall_fig.update_layout(title=f'{year_or_item} Over Time | {species}, {prodsys} <br><sup>Current & {compare} </sup><br>',
+            ecs_waterfall_fig.update_layout(title=f'{year_or_item} Over Time | {species}, {prodsys} <br><sup>Current and {compare} scenario</sup><br>',
                                             yaxis_title=display_currency,
                                             font_size=15,
                                             plot_bgcolor="#ededed",)
@@ -6946,7 +6947,7 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
 
             # Add title
             ecs_waterfall_fig.update_layout(
-                title_text=f'Animal Health Loss Envelope | {species}, {prodsys} <br><sup>Difference between Current and {compare} scenario applied to {agesex}</sup><br>',
+                title_text=f'Animal Health Loss Envelope | {species}, {prodsys} <br><sup>Difference between current values and {agesex} {compare} scenario</sup><br>',
                 yaxis_title=display_currency,
                 font_size=15,
                 margin=dict(t=100)
@@ -7024,27 +7025,14 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                             array=prep_df['stdev_current']
                         ),
                         mode="markers",
-                        hoverinfo='none'
+                        hoverinfo='none',
                     ),
                 )
 
                 ecs_waterfall_fig.update_layout(
                     waterfallgroupgap = 0.5,
-                    scattermode="group",
-                    scattergap=0.75
-                    )
-
-                # Add title
-                ecs_waterfall_fig.update_layout(
-                    title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
-                    yaxis_title=display_currency,
-                    font_size=15,
-                    margin=dict(t=100),
-                    legend=dict(orientation="h",
-                                xanchor="right",
-                                x=1,
-                                yanchor="bottom",
-                                y=1.02,)
+                    # scattermode="group",
+                    # scattergap=0.75
                     )
 
             elif compare == 'Zero Mortality':
@@ -7066,18 +7054,6 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                     ))
                 ecs_waterfall_fig.update_layout(
                     waterfallgroupgap = 0.5,
-                    )
-                # Add title
-                ecs_waterfall_fig.update_layout(
-                    title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
-                    yaxis_title=display_currency,
-                    font_size=15,
-                    margin=dict(t=100),
-                    legend=dict(orientation="h",
-                                xanchor="right",
-                                x=1,
-                                yanchor="bottom",
-                                y=1.02,)
                     )
 
             else:
@@ -7124,18 +7100,19 @@ def update_ahle_value_and_cost_viz_ecs(graph_options, agesex, species, display, 
                 ecs_waterfall_fig.update_layout(
                     waterfallgroupgap = 0.5,
                     )
-                # Add title
-                ecs_waterfall_fig.update_layout(
-                    title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {compare} scenario applied to {agesex}</sup><br>',
-                    yaxis_title=display_currency,
-                    font_size=15,
-                    margin=dict(t=100),
-                    legend=dict(orientation="h",
-                                xanchor="right",
-                                x=1,
-                                yanchor="bottom",
-                                y=1.02,)
-                    )
+
+            # Add title
+            ecs_waterfall_fig.update_layout(
+                title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {agesex} {compare} scenario</sup><br>',
+                yaxis_title=display_currency,
+                font_size=15,
+                margin=dict(t=100),
+                legend=dict(orientation="h",
+                            xanchor="right",
+                            x=1,
+                            yanchor="bottom",
+                            y=1.02,)
+                )
 
         # Add tooltip
         if currency == 'Birr':
@@ -7250,6 +7227,7 @@ def update_attr_treemap_ecs(
         selected_year = year_or_item
     else:
         selected_year = 2021
+
     input_df = input_df.query(f'year == {selected_year}')
 
     # If currency is USD, use USD columns

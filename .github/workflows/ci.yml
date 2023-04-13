@@ -32,6 +32,6 @@ jobs:
       - name: Build and push to Docker Hub
         uses: docker/build-push-action@v3
         with:
-          context: '/AHLE Dashboard/Dash App'
+          context: './AHLE Dashboard/Dash App'
           push: true
           tags: gbadsinformatics/ahle-dash:latest

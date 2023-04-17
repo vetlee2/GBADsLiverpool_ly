@@ -201,14 +201,14 @@ ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary
 # ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr.csv'))
 ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv'))
 
-# Ethiopia geojson files from S3
-# JR 2023-4-13: dashboard slow to load and map not showing
-# Most granular level
-url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm1_csa_bofedb_2021.geojson'
-# Second most granular level
-# url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm2_csa_bofedb_2021.geojson'
-r = requests.get(url, allow_redirects=True)
-geojson_ecs = r.json()
+# # Ethiopia geojson files from S3
+# # JR 2023-4-13: dashboard slow to load and map not showing
+# # Most granular level
+# url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm1_csa_bofedb_2021.geojson'
+# # Second most granular level
+# # url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm2_csa_bofedb_2021.geojson'
+# r = requests.get(url, allow_redirects=True)
+# geojson_ecs = r.json()
 
 # Alternative: read from local copy
 # geojson_ecs = gpd.read_file(os.path.join(DASH_DATA_FOLDER ,'eth_admbnda_adm1_csa_bofedb_2021.geojson'))
@@ -3509,7 +3509,7 @@ gbadsDash.layout = html.Div([
                         ),
                     # Drill Down 1
                     dbc.Col([
-                        html.H6("Drill Down 1"),
+                        html.H6("Drill Down 1", id="select-dd-1-attr-ecs-title"),
                         dcc.Dropdown(id='select-dd-1-attr-ecs',
                                       # options=ecs_hierarchy_dd_attr_options,
                                       # value='production_system',
@@ -3521,7 +3521,7 @@ gbadsDash.layout = html.Div([
                         ),
                     # Drill Down 2
                     dbc.Col([
-                        html.H6("Drill Down 2"),
+                        html.H6("Drill Down 2", id="select-dd-2-attr-ecs-title"),
                         dcc.Dropdown(id='select-dd-2-attr-ecs',
                                       options=ecs_hierarchy_dd_attr_options,
                                       value='age_group',
@@ -3537,7 +3537,7 @@ gbadsDash.layout = html.Div([
                 dbc.Row([
                 # Drill Down 3
                 dbc.Col([
-                    html.H6("Drill Down 3"),
+                    html.H6("Drill Down 3", id="select-dd-3-attr-ecs-title"),
                     dcc.Dropdown(id='select-dd-3-attr-ecs',
                                   options=ecs_hierarchy_dd_attr_options,
                                   value='sex',
@@ -3546,7 +3546,7 @@ gbadsDash.layout = html.Div([
                     ]),
                 # Drill Down 4
                 dbc.Col([
-                    html.H6("Drill Down 4"),
+                    html.H6("Drill Down 4", id="select-dd-4-attr-ecs-title"),
                     dcc.Dropdown(id='select-dd-4-attr-ecs',
                                   options=ecs_hierarchy_dd_attr_options,
                                   value='ahle_component',
@@ -3703,7 +3703,7 @@ gbadsDash.layout = html.Div([
                 # End of Map
                 ]),
 
-             # END OF GRAPHICS PT.3 ROW
+             # END OF MAP ROW
             ]),
             html.Br(),
 
@@ -6143,68 +6143,114 @@ def update_compare_options_ecs(species):
 @gbadsDash.callback(
     Output('select-dd-1-attr-ecs','options'),
     Output('select-dd-1-attr-ecs','value'),
+    Output('select-dd-1-attr-ecs','style'),
+    Output('select-dd-1-attr-ecs-title','style'),
+    Input('select-graph-ahle-ecs','value'),
     Input('select-top-lvl-attr-ecs','value'),
     )
-def update_dd1_options_ecs(top_lvl_hierarchy):
+def update_dd1_options_ecs(graph, top_lvl_hierarchy):
     options = ecs_hierarchy_dd_attr_options.copy()
-    for d in options:
-        if d['value'] == top_lvl_hierarchy:
+    
+    if graph == 'Over Time':
+        for d in options:
             d['disabled']=True
-        else:
-            d['disabled']=False
+        display_style = {'display': 'none'}
+     
+    else:
+        for d in options:
+            if d['value'] == top_lvl_hierarchy:
+                d['disabled']=True
+            else:
+                d['disabled']=False
+        display_style = {'display': 'block'}
 
     value='production_system'
 
-    return options, value
+    return options, value, display_style, display_style
 
 
 @gbadsDash.callback(
     Output('select-dd-2-attr-ecs','options'),
+    Output('select-dd-2-attr-ecs','style'),
+    Output('select-dd-2-attr-ecs-title','style'),
+    Input('select-graph-ahle-ecs','value'),
     Input('select-top-lvl-attr-ecs','value'),
     Input('select-dd-1-attr-ecs','value'),
     )
-def update_dd2_options_ecs(top_lvl_hierarchy, dd1_hierarchy):
+def update_dd2_options_ecs(graph, top_lvl_hierarchy, dd1_hierarchy):
     options = ecs_hierarchy_dd_attr_options
-    for d in options:
-        if d['value'] != 'None':
-            if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy:
-                d['disabled']= True
-            else:
-                d['disabled']=False
-    return options
+    
+    if graph == 'Over Time':
+        for d in options:
+            d['disabled']=True
+        display_style = {'display': 'none'}
+     
+    else:
+        for d in options:
+            if d['value'] != 'None':
+                if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy:
+                    d['disabled']= True
+                else:
+                    d['disabled']=False
+        display_style = {'display': 'block'}
+                
+    return options, display_style, display_style
 
 @gbadsDash.callback(
     Output('select-dd-3-attr-ecs','options'),
+    Output('select-dd-3-attr-ecs','style'),
+    Output('select-dd-3-attr-ecs-title','style'),
+    Input('select-graph-ahle-ecs','value'),
     Input('select-top-lvl-attr-ecs','value'),
     Input('select-dd-1-attr-ecs','value'),
     Input('select-dd-2-attr-ecs','value'),
     )
-def update_dd3_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy):
+def update_dd3_options_ecs(graph, top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy):
     options = ecs_hierarchy_dd_attr_options
-    for d in options:
-        if d['value'] != 'None':
-            if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy or d['value'] == dd2_hierarchy:
-                d['disabled']= True
-            else:
-                d['disabled']=False
-    return options
+    
+    if graph == 'Over Time':
+        for d in options:
+            d['disabled']=True
+        display_style = {'display': 'none'}
+     
+    else:
+        for d in options:
+            if d['value'] != 'None':
+                if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy or d['value'] == dd2_hierarchy:
+                    d['disabled']= True
+                else:
+                    d['disabled']=False
+        display_style = {'display': 'block'}
+    
+    return options, display_style, display_style
 
 @gbadsDash.callback(
     Output('select-dd-4-attr-ecs','options'),
+    Output('select-dd-4-attr-ecs','style'),
+    Output('select-dd-4-attr-ecs-title','style'),
+    Input('select-graph-ahle-ecs','value'),
     Input('select-top-lvl-attr-ecs','value'),
     Input('select-dd-1-attr-ecs','value'),
     Input('select-dd-2-attr-ecs','value'),
     Input('select-dd-3-attr-ecs','value'),
     )
-def update_dd4_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_hierarchy):
+def update_dd4_options_ecs(graph, top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_hierarchy):
     options = ecs_hierarchy_dd_attr_options
-    for d in options:
-        if d['value'] != 'None':
-            if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy or d['value'] == dd2_hierarchy or d['value'] == dd3_hierarchy:
-                d['disabled']= True
-            else:
-                d['disabled']=False
-    return options
+    if graph == 'Over Time':
+        for d in options:
+            d['disabled']=True
+        display_style = {'display': 'none'}
+     
+    else:
+        for d in options:
+            if d['value'] != 'None':
+                if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy or d['value'] == dd2_hierarchy or d['value'] == dd3_hierarchy:
+                    d['disabled']= True
+                else:
+                    d['disabled']=False
+        display_style = {'display': 'block'}
+    
+    return options, display_style, display_style
 
 # @gbadsDash.callback(
 #     Output('select-dd-5-attr-ecs','options'),
@@ -7844,34 +7890,34 @@ def update_stacked_bar_ecs(
 
     return ahle_bar_ecs_fig
 
-
-# Update subnational map
-@gbadsDash.callback(
-    Output('ecs-map','figure'),
-    Input('select-gran-lvl-ecs','value'),
-    )
-def update_map_display_ecs(granularity_lvl):
-    # Ethiopia subnational level map data from S3
-    geojson_ecs_df = geojson_ecs.copy()
-    # geojson_ecs_df = gpd.read_file('<filename>.geojson')
-
-    # Set location based on the selected granularity level of data
-    if granularity_lvl.upper() == 'REGION':
-       location = 'ADM1_PCODE'
-
-    # Set the featureid key needed fro the chrorpleth mapbox mpa
-    featurekey = (f'properties.{location}')
-
-    input_df = gpd.GeoDataFrame.from_features(geojson_ecs_df["features"])
-
-    # Color by Region
-    color_by = 'ADM1_PCODE'
-    input_df = input_df.sort_values(by=[f'{color_by}'])
-
-    ecs_map_fig = create_map_display_ecs(input_df, geojson_ecs_df, location, featurekey, color_by)
-
-
-    return ecs_map_fig
+if prod:
+    # Update subnational map
+    @gbadsDash.callback(
+        Output('ecs-map','figure'),
+        Input('select-gran-lvl-ecs','value'),
+        )
+    def update_map_display_ecs(granularity_lvl):
+        # Ethiopia subnational level map data from S3
+        geojson_ecs_df = geojson_ecs.copy()
+        # geojson_ecs_df = gpd.read_file('<filename>.geojson')
+    
+        # Set location based on the selected granularity level of data
+        if granularity_lvl.upper() == 'REGION':
+           location = 'ADM1_PCODE'
+    
+        # Set the featureid key needed fro the chrorpleth mapbox mpa
+        featurekey = (f'properties.{location}')
+    
+        input_df = gpd.GeoDataFrame.from_features(geojson_ecs_df["features"])
+    
+        # Color by Region
+        color_by = 'ADM1_PCODE'
+        input_df = input_df.sort_values(by=[f'{color_by}'])
+    
+        ecs_map_fig = create_map_display_ecs(input_df, geojson_ecs_df, location, featurekey, color_by)
+    
+    
+        return ecs_map_fig
 
 # ==============================================================================
 #### UPDATE GLOBAL AGGREGATE

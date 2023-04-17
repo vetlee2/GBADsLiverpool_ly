@@ -956,7 +956,7 @@ ahle_combo_withattr = pd.merge(
     ,right_on=['country_name' ,'time']
     ,how='left'
     )
-del ahle_combo_withattr['country_name']
+ahle_combo_withattr = ahle_combo_withattr.drop(columns=['country_name' ,'time'])
 
 # Add columns in USD
 ahle_combo_withattr['mean_usd'] = ahle_combo_withattr['mean'] / ahle_combo_withattr['exchg_rate_lcuperusdol']

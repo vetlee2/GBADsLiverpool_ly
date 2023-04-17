@@ -137,7 +137,7 @@ r_args = [
     '10'
 
     # Arg 2: Folder location for saving output files
-    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS' ,'PPR scenarios')
+    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
 
     # Arg 3: full path to scenario control file
     ,os.path.join(ETHIOPIA_CODE_FOLDER ,'PPR_AHLE scenario parameters SMALLRUMINANTS_20230329.xlsx')

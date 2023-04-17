@@ -9593,10 +9593,11 @@ def update_amr_display_amu(dummy_input):
 
     return [
             html.H4("Antimicrobial Resistance Data"),
-            html.P(children=[
-                html.A("Source: Venkateswaran et al., 2023", href='https://ssrn.com/abstract=4346767'),
-                ],style={'font-style':'italic',
-                         'margin-bottom':0,}),
+            dcc.Markdown(
+                '''
+                *Source: [resistancebank.org](https://resistancebank.org) and [Venkateswaran et al., 2023](https://ssrn.com/abstract=4346767)*
+                '''
+                ),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 # fixed_rows={'headers': True, 'data': 0},
@@ -10666,7 +10667,7 @@ def returnApp():
     """
     # If DASH_BASE_URL is set, use DispatcherMiddleware to serve the app from that path
     if 'DASH_BASE_URL' in os.environ:
-        from werkzeug.middleware.dispatcher import DispatcherMiddleware    
+        from werkzeug.middleware.dispatcher import DispatcherMiddleware
         app.wsgi_app = DispatcherMiddleware(Flask('dummy_app'), {
             os.environ['DASH_BASE_URL']: app.server
         })

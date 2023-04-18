@@ -26,7 +26,7 @@ print(f"[{dt.datetime.now().strftime('%Y%m%d_%H%M%S.%f')[:19]}] {sys.version = }
 # Third party packages (ie, those installed with pip )
 # NO NEED to import Dash or JupyterDash here.  That is done within fa.instantiate_app
 
-from dash import html, dcc, Input, Output, State, dash_table
+from dash import html, dcc, Input, Output, State, dash_table, ctx
 import dash_bootstrap_components as dbc  # Allows easy access to all bootstrap themes
 import dash_daq as daq
 import dash_auth
@@ -2658,21 +2658,24 @@ gbadsDash.layout = html.Div([
                 html.P("Antimicrobial Expenditure shown is the estimated global total based on usage and price selected on the Antimicrobial Usage tab."),
                 # html.P("Using morbidity and mortality rates according to income group"),
                 ]),
-            # # Regional AM Expenditure Estimator
-            # dbc.Col([
-            #     dcc.Link(
-            #         dbc.Button(children='Antimicrobial Expenditure',
-            #                     # style={'color': 'white',
-            #                     #        'backgroundColor': '#101820',
-            #                     #        'fontSize': '15px ',
-            #                     #        'width': '150px',
-            #                     #        'height': '50px',
-            #                     #        'marginLeft': '10px',
-            #                     #        'marginRight': '100px',
-            #                     #        }
-            #                     ),
-            #         href='#AMU-regional-expenditure', refresh=True),
-            #     ]),
+            # Regional AM Expenditure Estimator
+            dbc.Col([
+                dcc.Link(
+                    dbc.Button(id="am-expend-button-ga",
+                        children='Antimicrobial Expenditure',
+                                # style={'color': 'white',
+                                #        'backgroundColor': '#101820',
+                                #        'fontSize': '15px ',
+                                #        'width': '150px',
+                                #        'height': '50px',
+                                #        'marginLeft': '10px',
+                                #        'marginRight': '100px',
+                                #        }
+                                ),
+                    href='#AMU-regional-expenditure', refresh=True),
+                
+                # html.Button('Antimicrobial Expenditure', id='am-expend-button-ga'),
+                ]),
 
             dbc.Col([
                 # Line chart
@@ -3497,7 +3500,7 @@ gbadsDash.layout = html.Div([
 
                     # Top Level
                     dbc.Col([
-                        html.H6("Top Level"),
+                        html.H6("Top Level", id="select-top-lvl-attr-ecs-title"),
                         dcc.Dropdown(id='select-top-lvl-attr-ecs',
                                       options=ecs_hierarchy_attr_options,
                                       value='cause',
@@ -4606,7 +4609,7 @@ gbadsDash.layout = html.Div([
 
         ### END OF TABS ###
         ],style={'margin-right':'10px',
-                 'margin-left': '10px'} )
+                 'margin-left': '10px'}, )
 
         ])
 
@@ -6140,6 +6143,20 @@ def update_compare_options_ecs(species):
     return options
 
 # Update hierarchy dropdown filters to remove higher level selections from the options
+# And change if displaying stacked bar
+
+@gbadsDash.callback(
+    Output('select-top-lvl-attr-ecs-title','children'),
+    Input('select-graph-ahle-ecs','value'),
+    )
+def update_year_item_switch(graph):
+    if graph == 'Single Year':
+        title = 'Top Level'
+    else:
+        title = 'Segmentation'
+
+    return title
+
 @gbadsDash.callback(
     Output('select-dd-1-attr-ecs','options'),
     Output('select-dd-1-attr-ecs','value'),
@@ -8172,6 +8189,21 @@ def update_species_options_ga(country, region):
 
     return options
 
+# Navigate to the AMU tab with button below waterfall
+@app.callback(
+    Output('tabs','active_tab'),
+    Input('am-expend-button-ga','n_clicks')
+)
+def display_amutab(n_clicks):
+    return 'AMU-tab'
+
+# @app.callback(
+#     Output('AMU-tab', 'value'),
+#     [Input('am-expend-button-ga', 'n_clicks')]
+# )
+# def open_home_tab(n_clicks):
+#     if not ctx.triggered:
+#         return 'AMU-tab'
 
 # ------------------------------------------------------------------------------
 #### -- Data

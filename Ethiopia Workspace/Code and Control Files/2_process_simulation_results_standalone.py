@@ -293,7 +293,7 @@ ahle_goat_past = combine_ahle_scenarios(
 )
 datainfo(ahle_goat_past)
 
-# Adjust column names
+# Adjust column names to match other species
 ahle_sheep_clm.columns = ahle_sheep_clm.columns.str.replace('_all_mortality_zero' ,'_mortality_zero')
 ahle_sheep_past.columns = ahle_sheep_past.columns.str.replace('_all_mortality_zero' ,'_mortality_zero')
 ahle_goat_clm.columns = ahle_goat_clm.columns.str.replace('_all_mortality_zero' ,'_mortality_zero')
@@ -644,9 +644,25 @@ print(check_agesex_sums.groupby(['species' ,'production_system' ,'year'])['check
 print('\nMinimum ratio \n-------------')
 print(check_agesex_sums.groupby(['species' ,'production_system' ,'year'])['check_ratio'].min())
 
+#%% Convert count items to monetary value
+'''
+Some items are counts (e.g. animal head counts) and cannot be easily converted
+after summing over groups (e.g. all small ruminants is the sum of sheep and goats).
+The motivating example is mortality, which is reported as number of animals, but
+must be put in monetary value for the AHLE calculations. Since the value per head
+is different for sheep and goats, this must be applied before summing.
+'''
+# Transpose to get each item in a column
+
+# Calculate monteary values
+
 #%% Add group summaries
 '''
 Creating aggregate groups for filtering in the dashboard
+
+Note: this handles all items the same, whether they are animal (head) counts,
+mass (kg), or dollar values. Be careful when using the results that you are not
+mixing apples and oranges.
 '''
 mean_cols = [i for i in list(ahle_combo) if 'mean' in i]
 sd_cols = [i for i in list(ahle_combo) if 'stdev' in i]
@@ -716,7 +732,7 @@ for i ,VARCOL in enumerate(var_cols):
    ahle_combo_withagg[VARCOL] = ahle_combo_withagg[SDCOL]**2
 
 # -----------------------------------------------------------------------------
-# Create Overall species, production system sum
+# Create Overall age/sex group
 # -----------------------------------------------------------------------------
 #!!! Must be first sum to avoid double-counting!
 ahle_combo_withagg_sumall = ahle_combo_withagg.pivot_table(
@@ -966,15 +982,27 @@ ahle_combo_withagg_smry.to_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.
 #### Restructure
 # =============================================================================
 # For AHLE calcs, we want each item in a column
-# Only need items 'gross margin' and 'health cost'
-# Only need the system total: 'Overall' group
 # Need means and standard deviations for later calculations
 mean_cols = [i for i in list(ahle_combo_withagg) if 'mean' in i]
 sd_cols = [i for i in list(ahle_combo_withagg) if 'stdev' in i]
 
-_items_for_ahle = (ahle_combo_withagg['item'].str.upper().isin(['GROSS MARGIN' ,'HEALTH COST']))
+# Only need the system total: 'Overall' group
+_groups_for_summary = (ahle_combo_withagg['group'].str.upper() == 'OVERALL')
 
-ahle_combo_withagg_p = ahle_combo_withagg.loc[_items_for_ahle].pivot(
+# Only need some of the items
+keep_items = [
+    'gross margin'
+    ,'health cost'
+    ,'total mortality'
+
+    # Need pop growth and value to back-calculate value per head
+    ,'cml pop growth'
+    ,'value of herd increase'
+    ]
+keep_items_upper = [i.upper() for i in keep_items]
+_items_for_ahle = (ahle_combo_withagg['item'].str.upper().isin(keep_items_upper))
+
+ahle_combo_withagg_p = ahle_combo_withagg.loc[(_items_for_ahle & _groups_for_summary)].pivot(
     index=['species' ,'production_system' ,'group' ,'age_group' ,'sex' ,'year']
     ,columns='item'
     ,values=mean_cols + sd_cols
@@ -1000,6 +1028,17 @@ datainfo(ahle_combo_withagg_p)
 #### Calculate AHLE
 # =============================================================================
 '''
+Approach:
+    - Total AHLE is difference in gross margin between ideal and current scenario
+    - AHLE due to mortality is difference in gross margin between zero mortality and current scenario
+    - AHLE due to health cost is current health cost (ideal health cost is zero)
+    - AHLE due to production loss is the remainder needed to make total AHLE after accounting for mortality and health cost
+        Note production loss is hardest to measure because it is the lost potential production among the animals that survived
+
+        It's tempting to take the difference in "total production value" between the current
+        and ideal scenario as the production loss. However, this includes lost value due to
+        animals that died. We want the production loss just among the animals that survived.
+
 Calculating mean and standard deviation for each AHLE component.
 Relying on the following properties of sums of random variables:
     mean(aX + bY) = a*mean(X) + b*mean(Y), regardless of correlation
@@ -1008,16 +1047,30 @@ Relying on the following properties of sums of random variables:
 ahle_combo_withahle = ahle_combo_withagg_p.copy()
 
 ahle_combo_withahle.eval(
+    # Top level
     '''
     ahle_total_mean = mean_ideal_gross_margin - mean_current_gross_margin
-
     ahle_dueto_mortality_mean = mean_mortality_zero_gross_margin - mean_current_gross_margin
     ahle_dueto_healthcost_mean = mean_current_health_cost
     ahle_dueto_productionloss_mean = ahle_total_mean - ahle_dueto_mortality_mean - ahle_dueto_healthcost_mean
+    '''
+    # Disease-specific
+    # Total mortality is in number of head: need to translate to value in Birr
+    '''
+    ahle_dueto_ppr_total_mean = mean_ideal_gross_margin - mean_ppr_gross_margin
 
-    ahle_dueto_ppr_mean = mean_ideal_gross_margin - mean_ppr_gross_margin
-    ahle_dueto_otherdisease_mean = ahle_total_mean - ahle_dueto_ppr_mean
+    avg_value_perhead = mean_current_value_of_herd_increase / mean_current_cml_pop_growth
+    ahle_dueto_ppr_mortality_mean = mean_ppr_total_mortality * avg_value_perhead
+    ahle_dueto_ppr_healthcost_mean = mean_ppr_health_cost
+    ahle_dueto_ppr_productionloss_mean = ahle_dueto_ppr_total_mean - ahle_dueto_ppr_mortality_mean - ahle_dueto_ppr_healthcost_mean
 
+    ahle_dueto_otherdisease_total_mean = ahle_total_mean - ahle_dueto_ppr_total_mean
+    ahle_dueto_otherdisease_mortality_mean = ahle_dueto_mortality_mean - ahle_dueto_ppr_mortality_mean
+    ahle_dueto_otherdisease_healthcost_mean = ahle_dueto_healthcost_mean - ahle_dueto_ppr_healthcost_mean
+    ahle_dueto_otherdisease_productionloss_mean = ahle_dueto_productionloss_mean - ahle_dueto_ppr_productionloss_mean
+    '''
+    # Scenarios applied to specific age/sex groups
+    '''
     ahle_when_af_repro_imp25_mean = mean_current_repro_25_imp_gross_margin - mean_current_gross_margin
     ahle_when_af_repro_imp50_mean = mean_current_repro_50_imp_gross_margin - mean_current_gross_margin
     ahle_when_af_repro_imp75_mean = mean_current_repro_75_imp_gross_margin - mean_current_gross_margin
@@ -1117,29 +1170,6 @@ ahle_combo_withahle['ahle_dueto_ppr_stdev'] = \
     np.sqrt(ahle_combo_withahle['stdev_ideal_gross_margin']**2 \
             + ahle_combo_withahle['stdev_ppr_gross_margin']**2)
 
-
-# Check PPR calcs
-check_ppr_cols = [
-    'species'
-    ,'production_system'
-    ,'group'
-    ,'age_group'
-    ,'sex'
-    ,'year'
-    ,'mean_current_gross_margin'
-    ,'mean_current_health_cost'
-    ,'mean_ideal_gross_margin'
-    ,'mean_ideal_health_cost'
-    ,'mean_ppr_gross_margin'
-    ,'ahle_total_mean'
-    ,'ahle_dueto_mortality_mean'
-    ,'ahle_dueto_healthcost_mean'
-    ,'ahle_dueto_productionloss_mean'
-    ,'ahle_dueto_ppr_mean'
-    ,'ahle_dueto_otherdisease_mean'
-]
-check_ppr = ahle_combo_withahle[check_ppr_cols]
-
 # =============================================================================
 #### Add currency conversion
 # =============================================================================
@@ -1177,10 +1207,7 @@ datainfo(ahle_combo_withahle)
 _ahle_cols = [i for i in list(ahle_combo_withahle) if 'ahle' in i]
 _cols_for_summary = ['species' ,'production_system' ,'group' ,'year'] + _ahle_cols
 
-# For this summary, keep only system total AHLE
-_groups_for_summary = (ahle_combo_withahle['group'].str.upper() == 'OVERALL')
-
-ahle_combo_withahle_smry = ahle_combo_withahle.loc[_groups_for_summary][_cols_for_summary].reset_index(drop=True)
+ahle_combo_withahle_smry = ahle_combo_withahle[_cols_for_summary].reset_index(drop=True)
 datainfo(ahle_combo_withahle_smry)
 
 ahle_combo_withahle_smry.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary2.csv') ,index=False)
@@ -1715,6 +1742,12 @@ ahle_combo_scensmry.loc[_scen_ox ,'stdev_current_repro_100_imp'] = np.nan
 #### Create aggregate Species and Production System
 # =============================================================================
 '''
+Creating aggregate groups for filtering in the dashboard
+
+Note: this handles all items the same, whether they are animal (head) counts,
+mass (kg), or dollar values. Be careful when using the results that you are not
+mixing apples and oranges.
+
 Note: while item values do not sum across age/sex scenarios, they do sum across
 species and production systems.
 '''
@@ -1838,11 +1871,11 @@ ahle_combo_scensmry.to_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry.csv
 #### Restructure
 # =============================================================================
 # For AHLE calcs, we want each item in a column
-# Only need item 'gross margin'
 # Need means and standard deviations for later calculations
 mean_cols = [i for i in list(ahle_combo_scensmry) if 'mean' in i]
 sd_cols = [i for i in list(ahle_combo_scensmry) if 'stdev' in i]
 
+# Only need item 'gross margin'
 _items_for_ahle = (ahle_combo_scensmry['item'].str.upper() == 'GROSS MARGIN')
 
 ahle_combo_scensmry_p = ahle_combo_scensmry.loc[_items_for_ahle].pivot(

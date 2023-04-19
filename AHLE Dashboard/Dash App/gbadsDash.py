@@ -7920,7 +7920,7 @@ def update_map_display_ecs(granularity_lvl):
 
     # # Set location based on the selected granularity level of data
     # if granularity_lvl.upper() == 'REGION':
-   location = 'ADM1_EN'
+    location = 'ADM1_EN'
 
     # Set the featureid key needed fro the chrorpleth mapbox mpa
     featurekey = (f'properties.{location}')

@@ -201,14 +201,14 @@ ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary
 # ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr.csv'))
 ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv'))
 
-# # Ethiopia geojson files from S3
-# # JR 2023-4-13: dashboard slow to load and map not showing
-# # Most granular level
-# url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm1_csa_bofedb_2021.geojson'
-# # Second most granular level
-# # url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm2_csa_bofedb_2021.geojson'
-# r = requests.get(url, allow_redirects=True)
-# geojson_ecs = r.json()
+# Ethiopia geojson files from S3
+# JR 2023-4-13: dashboard slow to load and map not showing
+# Most granular level
+url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm1_csa_bofedb_2021.geojson'
+# Second most granular level
+# url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm2_csa_bofedb_2021.geojson'
+r = requests.get(url, allow_redirects=True)
+geojson_ecs = r.json()
 
 # Alternative: read from local copy
 # geojson_ecs = gpd.read_file(os.path.join(DASH_DATA_FOLDER ,'eth_admbnda_adm1_csa_bofedb_2021.geojson'))
@@ -8580,10 +8580,11 @@ def update_display_table_ga(selected_region ,selected_incgrp ,selected_country):
             data=input_df_filtered.to_dict('records'),
             export_format="csv",
             sort_action = 'native',
-            style_cell={'font-family':'sans-serif'},
+            style_cell={'font-family':'sans-serif',
+                        'minWidth':200},
             style_table={'overflowX': 'scroll',
-                          'height': '680px',
-                          'overflowY': 'auto'
+                         'height': '680px',
+                         'overflowY': 'auto'
                           },
 
             # Hover-over for column headers

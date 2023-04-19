@@ -191,8 +191,6 @@ swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'
 # ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv'))
 # Using alternative data which summarizes results from age/sex specific scenarios
 ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry.csv'))
-# Using data with dummy yearly values
-# ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry_yearlyfake.csv'))
 
 # AHLE Summary 2 - for stacked bar
 ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary2.csv'))
@@ -200,6 +198,11 @@ ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary
 # Attribution Summary
 # ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr.csv'))
 ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv'))
+
+# JR 2023-4-19: added regional results. Testing with Nationl level (should be same as before).
+ecs_ahle_summary = ecs_ahle_summary.query("region == 'National'")
+ecs_ahle_summary2 = ecs_ahle_summary2.query("region == 'National'")
+ecs_ahle_all_withattr = ecs_ahle_all_withattr.query("region == 'National'")
 
 # Ethiopia geojson files from S3
 # JR 2023-4-13: dashboard slow to load and map not showing

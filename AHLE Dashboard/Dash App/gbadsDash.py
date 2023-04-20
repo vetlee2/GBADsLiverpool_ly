@@ -205,8 +205,6 @@ ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_wit
 # JR 2023-4-13: dashboard slow to load and map not showing
 # Regional level
 url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm1_csa_bofedb_2021.geojson'
-# Second most granular level
-# url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm2_csa_bofedb_2021.geojson'
 r = requests.get(url, allow_redirects=True)
 geojson_ecs = r.json()
 
@@ -1928,7 +1926,7 @@ def create_map_display_ecs(input_df, geojson, location, featurekey, color_by):
                                        color_discrete_sequence=px.colors.qualitative.Dark24,
                                        opacity=0.7,
                                        mapbox_style="carto-positron",
-                                       zoom=4,
+                                       zoom=5,
                                        center = {"lat": 9.1450, "lon": 40.4897},
                                        labels={'ADM1_EN': 'Region'}
                                        )
@@ -3666,24 +3664,24 @@ gbadsDash.layout = html.Div([
                 dbc.CardBody([
                     html.H3("Ethiopian Subnational Graph"),
                 dbc.Row([
-                    # Granularity level
+                    # Map Display 
                     dbc.Col([
-                        html.H6("Select Granularity Level"),
-                        dcc.RadioItems(id='select-gran-lvl-ecs',
-                                      options=['Region'],
-                                      value='Region',
+                        html.H6("Select Map Display"),
+                        dcc.RadioItems(id='select-map-display-ecs',
+                                      options=['AHLE'],
+                                      value='AHLE',
                                       labelStyle={'display': 'block'},
                                       inputStyle={"margin-right": "10px"},
                                       ),
                         ]),
 
-                ]), # END OF MAP SELECTIONS ROW
+                    ]), # END OF MAP SELECTIONS ROW
 
+                # END OF CARD BODY
+                ]),
 
-            # END OF CARD BODY
-            ]),
-
-            ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF CARD
+            # END OF CARD
+            ], color='#F2F2F2', style={"margin-right": "10px"}),
 
             html.Hr(style={'margin-right':'10px',}),
 
@@ -3698,7 +3696,7 @@ gbadsDash.layout = html.Div([
                                   "displaylogo": False,
                                   'toImageButtonOptions': {
                                       'format': 'png', # one of png, svg, jpeg, webp
-                                      'filename': 'GBADs_Ethiopia_Sub_National_Viz'
+                                      'filename': 'GBADs_Ethiopia_Subnational_Viz'
                                       },
                                   }
                               )
@@ -7911,18 +7909,17 @@ def update_stacked_bar_ecs(
 # Update subnational map
 @gbadsDash.callback(
     Output('ecs-map','figure'),
-    Input('select-gran-lvl-ecs','value'),
+    Input('select-map-display-ecs','value'),
     )
-def update_map_display_ecs(granularity_lvl):
+def update_map_display_ecs(placeholder):
     # Ethiopia subnational level map data from S3
     geojson_ecs_df = geojson_ecs.copy()
     # geojson_ecs_df = gpd.read_file('<filename>.geojson')
 
-    # # Set location based on the selected granularity level of data
-    # if granularity_lvl.upper() == 'REGION':
+    # Set location based on the granularity level of data - currently Region
     location = 'ADM1_EN'
 
-    # Set the featureid key needed fro the chrorpleth mapbox mpa
+    # Set the featureid key needed for the chrorpleth mapbox map
     featurekey = (f'properties.{location}')
 
     input_df = gpd.GeoDataFrame.from_features(geojson_ecs_df["features"])
@@ -7932,7 +7929,6 @@ def update_map_display_ecs(granularity_lvl):
     input_df = input_df.sort_values(by=[f'{color_by}'])
 
     ecs_map_fig = create_map_display_ecs(input_df, geojson_ecs_df, location, featurekey, color_by)
-
 
     return ecs_map_fig
 

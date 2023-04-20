@@ -420,6 +420,16 @@ compartmental_model <- function(
   Total_Mortality_AF <- rep(0, Num_months)
   Total_Mortality_AM <- rep(0, Num_months)
   
+  # Monetary value of mortality
+  Value_of_Total_Mortality <- rep(0, Num_months)
+  
+  Value_of_Total_Mortality_NF <- rep(0, Num_months)
+  Value_of_Total_Mortality_NM <- rep(0, Num_months)
+  Value_of_Total_Mortality_JF <- rep(0, Num_months)
+  Value_of_Total_Mortality_JM <- rep(0, Num_months)
+  Value_of_Total_Mortality_AF <- rep(0, Num_months)
+  Value_of_Total_Mortality_AM <- rep(0, Num_months)
+  
   ## Production ##
   
   # Live weight
@@ -609,7 +619,6 @@ compartmental_model <- function(
   numN_M <- matrix(, nrow = nruns, ncol = Num_months)
   
   # mortality
-
   Total_Mortality_M <- matrix(, nrow = nruns, ncol = Num_months)
   
   Total_Mortality_NF_M <- matrix(, nrow = nruns, ncol = Num_months)
@@ -618,6 +627,16 @@ compartmental_model <- function(
   Total_Mortality_JM_M <- matrix(, nrow = nruns, ncol = Num_months)
   Total_Mortality_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
   Total_Mortality_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
+  
+  # Monetary value of mortality
+  Value_of_Total_Mortality_M <- matrix(, nrow = nruns, ncol = Num_months)
+  
+  Value_of_Total_Mortality_NF_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Value_of_Total_Mortality_NM_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Value_of_Total_Mortality_JF_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Value_of_Total_Mortality_JM_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Value_of_Total_Mortality_AF_M <- matrix(, nrow = nruns, ncol = Num_months)
+  Value_of_Total_Mortality_AM_M <- matrix(, nrow = nruns, ncol = Num_months)
   
   ### Production ###
   
@@ -1033,7 +1052,19 @@ compartmental_model <- function(
       Total_Mortality[month] = Total_Mortality_NF[month] + Total_Mortality_NM[month] + 
         Total_Mortality_JF[month] + Total_Mortality_JM[month] + 
         Total_Mortality_AF[month] + Total_Mortality_AM[month]
-      
+		  
+		# Monetary value of mortality
+      Value_of_Total_Mortality_NF[month] = Total_Mortality_NF[month] * fvNF
+      Value_of_Total_Mortality_NM[month] = Total_Mortality_NM[month] * fvNM
+      Value_of_Total_Mortality_JF[month] = Total_Mortality_JF[month] * fvJF
+      Value_of_Total_Mortality_JM[month] = Total_Mortality_JM[month] * fvJM
+      Value_of_Total_Mortality_AF[month] = Total_Mortality_AF[month] * fvAF
+      Value_of_Total_Mortality_AM[month] = Total_Mortality_AM[month] * fvAM
+		
+		Value_of_Total_Mortality[month] = Value_of_Total_Mortality_NF[month] + Value_of_Total_Mortality_NM[month] + 
+        Value_of_Total_Mortality_JF[month] + Value_of_Total_Mortality_JM[month] + 
+        Value_of_Total_Mortality_AF[month] + Value_of_Total_Mortality_AM[month]
+		  
       # Population growth (total population in month - original population size)
       Pop_growth[month] =  numN[month] - Nt0
       
@@ -1381,6 +1412,16 @@ compartmental_model <- function(
     Total_Mortality_JM_M[i, ] <- Total_Mortality_JM
     Total_Mortality_AF_M[i, ] <- Total_Mortality_AF
     Total_Mortality_AM_M[i, ] <- Total_Mortality_AM
+	 
+	 # Monetary value of mortality
+    Value_of_Total_Mortality_M[i, ] <- Value_of_Total_Mortality
+    
+    Value_of_Total_Mortality_NF_M[i, ] <- Value_of_Total_Mortality_NF
+    Value_of_Total_Mortality_NM_M[i, ] <- Value_of_Total_Mortality_NM
+    Value_of_Total_Mortality_JF_M[i, ] <- Value_of_Total_Mortality_JF
+    Value_of_Total_Mortality_JM_M[i, ] <- Value_of_Total_Mortality_JM
+    Value_of_Total_Mortality_AF_M[i, ] <- Value_of_Total_Mortality_AF
+    Value_of_Total_Mortality_AM_M[i, ] <- Value_of_Total_Mortality_AM
     
     ###############################################################
     # Production
@@ -1653,6 +1694,10 @@ compartmental_model <- function(
   Total_Mortality_N_M <- Total_Mortality_NF_M + Total_Mortality_NM_M
   Total_Mortality_J_M <- Total_Mortality_JF_M + Total_Mortality_JM_M
 
+  # Monetary value of mortality
+  Value_of_Total_Mortality_N_M <- Value_of_Total_Mortality_NF_M + Value_of_Total_Mortality_NM_M
+  Value_of_Total_Mortality_J_M <- Value_of_Total_Mortality_JF_M + Value_of_Total_Mortality_JM_M
+
   Quant_Liveweight_kg_J_M <- Quant_Liveweight_kg_JF_M + Quant_Liveweight_kg_JM_M
   
   ## >> Meat not included from neonates and juveniles as no off take from these groups
@@ -1731,6 +1776,7 @@ compartmental_model <- function(
       ,'Cml Pop Growth' = 'Pop_growth'
       ,'Total Number Increase' = 'Total_number_change'
       ,'Total Mortality' = 'Total_Mortality'
+		,'Value of Total Mortality' = 'Value_of_Total_Mortality'
       
       ,'Population Liveweight (kg)' = 'Quant_Liveweight_kg'
       ,'Offtake Liveweight (kg)' = 'Offtake_Liveweight_kg'

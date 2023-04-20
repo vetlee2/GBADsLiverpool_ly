@@ -26,7 +26,7 @@ print(f"[{dt.datetime.now().strftime('%Y%m%d_%H%M%S.%f')[:19]}] {sys.version = }
 # Third party packages (ie, those installed with pip )
 # NO NEED to import Dash or JupyterDash here.  That is done within fa.instantiate_app
 
-from dash import html, dcc, Input, Output, State, dash_table
+from dash import html, dcc, Input, Output, State, dash_table, ctx
 import dash_bootstrap_components as dbc  # Allows easy access to all bootstrap themes
 import dash_daq as daq
 import dash_auth
@@ -203,10 +203,8 @@ ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_wit
 
 # Ethiopia geojson files from S3
 # JR 2023-4-13: dashboard slow to load and map not showing
-# Most granular level
+# Regional level
 url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm1_csa_bofedb_2021.geojson'
-# Second most granular level
-# url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm2_csa_bofedb_2021.geojson'
 r = requests.get(url, allow_redirects=True)
 geojson_ecs = r.json()
 
@@ -1928,8 +1926,9 @@ def create_map_display_ecs(input_df, geojson, location, featurekey, color_by):
                                        color_discrete_sequence=px.colors.qualitative.Dark24,
                                        opacity=0.7,
                                        mapbox_style="carto-positron",
-                                       zoom=4,
+                                       zoom=5,
                                        center = {"lat": 9.1450, "lon": 40.4897},
+                                       labels={'ADM1_EN': 'Region'}
                                        )
 
     return ecs_map_fig
@@ -2658,21 +2657,24 @@ gbadsDash.layout = html.Div([
                 html.P("Antimicrobial Expenditure shown is the estimated global total based on usage and price selected on the Antimicrobial Usage tab."),
                 # html.P("Using morbidity and mortality rates according to income group"),
                 ]),
-            # # Regional AM Expenditure Estimator
-            # dbc.Col([
-            #     dcc.Link(
-            #         dbc.Button(children='Antimicrobial Expenditure',
-            #                     # style={'color': 'white',
-            #                     #        'backgroundColor': '#101820',
-            #                     #        'fontSize': '15px ',
-            #                     #        'width': '150px',
-            #                     #        'height': '50px',
-            #                     #        'marginLeft': '10px',
-            #                     #        'marginRight': '100px',
-            #                     #        }
-            #                     ),
-            #         href='#AMU-regional-expenditure', refresh=True),
-            #     ]),
+            # Regional AM Expenditure Estimator
+            dbc.Col([
+                dcc.Link(
+                    dbc.Button(id="am-expend-button-ga",
+                        children='Antimicrobial Expenditure',
+                                # style={'color': 'white',
+                                #        'backgroundColor': '#101820',
+                                #        'fontSize': '15px ',
+                                #        'width': '150px',
+                                #        'height': '50px',
+                                #        'marginLeft': '10px',
+                                #        'marginRight': '100px',
+                                #        }
+                                ),
+                    href='#AMU-regional-expenditure', refresh=True),
+                
+                # html.Button('Antimicrobial Expenditure', id='am-expend-button-ga'),
+                ]),
 
             dbc.Col([
                 # Line chart
@@ -3497,7 +3499,7 @@ gbadsDash.layout = html.Div([
 
                     # Top Level
                     dbc.Col([
-                        html.H6("Top Level"),
+                        html.H6("Top Level", id="select-top-lvl-attr-ecs-title"),
                         dcc.Dropdown(id='select-top-lvl-attr-ecs',
                                       options=ecs_hierarchy_attr_options,
                                       value='cause',
@@ -3509,7 +3511,7 @@ gbadsDash.layout = html.Div([
                         ),
                     # Drill Down 1
                     dbc.Col([
-                        html.H6("Drill Down 1"),
+                        html.H6("Drill Down 1", id="select-dd-1-attr-ecs-title"),
                         dcc.Dropdown(id='select-dd-1-attr-ecs',
                                       # options=ecs_hierarchy_dd_attr_options,
                                       # value='production_system',
@@ -3521,7 +3523,7 @@ gbadsDash.layout = html.Div([
                         ),
                     # Drill Down 2
                     dbc.Col([
-                        html.H6("Drill Down 2"),
+                        html.H6("Drill Down 2", id="select-dd-2-attr-ecs-title"),
                         dcc.Dropdown(id='select-dd-2-attr-ecs',
                                       options=ecs_hierarchy_dd_attr_options,
                                       value='age_group',
@@ -3537,7 +3539,7 @@ gbadsDash.layout = html.Div([
                 dbc.Row([
                 # Drill Down 3
                 dbc.Col([
-                    html.H6("Drill Down 3"),
+                    html.H6("Drill Down 3", id="select-dd-3-attr-ecs-title"),
                     dcc.Dropdown(id='select-dd-3-attr-ecs',
                                   options=ecs_hierarchy_dd_attr_options,
                                   value='sex',
@@ -3546,7 +3548,7 @@ gbadsDash.layout = html.Div([
                     ]),
                 # Drill Down 4
                 dbc.Col([
-                    html.H6("Drill Down 4"),
+                    html.H6("Drill Down 4", id="select-dd-4-attr-ecs-title"),
                     dcc.Dropdown(id='select-dd-4-attr-ecs',
                                   options=ecs_hierarchy_dd_attr_options,
                                   value='ahle_component',
@@ -3661,25 +3663,25 @@ gbadsDash.layout = html.Div([
             dbc.Card([
                 dbc.CardBody([
                     html.H3("Ethiopian Subnational Graph"),
-                # dbc.Row([
-                #     # Granularity level
-                #     dbc.Col([
-                #         html.H6("Select Granularity Level"),
-                #         dcc.RadioItems(id='select-gran-lvl-ecs',
-                #                       options=['Region'],
-                #                       value='Region',
-                #                       labelStyle={'display': 'block'},
-                #                       inputStyle={"margin-right": "10px"},
-                #                       ),
-                #         ]),
+                dbc.Row([
+                    # Map Display 
+                    dbc.Col([
+                        html.H6("Select Map Display"),
+                        dcc.RadioItems(id='select-map-display-ecs',
+                                      options=['AHLE'],
+                                      value='AHLE',
+                                      labelStyle={'display': 'block'},
+                                      inputStyle={"margin-right": "10px"},
+                                      ),
+                        ]),
 
-                # ]), # END OF MAP SELECTIONS ROW
+                    ]), # END OF MAP SELECTIONS ROW
 
+                # END OF CARD BODY
+                ]),
 
-            # END OF CARD BODY
-            ]),
-
-            ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF CARD
+            # END OF CARD
+            ], color='#F2F2F2', style={"margin-right": "10px"}),
 
             html.Hr(style={'margin-right':'10px',}),
 
@@ -3694,7 +3696,7 @@ gbadsDash.layout = html.Div([
                                   "displaylogo": False,
                                   'toImageButtonOptions': {
                                       'format': 'png', # one of png, svg, jpeg, webp
-                                      'filename': 'GBADs_Ethiopia_Sub_National_Viz'
+                                      'filename': 'GBADs_Ethiopia_Subnational_Viz'
                                       },
                                   }
                               )
@@ -3703,7 +3705,7 @@ gbadsDash.layout = html.Div([
                 # End of Map
                 ]),
 
-             # END OF GRAPHICS PT.3 ROW
+             # END OF MAP ROW
             ]),
             html.Br(),
 
@@ -4606,7 +4608,7 @@ gbadsDash.layout = html.Div([
 
         ### END OF TABS ###
         ],style={'margin-right':'10px',
-                 'margin-left': '10px'} )
+                 'margin-left': '10px'}, )
 
         ])
 
@@ -6140,71 +6142,131 @@ def update_compare_options_ecs(species):
     return options
 
 # Update hierarchy dropdown filters to remove higher level selections from the options
+# And change if displaying stacked bar
+
+@gbadsDash.callback(
+    Output('select-top-lvl-attr-ecs-title','children'),
+    Input('select-graph-ahle-ecs','value'),
+    )
+def update_year_item_switch(graph):
+    if graph == 'Single Year':
+        title = 'Top Level'
+    else:
+        title = 'Segmentation'
+
+    return title
+
 @gbadsDash.callback(
     Output('select-dd-1-attr-ecs','options'),
     Output('select-dd-1-attr-ecs','value'),
+    Output('select-dd-1-attr-ecs','style'),
+    Output('select-dd-1-attr-ecs-title','style'),
+    Input('select-graph-ahle-ecs','value'),
     Input('select-top-lvl-attr-ecs','value'),
     )
-def update_dd1_options_ecs(top_lvl_hierarchy):
+def update_dd1_options_ecs(graph, top_lvl_hierarchy):
     options = ecs_hierarchy_dd_attr_options.copy()
-    for d in options:
-        if d['value'] == top_lvl_hierarchy:
+    
+    if graph == 'Over Time':
+        for d in options:
             d['disabled']=True
-        else:
-            d['disabled']=False
+        display_style = {'display': 'none'}
+     
+    else:
+        for d in options:
+            if d['value'] == top_lvl_hierarchy:
+                d['disabled']=True
+            else:
+                d['disabled']=False
+        display_style = {'display': 'block'}
 
     value='production_system'
 
-    return options, value
+    return options, value, display_style, display_style
 
 
 @gbadsDash.callback(
     Output('select-dd-2-attr-ecs','options'),
+    Output('select-dd-2-attr-ecs','style'),
+    Output('select-dd-2-attr-ecs-title','style'),
+    Input('select-graph-ahle-ecs','value'),
     Input('select-top-lvl-attr-ecs','value'),
     Input('select-dd-1-attr-ecs','value'),
     )
-def update_dd2_options_ecs(top_lvl_hierarchy, dd1_hierarchy):
+def update_dd2_options_ecs(graph, top_lvl_hierarchy, dd1_hierarchy):
     options = ecs_hierarchy_dd_attr_options
-    for d in options:
-        if d['value'] != 'None':
-            if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy:
-                d['disabled']= True
-            else:
-                d['disabled']=False
-    return options
+    
+    if graph == 'Over Time':
+        for d in options:
+            d['disabled']=True
+        display_style = {'display': 'none'}
+     
+    else:
+        for d in options:
+            if d['value'] != 'None':
+                if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy:
+                    d['disabled']= True
+                else:
+                    d['disabled']=False
+        display_style = {'display': 'block'}
+                
+    return options, display_style, display_style
 
 @gbadsDash.callback(
     Output('select-dd-3-attr-ecs','options'),
+    Output('select-dd-3-attr-ecs','style'),
+    Output('select-dd-3-attr-ecs-title','style'),
+    Input('select-graph-ahle-ecs','value'),
     Input('select-top-lvl-attr-ecs','value'),
     Input('select-dd-1-attr-ecs','value'),
     Input('select-dd-2-attr-ecs','value'),
     )
-def update_dd3_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy):
+def update_dd3_options_ecs(graph, top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy):
     options = ecs_hierarchy_dd_attr_options
-    for d in options:
-        if d['value'] != 'None':
-            if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy or d['value'] == dd2_hierarchy:
-                d['disabled']= True
-            else:
-                d['disabled']=False
-    return options
+    
+    if graph == 'Over Time':
+        for d in options:
+            d['disabled']=True
+        display_style = {'display': 'none'}
+     
+    else:
+        for d in options:
+            if d['value'] != 'None':
+                if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy or d['value'] == dd2_hierarchy:
+                    d['disabled']= True
+                else:
+                    d['disabled']=False
+        display_style = {'display': 'block'}
+    
+    return options, display_style, display_style
 
 @gbadsDash.callback(
     Output('select-dd-4-attr-ecs','options'),
+    Output('select-dd-4-attr-ecs','style'),
+    Output('select-dd-4-attr-ecs-title','style'),
+    Input('select-graph-ahle-ecs','value'),
     Input('select-top-lvl-attr-ecs','value'),
     Input('select-dd-1-attr-ecs','value'),
     Input('select-dd-2-attr-ecs','value'),
     Input('select-dd-3-attr-ecs','value'),
     )
-def update_dd4_options_ecs(top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_hierarchy):
+def update_dd4_options_ecs(graph, top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy, dd3_hierarchy):
     options = ecs_hierarchy_dd_attr_options
-    for d in options:
-        if d['value'] != 'None':
-            if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy or d['value'] == dd2_hierarchy or d['value'] == dd3_hierarchy:
-                d['disabled']= True
-            else:
-                d['disabled']=False
-    return options
+    if graph == 'Over Time':
+        for d in options:
+            d['disabled']=True
+        display_style = {'display': 'none'}
+     
+    else:
+        for d in options:
+            if d['value'] != 'None':
+                if d['value'] == top_lvl_hierarchy or d['value'] == dd1_hierarchy or d['value'] == dd2_hierarchy or d['value'] == dd3_hierarchy:
+                    d['disabled']= True
+                else:
+                    d['disabled']=False
+        display_style = {'display': 'block'}
+    
+    return options, display_style, display_style
 
 # @gbadsDash.callback(
 #     Output('select-dd-5-attr-ecs','options'),
@@ -7844,32 +7906,29 @@ def update_stacked_bar_ecs(
 
     return ahle_bar_ecs_fig
 
-
 # Update subnational map
 @gbadsDash.callback(
     Output('ecs-map','figure'),
-    Input('select-gran-lvl-ecs','value'),
+    Input('select-map-display-ecs','value'),
     )
-def update_map_display_ecs(granularity_lvl):
+def update_map_display_ecs(placeholder):
     # Ethiopia subnational level map data from S3
     geojson_ecs_df = geojson_ecs.copy()
     # geojson_ecs_df = gpd.read_file('<filename>.geojson')
 
-    # Set location based on the selected granularity level of data
-    if granularity_lvl.upper() == 'REGION':
-       location = 'ADM1_PCODE'
+    # Set location based on the granularity level of data - currently Region
+    location = 'ADM1_EN'
 
-    # Set the featureid key needed fro the chrorpleth mapbox mpa
+    # Set the featureid key needed for the chrorpleth mapbox map
     featurekey = (f'properties.{location}')
 
     input_df = gpd.GeoDataFrame.from_features(geojson_ecs_df["features"])
 
     # Color by Region
-    color_by = 'ADM1_PCODE'
+    color_by = 'ADM1_EN'
     input_df = input_df.sort_values(by=[f'{color_by}'])
 
     ecs_map_fig = create_map_display_ecs(input_df, geojson_ecs_df, location, featurekey, color_by)
-
 
     return ecs_map_fig
 
@@ -8126,6 +8185,21 @@ def update_species_options_ga(country, region):
 
     return options
 
+# Navigate to the AMU tab with button below waterfall
+@app.callback(
+    Output('tabs','active_tab'),
+    Input('am-expend-button-ga','n_clicks')
+)
+def display_amutab(n_clicks):
+    return 'AMU-tab'
+
+# @app.callback(
+#     Output('AMU-tab', 'value'),
+#     [Input('am-expend-button-ga', 'n_clicks')]
+# )
+# def open_home_tab(n_clicks):
+#     if not ctx.triggered:
+#         return 'AMU-tab'
 
 # ------------------------------------------------------------------------------
 #### -- Data
@@ -8502,10 +8576,11 @@ def update_display_table_ga(selected_region ,selected_incgrp ,selected_country):
             data=input_df_filtered.to_dict('records'),
             export_format="csv",
             sort_action = 'native',
-            style_cell={'font-family':'sans-serif'},
+            style_cell={'font-family':'sans-serif',
+                        'minWidth':200},
             style_table={'overflowX': 'scroll',
-                          'height': '680px',
-                          'overflowY': 'auto'
+                         'height': '680px',
+                         'overflowY': 'auto'
                           },
 
             # Hover-over for column headers

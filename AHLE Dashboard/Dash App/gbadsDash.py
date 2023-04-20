@@ -8,7 +8,7 @@
 # 5. Callbacks (functions that respond to UI)
 # 6. Run App
 # -----------------------------------------------------------------------------------------------
-# Testing Github actions
+
 #%% 1. STARTUP & IMPORTS
 
 # standard library packages (included with python and always available)
@@ -191,8 +191,6 @@ swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'
 # ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv'))
 # Using alternative data which summarizes results from age/sex specific scenarios
 ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry.csv'))
-# Using data with dummy yearly values
-# ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry_yearlyfake.csv'))
 
 # AHLE Summary 2 - for stacked bar
 ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary2.csv'))
@@ -200,6 +198,11 @@ ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary
 # Attribution Summary
 # ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr.csv'))
 ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv'))
+
+# JR 2023-4-19: added regional results. Testing with Nationl level (should be same as before).
+ecs_ahle_summary = ecs_ahle_summary.query("region == 'National'")
+ecs_ahle_summary2 = ecs_ahle_summary2.query("region == 'National'")
+ecs_ahle_all_withattr = ecs_ahle_all_withattr.query("region == 'National'")
 
 # Ethiopia geojson files from S3
 # JR 2023-4-13: dashboard slow to load and map not showing
@@ -9668,10 +9671,11 @@ def update_amr_display_amu(dummy_input):
 
     return [
             html.H4("Antimicrobial Resistance Data"),
-            html.P(children=[
-                html.A("Source: Venkateswaran et al., 2023", href='https://ssrn.com/abstract=4346767'),
-                ],style={'font-style':'italic',
-                         'margin-bottom':0,}),
+            dcc.Markdown(
+                '''
+                *Source: [resistancebank.org](https://resistancebank.org) and [Venkateswaran et al., 2023](https://ssrn.com/abstract=4346767)*
+                '''
+                ),
             dash_table.DataTable(
                 columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
                 # fixed_rows={'headers': True, 'data': 0},
@@ -10741,7 +10745,7 @@ def returnApp():
     """
     # If DASH_BASE_URL is set, use DispatcherMiddleware to serve the app from that path
     if 'DASH_BASE_URL' in os.environ:
-        from werkzeug.middleware.dispatcher import DispatcherMiddleware    
+        from werkzeug.middleware.dispatcher import DispatcherMiddleware
         app.wsgi_app = DispatcherMiddleware(Flask('dummy_app'), {
             os.environ['DASH_BASE_URL']: app.server
         })

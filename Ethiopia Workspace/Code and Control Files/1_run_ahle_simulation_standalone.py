@@ -137,7 +137,7 @@ r_args = [
     '10'
 
     # Arg 2: Folder location for saving output files
-    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS' ,'PPR scenarios')
+    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
 
     # Arg 3: full path to scenario control file
     ,os.path.join(ETHIOPIA_CODE_FOLDER ,'PPR_AHLE scenario parameters SMALLRUMINANTS_20230329.xlsx')
@@ -165,6 +165,9 @@ run_cmd([r_executable ,r_script] ,SHOW_MAXLINES=999)
 # Full path to the R program you want to run
 r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table_CATTLE.R')
 
+# -----------------------------------------------------------------------------
+# Single scenario
+# -----------------------------------------------------------------------------
 # Arguments to R function, as list of strings.
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
@@ -172,10 +175,10 @@ r_args = [
     '10'
 
     # Arg 2: Folder location for saving output files
-    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE' ,'2017')
+    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE')
 
     # Arg 3: full path to scenario control file
-    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'2017_AHLE scenario parameters CATTLE_20230209.xlsx')
+    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters CATTLE.xlsx')
 
     # Arg 4: only run the first N scenarios from the control file
     # -1: use all scenarios
@@ -184,6 +187,93 @@ r_args = [
 timerstart()
 run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
 timerstop()
+
+# -----------------------------------------------------------------------------
+# Yearly scenarios
+# -----------------------------------------------------------------------------
+list_years = list(range(2017, 2022))
+
+# Loop through years, calling scenario file for each and saving outputs to a new folder
+for YEAR in list_years:
+    print(f"> Running compartmental model for year {YEAR}...")
+
+    # Define input scenario file
+    SCENARIO_FILE = os.path.join(ETHIOPIA_CODE_FOLDER ,f'{YEAR}_AHLE scenario parameters CATTLE_20230209.xlsx')
+
+    # Create subfolder for results if it doesn't exist
+    OUTFOLDER = os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE' ,f'{YEAR}')
+    os.makedirs(OUTFOLDER ,exist_ok=True)
+
+    # Arguments to R function, as list of strings.
+    # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
+    r_args = [
+        # Arg 1: Number of simulation runs
+        '10'
+
+        # Arg 2: Folder location for saving output files
+        ,OUTFOLDER
+
+        # Arg 3: full path to scenario control file
+        ,SCENARIO_FILE
+
+        # Arg 4: only run the first N scenarios from the control file
+        # -1: use all scenarios
+        ,'-1'
+    ]
+    timerstart()
+    run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+    timerstop()
+
+    print(f"> Finished compartmental model for year {YEAR}.")
+
+# -----------------------------------------------------------------------------
+# Subnational/regional scenarios
+# -----------------------------------------------------------------------------
+# List names as they appear in regional scenario files
+list_eth_regions = [
+    'Afar'
+    ,'Amhara'
+    ,'BG'
+    ,'Gambella'
+    ,'Oromia'
+    ,'Sidama'
+    ,'SNNP'
+    ,'Somali'
+    ,'Tigray'
+    ]
+
+# Loop through regions, calling scenario file for each and saving outputs to a new folder
+for REGION in list_eth_regions:
+    print(f"> Running compartmental model for region {REGION}...")
+
+    # Define input scenario file
+    SCENARIO_FILE = os.path.join(ETHIOPIA_CODE_FOLDER ,'Subnational parameters' ,f'{REGION} 2021_AHLE scenario parameters CATTLE scenarios only.xlsx')
+
+    # Create subfolder for results if it doesn't exist
+    OUTFOLDER = os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE' ,'Subnational results' ,f'{REGION}')
+    os.makedirs(OUTFOLDER ,exist_ok=True)
+
+    # Arguments to R function, as list of strings.
+    # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
+    r_args = [
+        # Arg 1: Number of simulation runs
+        '100'
+
+        # Arg 2: Folder location for saving output files
+        ,OUTFOLDER
+
+        # Arg 3: full path to scenario control file
+        ,SCENARIO_FILE
+
+        # Arg 4: only run the first N scenarios from the control file
+        # -1: use all scenarios
+        ,'-1'
+    ]
+    timerstart()
+    run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+    timerstop()
+
+    print(f"> Finished compartmental model for region {REGION}.")
 
 #%% Run AHLE simulation - Poultry
 

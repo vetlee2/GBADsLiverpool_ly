@@ -190,7 +190,7 @@ swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'
 # AHLE Summary
 # ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv'))
 # Using alternative data which summarizes results from age/sex specific scenarios
-ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry.csv'))
+ecs_ahle_scensmry = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry.csv'))
 
 # AHLE Summary 2 - for stacked bar
 ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary2.csv'))
@@ -200,7 +200,7 @@ ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary
 ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv'))
 
 # JR 2023-4-19: added regional results. Testing with Nationl level (should be same as before).
-ecs_ahle_summary = ecs_ahle_summary.query("region == 'National'")
+ecs_ahle_summary = ecs_ahle_scensmry.query("region == 'National'")
 ecs_ahle_summary2 = ecs_ahle_summary2.query("region == 'National'")
 ecs_ahle_all_withattr = ecs_ahle_all_withattr.query("region == 'National'")
 
@@ -6989,7 +6989,7 @@ def update_ahle_value_and_cost_viz_ecs(
         prep_df = prep_df.query('year == @selected_year')
 
         # Filters
-        if species == "Cattle":     # Cattle have draught
+        if species.upper() == "CATTLE":     # Cattle have draught
             waterfall_plot_values = ('Value of Offtake',
                                      'Value of Herd Increase',
                                      'Value of Draught',
@@ -7920,18 +7920,36 @@ def update_map_display_ecs(placeholder):
     # geojson_ecs_df = gpd.read_file('<filename>.geojson')
 
     # Set location based on the granularity level of data - currently Region
-    location = 'ADM1_EN'
+    featureid = 'ADM1_EN'
+    location = 'region'
 
     # Set the featureid key needed for the chrorpleth mapbox map
-    featurekey = (f'properties.{location}')
+    featurekey = (f'properties.{featureid}')
+    
+    # Data from waterfall chart
+    input_df = ecs_ahle_scensmry.query("region != 'National'")
+    # Filter based on species and production system
+    # Currently only have Cattle 
+    # Using Pastoral prodsys and Adult Female agesex_scenario for testing
+    input_df = ecs_ahle_scensmry.query("species == 'Cattle'")
+    input_df = ecs_ahle_scensmry.query("production_system == 'Pastoral'")
+    input_df = ecs_ahle_scensmry.query("agesex_scenario == 'Adult Female'")
+    
+    # Allow user to select item to view
+    input_df = ecs_ahle_scensmry.query("item == 'Value of Milk'")
 
-    input_df = gpd.GeoDataFrame.from_features(geojson_ecs_df["features"])
+    # input_df = gpd.GeoDataFrame.from_features(geojson_ecs_df["features"])
 
     # Color by Region
-    color_by = 'ADM1_EN'
+    # color_by = 'ADM1_EN'
+    # input_df = input_df.sort_values(by=[f'{color_by}'])
+    
+    color_by = 'mean_current'
     input_df = input_df.sort_values(by=[f'{color_by}'])
 
     ecs_map_fig = create_map_display_ecs(input_df, geojson_ecs_df, location, featurekey, color_by)
+    # ecs_map_fig = create_map_display_ecs(geojson_ecs_df, input_df, location, featurekey, color_by)
+
 
     return ecs_map_fig
 

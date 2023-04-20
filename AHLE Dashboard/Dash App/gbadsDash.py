@@ -3669,12 +3669,10 @@ gbadsDash.layout = html.Div([
                 dbc.Row([
                     # Map Display 
                     dbc.Col([
-                        html.H6("Select Map Display"),
-                        dcc.RadioItems(id='select-map-display-ecs',
-                                      options=['AHLE'],
-                                      value='AHLE',
-                                      labelStyle={'display': 'block'},
-                                      inputStyle={"margin-right": "10px"},
+                        html.H6("Select Value/Expenditure Category"),
+                        dcc.Dropdown(id='select-map-display-ecs',
+                                      value='Gross Margin',
+                                      clearable=False,
                                       ),
                         ]),
 
@@ -6486,6 +6484,60 @@ def update_improvment_factors(compare):
 
     return options1, block, block, options2, block, block
 
+# Display Item values for map display based on selections
+@gbadsDash.callback(
+    Output('select-map-display-ecs','options'),
+    Input('select-species-ecs','value'),
+    )
+def update_map_display_options_ecs(species):
+    # Filters Items to display based on species selected
+    if 'CATTLE' in species.upper():    # Cattle have draught
+        item_options = ('Value of Offtake',
+                        'Value of Herd Increase',
+                        'Value of Draught',
+                        'Value of Milk',
+                        'Value of Manure',
+                        'Value of Hides',
+                        'Expenditure on Feed',
+                        'Expenditure on Labour',
+                        'Expenditure on Health',
+                        'Expenditure on Housing',
+                        'Expenditure on Capital',
+                        'Gross Margin'
+                        )
+    elif 'POULTRY' in species.upper():   # Poultry have value of eggs, do not have manure or hides
+        item_options = ('Value of Offtake',
+                        'Value of Herd Increase',
+                        'Value of Eggs consumed',
+                        'Value of Eggs sold',
+                        'Expenditure on Feed',
+                        'Expenditure on Labour',
+                        'Expenditure on Health',
+                        'Expenditure on Housing',
+                        'Expenditure on Capital',
+                        'Gross Margin'
+                        )
+    else:
+        item_options = ('Value of Offtake',
+                        'Value of Herd Increase',
+                        'Value of Milk',
+                        'Value of Manure',
+                        'Value of Hides',
+                        'Expenditure on Feed',
+                        'Expenditure on Labour',
+                        'Expenditure on Health',
+                        'Expenditure on Housing',
+                        'Expenditure on Capital',
+                        'Gross Margin'
+                        )
+    # Build dictionary
+    options=[]
+    for i in item_options:
+        str(options.append({'label':i,'value':(i)}))
+
+    return options
+
+
 # ------------------------------------------------------------------------------
 #### -- Data
 # ------------------------------------------------------------------------------
@@ -7914,7 +7966,7 @@ def update_stacked_bar_ecs(
     Output('ecs-map','figure'),
     Input('select-map-display-ecs','value'),
     )
-def update_map_display_ecs(placeholder):
+def update_map_display_ecs(item):
     # Ethiopia subnational level map data from S3
     geojson_ecs_df = geojson_ecs.copy()
     # geojson_ecs_df = gpd.read_file('<filename>.geojson')
@@ -7936,7 +7988,7 @@ def update_map_display_ecs(placeholder):
     input_df = ecs_ahle_scensmry.query("agesex_scenario == 'Adult Female'")
     
     # Allow user to select item to view
-    input_df = ecs_ahle_scensmry.query("item == 'Value of Milk'")
+    input_df = ecs_ahle_scensmry.query("item == @item")
 
     # input_df = gpd.GeoDataFrame.from_features(geojson_ecs_df["features"])
 
@@ -7948,8 +8000,11 @@ def update_map_display_ecs(placeholder):
     input_df = input_df.sort_values(by=[f'{color_by}'])
 
     ecs_map_fig = create_map_display_ecs(input_df, geojson_ecs_df, location, featurekey, color_by)
-    # ecs_map_fig = create_map_display_ecs(geojson_ecs_df, input_df, location, featurekey, color_by)
 
+    # Adjust margins
+    ecs_map_fig.update_layout(
+        margin=dict(l=5, r=5, b=5),
+        )
 
     return ecs_map_fig
 

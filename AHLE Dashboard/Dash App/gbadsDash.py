@@ -205,7 +205,6 @@ ecs_ahle_summary2 = ecs_ahle_summary2.query("region == 'National'")
 ecs_ahle_all_withattr = ecs_ahle_all_withattr.query("region == 'National'")
 
 # Ethiopia geojson files from S3
-# JR 2023-4-13: dashboard slow to load and map not showing
 # Regional level
 url = 'https://gbads-data-repo.s3.ca-central-1.amazonaws.com/shape-files/eth_admbnda_adm1_csa_bofedb_2021.geojson'
 r = requests.get(url, allow_redirects=True)
@@ -2675,7 +2674,7 @@ gbadsDash.layout = html.Div([
                                 #        }
                                 ),
                     href='#AMU-regional-expenditure', refresh=True),
-                
+
                 # html.Button('Antimicrobial Expenditure', id='am-expend-button-ga'),
                 ]),
 
@@ -3667,7 +3666,7 @@ gbadsDash.layout = html.Div([
                 dbc.CardBody([
                     html.H3("Ethiopian Subnational Graph"),
                 dbc.Row([
-                    # Map Display 
+                    # Map Display
                     dbc.Col([
                         html.H6("Select Map Display"),
                         dcc.RadioItems(id='select-map-display-ecs',
@@ -6169,12 +6168,12 @@ def update_year_item_switch(graph):
     )
 def update_dd1_options_ecs(graph, top_lvl_hierarchy):
     options = ecs_hierarchy_dd_attr_options.copy()
-    
+
     if graph == 'Over Time':
         for d in options:
             d['disabled']=True
         display_style = {'display': 'none'}
-     
+
     else:
         for d in options:
             if d['value'] == top_lvl_hierarchy:
@@ -6198,12 +6197,12 @@ def update_dd1_options_ecs(graph, top_lvl_hierarchy):
     )
 def update_dd2_options_ecs(graph, top_lvl_hierarchy, dd1_hierarchy):
     options = ecs_hierarchy_dd_attr_options
-    
+
     if graph == 'Over Time':
         for d in options:
             d['disabled']=True
         display_style = {'display': 'none'}
-     
+
     else:
         for d in options:
             if d['value'] != 'None':
@@ -6212,7 +6211,7 @@ def update_dd2_options_ecs(graph, top_lvl_hierarchy, dd1_hierarchy):
                 else:
                     d['disabled']=False
         display_style = {'display': 'block'}
-                
+
     return options, display_style, display_style
 
 @gbadsDash.callback(
@@ -6226,12 +6225,12 @@ def update_dd2_options_ecs(graph, top_lvl_hierarchy, dd1_hierarchy):
     )
 def update_dd3_options_ecs(graph, top_lvl_hierarchy, dd1_hierarchy, dd2_hierarchy):
     options = ecs_hierarchy_dd_attr_options
-    
+
     if graph == 'Over Time':
         for d in options:
             d['disabled']=True
         display_style = {'display': 'none'}
-     
+
     else:
         for d in options:
             if d['value'] != 'None':
@@ -6240,7 +6239,7 @@ def update_dd3_options_ecs(graph, top_lvl_hierarchy, dd1_hierarchy, dd2_hierarch
                 else:
                     d['disabled']=False
         display_style = {'display': 'block'}
-    
+
     return options, display_style, display_style
 
 @gbadsDash.callback(
@@ -6259,7 +6258,7 @@ def update_dd4_options_ecs(graph, top_lvl_hierarchy, dd1_hierarchy, dd2_hierarch
         for d in options:
             d['disabled']=True
         display_style = {'display': 'none'}
-     
+
     else:
         for d in options:
             if d['value'] != 'None':
@@ -6268,7 +6267,7 @@ def update_dd4_options_ecs(graph, top_lvl_hierarchy, dd1_hierarchy, dd2_hierarch
                 else:
                     d['disabled']=False
         display_style = {'display': 'block'}
-    
+
     return options, display_style, display_style
 
 # @gbadsDash.callback(

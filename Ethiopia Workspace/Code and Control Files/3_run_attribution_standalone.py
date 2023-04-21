@@ -62,8 +62,10 @@ def run_cmd(
       for line in stdout_list[:SHOW_MAXLINES]:
          print(f'    {line}')
    print(f'<{funcname}> Ended with returncode = {cmd_status.returncode}')
+   if cmd_status.returncode == 3221225477:
+       print(f'<{funcname}> This return code indicates that a file was not found. Check your working directory and folder locations.')
 
-   return None    # If you want to use something that is returned, add it here. Assign it when you call the function e.g. returned_object = run_cmd().
+   return cmd_status.returncode    # If you want to use something that is returned, add it here. Assign it when you call the function e.g. returned_object = run_cmd().
 
 # To time a piece of code
 def timerstart(LABEL=None):      # String (opt): add a label to the printed timer messages
@@ -243,7 +245,7 @@ ahle_combo_forattr_means = ahle_combo_scensmry_withahle_sub.melt(
    ,var_name='ahle_component'
    ,value_name='mean'
 )
-ahle_combo_forattr_sd = ahle_combo_scensmry_withahle_sub.melt(
+ahle_combo_forattr_stdev = ahle_combo_scensmry_withahle_sub.melt(
    id_vars=['region' ,'species' ,'production_system' ,'agesex_scenario' ,'year']
    ,value_vars=['ahle_dueto_mortality_stdev' ,'ahle_dueto_healthcost_stdev' ,'ahle_dueto_productionloss_stdev']
    ,var_name='ahle_component'
@@ -273,7 +275,7 @@ ahle_combo_forattr_1 = pd.merge(
 del ahle_combo_forattr_means ,ahle_combo_forattr_stdev
 
 # Add variance column for summing
-ahle_combo_forattr_1['variance'] = ahle_combo_forattr_1['sd']**2
+ahle_combo_forattr_1['variance'] = ahle_combo_forattr_1['stdev']**2
 
 # =============================================================================
 #### Drop unneeded rows
@@ -347,7 +349,7 @@ ahle_combo_forattr_smallrum_aggjuv = ahle_combo_forattr_smallrum.loc[_agg_juv].p
 )
 ahle_combo_forattr_smallrum_aggjuv = ahle_combo_forattr_smallrum_aggjuv.reset_index()         # Pivoting will change columns to indexes. Change them back.
 ahle_combo_forattr_smallrum_aggjuv['agesex_scenario'] = 'Juvenile Combined'
-ahle_combo_forattr_smallrum_aggjuv['sd'] = np.sqrt(ahle_combo_forattr_smallrum_aggjuv['variance'])
+ahle_combo_forattr_smallrum_aggjuv['stdev'] = np.sqrt(ahle_combo_forattr_smallrum_aggjuv['variance'])
 
 # Neonates
 _agg_neo = (ahle_combo_forattr_smallrum['agesex_scenario'].str.contains('Neonatal')) \
@@ -359,7 +361,7 @@ ahle_combo_forattr_smallrum_aggneo = ahle_combo_forattr_smallrum.loc[_agg_neo].p
 )
 ahle_combo_forattr_smallrum_aggneo = ahle_combo_forattr_smallrum_aggneo.reset_index()         # Pivoting will change columns to indexes. Change them back.
 ahle_combo_forattr_smallrum_aggneo['agesex_scenario'] = 'Neonatal Combined'
-ahle_combo_forattr_smallrum_aggneo['sd'] = np.sqrt(ahle_combo_forattr_smallrum_aggneo['variance'])
+ahle_combo_forattr_smallrum_aggneo['stdev'] = np.sqrt(ahle_combo_forattr_smallrum_aggneo['variance'])
 
 # Concatenate with original
 ahle_combo_forattr_smallrum_base = ahle_combo_forattr_smallrum.loc[~ _agg_juv].loc[~ _agg_neo]  # Drop rows to avoid duplicates
@@ -372,7 +374,7 @@ ahle_combo_forattr_smallrum = pd.concat(
 del ahle_combo_forattr_smallrum_base ,ahle_combo_forattr_smallrum_aggjuv ,ahle_combo_forattr_smallrum_aggneo
 
 # Fill in missing standard deviations with zero
-ahle_combo_forattr_smallrum['sd'] = ahle_combo_forattr_smallrum['sd'].replace(np.nan ,0)
+ahle_combo_forattr_smallrum['stdev'] = ahle_combo_forattr_smallrum['stdev'].replace(np.nan ,0)
 
 # Drop variance column
 ahle_combo_forattr_smallrum = ahle_combo_forattr_smallrum.drop(columns=['variance'])
@@ -634,6 +636,9 @@ r_script = os.path.join(ETHIOPIA_CODE_FOLDER ,'Attribution function.R')    # Ful
 # =============================================================================
 attribution_summary_smallruminants = pd.DataFrame()     # Initialize to hold all years
 
+# Initialize list to save return codes
+attr_smallrum_returncodes = []
+
 # Loop over years
 for YEAR in ahle_combo_forattr_smallrum['year'].unique():
     # Loop over regions
@@ -655,7 +660,8 @@ for YEAR in ahle_combo_forattr_smallrum['year'].unique():
            ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_smallruminants_oneyear_oneregion.csv')    # String: full path to output file (csv)
         ]
         timerstart()
-        run_cmd([r_executable ,r_script] + r_args)
+        rc = run_cmd([r_executable ,r_script] + r_args)
+        attr_smallrum_returncodes.append(rc)
         timerstop()
 
         # Read CSV with attribution
@@ -683,6 +689,9 @@ os.remove(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_smallruminan
 # =============================================================================
 attribution_summary_cattle = pd.DataFrame()     # Initialize to hold all years
 
+# Initialize list to save return codes
+attr_cattle_returncodes = []
+
 # Loop over years
 for YEAR in ahle_combo_forattr_cattle['year'].unique():
     # Loop over regions
@@ -704,7 +713,8 @@ for YEAR in ahle_combo_forattr_cattle['year'].unique():
            ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_cattle_oneyear_oneregion.csv')    # String: full path to output file (csv)
         ]
         timerstart()
-        run_cmd([r_executable ,r_script] + r_args)
+        rc = run_cmd([r_executable ,r_script] + r_args)
+        attr_cattle_returncodes.append(rc)
         timerstop()
 
         # Read CSV with attribution
@@ -732,6 +742,9 @@ os.remove(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_cattle_oneye
 # =============================================================================
 attribution_summary_poultry = pd.DataFrame()     # Initialize to hold all years
 
+# Initialize list to save return codes
+attr_poultry_returncodes = []
+
 # Loop over years
 for YEAR in ahle_combo_forattr_poultry['year'].unique():
     # Loop over regions
@@ -753,7 +766,8 @@ for YEAR in ahle_combo_forattr_poultry['year'].unique():
            ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_poultry_oneyear_oneregion.csv')    # String: full path to output file (csv)
         ]
         timerstart()
-        run_cmd([r_executable ,r_script] + r_args)
+        rc = run_cmd([r_executable ,r_script] + r_args)
+        attr_poultry_returncodes.append(rc)
         timerstop()
 
         # Read CSV with attribution

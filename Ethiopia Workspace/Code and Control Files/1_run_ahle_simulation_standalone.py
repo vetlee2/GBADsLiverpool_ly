@@ -54,7 +54,7 @@ def run_cmd(
    if cmd_status.returncode == 3221225477:
        print(f'<{funcname}> This return code indicates that a file was not found. Check your working directory and folder locations.')
 
-   return None    # If you want to use something that is returned, add it here. Assign it when you call the function e.g. returned_object = run_cmd().
+   return cmd_status.returncode    # If you want to use something that is returned, add it here. Assign it when you call the function e.g. returned_object = run_cmd().
 
 # To time a piece of code
 def timerstart(LABEL=None):      # String (opt): add a label to the printed timer messages
@@ -129,8 +129,13 @@ run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
 timerstop()
 
 # =============================================================================
-#### PPR-specific
+#### PPR scenario
 # =============================================================================
+'''
+Note: any scenarios that exist in this file will overwrite results of previous
+run. As of 4/20/2023, this includes ideal and current scenarios in addition to
+PPR.
+'''
 r_args = [
     # Arg 1: Number of simulation runs
     '10'
@@ -149,6 +154,10 @@ r_args = [
 timerstart()
 run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
 timerstop()
+
+# =============================================================================
+#### Brucellosis scenario
+# =============================================================================
 
 #%% Small Ruminants using Murdoch's updated function
 
@@ -191,12 +200,15 @@ timerstop()
 # =============================================================================
 list_years = list(range(2017, 2022))
 
+# Initialize list to save return codes
+cattle_yearly_returncodes = []
+
 # Loop through years, calling scenario file for each and saving outputs to a new folder
 for YEAR in list_years:
     print(f"> Running compartmental model for year {YEAR}...")
 
     # Define input scenario file
-    SCENARIO_FILE = os.path.join(ETHIOPIA_CODE_FOLDER ,f'{YEAR}_AHLE scenario parameters CATTLE_20230209.xlsx')
+    SCENARIO_FILE = os.path.join(ETHIOPIA_CODE_FOLDER ,'Yearly parameters' ,f'{YEAR}_AHLE scenario parameters CATTLE_20230209 scenarios only.xlsx')
 
     # Create subfolder for results if it doesn't exist
     OUTFOLDER = os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE' ,f'{YEAR}')
@@ -219,7 +231,8 @@ for YEAR in list_years:
         ,'-1'
     ]
     timerstart()
-    run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+    rc = run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+    cattle_yearly_returncodes.append(rc)
     timerstop()
 
     print(f"> Finished compartmental model for year {YEAR}.")
@@ -239,6 +252,9 @@ list_eth_regions = [
     ,'Somali'
     ,'Tigray'
     ]
+
+# Initialize list to save return codes
+cattle_regional_returncodes = []
 
 # Loop through regions, calling scenario file for each and saving outputs to a new folder
 for REGION in list_eth_regions:
@@ -268,7 +284,8 @@ for REGION in list_eth_regions:
         ,'-1'
     ]
     timerstart()
-    run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+    rc = run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+    cattle_regional_returncodes.append(rc)
     timerstop()
 
     print(f"> Finished compartmental model for region {REGION}.")

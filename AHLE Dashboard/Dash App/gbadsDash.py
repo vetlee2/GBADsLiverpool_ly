@@ -2660,24 +2660,25 @@ gbadsDash.layout = html.Div([
                 html.P("Antimicrobial Expenditure shown is the estimated global total based on usage and price selected on the Antimicrobial Usage tab."),
                 # html.P("Using morbidity and mortality rates according to income group"),
                 ]),
-            # Regional AM Expenditure Estimator
-            dbc.Col([
-                dcc.Link(
-                    dbc.Button(id="am-expend-button-ga",
-                        children='Antimicrobial Expenditure',
-                                # style={'color': 'white',
-                                #        'backgroundColor': '#101820',
-                                #        'fontSize': '15px ',
-                                #        'width': '150px',
-                                #        'height': '50px',
-                                #        'marginLeft': '10px',
-                                #        'marginRight': '100px',
-                                #        }
-                                ),
-                    href='#AMU-regional-expenditure', refresh=True),
+            
+            # # Regional AM Expenditure Estimator Button
+            # dbc.Col([
+            #     dcc.Link(
+            #         dbc.Button(id="am-expend-button-ga",
+            #             children='Antimicrobial Expenditure',
+            #                     # style={'color': 'white',
+            #                     #        'backgroundColor': '#101820',
+            #                     #        'fontSize': '15px ',
+            #                     #        'width': '150px',
+            #                     #        'height': '50px',
+            #                     #        'marginLeft': '10px',
+            #                     #        'marginRight': '100px',
+            #                     #        }
+            #                     ),
+            #         href='#AMU-regional-expenditure', refresh=True),
                 
-                # html.Button('Antimicrobial Expenditure', id='am-expend-button-ga'),
-                ]),
+            #     # html.Button('Antimicrobial Expenditure', id='am-expend-button-ga'),
+            #     ]),
 
             dbc.Col([
                 # Line chart
@@ -6093,6 +6094,1127 @@ def update_stacked_bar_swine(input_json, country, year):
 
     return swine_bar_fig
 
+
+# ==============================================================================
+#### UPDATE GLOBAL AGGREGATE
+# ==============================================================================
+# ------------------------------------------------------------------------------
+#### -- Controls
+# ------------------------------------------------------------------------------
+# Update regions based on region contry aligment selection:
+@gbadsDash.callback(
+    Output(component_id='select-region-overview-ga', component_property='options'),
+    Input(component_id='Region-country-alignment-overview-ga', component_property='value'),
+    )
+def update_region_overview_options_ga(region_country):
+    if region_country == "WOAH":
+        options = WOAH_region_options_ga
+    elif region_country =="FAO":
+        options = fao_region_options_ga
+    elif region_country == "World Bank":
+        options = wb_region_options_ga
+    return options
+
+@gbadsDash.callback(
+    Output(component_id='select-region-detail-ga', component_property='options'),
+    Input(component_id='Region-country-alignment-detail-ga', component_property='value'),
+    )
+def update_region_detail_options_ga(region_country):
+    if region_country == "WOAH":
+        options = WOAH_region_options_ga
+    elif region_country =="FAO":
+        options = fao_region_options_ga
+    elif region_country == "World Bank":
+        options = wb_region_options_ga
+    return options
+
+
+# Update country options based on region and income group selection
+@gbadsDash.callback(
+    Output(component_id='select-country-overview-ga', component_property='options'),
+    Input(component_id='Region-country-alignment-overview-ga', component_property='value'),
+    Input(component_id='select-region-overview-ga', component_property='value'),
+    Input('select-incomegrp-overview-ga','value'),
+    )
+def update_country_overview_options_ga(region_country, region, income):
+    if region_country == "WOAH":
+        if region == "All":
+            options = country_options_ga
+        elif region == "Africa":
+            options = WOAH_africa_options_ga
+        elif region == "Americas":
+            options = WOAH_americas_options_ga
+        elif region == "Asia, Far East and Oceania":
+            options = WOAH_asia_options_ga
+        elif region == "Europe":
+            options = WOAH_europe_options_ga
+        else:
+            options = WOAH_me_options_ga
+    elif region_country =="FAO":
+        if region == "All":
+            options = country_options_ga
+        elif region == "Africa":
+            options = fao_africa_options_ga
+        elif region == "Asia":
+            options = fao_asia_options_ga
+        elif region == "Europe and Central Asia":
+            options = fao_eca_options_ga
+        elif region == "Latin America and the Caribbean":
+            options = fao_lac_options_ga
+        elif region == "Near East and North Africa":
+            options = fao_ena_options_ga
+        else:
+            options = fao_swp_options_ga
+    elif region_country == "World Bank":
+        if region == "All":
+            if income == "All":
+                options = country_options_ga
+            else:
+                options_df = ga_countries_biomass.loc[(ga_countries_biomass['incomegroup'] == income)]
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
+        else:
+            options_df = ga_countries_biomass.loc[(ga_countries_biomass['region'] == region)]
+            if income == "All":
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
+            else:
+                options_df = options_df.loc[(options_df['incomegroup'] == income)]
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
+    else:
+        options = country_options_ga
+
+    return options
+
+# Update country options based on region and income group selection
+@gbadsDash.callback(
+    Output('select-country-detail-ga', 'options'),
+    Input('Region-country-alignment-detail-ga', 'value'),
+    Input('select-region-detail-ga', 'value'),
+    Input('select-incomegrp-detail-ga','value'),
+    )
+def update_country_detail_options_ga(region_country, region, income):
+    if region_country == "WOAH":
+        if region == "All":
+            options = country_options_ga
+        elif region == "Africa":
+            options = WOAH_africa_options_ga
+        elif region == "Americas":
+            options = WOAH_americas_options_ga
+        elif region == "Asia, Far East and Oceania":
+            options = WOAH_asia_options_ga
+        elif region == "Europe":
+            options = WOAH_europe_options_ga
+        else:
+            options = WOAH_me_options_ga
+    elif region_country =="FAO":
+        if region == "All":
+            options = country_options_ga
+        elif region == "Africa":
+            options = fao_africa_options_ga
+        elif region == "Asia":
+            options = fao_asia_options_ga
+        elif region == "Europe and Central Asia":
+            options = fao_eca_options_ga
+        elif region == "Latin America and the Caribbean":
+            options = fao_lac_options_ga
+        elif region == "Near East and North Africa":
+            options = fao_ena_options_ga
+        else:
+            options = fao_swp_options_ga
+    elif region_country == "World Bank":
+        if region == "All":
+            if income == "All":
+                options = country_options_ga
+            else:
+                options_df = ga_countries_biomass.loc[(ga_countries_biomass['incomegroup'] == income)]
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
+        else:
+            options_df = ga_countries_biomass.loc[(ga_countries_biomass['region'] == region)]
+            if income == "All":
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
+            else:
+                options_df = options_df.loc[(options_df['incomegroup'] == income)]
+                options = [{'label': "All", 'value': "All"}]
+                for i in options_df['country'].unique():
+                    str(options.append({'label':i,'value':(i)}))
+    else:
+        options = country_options_ga
+
+    return options
+
+# Update species options based on region and country selections
+@gbadsDash.callback(
+    Output(component_id='select-species-ga', component_property='options'),
+    Input(component_id='select-country-overview-ga', component_property='value'),
+    Input(component_id='select-region-overview-ga', component_property='value'),
+    )
+def update_species_options_ga(country, region):
+    if region == 'All':
+        if country == "All":
+            options = []
+            for i in ga_countries_biomass['species'].unique():
+                str(options.append({'label':i,'value':(i)}))
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+            options = []
+            for i in input_df['species'].unique():
+                str(options.append({'label':i,'value':(i)}))
+    elif region == "Sub-Saharan Africa":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_africa_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "East Asia & Pacific":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_eap_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "Europe & Central Asia":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_eca_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "Latin America & the Caribbean":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_lac_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "Middle East & North Africa":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_mena_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    elif region == "North America":
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_na_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+    else:
+        if country == 'All':
+            country = [[v for k,v in d.items()] for d in wb_southasia_options_ga]
+            country = [a[1] for a in country]
+            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
+        else:
+            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
+        # Set options for species based on the filters for region and country
+        options = []
+        for i in input_df['species'].unique():
+            str(options.append({'label':i,'value':(i)}))
+
+    return options
+
+# Navigate to the AMU tab with button below waterfall
+# @app.callback(
+#     Output('tabs','active_tab'),
+#     Input('am-expend-button-ga','n_clicks')
+# )
+# def display_amutab(n_clicks):
+#     return 'AMU-tab'
+
+# @app.callback(
+#     Output('AMU-tab', 'value'),
+#     [Input('am-expend-button-ga', 'n_clicks')]
+# )
+# def open_home_tab(n_clicks):
+#     if not ctx.triggered:
+#         return 'AMU-tab'
+
+# ------------------------------------------------------------------------------
+#### -- Data
+# ------------------------------------------------------------------------------
+# Attribution datatable below graphic
+@gbadsDash.callback(
+    Output('ga-world-abt-datatable', 'children'),
+    Input('select-species-ga','value'),
+    Input('select-incomegrp-overview-ga','value'),
+    Input('select-region-overview-ga', 'value'),
+    Input('select-country-overview-ga','value'),
+    # Input('select-currency-ecs','value'),
+    )
+def update_overview_table_ga(species, income, region, country):
+    # Read in data
+    input_df = ga_countries_biomass.copy()
+
+    # Add mortality, morbidity, and vetmed rate columns
+    input_df = ga.add_mortality_rate(input_df)
+    input_df = ga.add_morbidity_rate(input_df)
+    input_df = ga.add_vetmed_rates(input_df)
+
+    # Apply AHLE calcs
+    input_df = ga.ahle_calcs_adj_outputs(input_df)
+
+    # Filter Species
+    input_df = input_df.loc[(input_df['species'] == species)]
+
+    # Filter Income Group
+    if income == 'All':
+        input_df = input_df
+    else:
+        input_df = input_df.loc[(input_df['incomegroup'] == income)]
+
+    # Filter Region & country
+    if region == "All":
+         if country == 'All':
+             selected = [[v for k,v in d.items()] for d in country_options_ga]
+             selected = [a[1] for a in selected]
+             input_df = input_df[input_df['country'].isin(selected)]
+         else:
+             input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "Sub-Saharan Africa":
+         if country == 'All':
+             selected = [[v for k,v in d.items()] for d in wb_africa_options_ga]
+             selected = [a[1] for a in selected]
+             input_df = input_df[input_df['country'].isin(selected)]
+         else:
+             input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "East Asia & Pacific":
+         if country == 'All':
+             selected = [[v for k,v in d.items()] for d in wb_eap_options_ga]
+             selected = [a[1] for a in selected]
+             input_df = input_df[input_df['country'].isin(selected)]
+         else:
+             input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "Europe & Central Asia":
+         if country == 'All':
+             selected = [[v for k,v in d.items()] for d in wb_eca_options_ga]
+             selected = [a[1] for a in selected]
+             input_df = input_df[input_df['country'].isin(selected)]
+         else:
+             input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "Latin America & the Caribbean":
+         if country == 'All':
+             selected = [[v for k,v in d.items()] for d in wb_lac_options_ga]
+             selected = [a[1] for a in selected]
+             input_df = input_df[input_df['country'].isin(selected)]
+         else:
+             input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "Middle East & North Africa":
+         if country == 'All':
+             selected = [[v for k,v in d.items()] for d in wb_mena_options_ga]
+             selected = [a[1] for a in selected]
+             input_df = input_df[input_df['country'].isin(selected)]
+         else:
+             input_df=input_df.loc[(input_df['country'] == country)]
+    elif region == "North America":
+         if country == 'All':
+             selected = [[v for k,v in d.items()] for d in wb_na_options_ga]
+             selected = [a[1] for a in selected]
+             input_df = input_df[input_df['country'].isin(selected)]
+         else:
+             input_df=input_df.loc[(input_df['country'] == country)]
+    else:
+         if country == 'All':
+             selected = [[v for k,v in d.items()] for d in wb_southasia_options_ga]
+             selected = [a[1] for a in selected]
+             input_df = input_df[input_df['country'].isin(selected)]
+         else:
+             input_df=input_df.loc[(input_df['country'] == country)]
+
+    # Fill in for missing values AHLE
+    # input_df['ahle_total_2010usd'] = input_df['ahle_total_2010usd'].fillna(0)
+
+    # Format numbers
+    input_df.update(input_df[['biomass',
+                              'population',
+                              'liveweight',
+                               # 'ahle_total_2010usd',
+                              ]].applymap('{:,.0f}'.format))
+
+    columns_to_display_with_labels = {
+       'country':'Country'
+       ,'species':'Species'
+       ,'year':'Year'
+       ,'incomegroup': 'Income Group'
+       # ,'ahle_total_2010usd': 'Total AHLE (2010 USD)'
+       ,'biomass':'Biomass (kg)'
+       ,'population':'Population (head)'
+       ,'liveweight':'Average Live Weight (kg)'
+    }
+
+    # Subset columns
+    input_df = input_df[list(columns_to_display_with_labels)]
+
+    # Hover-over text
+    column_tooltips = {
+       'incomegroup':'Source: World Bank via GBADs knowledge engine'
+       # ,'ahle_total_2010usd': ')'
+       ,'biomass':'Source: FAO via GBADs knowledge engine'
+       ,'population':'Source: FAO via GBADs knowledge engine'
+       ,'liveweight':'Source: FAO via GBADs knowledge engine'
+    }
+    return [
+            html.H4("Global Aggregation Data"),
+            dash_table.DataTable(
+                columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+                fixed_rows={'headers': True, 'data': 0},
+                data=input_df.to_dict('records'),
+                export_format="csv",
+                style_cell={
+                    'font-family':'sans-serif',
+                    },
+                style_table={'overflowX': 'scroll',
+                              'height': '680px',
+                              'overflowY': 'auto'},
+                page_action='none',
+
+                # Hover-over for column headers
+                tooltip_header=column_tooltips,
+                tooltip_delay= 500,
+                tooltip_duration=50000,
+
+                # Underline columns with tooltips
+                style_header_conditional=[{
+                    'if': {'column_id': col},
+                    'textDecoration': 'underline',
+                    'textDecorationStyle': 'dotted',
+                    } for col in list(column_tooltips)],
+            )
+        ]
+
+@gbadsDash.callback(
+    Output('ga-detailtab-displaytable', 'children'),
+    Input('select-region-detail-ga','value'),
+    Input('select-incomegrp-detail-ga','value'),
+    Input('select-country-detail-ga','value'),
+    )
+def update_display_table_ga(selected_region ,selected_incgrp ,selected_country):
+    # Read data
+    input_df = ga_countries_biomass.copy()
+
+    # Add mortality, morbidity, and vetmed rate columns
+    input_df = ga.add_mortality_rate(input_df)
+    input_df = ga.add_morbidity_rate(input_df)
+    input_df = ga.add_vetmed_rates(input_df)
+
+    # Apply AHLE calcs
+    input_df = ga.ahle_calcs_adj_outputs(input_df)
+
+    # Apply filters
+    input_df_filtered = input_df
+
+    # Region, Country and Income group might not be filtered
+    if selected_region == 'All':
+        if selected_country == 'All':
+            input_df_filtered = input_df_filtered
+            # print_selected_country = 'All countries, '
+            print_selected_country = 'Global, '
+
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                input_df_filtered = input_df_filtered
+                print_selected_incgrp = 'all income groups, '
+            else:
+                input_df_filtered = input_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}, '
+        else:
+            input_df_filtered = input_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country}'
+            print_selected_incgrp = ''
+    else:
+        if selected_country == 'All':
+            input_df_filtered = input_df_filtered.query(f"region == '{selected_region}'")
+            print_selected_country = f'All {selected_region} countries,'
+
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                input_df_filtered = input_df_filtered
+                print_selected_incgrp = 'all income groups, '
+            else:
+                input_df_filtered = input_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}, '
+        else:
+            input_df_filtered = input_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country}'
+            print_selected_incgrp = ''
+
+    columns_to_display_with_labels = {
+        'region':'Region'
+        ,'incomegroup':'Income group'
+        ,'country':'Country'
+        ,'species':'Species'
+        ,'year':'Year'
+        ,'population':'Population (head)'
+        ,'liveweight':'Average liveweight (kg)'
+        ,'biomass':'Biomass (kg)'
+
+        ,'production_eggs_tonnes':'Egg production (tonnes)'
+        ,'production_meat_tonnes':'Meat production (tonnes)'
+        ,'production_milk_tonnes':'Milk production (tonnes)'
+        ,'production_wool_tonnes':'Wool production (tonnes)'
+
+        ,'producer_price_meat_live_usdpertonne_cnst2010':'Liveweight price (USD per tonne)'
+        ,'producer_price_eggs_usdpertonne_cnst2010':'Egg price (USD per tonne)'
+        ,'producer_price_meat_usdpertonne_cnst2010':'Meat price (USD per tonne)'
+        ,'producer_price_milk_usdpertonne_cnst2010':'Milk price (USD per tonne)'
+        ,'producer_price_wool_usdpertonne_cnst2010':'Wool price (USD per tonne)'
+
+        ,'biomass_value_2010usd':'Value of biomass (USD)'
+        ,'output_value_eggs_2010usd':'Value of Egg production (USD)'
+        ,'output_value_meat_2010usd':'Value of Meat production (USD)'
+        ,'output_value_milk_2010usd':'Value of Milk production (USD)'
+        ,'output_value_wool_2010usd':'Value of Wool production (USD)'
+
+        ,'mortality_rate':'Mortality rate'
+        ,'morbidity_rate':'Morbidity rate'
+
+        ,'ideal_biomass_value_2010usd':'Value of ideal biomass (USD)'
+        ,'ideal_output_value_eggs_2010usd':'Value of ideal egg production (USD)'
+        ,'ideal_output_value_meat_2010usd':'Value of ideal meat production (USD)'
+        ,'ideal_output_value_milk_2010usd':'Value of ideal milk production (USD)'
+        ,'ideal_output_value_wool_2010usd':'Value of ideal wool production (USD)'
+
+        ,'vetspend_biomass_farm_usdperkgbm':'Producers vet & med cost per kg biomass (USD)'
+        ,'vetspend_biomass_public_usdperkgbm':'Public vet & med cost per kg biomass (USD)'
+        ,'vetspend_production_usdperkgprod':'Producers vet & med cost per kg production (USD)'
+        ,'vetspend_farm_usd':'Total producers vet & med cost (USD)'
+        ,'vetspend_public_usd':'Total public vet & med cost (USD)'
+
+        ,'ahle_dueto_reducedoutput_2010usd':'Value of AHLE due to reduced output (USD)'
+        ,'ahle_dueto_vetandmedcost_2010usd':'Value of AHLE due to vet & med cost (USD)'
+        # ,'ahle_total_2010usd':'Total value of AHLE (USD)'
+    }
+    # ------------------------------------------------------------------------------
+    # Format data to display in the table
+    # ------------------------------------------------------------------------------
+    # Order does not matter in these lists
+    # Zero decimal places without comma
+    input_df_filtered.update(input_df_filtered[[
+        'year'
+    ]].applymap('{:.0f}'.format))
+
+    # Zero decimal places
+    input_df_filtered.update(input_df_filtered[[
+        'population'
+        ,'biomass'
+        ,'production_eggs_tonnes'
+        ,'production_meat_tonnes'
+        ,'production_milk_tonnes'
+        ,'production_wool_tonnes'
+    ]].applymap('{:,.0f}'.format))
+
+    # One decimal place
+    input_df_filtered.update(input_df_filtered[[
+        'liveweight'
+    ]].applymap('{:,.1f}'.format))
+
+    # Two decimal places
+    input_df_filtered.update(input_df_filtered[[
+        # 'producer_price_meat_live_usdpertonne_cnst2010'
+        # ,'producer_price_eggs_usdpertonne_cnst2010'
+        # ,'producer_price_meat_usdpertonne_cnst2010'
+        # ,'producer_price_milk_usdpertonne_cnst2010'
+        # ,'producer_price_wool_usdpertonne_cnst2010'
+
+        'biomass_value_2010usd'
+        ,'output_value_eggs_2010usd'
+        ,'output_value_meat_2010usd'
+        ,'output_value_milk_2010usd'
+        ,'output_value_wool_2010usd'
+
+
+        ,'mortality_rate'
+        ,'morbidity_rate'
+
+        ,'ideal_biomass_value_2010usd'
+        ,'ideal_output_value_eggs_2010usd'
+        ,'ideal_output_value_meat_2010usd'
+        ,'ideal_output_value_milk_2010usd'
+        ,'ideal_output_value_wool_2010usd'
+
+        ,'vetspend_biomass_farm_usdperkgbm'
+        ,'vetspend_biomass_public_usdperkgbm'
+        ,'vetspend_production_usdperkgprod'
+        ,'vetspend_farm_usd'
+        # ,'vetspend_public_usd'
+
+        ,'ahle_dueto_reducedoutput_2010usd'
+        ,'ahle_dueto_vetandmedcost_2010usd'
+        # ,'ahle_total_2010usd'
+
+    ]].applymap('{:,.2f}'.format))
+
+    # ------------------------------------------------------------------------------
+    # Hover-over text
+    # ------------------------------------------------------------------------------
+    column_tooltips = {
+        'region':'World Bank region'
+        ,'incomegroup':'World Bank income group'
+        ,'population':'Source: FAO'
+        ,'liveweight':'Source: FAO'
+
+        ,'production_eggs_tonnes':'Source: FAO'
+        ,'production_meat_tonnes':'Source: FAO'
+        ,'production_milk_tonnes':'Source: FAO'
+        ,'production_wool_tonnes':'Source: FAO'
+
+        ,'producer_price_meat_live_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        ,'producer_price_eggs_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        ,'producer_price_meat_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        ,'producer_price_milk_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+        ,'producer_price_wool_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
+
+        ,'biomass_value_2010usd':'Constant 2010 US dollars'
+        ,'output_value_eggs_2010usd':'Constant 2010 US dollars'
+        ,'output_value_meat_2010usd':'Constant 2010 US dollars'
+        ,'output_value_milk_2010usd':'Constant 2010 US dollars'
+        ,'output_value_wool_2010usd':'Constant 2010 US dollars'
+
+        # ,'mortality_rate':''
+        # ,'morbidity_rate':''
+
+        ,'ideal_biomass_value_2010usd':'Constant 2010 US dollars'
+        ,'ideal_output_value_eggs_2010usd':'Constant 2010 US dollars'
+        ,'ideal_output_value_meat_2010usd':'Constant 2010 US dollars'
+        ,'ideal_output_value_milk_2010usd':'Constant 2010 US dollars'
+        ,'ideal_output_value_wool_2010usd':'Constant 2010 US dollars'
+
+        # ,'vetspend_biomass_farm_usdperkgbm':''
+        # ,'vetspend_biomass_public_usdperkgbm':''
+        # ,'vetspend_production_usdperkgprod':''
+        # ,'vetspend_farm_usd':''
+        # ,'vetspend_public_usd':''
+
+        ,'ahle_dueto_reducedoutput_2010usd':'Constant 2010 US dollars'
+        ,'ahle_dueto_vetandmedcost_2010usd':'Constant 2010 US dollars'
+        # ,'ahle_total_2010usd':'Constant 2010 US dollars'
+    }
+
+    # !!!- Adjust header size based on the column name length
+    # # custom width for each column as a workaround for this issue:
+    # long_column_names = [{"if": {"column_id": column}, "min-width": "300px"} for column in df.columns if len(column) >= 30]
+    # med_column_names = [{"if": {"column_id": column}, "min-width": "225px"} for column in df.columns if (len(column) > 15 and len(column)) < 30]
+    # small_column_names = [{"if": {"column_id": column}, "min-width": "100px"} for column in df.columns if len(column) <= 15]
+
+    # adjusted_columns = long_column_names + med_column_names + small_column_names
+    return [
+        html.H4(f"Detailed data for {print_selected_country}{print_selected_incgrp}"),
+        dash_table.DataTable(
+            columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+            fixed_rows={'headers': True, 'data': 0},
+            data=input_df_filtered.to_dict('records'),
+            export_format="csv",
+            sort_action = 'native',
+            style_cell={'font-family':'sans-serif',
+                        'minWidth':200},
+            style_table={'overflowX': 'scroll',
+                         'height': '680px',
+                         'overflowY': 'auto'
+                          },
+
+            # Hover-over for column headers
+            tooltip_header=column_tooltips,
+            tooltip_delay= 500,
+            tooltip_duration=50000,
+
+            # Underline columns with tooltips
+            style_header_conditional=[{
+                'if': {'column_id': col},
+                'textDecoration': 'underline',
+                'textDecorationStyle': 'dotted',
+                } for col in list(column_tooltips)],
+        )
+    ]
+
+# ------------------------------------------------------------------------------
+#### -- Figures
+# ------------------------------------------------------------------------------
+# Biomass Map
+@gbadsDash.callback(
+   Output('ga-map-or-line-select','figure'),
+   Input('viz-radio-ga','value'),
+   Input('select-species-ga','value'),
+   Input('select-country-overview-ga', 'value'),
+   Input('select-region-overview-ga', 'value'),
+   Input('map-display-radio-ga','value'),
+   Input('select-incomegrp-overview-ga','value'),
+   # Input('select-currency-ecs','value'),
+   )
+def update_bio_ahle_visual_ga(viz_selection, species, country, region, display, income):
+   # Data
+   input_df = ga_countries_biomass.copy()
+
+   # Add mortality, morbidity, and vetmed rate columns
+   input_df = ga.add_mortality_rate(input_df)
+   input_df = ga.add_morbidity_rate(input_df)
+   input_df = ga.add_vetmed_rates(input_df)
+
+   # Apply AHLE calcs
+   input_df = ga.ahle_calcs_adj_outputs(input_df)
+
+   # Filter Region & country
+   if region == "All":
+        if country == 'All':
+            selected = [[v for k,v in d.items()] for d in country_options_ga]
+            selected = [a[1] for a in selected]
+            input_df = input_df[input_df['country'].isin(selected)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+   elif region == "Sub-Saharan Africa":
+        if country == 'All':
+            selected = [[v for k,v in d.items()] for d in wb_africa_options_ga]
+            selected = [a[1] for a in selected]
+            input_df = input_df[input_df['country'].isin(selected)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+   elif region == "East Asia & Pacific":
+        if country == 'All':
+            selected = [[v for k,v in d.items()] for d in wb_eap_options_ga]
+            selected = [a[1] for a in selected]
+            input_df = input_df[input_df['country'].isin(selected)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+   elif region == "Europe & Central Asia":
+        if country == 'All':
+            selected = [[v for k,v in d.items()] for d in wb_eca_options_ga]
+            selected = [a[1] for a in selected]
+            input_df = input_df[input_df['country'].isin(selected)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+   elif region == "Latin America & the Caribbean":
+        if country == 'All':
+            selected = [[v for k,v in d.items()] for d in wb_lac_options_ga]
+            selected = [a[1] for a in selected]
+            input_df = input_df[input_df['country'].isin(selected)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+   elif region == "Middle East & North Africa":
+        if country == 'All':
+            selected = [[v for k,v in d.items()] for d in wb_mena_options_ga]
+            selected = [a[1] for a in selected]
+            input_df = input_df[input_df['country'].isin(selected)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+   elif region == "North America":
+        if country == 'All':
+            selected = [[v for k,v in d.items()] for d in wb_na_options_ga]
+            selected = [a[1] for a in selected]
+            input_df = input_df[input_df['country'].isin(selected)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+   else:
+        if country == 'All':
+            selected = [[v for k,v in d.items()] for d in wb_southasia_options_ga]
+            selected = [a[1] for a in selected]
+            input_df = input_df[input_df['country'].isin(selected)]
+        else:
+            input_df=input_df.loc[(input_df['country'] == country)]
+
+    # Filter Income Group
+   if income == 'All':
+        input_df = input_df
+   else:
+        input_df = input_df.loc[(input_df['incomegroup'] == income)]
+
+    # Filter Species
+   input_df = input_df.loc[(input_df['species'] == species)]
+
+
+   if viz_selection == 'Map':
+       # Set values from the data
+       iso_alpha3 = input_df['country_iso3']
+       country_col = input_df['country']
+       year = input_df['year']
+
+       # Establish AHLE
+       input_df['ahle_total_2010usd'] = input_df['ahle_total_2010usd'].fillna(0)
+
+
+       # Set value based on map display option
+       if display == 'Biomass':
+           display_title = 'Biomass (kg)'
+           value = input_df['biomass']
+       elif display == 'Live Weight':
+           display_title = 'Average Live Weight (kg)'
+           value = input_df['liveweight']
+       elif display == 'Population':
+           display_title = 'Population (head)'
+           value = input_df['population']
+       elif display == 'Animal Health Loss Envelope (AHLE)':
+           display_title = 'AHLE (2010 USD)'
+           value = input_df['ahle_total_2010usd']
+       else:
+           display = 'AHLE per kg biomass'
+           display_title = 'AHLE (USD per kg biomass)'
+           value = input_df['ahle_2010usd_perkgbm']
+
+       # Set up map structure
+       ga_biomass_ahle_visual = create_biomass_map_ga(input_df, iso_alpha3, value, country_col, display_title)
+
+       # Add title
+       if region == 'All':
+           if country =='All':
+               ga_biomass_ahle_visual.update_layout(title_text=f'Global {display_title} for {species}',
+                                             font_size=15,
+                                             margin=dict(t=100))
+           else:
+               ga_biomass_ahle_visual.update_layout(title_text=f'{country} {display_title} for {species}',
+                                             font_size=15,
+                                             margin=dict(t=100))
+               ga_biomass_ahle_visual.update_coloraxes(showscale=False)
+       else:
+             if country =='All':
+                 ga_biomass_ahle_visual.update_layout(title_text=f'{region} {display_title} for {species}',
+                                               font_size=15,
+                                               margin=dict(t=100))
+             else:
+                 ga_biomass_ahle_visual.update_layout(title_text=f'{country} {display_title} for {species}',
+                                               font_size=15,
+                                               margin=dict(t=100))
+                 ga_biomass_ahle_visual.update_coloraxes(showscale=False)
+
+   elif viz_selection == 'Line chart':
+       # Specify which columns to keep forline chart
+       input_df = input_df[['country', 'year', 'species', 'biomass', 'population', 'liveweight']]
+
+       # Melt data to create facets for line chart
+       input_df = input_df.melt(id_vars=['country', 'year', 'species'],
+                                value_vars=['biomass', 'population', 'liveweight'],
+                                var_name='facet',
+                                value_name='value')
+
+       # Set values from the data
+       year = input_df['year']
+       value = input_df['value']
+       country = input_df['country']
+       facet = input_df['facet']
+
+       # Set up line plot structure
+       ga_biomass_ahle_visual = create_line_chart_ga(input_df, year, value, country, facet)
+
+   return ga_biomass_ahle_visual
+
+# Global AHLE Waterfall
+@gbadsDash.callback(
+    Output('ga-ahle-waterfall','figure'),
+    Input('amu-regional-data', 'data'),
+    Input('select-region-detail-ga','value'),
+    Input('select-incomegrp-detail-ga','value'),
+    Input('select-country-detail-ga','value'),
+    Input('select-year-ga','value'),
+    Input('select-display-ga','value'),
+    )
+def update_ahle_waterfall_ga(amu_data_json, selected_region ,selected_incgrp ,selected_country ,selected_year, display):
+    # Read data
+    input_df = ga_countries_biomass.copy()
+    input_df_amu = pd.read_json(amu_data_json, orient='split')
+
+    # Add mortality, morbidity, and vetmed rate columns
+    input_df = ga.add_mortality_rate(input_df)
+    input_df = ga.add_morbidity_rate(input_df)
+    input_df = ga.add_vetmed_rates(input_df)
+
+    # Apply AHLE calcs
+    input_df = ga.ahle_calcs_adj_outputs(input_df)
+
+    # Prep the data
+    prep_df = prep_ahle_forwaterfall_ga(input_df)
+
+    # Make costs negative
+    _vetmed_rows = (prep_df['item'].str.contains('VET' ,case=False))
+    prep_df.loc[_vetmed_rows ,'value_usd_current'] = -1 * prep_df['value_usd_current']
+
+    # Apply user filters
+    # There will always be a year filter
+    prep_df_filtered = prep_df.query(f"year == {selected_year}")
+
+    # Region, Country and Income group might not be filtered
+    if selected_region == 'All':
+        if selected_country == 'All':
+            prep_df_filtered = prep_df_filtered
+            # print_selected_country = 'All countries, '
+            print_selected_country = 'Global, '
+
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                prep_df_filtered = prep_df_filtered
+                print_selected_incgrp = 'all income groups, '
+            else:
+                prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}, '
+        else:
+            prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country} '
+            print_selected_incgrp = ''
+    else:
+        if selected_country == 'All':
+            prep_df_filtered = prep_df_filtered.query(f"region == '{selected_region}'")
+            print_selected_country = f'All {selected_region} countries,'
+
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                prep_df_filtered = prep_df_filtered
+                print_selected_incgrp = 'all income groups, '
+            else:
+                prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}, '
+        else:
+            prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country} '
+            print_selected_incgrp = ''
+
+    # Get sum for each item (summing over countries if multiple)
+    prep_df_sums = prep_df_filtered.groupby('item')[['value_usd_current' ,'value_usd_ideal']].sum()
+    prep_df_sums = prep_df_sums.reset_index()
+
+    # Additional item: global expenditure on antimicrobials
+    # Concatenate this as a single row after summing to item level
+    n_items_start = prep_df_sums.shape[0]
+    global_am_expenditure = pd.DataFrame(
+        {'item':'Antimicrobial Expenditure'
+         ,'value_usd_current':-1 * input_df_amu['am_expenditure_usd_selected'].sum()
+         ,'value_usd_ideal':0
+         }
+        ,index=[0]
+        )
+    # prep_df_sums = pd.concat(
+    #     [prep_df_sums.iloc[0:n_items_start-1] ,global_am_expenditure ,prep_df_sums.iloc[n_items_start-1]]     # Insert before last item
+    #     ,axis=0 ,ignore_index=True
+    #     )
+    prep_df_sums = pd.concat(
+        [prep_df_sums ,global_am_expenditure]
+        ,axis=0 ,ignore_index=True
+        )
+
+    # Get total AHLE for printing
+    # _netvalue = (prep_df_sums['item'] == 'Net value')
+    # current_net_value = prep_df_sums.loc[_netvalue ,'value_usd_current'].values[0]
+    # ideal_net_value = prep_df_sums.loc[_netvalue ,'value_usd_ideal'].values[0]
+    # total_ahle = ideal_net_value - current_net_value
+
+    # Create AHLE differences bars (ideal - current)
+    prep_df_sums['value_usd_ahle_diff'] = prep_df_sums['value_usd_ideal'] - prep_df_sums['value_usd_current']
+
+    # Add vet spend back in
+    # prod_vetspend = prep_df_sums[prep_df_sums['item']=='Producers vet & med costs']['value_usd_ahle_diff'].values[0]
+    # pub_vetspend = prep_df_sums[prep_df_sums['item']=='Public vet & med costs']['value_usd_ahle_diff'].values[0]
+
+    # prep_df_sums['value_usd_ahle_diff'] = prep_df_sums['value_usd_ahle_diff'] + prep_df_sums[prep_df_sums['item']=='Biomass']
+    total_ahle = prep_df_sums[prep_df_sums['item']=='Net value']['value_usd_ahle_diff'].values[0]
+    # total_ahle = total_ahle + prod_vetspend + pub_vetspend
+
+    if display =='Side by Side':
+        # Create graph with current values
+        name = 'Current'
+        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "total"]
+        x = prep_df_sums['item']
+        y = prep_df_sums['value_usd_current']
+        ga_waterfall_fig = create_ahle_waterfall_ga(prep_df_sums, name, measure, x, y)
+
+        # Add ideal values side-by-side
+        ga_waterfall_fig.add_trace(go.Waterfall(
+            name = 'Ideal',
+            measure = measure,
+            x = x,
+            y = prep_df_sums['value_usd_ideal'],
+            decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
+            increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
+            totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
+            connector = {"line":{"dash":"dot"}},
+            ))
+        ga_waterfall_fig.update_layout(
+            waterfallgroupgap = 0.5,    # Gap between bars
+            )
+
+        ga_waterfall_fig.update_layout(title_text=f'Compare Current values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
+                                        yaxis_title='US Dollars (2010 constant)',
+                                        font_size=15)
+    else:
+        # Create graph with differences
+        name = 'AHLE'
+        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "total"]
+        x = prep_df_sums['item']
+        y = prep_df_sums['value_usd_ahle_diff']
+        ga_waterfall_fig = create_ahle_waterfall_ga(prep_df_sums, name, measure, x, y)
+
+        ga_waterfall_fig.update_layout(title_text=f'Ideal minus current values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
+                                        yaxis_title='US Dollars (2010 constant)',
+                                        font_size=15)
+
+    return ga_waterfall_fig
+
+# Global AHLE plot over time
+@gbadsDash.callback(
+    Output('ga-ahle-over-time','figure'),
+    Input('select-region-detail-ga','value'),
+    Input('select-incomegrp-detail-ga','value'),
+    Input('select-country-detail-ga','value'),
+    Input('select-item-ga','value'),
+    Input('select-display-ga','value'),
+    )
+def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,selected_item ,display):
+    # Read data
+    input_df = ga_countries_biomass.copy()
+
+    # Add mortality, morbidity, and vetmed rate columns
+    input_df = ga.add_mortality_rate(input_df)
+    input_df = ga.add_morbidity_rate(input_df)
+    input_df = ga.add_vetmed_rates(input_df)
+
+    # Apply AHLE calcs
+    input_df = ga.ahle_calcs_adj_outputs(input_df)
+
+    # Prep the data
+    # Initial data prep is same as waterfall!
+    prep_df = prep_ahle_forwaterfall_ga(input_df)
+
+    # Apply user filters
+    # There will always be an item filter
+    prep_df_filtered = prep_df.query(f"item == '{selected_item}'")
+    if selected_item == 'Net value':
+        print_selected_item = f'{selected_item} over time'
+    else:
+        print_selected_item = f'value of {selected_item} over time'
+
+    # Region, Country and Income group might not be filtered
+    if selected_region == 'All':
+        if selected_country == 'All':
+            prep_df_filtered = prep_df_filtered
+            print_selected_country = 'Global, '
+
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                prep_df_filtered = prep_df_filtered
+                print_selected_incgrp = 'all income groups'
+            else:
+                prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}'
+        else:
+            prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country}'
+            print_selected_incgrp = ''
+    else:
+        if selected_country == 'All':
+            prep_df_filtered = prep_df_filtered.query(f"region == '{selected_region}'")
+            print_selected_country = f'All {selected_region} countries, '
+
+            # Only need to filter income groups if no country selected
+            if selected_incgrp == 'All':
+                prep_df_filtered = prep_df_filtered
+                print_selected_incgrp = 'all income groups'
+            else:
+                prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
+                print_selected_incgrp = f'income group {selected_incgrp}'
+        else:
+            prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
+            print_selected_country = f'{selected_country}'
+            print_selected_incgrp = ''
+
+    # Create AHLE (dfiierence) value
+    prep_df_filtered['value_usd_ahle_diff'] = prep_df_filtered['value_usd_ideal'] - prep_df_filtered['value_usd_current']
+
+    # Get sum for each year
+    prep_df_sums = prep_df_filtered.groupby('year')[['value_usd_current' ,'value_usd_ideal', 'value_usd_ahle_diff']].sum()
+    prep_df_sums = prep_df_sums.reset_index()
+
+
+    if display == "Side by Side":
+        # Plot current value
+        plot_current_value = go.Scatter(
+            x=prep_df_sums['year']
+            ,y=prep_df_sums['value_usd_current']
+            ,name='Current'
+            ,line=dict(color='#0028CA')
+            )
+        # Overlay ideal value
+        plot_ideal_value = go.Scatter(
+            x=prep_df_sums['year']
+            ,y=prep_df_sums['value_usd_ideal']
+            ,name='Ideal'
+            ,line=dict(color='#00CA0F')
+            )
+
+        ga_lineplot_fig = make_subplots()
+        ga_lineplot_fig.add_trace(plot_ideal_value)
+        ga_lineplot_fig.add_trace(plot_current_value)
+        ga_lineplot_fig.update_layout(title_text=f'Current & ideal {print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
+                                      yaxis_title='US Dollars (2010 constant)',
+                                      font_size=15,
+                                      plot_bgcolor="#ededed",)
+
+    else:
+        # Change line color based on if AHLE or cost is selected
+        costs = "costs"
+        if selected_item == 'Net value':
+            # Plot AHLE value
+            plot_ahle_value = go.Scatter(
+                x=prep_df_sums['year']
+                ,y=prep_df_sums['value_usd_ahle_diff']
+                ,name=f'{display}'
+                ,line=dict(color='#F7931D')
+                )
+        elif costs in selected_item:
+            # Plot AHLE value
+            plot_ahle_value = go.Scatter(
+                x=prep_df_sums['year']
+                ,y=prep_df_sums['value_usd_ahle_diff']
+                ,name=f'{display}'
+                ,line=dict(color='#E84C3D')
+                )
+        else:
+            # Plot AHLE value
+            plot_ahle_value = go.Scatter(
+                x=prep_df_sums['year']
+                ,y=prep_df_sums['value_usd_ahle_diff']
+                ,name=f'{display}'
+                ,line=dict(color='#3598DB')
+                )
+
+        ga_lineplot_fig = make_subplots()
+        ga_lineplot_fig.add_trace(plot_ahle_value)
+        ga_lineplot_fig.update_layout(title_text=f'Ideal minus current {print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
+                                      yaxis_title='US Dollars (2010 constant)',
+                                      font_size=15,
+                                      plot_bgcolor="#ededed",)
+
+
+    return ga_lineplot_fig
+
+
 # ==============================================================================
 #### UPDATE ETHIOPIA
 # ==============================================================================
@@ -7964,9 +9086,12 @@ def update_stacked_bar_ecs(
 # Update subnational map
 @gbadsDash.callback(
     Output('ecs-map','figure'),
+    Input('select-agesex-ecs', 'value'),
+    Input('select-prodsys-ecs','value'),
     Input('select-map-display-ecs','value'),
+    Input('select-currency-ecs','value'),
     )
-def update_map_display_ecs(item):
+def update_map_display_ecs(agesex_scenario, prodsys, item, currency):
     # Ethiopia subnational level map data from S3
     geojson_ecs_df = geojson_ecs.copy()
     # geojson_ecs_df = gpd.read_file('<filename>.geojson')
@@ -7980,22 +9105,23 @@ def update_map_display_ecs(item):
     
     # Data from waterfall chart
     input_df = ecs_ahle_scensmry.query("region != 'National'")
-    # Filter based on species and production system
-    # Currently only have Cattle 
-    # Using Pastoral prodsys and Adult Female agesex_scenario for testing
+    
+    # Filter based on species - Currently only have Cattle for 2021
     input_df = ecs_ahle_scensmry.query("species == 'Cattle'")
-    input_df = ecs_ahle_scensmry.query("production_system == 'Pastoral'")
-    input_df = ecs_ahle_scensmry.query("agesex_scenario == 'Adult Female'")
     
-    # Allow user to select item to view
+    
+    # Allow user to select agesex, prodsys, and item to view
+    input_df = ecs_ahle_scensmry.query("agesex_scenario == @agesex_scenario")
+    input_df = ecs_ahle_scensmry.query("production_system == @prodsys")
     input_df = ecs_ahle_scensmry.query("item == @item")
-
-    # input_df = gpd.GeoDataFrame.from_features(geojson_ecs_df["features"])
-
-    # Color by Region
-    # color_by = 'ADM1_EN'
-    # input_df = input_df.sort_values(by=[f'{color_by}'])
     
+    # If currency is USD, use USD columns
+    display_currency = 'Ethiopian Birr'
+    if currency == 'USD':
+        display_currency = 'USD'
+        input_df['mean_current'] = input_df['mean_current_usd']
+     
+    # Color scale by current value
     color_by = 'mean_current'
     input_df = input_df.sort_values(by=[f'{color_by}'])
 
@@ -8005,1129 +9131,24 @@ def update_map_display_ecs(item):
     ecs_map_fig.update_layout(
         margin=dict(l=5, r=5, b=5),
         )
+    
+    # Add title
+    ecs_map_fig.update_layout(
+        title_text=f'{item} by Region | {agesex_scenario} Cattle, {prodsys} in 2021',
+        font_size=15
+        )
+    
+    # # Update legend title
+    # ecs_map_fig.update_layout(legend=dict(
+    #     title=f"{display_currency}",
+    #     font=dict(size=12)
+    #     ))
 
     return ecs_map_fig
 
 # ==============================================================================
-#### UPDATE GLOBAL AGGREGATE
-# ==============================================================================
-# ------------------------------------------------------------------------------
-#### -- Controls
-# ------------------------------------------------------------------------------
-# Update regions based on region contry aligment selection:
-@gbadsDash.callback(
-    Output(component_id='select-region-overview-ga', component_property='options'),
-    Input(component_id='Region-country-alignment-overview-ga', component_property='value'),
-    )
-def update_region_overview_options_ga(region_country):
-    if region_country == "WOAH":
-        options = WOAH_region_options_ga
-    elif region_country =="FAO":
-        options = fao_region_options_ga
-    elif region_country == "World Bank":
-        options = wb_region_options_ga
-    return options
-
-@gbadsDash.callback(
-    Output(component_id='select-region-detail-ga', component_property='options'),
-    Input(component_id='Region-country-alignment-detail-ga', component_property='value'),
-    )
-def update_region_detail_options_ga(region_country):
-    if region_country == "WOAH":
-        options = WOAH_region_options_ga
-    elif region_country =="FAO":
-        options = fao_region_options_ga
-    elif region_country == "World Bank":
-        options = wb_region_options_ga
-    return options
-
-
-# Update country options based on region and income group selection
-@gbadsDash.callback(
-    Output(component_id='select-country-overview-ga', component_property='options'),
-    Input(component_id='Region-country-alignment-overview-ga', component_property='value'),
-    Input(component_id='select-region-overview-ga', component_property='value'),
-    Input('select-incomegrp-overview-ga','value'),
-    )
-def update_country_overview_options_ga(region_country, region, income):
-    if region_country == "WOAH":
-        if region == "All":
-            options = country_options_ga
-        elif region == "Africa":
-            options = WOAH_africa_options_ga
-        elif region == "Americas":
-            options = WOAH_americas_options_ga
-        elif region == "Asia, Far East and Oceania":
-            options = WOAH_asia_options_ga
-        elif region == "Europe":
-            options = WOAH_europe_options_ga
-        else:
-            options = WOAH_me_options_ga
-    elif region_country =="FAO":
-        if region == "All":
-            options = country_options_ga
-        elif region == "Africa":
-            options = fao_africa_options_ga
-        elif region == "Asia":
-            options = fao_asia_options_ga
-        elif region == "Europe and Central Asia":
-            options = fao_eca_options_ga
-        elif region == "Latin America and the Caribbean":
-            options = fao_lac_options_ga
-        elif region == "Near East and North Africa":
-            options = fao_ena_options_ga
-        else:
-            options = fao_swp_options_ga
-    elif region_country == "World Bank":
-        if region == "All":
-            if income == "All":
-                options = country_options_ga
-            else:
-                options_df = ga_countries_biomass.loc[(ga_countries_biomass['incomegroup'] == income)]
-                options = [{'label': "All", 'value': "All"}]
-                for i in options_df['country'].unique():
-                    str(options.append({'label':i,'value':(i)}))
-        else:
-            options_df = ga_countries_biomass.loc[(ga_countries_biomass['region'] == region)]
-            if income == "All":
-                options = [{'label': "All", 'value': "All"}]
-                for i in options_df['country'].unique():
-                    str(options.append({'label':i,'value':(i)}))
-            else:
-                options_df = options_df.loc[(options_df['incomegroup'] == income)]
-                options = [{'label': "All", 'value': "All"}]
-                for i in options_df['country'].unique():
-                    str(options.append({'label':i,'value':(i)}))
-    else:
-        options = country_options_ga
-
-    return options
-
-# Update country options based on region and income group selection
-@gbadsDash.callback(
-    Output('select-country-detail-ga', 'options'),
-    Input('Region-country-alignment-detail-ga', 'value'),
-    Input('select-region-detail-ga', 'value'),
-    Input('select-incomegrp-detail-ga','value'),
-    )
-def update_country_detail_options_ga(region_country, region, income):
-    if region_country == "WOAH":
-        if region == "All":
-            options = country_options_ga
-        elif region == "Africa":
-            options = WOAH_africa_options_ga
-        elif region == "Americas":
-            options = WOAH_americas_options_ga
-        elif region == "Asia, Far East and Oceania":
-            options = WOAH_asia_options_ga
-        elif region == "Europe":
-            options = WOAH_europe_options_ga
-        else:
-            options = WOAH_me_options_ga
-    elif region_country =="FAO":
-        if region == "All":
-            options = country_options_ga
-        elif region == "Africa":
-            options = fao_africa_options_ga
-        elif region == "Asia":
-            options = fao_asia_options_ga
-        elif region == "Europe and Central Asia":
-            options = fao_eca_options_ga
-        elif region == "Latin America and the Caribbean":
-            options = fao_lac_options_ga
-        elif region == "Near East and North Africa":
-            options = fao_ena_options_ga
-        else:
-            options = fao_swp_options_ga
-    elif region_country == "World Bank":
-        if region == "All":
-            if income == "All":
-                options = country_options_ga
-            else:
-                options_df = ga_countries_biomass.loc[(ga_countries_biomass['incomegroup'] == income)]
-                options = [{'label': "All", 'value': "All"}]
-                for i in options_df['country'].unique():
-                    str(options.append({'label':i,'value':(i)}))
-        else:
-            options_df = ga_countries_biomass.loc[(ga_countries_biomass['region'] == region)]
-            if income == "All":
-                options = [{'label': "All", 'value': "All"}]
-                for i in options_df['country'].unique():
-                    str(options.append({'label':i,'value':(i)}))
-            else:
-                options_df = options_df.loc[(options_df['incomegroup'] == income)]
-                options = [{'label': "All", 'value': "All"}]
-                for i in options_df['country'].unique():
-                    str(options.append({'label':i,'value':(i)}))
-    else:
-        options = country_options_ga
-
-    return options
-
-# Update species options based on region and country selections
-@gbadsDash.callback(
-    Output(component_id='select-species-ga', component_property='options'),
-    Input(component_id='select-country-overview-ga', component_property='value'),
-    Input(component_id='select-region-overview-ga', component_property='value'),
-    )
-def update_species_options_ga(country, region):
-    if region == 'All':
-        if country == "All":
-            options = []
-            for i in ga_countries_biomass['species'].unique():
-                str(options.append({'label':i,'value':(i)}))
-        else:
-            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
-            options = []
-            for i in input_df['species'].unique():
-                str(options.append({'label':i,'value':(i)}))
-    elif region == "Sub-Saharan Africa":
-        if country == 'All':
-            country = [[v for k,v in d.items()] for d in wb_africa_options_ga]
-            country = [a[1] for a in country]
-            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-        else:
-            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
-        # Set options for species based on the filters for region and country
-        options = []
-        for i in input_df['species'].unique():
-            str(options.append({'label':i,'value':(i)}))
-    elif region == "East Asia & Pacific":
-        if country == 'All':
-            country = [[v for k,v in d.items()] for d in wb_eap_options_ga]
-            country = [a[1] for a in country]
-            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-        else:
-            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
-        # Set options for species based on the filters for region and country
-        options = []
-        for i in input_df['species'].unique():
-            str(options.append({'label':i,'value':(i)}))
-    elif region == "Europe & Central Asia":
-        if country == 'All':
-            country = [[v for k,v in d.items()] for d in wb_eca_options_ga]
-            country = [a[1] for a in country]
-            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-        else:
-            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
-        # Set options for species based on the filters for region and country
-        options = []
-        for i in input_df['species'].unique():
-            str(options.append({'label':i,'value':(i)}))
-    elif region == "Latin America & the Caribbean":
-        if country == 'All':
-            country = [[v for k,v in d.items()] for d in wb_lac_options_ga]
-            country = [a[1] for a in country]
-            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-        else:
-            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
-        # Set options for species based on the filters for region and country
-        options = []
-        for i in input_df['species'].unique():
-            str(options.append({'label':i,'value':(i)}))
-    elif region == "Middle East & North Africa":
-        if country == 'All':
-            country = [[v for k,v in d.items()] for d in wb_mena_options_ga]
-            country = [a[1] for a in country]
-            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-        else:
-            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
-        # Set options for species based on the filters for region and country
-        options = []
-        for i in input_df['species'].unique():
-            str(options.append({'label':i,'value':(i)}))
-    elif region == "North America":
-        if country == 'All':
-            country = [[v for k,v in d.items()] for d in wb_na_options_ga]
-            country = [a[1] for a in country]
-            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-        else:
-            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
-        # Set options for species based on the filters for region and country
-        options = []
-        for i in input_df['species'].unique():
-            str(options.append({'label':i,'value':(i)}))
-    else:
-        if country == 'All':
-            country = [[v for k,v in d.items()] for d in wb_southasia_options_ga]
-            country = [a[1] for a in country]
-            input_df = ga_countries_biomass[ga_countries_biomass['country'].isin(country)]
-        else:
-            input_df=ga_countries_biomass.loc[(ga_countries_biomass['country'] == country)]
-        # Set options for species based on the filters for region and country
-        options = []
-        for i in input_df['species'].unique():
-            str(options.append({'label':i,'value':(i)}))
-
-    return options
-
-# Navigate to the AMU tab with button below waterfall
-@app.callback(
-    Output('tabs','active_tab'),
-    Input('am-expend-button-ga','n_clicks')
-)
-def display_amutab(n_clicks):
-    return 'AMU-tab'
-
-# @app.callback(
-#     Output('AMU-tab', 'value'),
-#     [Input('am-expend-button-ga', 'n_clicks')]
-# )
-# def open_home_tab(n_clicks):
-#     if not ctx.triggered:
-#         return 'AMU-tab'
-
-# ------------------------------------------------------------------------------
-#### -- Data
-# ------------------------------------------------------------------------------
-# Attribution datatable below graphic
-@gbadsDash.callback(
-    Output('ga-world-abt-datatable', 'children'),
-    Input('select-species-ga','value'),
-    Input('select-incomegrp-overview-ga','value'),
-    Input('select-region-overview-ga', 'value'),
-    Input('select-country-overview-ga','value'),
-    # Input('select-currency-ecs','value'),
-    )
-def update_overview_table_ga(species, income, region, country):
-    # Read in data
-    input_df = ga_countries_biomass.copy()
-
-    # Add mortality, morbidity, and vetmed rate columns
-    input_df = ga.add_mortality_rate(input_df)
-    input_df = ga.add_morbidity_rate(input_df)
-    input_df = ga.add_vetmed_rates(input_df)
-
-    # Apply AHLE calcs
-    input_df = ga.ahle_calcs_adj_outputs(input_df)
-
-    # Filter Species
-    input_df = input_df.loc[(input_df['species'] == species)]
-
-    # Filter Income Group
-    if income == 'All':
-        input_df = input_df
-    else:
-        input_df = input_df.loc[(input_df['incomegroup'] == income)]
-
-    # Filter Region & country
-    if region == "All":
-         if country == 'All':
-             selected = [[v for k,v in d.items()] for d in country_options_ga]
-             selected = [a[1] for a in selected]
-             input_df = input_df[input_df['country'].isin(selected)]
-         else:
-             input_df=input_df.loc[(input_df['country'] == country)]
-    elif region == "Sub-Saharan Africa":
-         if country == 'All':
-             selected = [[v for k,v in d.items()] for d in wb_africa_options_ga]
-             selected = [a[1] for a in selected]
-             input_df = input_df[input_df['country'].isin(selected)]
-         else:
-             input_df=input_df.loc[(input_df['country'] == country)]
-    elif region == "East Asia & Pacific":
-         if country == 'All':
-             selected = [[v for k,v in d.items()] for d in wb_eap_options_ga]
-             selected = [a[1] for a in selected]
-             input_df = input_df[input_df['country'].isin(selected)]
-         else:
-             input_df=input_df.loc[(input_df['country'] == country)]
-    elif region == "Europe & Central Asia":
-         if country == 'All':
-             selected = [[v for k,v in d.items()] for d in wb_eca_options_ga]
-             selected = [a[1] for a in selected]
-             input_df = input_df[input_df['country'].isin(selected)]
-         else:
-             input_df=input_df.loc[(input_df['country'] == country)]
-    elif region == "Latin America & the Caribbean":
-         if country == 'All':
-             selected = [[v for k,v in d.items()] for d in wb_lac_options_ga]
-             selected = [a[1] for a in selected]
-             input_df = input_df[input_df['country'].isin(selected)]
-         else:
-             input_df=input_df.loc[(input_df['country'] == country)]
-    elif region == "Middle East & North Africa":
-         if country == 'All':
-             selected = [[v for k,v in d.items()] for d in wb_mena_options_ga]
-             selected = [a[1] for a in selected]
-             input_df = input_df[input_df['country'].isin(selected)]
-         else:
-             input_df=input_df.loc[(input_df['country'] == country)]
-    elif region == "North America":
-         if country == 'All':
-             selected = [[v for k,v in d.items()] for d in wb_na_options_ga]
-             selected = [a[1] for a in selected]
-             input_df = input_df[input_df['country'].isin(selected)]
-         else:
-             input_df=input_df.loc[(input_df['country'] == country)]
-    else:
-         if country == 'All':
-             selected = [[v for k,v in d.items()] for d in wb_southasia_options_ga]
-             selected = [a[1] for a in selected]
-             input_df = input_df[input_df['country'].isin(selected)]
-         else:
-             input_df=input_df.loc[(input_df['country'] == country)]
-
-    # Fill in for missing values AHLE
-    # input_df['ahle_total_2010usd'] = input_df['ahle_total_2010usd'].fillna(0)
-
-    # Format numbers
-    input_df.update(input_df[['biomass',
-                              'population',
-                              'liveweight',
-                               # 'ahle_total_2010usd',
-                              ]].applymap('{:,.0f}'.format))
-
-    columns_to_display_with_labels = {
-       'country':'Country'
-       ,'species':'Species'
-       ,'year':'Year'
-       ,'incomegroup': 'Income Group'
-       # ,'ahle_total_2010usd': 'Total AHLE (2010 USD)'
-       ,'biomass':'Biomass (kg)'
-       ,'population':'Population (head)'
-       ,'liveweight':'Average Live Weight (kg)'
-    }
-
-    # Subset columns
-    input_df = input_df[list(columns_to_display_with_labels)]
-
-    # Hover-over text
-    column_tooltips = {
-       'incomegroup':'Source: World Bank via GBADs knowledge engine'
-       # ,'ahle_total_2010usd': ')'
-       ,'biomass':'Source: FAO via GBADs knowledge engine'
-       ,'population':'Source: FAO via GBADs knowledge engine'
-       ,'liveweight':'Source: FAO via GBADs knowledge engine'
-    }
-    return [
-            html.H4("Global Aggregation Data"),
-            dash_table.DataTable(
-                columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
-                fixed_rows={'headers': True, 'data': 0},
-                data=input_df.to_dict('records'),
-                export_format="csv",
-                style_cell={
-                    'font-family':'sans-serif',
-                    },
-                style_table={'overflowX': 'scroll',
-                              'height': '680px',
-                              'overflowY': 'auto'},
-                page_action='none',
-
-                # Hover-over for column headers
-                tooltip_header=column_tooltips,
-                tooltip_delay= 500,
-                tooltip_duration=50000,
-
-                # Underline columns with tooltips
-                style_header_conditional=[{
-                    'if': {'column_id': col},
-                    'textDecoration': 'underline',
-                    'textDecorationStyle': 'dotted',
-                    } for col in list(column_tooltips)],
-            )
-        ]
-
-@gbadsDash.callback(
-    Output('ga-detailtab-displaytable', 'children'),
-    Input('select-region-detail-ga','value'),
-    Input('select-incomegrp-detail-ga','value'),
-    Input('select-country-detail-ga','value'),
-    )
-def update_display_table_ga(selected_region ,selected_incgrp ,selected_country):
-    # Read data
-    input_df = ga_countries_biomass.copy()
-
-    # Add mortality, morbidity, and vetmed rate columns
-    input_df = ga.add_mortality_rate(input_df)
-    input_df = ga.add_morbidity_rate(input_df)
-    input_df = ga.add_vetmed_rates(input_df)
-
-    # Apply AHLE calcs
-    input_df = ga.ahle_calcs_adj_outputs(input_df)
-
-    # Apply filters
-    input_df_filtered = input_df
-
-    # Region, Country and Income group might not be filtered
-    if selected_region == 'All':
-        if selected_country == 'All':
-            input_df_filtered = input_df_filtered
-            # print_selected_country = 'All countries, '
-            print_selected_country = 'Global, '
-
-            # Only need to filter income groups if no country selected
-            if selected_incgrp == 'All':
-                input_df_filtered = input_df_filtered
-                print_selected_incgrp = 'all income groups, '
-            else:
-                input_df_filtered = input_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
-                print_selected_incgrp = f'income group {selected_incgrp}, '
-        else:
-            input_df_filtered = input_df_filtered.query(f"country == '{selected_country}'")
-            print_selected_country = f'{selected_country}'
-            print_selected_incgrp = ''
-    else:
-        if selected_country == 'All':
-            input_df_filtered = input_df_filtered.query(f"region == '{selected_region}'")
-            print_selected_country = f'All {selected_region} countries,'
-
-            # Only need to filter income groups if no country selected
-            if selected_incgrp == 'All':
-                input_df_filtered = input_df_filtered
-                print_selected_incgrp = 'all income groups, '
-            else:
-                input_df_filtered = input_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
-                print_selected_incgrp = f'income group {selected_incgrp}, '
-        else:
-            input_df_filtered = input_df_filtered.query(f"country == '{selected_country}'")
-            print_selected_country = f'{selected_country}'
-            print_selected_incgrp = ''
-
-    columns_to_display_with_labels = {
-        'region':'Region'
-        ,'incomegroup':'Income group'
-        ,'country':'Country'
-        ,'species':'Species'
-        ,'year':'Year'
-        ,'population':'Population (head)'
-        ,'liveweight':'Average liveweight (kg)'
-        ,'biomass':'Biomass (kg)'
-
-        ,'production_eggs_tonnes':'Egg production (tonnes)'
-        ,'production_meat_tonnes':'Meat production (tonnes)'
-        ,'production_milk_tonnes':'Milk production (tonnes)'
-        ,'production_wool_tonnes':'Wool production (tonnes)'
-
-        ,'producer_price_meat_live_usdpertonne_cnst2010':'Liveweight price (USD per tonne)'
-        ,'producer_price_eggs_usdpertonne_cnst2010':'Egg price (USD per tonne)'
-        ,'producer_price_meat_usdpertonne_cnst2010':'Meat price (USD per tonne)'
-        ,'producer_price_milk_usdpertonne_cnst2010':'Milk price (USD per tonne)'
-        ,'producer_price_wool_usdpertonne_cnst2010':'Wool price (USD per tonne)'
-
-        ,'biomass_value_2010usd':'Value of biomass (USD)'
-        ,'output_value_eggs_2010usd':'Value of Egg production (USD)'
-        ,'output_value_meat_2010usd':'Value of Meat production (USD)'
-        ,'output_value_milk_2010usd':'Value of Milk production (USD)'
-        ,'output_value_wool_2010usd':'Value of Wool production (USD)'
-
-        ,'mortality_rate':'Mortality rate'
-        ,'morbidity_rate':'Morbidity rate'
-
-        ,'ideal_biomass_value_2010usd':'Value of ideal biomass (USD)'
-        ,'ideal_output_value_eggs_2010usd':'Value of ideal egg production (USD)'
-        ,'ideal_output_value_meat_2010usd':'Value of ideal meat production (USD)'
-        ,'ideal_output_value_milk_2010usd':'Value of ideal milk production (USD)'
-        ,'ideal_output_value_wool_2010usd':'Value of ideal wool production (USD)'
-
-        ,'vetspend_biomass_farm_usdperkgbm':'Producers vet & med cost per kg biomass (USD)'
-        ,'vetspend_biomass_public_usdperkgbm':'Public vet & med cost per kg biomass (USD)'
-        ,'vetspend_production_usdperkgprod':'Producers vet & med cost per kg production (USD)'
-        ,'vetspend_farm_usd':'Total producers vet & med cost (USD)'
-        ,'vetspend_public_usd':'Total public vet & med cost (USD)'
-
-        ,'ahle_dueto_reducedoutput_2010usd':'Value of AHLE due to reduced output (USD)'
-        ,'ahle_dueto_vetandmedcost_2010usd':'Value of AHLE due to vet & med cost (USD)'
-        # ,'ahle_total_2010usd':'Total value of AHLE (USD)'
-    }
-    # ------------------------------------------------------------------------------
-    # Format data to display in the table
-    # ------------------------------------------------------------------------------
-    # Order does not matter in these lists
-    # Zero decimal places without comma
-    input_df_filtered.update(input_df_filtered[[
-        'year'
-    ]].applymap('{:.0f}'.format))
-
-    # Zero decimal places
-    input_df_filtered.update(input_df_filtered[[
-        'population'
-        ,'biomass'
-        ,'production_eggs_tonnes'
-        ,'production_meat_tonnes'
-        ,'production_milk_tonnes'
-        ,'production_wool_tonnes'
-    ]].applymap('{:,.0f}'.format))
-
-    # One decimal place
-    input_df_filtered.update(input_df_filtered[[
-        'liveweight'
-    ]].applymap('{:,.1f}'.format))
-
-    # Two decimal places
-    input_df_filtered.update(input_df_filtered[[
-        # 'producer_price_meat_live_usdpertonne_cnst2010'
-        # ,'producer_price_eggs_usdpertonne_cnst2010'
-        # ,'producer_price_meat_usdpertonne_cnst2010'
-        # ,'producer_price_milk_usdpertonne_cnst2010'
-        # ,'producer_price_wool_usdpertonne_cnst2010'
-
-        'biomass_value_2010usd'
-        ,'output_value_eggs_2010usd'
-        ,'output_value_meat_2010usd'
-        ,'output_value_milk_2010usd'
-        ,'output_value_wool_2010usd'
-
-
-        ,'mortality_rate'
-        ,'morbidity_rate'
-
-        ,'ideal_biomass_value_2010usd'
-        ,'ideal_output_value_eggs_2010usd'
-        ,'ideal_output_value_meat_2010usd'
-        ,'ideal_output_value_milk_2010usd'
-        ,'ideal_output_value_wool_2010usd'
-
-        ,'vetspend_biomass_farm_usdperkgbm'
-        ,'vetspend_biomass_public_usdperkgbm'
-        ,'vetspend_production_usdperkgprod'
-        ,'vetspend_farm_usd'
-        # ,'vetspend_public_usd'
-
-        ,'ahle_dueto_reducedoutput_2010usd'
-        ,'ahle_dueto_vetandmedcost_2010usd'
-        # ,'ahle_total_2010usd'
-
-    ]].applymap('{:,.2f}'.format))
-
-    # ------------------------------------------------------------------------------
-    # Hover-over text
-    # ------------------------------------------------------------------------------
-    column_tooltips = {
-        'region':'World Bank region'
-        ,'incomegroup':'World Bank income group'
-        ,'population':'Source: FAO'
-        ,'liveweight':'Source: FAO'
-
-        ,'production_eggs_tonnes':'Source: FAO'
-        ,'production_meat_tonnes':'Source: FAO'
-        ,'production_milk_tonnes':'Source: FAO'
-        ,'production_wool_tonnes':'Source: FAO'
-
-        ,'producer_price_meat_live_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
-        ,'producer_price_eggs_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
-        ,'producer_price_meat_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
-        ,'producer_price_milk_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
-        ,'producer_price_wool_usdpertonne_cnst2010':'Constant 2010 US dollars. Source: FAO'
-
-        ,'biomass_value_2010usd':'Constant 2010 US dollars'
-        ,'output_value_eggs_2010usd':'Constant 2010 US dollars'
-        ,'output_value_meat_2010usd':'Constant 2010 US dollars'
-        ,'output_value_milk_2010usd':'Constant 2010 US dollars'
-        ,'output_value_wool_2010usd':'Constant 2010 US dollars'
-
-        # ,'mortality_rate':''
-        # ,'morbidity_rate':''
-
-        ,'ideal_biomass_value_2010usd':'Constant 2010 US dollars'
-        ,'ideal_output_value_eggs_2010usd':'Constant 2010 US dollars'
-        ,'ideal_output_value_meat_2010usd':'Constant 2010 US dollars'
-        ,'ideal_output_value_milk_2010usd':'Constant 2010 US dollars'
-        ,'ideal_output_value_wool_2010usd':'Constant 2010 US dollars'
-
-        # ,'vetspend_biomass_farm_usdperkgbm':''
-        # ,'vetspend_biomass_public_usdperkgbm':''
-        # ,'vetspend_production_usdperkgprod':''
-        # ,'vetspend_farm_usd':''
-        # ,'vetspend_public_usd':''
-
-        ,'ahle_dueto_reducedoutput_2010usd':'Constant 2010 US dollars'
-        ,'ahle_dueto_vetandmedcost_2010usd':'Constant 2010 US dollars'
-        # ,'ahle_total_2010usd':'Constant 2010 US dollars'
-    }
-
-    # !!!- Adjust header size based on the column name length
-    # # custom width for each column as a workaround for this issue:
-    # long_column_names = [{"if": {"column_id": column}, "min-width": "300px"} for column in df.columns if len(column) >= 30]
-    # med_column_names = [{"if": {"column_id": column}, "min-width": "225px"} for column in df.columns if (len(column) > 15 and len(column)) < 30]
-    # small_column_names = [{"if": {"column_id": column}, "min-width": "100px"} for column in df.columns if len(column) <= 15]
-
-    # adjusted_columns = long_column_names + med_column_names + small_column_names
-    return [
-        html.H4(f"Detailed data for {print_selected_country}{print_selected_incgrp}"),
-        dash_table.DataTable(
-            columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
-            fixed_rows={'headers': True, 'data': 0},
-            data=input_df_filtered.to_dict('records'),
-            export_format="csv",
-            sort_action = 'native',
-            style_cell={'font-family':'sans-serif',
-                        'minWidth':200},
-            style_table={'overflowX': 'scroll',
-                         'height': '680px',
-                         'overflowY': 'auto'
-                          },
-
-            # Hover-over for column headers
-            tooltip_header=column_tooltips,
-            tooltip_delay= 500,
-            tooltip_duration=50000,
-
-            # Underline columns with tooltips
-            style_header_conditional=[{
-                'if': {'column_id': col},
-                'textDecoration': 'underline',
-                'textDecorationStyle': 'dotted',
-                } for col in list(column_tooltips)],
-        )
-    ]
-
-# ------------------------------------------------------------------------------
-#### -- Figures
-# ------------------------------------------------------------------------------
-# Biomass Map
-@gbadsDash.callback(
-   Output('ga-map-or-line-select','figure'),
-   Input('viz-radio-ga','value'),
-   Input('select-species-ga','value'),
-   Input('select-country-overview-ga', 'value'),
-   Input('select-region-overview-ga', 'value'),
-   Input('map-display-radio-ga','value'),
-   Input('select-incomegrp-overview-ga','value'),
-   # Input('select-currency-ecs','value'),
-   )
-def update_bio_ahle_visual_ga(viz_selection, species, country, region, display, income):
-   # Data
-   input_df = ga_countries_biomass.copy()
-
-   # Add mortality, morbidity, and vetmed rate columns
-   input_df = ga.add_mortality_rate(input_df)
-   input_df = ga.add_morbidity_rate(input_df)
-   input_df = ga.add_vetmed_rates(input_df)
-
-   # Apply AHLE calcs
-   input_df = ga.ahle_calcs_adj_outputs(input_df)
-
-   # Filter Region & country
-   if region == "All":
-        if country == 'All':
-            selected = [[v for k,v in d.items()] for d in country_options_ga]
-            selected = [a[1] for a in selected]
-            input_df = input_df[input_df['country'].isin(selected)]
-        else:
-            input_df=input_df.loc[(input_df['country'] == country)]
-   elif region == "Sub-Saharan Africa":
-        if country == 'All':
-            selected = [[v for k,v in d.items()] for d in wb_africa_options_ga]
-            selected = [a[1] for a in selected]
-            input_df = input_df[input_df['country'].isin(selected)]
-        else:
-            input_df=input_df.loc[(input_df['country'] == country)]
-   elif region == "East Asia & Pacific":
-        if country == 'All':
-            selected = [[v for k,v in d.items()] for d in wb_eap_options_ga]
-            selected = [a[1] for a in selected]
-            input_df = input_df[input_df['country'].isin(selected)]
-        else:
-            input_df=input_df.loc[(input_df['country'] == country)]
-   elif region == "Europe & Central Asia":
-        if country == 'All':
-            selected = [[v for k,v in d.items()] for d in wb_eca_options_ga]
-            selected = [a[1] for a in selected]
-            input_df = input_df[input_df['country'].isin(selected)]
-        else:
-            input_df=input_df.loc[(input_df['country'] == country)]
-   elif region == "Latin America & the Caribbean":
-        if country == 'All':
-            selected = [[v for k,v in d.items()] for d in wb_lac_options_ga]
-            selected = [a[1] for a in selected]
-            input_df = input_df[input_df['country'].isin(selected)]
-        else:
-            input_df=input_df.loc[(input_df['country'] == country)]
-   elif region == "Middle East & North Africa":
-        if country == 'All':
-            selected = [[v for k,v in d.items()] for d in wb_mena_options_ga]
-            selected = [a[1] for a in selected]
-            input_df = input_df[input_df['country'].isin(selected)]
-        else:
-            input_df=input_df.loc[(input_df['country'] == country)]
-   elif region == "North America":
-        if country == 'All':
-            selected = [[v for k,v in d.items()] for d in wb_na_options_ga]
-            selected = [a[1] for a in selected]
-            input_df = input_df[input_df['country'].isin(selected)]
-        else:
-            input_df=input_df.loc[(input_df['country'] == country)]
-   else:
-        if country == 'All':
-            selected = [[v for k,v in d.items()] for d in wb_southasia_options_ga]
-            selected = [a[1] for a in selected]
-            input_df = input_df[input_df['country'].isin(selected)]
-        else:
-            input_df=input_df.loc[(input_df['country'] == country)]
-
-    # Filter Income Group
-   if income == 'All':
-        input_df = input_df
-   else:
-        input_df = input_df.loc[(input_df['incomegroup'] == income)]
-
-    # Filter Species
-   input_df = input_df.loc[(input_df['species'] == species)]
-
-
-   if viz_selection == 'Map':
-       # Set values from the data
-       iso_alpha3 = input_df['country_iso3']
-       country_col = input_df['country']
-       year = input_df['year']
-
-       # Establish AHLE
-       input_df['ahle_total_2010usd'] = input_df['ahle_total_2010usd'].fillna(0)
-
-
-       # Set value based on map display option
-       if display == 'Biomass':
-           display_title = 'Biomass (kg)'
-           value = input_df['biomass']
-       elif display == 'Live Weight':
-           display_title = 'Average Live Weight (kg)'
-           value = input_df['liveweight']
-       elif display == 'Population':
-           display_title = 'Population (head)'
-           value = input_df['population']
-       elif display == 'Animal Health Loss Envelope (AHLE)':
-           display_title = 'AHLE (2010 USD)'
-           value = input_df['ahle_total_2010usd']
-       else:
-           display = 'AHLE per kg biomass'
-           display_title = 'AHLE (USD per kg biomass)'
-           value = input_df['ahle_2010usd_perkgbm']
-
-       # Set up map structure
-       ga_biomass_ahle_visual = create_biomass_map_ga(input_df, iso_alpha3, value, country_col, display_title)
-
-       # Add title
-       if region == 'All':
-           if country =='All':
-               ga_biomass_ahle_visual.update_layout(title_text=f'Global {display_title} for {species}',
-                                             font_size=15,
-                                             margin=dict(t=100))
-           else:
-               ga_biomass_ahle_visual.update_layout(title_text=f'{country} {display_title} for {species}',
-                                             font_size=15,
-                                             margin=dict(t=100))
-               ga_biomass_ahle_visual.update_coloraxes(showscale=False)
-       else:
-             if country =='All':
-                 ga_biomass_ahle_visual.update_layout(title_text=f'{region} {display_title} for {species}',
-                                               font_size=15,
-                                               margin=dict(t=100))
-             else:
-                 ga_biomass_ahle_visual.update_layout(title_text=f'{country} {display_title} for {species}',
-                                               font_size=15,
-                                               margin=dict(t=100))
-                 ga_biomass_ahle_visual.update_coloraxes(showscale=False)
-
-   elif viz_selection == 'Line chart':
-       # Specify which columns to keep forline chart
-       input_df = input_df[['country', 'year', 'species', 'biomass', 'population', 'liveweight']]
-
-       # Melt data to create facets for line chart
-       input_df = input_df.melt(id_vars=['country', 'year', 'species'],
-                                value_vars=['biomass', 'population', 'liveweight'],
-                                var_name='facet',
-                                value_name='value')
-
-       # Set values from the data
-       year = input_df['year']
-       value = input_df['value']
-       country = input_df['country']
-       facet = input_df['facet']
-
-       # Set up line plot structure
-       ga_biomass_ahle_visual = create_line_chart_ga(input_df, year, value, country, facet)
-
-   return ga_biomass_ahle_visual
-
-# Global AHLE Waterfall
-@gbadsDash.callback(
-    Output('ga-ahle-waterfall','figure'),
-    Input('amu-regional-data', 'data'),
-    Input('select-region-detail-ga','value'),
-    Input('select-incomegrp-detail-ga','value'),
-    Input('select-country-detail-ga','value'),
-    Input('select-year-ga','value'),
-    Input('select-display-ga','value'),
-    )
-def update_ahle_waterfall_ga(amu_data_json, selected_region ,selected_incgrp ,selected_country ,selected_year, display):
-    # Read data
-    input_df = ga_countries_biomass.copy()
-    input_df_amu = pd.read_json(amu_data_json, orient='split')
-
-    # Add mortality, morbidity, and vetmed rate columns
-    input_df = ga.add_mortality_rate(input_df)
-    input_df = ga.add_morbidity_rate(input_df)
-    input_df = ga.add_vetmed_rates(input_df)
-
-    # Apply AHLE calcs
-    input_df = ga.ahle_calcs_adj_outputs(input_df)
-
-    # Prep the data
-    prep_df = prep_ahle_forwaterfall_ga(input_df)
-
-    # Make costs negative
-    _vetmed_rows = (prep_df['item'].str.contains('VET' ,case=False))
-    prep_df.loc[_vetmed_rows ,'value_usd_current'] = -1 * prep_df['value_usd_current']
-
-    # Apply user filters
-    # There will always be a year filter
-    prep_df_filtered = prep_df.query(f"year == {selected_year}")
-
-    # Region, Country and Income group might not be filtered
-    if selected_region == 'All':
-        if selected_country == 'All':
-            prep_df_filtered = prep_df_filtered
-            # print_selected_country = 'All countries, '
-            print_selected_country = 'Global, '
-
-            # Only need to filter income groups if no country selected
-            if selected_incgrp == 'All':
-                prep_df_filtered = prep_df_filtered
-                print_selected_incgrp = 'all income groups, '
-            else:
-                prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
-                print_selected_incgrp = f'income group {selected_incgrp}, '
-        else:
-            prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
-            print_selected_country = f'{selected_country} '
-            print_selected_incgrp = ''
-    else:
-        if selected_country == 'All':
-            prep_df_filtered = prep_df_filtered.query(f"region == '{selected_region}'")
-            print_selected_country = f'All {selected_region} countries,'
-
-            # Only need to filter income groups if no country selected
-            if selected_incgrp == 'All':
-                prep_df_filtered = prep_df_filtered
-                print_selected_incgrp = 'all income groups, '
-            else:
-                prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
-                print_selected_incgrp = f'income group {selected_incgrp}, '
-        else:
-            prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
-            print_selected_country = f'{selected_country} '
-            print_selected_incgrp = ''
-
-    # Get sum for each item (summing over countries if multiple)
-    prep_df_sums = prep_df_filtered.groupby('item')[['value_usd_current' ,'value_usd_ideal']].sum()
-    prep_df_sums = prep_df_sums.reset_index()
-
-    # Additional item: global expenditure on antimicrobials
-    # Concatenate this as a single row after summing to item level
-    n_items_start = prep_df_sums.shape[0]
-    global_am_expenditure = pd.DataFrame(
-        {'item':'Antimicrobial Expenditure'
-         ,'value_usd_current':-1 * input_df_amu['am_expenditure_usd_selected'].sum()
-         ,'value_usd_ideal':0
-         }
-        ,index=[0]
-        )
-    # prep_df_sums = pd.concat(
-    #     [prep_df_sums.iloc[0:n_items_start-1] ,global_am_expenditure ,prep_df_sums.iloc[n_items_start-1]]     # Insert before last item
-    #     ,axis=0 ,ignore_index=True
-    #     )
-    prep_df_sums = pd.concat(
-        [prep_df_sums ,global_am_expenditure]
-        ,axis=0 ,ignore_index=True
-        )
-
-    # Get total AHLE for printing
-    # _netvalue = (prep_df_sums['item'] == 'Net value')
-    # current_net_value = prep_df_sums.loc[_netvalue ,'value_usd_current'].values[0]
-    # ideal_net_value = prep_df_sums.loc[_netvalue ,'value_usd_ideal'].values[0]
-    # total_ahle = ideal_net_value - current_net_value
-
-    # Create AHLE differences bars (ideal - current)
-    prep_df_sums['value_usd_ahle_diff'] = prep_df_sums['value_usd_ideal'] - prep_df_sums['value_usd_current']
-
-    # Add vet spend back in
-    # prod_vetspend = prep_df_sums[prep_df_sums['item']=='Producers vet & med costs']['value_usd_ahle_diff'].values[0]
-    # pub_vetspend = prep_df_sums[prep_df_sums['item']=='Public vet & med costs']['value_usd_ahle_diff'].values[0]
-
-    # prep_df_sums['value_usd_ahle_diff'] = prep_df_sums['value_usd_ahle_diff'] + prep_df_sums[prep_df_sums['item']=='Biomass']
-    total_ahle = prep_df_sums[prep_df_sums['item']=='Net value']['value_usd_ahle_diff'].values[0]
-    # total_ahle = total_ahle + prod_vetspend + pub_vetspend
-
-    if display =='Side by Side':
-        # Create graph with current values
-        name = 'Current'
-        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "total"]
-        x = prep_df_sums['item']
-        y = prep_df_sums['value_usd_current']
-        ga_waterfall_fig = create_ahle_waterfall_ga(prep_df_sums, name, measure, x, y)
-
-        # Add ideal values side-by-side
-        ga_waterfall_fig.add_trace(go.Waterfall(
-            name = 'Ideal',
-            measure = measure,
-            x = x,
-            y = prep_df_sums['value_usd_ideal'],
-            decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
-            increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
-            totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
-            connector = {"line":{"dash":"dot"}},
-            ))
-        ga_waterfall_fig.update_layout(
-            waterfallgroupgap = 0.5,    # Gap between bars
-            )
-
-        ga_waterfall_fig.update_layout(title_text=f'Compare Current values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
-                                        yaxis_title='US Dollars (2010 constant)',
-                                        font_size=15)
-    else:
-        # Create graph with differences
-        name = 'AHLE'
-        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "total"]
-        x = prep_df_sums['item']
-        y = prep_df_sums['value_usd_ahle_diff']
-        ga_waterfall_fig = create_ahle_waterfall_ga(prep_df_sums, name, measure, x, y)
-
-        ga_waterfall_fig.update_layout(title_text=f'Ideal minus current values and costs | {print_selected_country}{print_selected_incgrp}{selected_year}<br><sup>Total animal health loss envelope: ${total_ahle :,.0f} in constant 2010 US dollars</sup><br>',
-                                        yaxis_title='US Dollars (2010 constant)',
-                                        font_size=15)
-
-    return ga_waterfall_fig
-
-# Global AHLE plot over time
-@gbadsDash.callback(
-    Output('ga-ahle-over-time','figure'),
-    Input('select-region-detail-ga','value'),
-    Input('select-incomegrp-detail-ga','value'),
-    Input('select-country-detail-ga','value'),
-    Input('select-item-ga','value'),
-    Input('select-display-ga','value'),
-    )
-def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,selected_item ,display):
-    # Read data
-    input_df = ga_countries_biomass.copy()
-
-    # Add mortality, morbidity, and vetmed rate columns
-    input_df = ga.add_mortality_rate(input_df)
-    input_df = ga.add_morbidity_rate(input_df)
-    input_df = ga.add_vetmed_rates(input_df)
-
-    # Apply AHLE calcs
-    input_df = ga.ahle_calcs_adj_outputs(input_df)
-
-    # Prep the data
-    # Initial data prep is same as waterfall!
-    prep_df = prep_ahle_forwaterfall_ga(input_df)
-
-    # Apply user filters
-    # There will always be an item filter
-    prep_df_filtered = prep_df.query(f"item == '{selected_item}'")
-    if selected_item == 'Net value':
-        print_selected_item = f'{selected_item} over time'
-    else:
-        print_selected_item = f'value of {selected_item} over time'
-
-    # Region, Country and Income group might not be filtered
-    if selected_region == 'All':
-        if selected_country == 'All':
-            prep_df_filtered = prep_df_filtered
-            print_selected_country = 'Global, '
-
-            # Only need to filter income groups if no country selected
-            if selected_incgrp == 'All':
-                prep_df_filtered = prep_df_filtered
-                print_selected_incgrp = 'all income groups'
-            else:
-                prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
-                print_selected_incgrp = f'income group {selected_incgrp}'
-        else:
-            prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
-            print_selected_country = f'{selected_country}'
-            print_selected_incgrp = ''
-    else:
-        if selected_country == 'All':
-            prep_df_filtered = prep_df_filtered.query(f"region == '{selected_region}'")
-            print_selected_country = f'All {selected_region} countries, '
-
-            # Only need to filter income groups if no country selected
-            if selected_incgrp == 'All':
-                prep_df_filtered = prep_df_filtered
-                print_selected_incgrp = 'all income groups'
-            else:
-                prep_df_filtered = prep_df_filtered.query(f"incomegroup == '{selected_incgrp}'")
-                print_selected_incgrp = f'income group {selected_incgrp}'
-        else:
-            prep_df_filtered = prep_df_filtered.query(f"country == '{selected_country}'")
-            print_selected_country = f'{selected_country}'
-            print_selected_incgrp = ''
-
-    # Create AHLE (dfiierence) value
-    prep_df_filtered['value_usd_ahle_diff'] = prep_df_filtered['value_usd_ideal'] - prep_df_filtered['value_usd_current']
-
-    # Get sum for each year
-    prep_df_sums = prep_df_filtered.groupby('year')[['value_usd_current' ,'value_usd_ideal', 'value_usd_ahle_diff']].sum()
-    prep_df_sums = prep_df_sums.reset_index()
-
-
-    if display == "Side by Side":
-        # Plot current value
-        plot_current_value = go.Scatter(
-            x=prep_df_sums['year']
-            ,y=prep_df_sums['value_usd_current']
-            ,name='Current'
-            ,line=dict(color='#0028CA')
-            )
-        # Overlay ideal value
-        plot_ideal_value = go.Scatter(
-            x=prep_df_sums['year']
-            ,y=prep_df_sums['value_usd_ideal']
-            ,name='Ideal'
-            ,line=dict(color='#00CA0F')
-            )
-
-        ga_lineplot_fig = make_subplots()
-        ga_lineplot_fig.add_trace(plot_ideal_value)
-        ga_lineplot_fig.add_trace(plot_current_value)
-        ga_lineplot_fig.update_layout(title_text=f'Current & ideal {print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
-                                      yaxis_title='US Dollars (2010 constant)',
-                                      font_size=15,
-                                      plot_bgcolor="#ededed",)
-
-    else:
-        # Change line color based on if AHLE or cost is selected
-        costs = "costs"
-        if selected_item == 'Net value':
-            # Plot AHLE value
-            plot_ahle_value = go.Scatter(
-                x=prep_df_sums['year']
-                ,y=prep_df_sums['value_usd_ahle_diff']
-                ,name=f'{display}'
-                ,line=dict(color='#F7931D')
-                )
-        elif costs in selected_item:
-            # Plot AHLE value
-            plot_ahle_value = go.Scatter(
-                x=prep_df_sums['year']
-                ,y=prep_df_sums['value_usd_ahle_diff']
-                ,name=f'{display}'
-                ,line=dict(color='#E84C3D')
-                )
-        else:
-            # Plot AHLE value
-            plot_ahle_value = go.Scatter(
-                x=prep_df_sums['year']
-                ,y=prep_df_sums['value_usd_ahle_diff']
-                ,name=f'{display}'
-                ,line=dict(color='#3598DB')
-                )
-
-        ga_lineplot_fig = make_subplots()
-        ga_lineplot_fig.add_trace(plot_ahle_value)
-        ga_lineplot_fig.update_layout(title_text=f'Ideal minus current {print_selected_item} | {print_selected_country}{print_selected_incgrp}<br><sup></sup><br>',
-                                      yaxis_title='US Dollars (2010 constant)',
-                                      font_size=15,
-                                      plot_bgcolor="#ededed",)
-
-
-    return ga_lineplot_fig
-
 #### UPDATE ANTIMICROBIAL USE
+# ==============================================================================
 # ------------------------------------------------------------------------------
 #### -- Controls
 # ------------------------------------------------------------------------------

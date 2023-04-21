@@ -2218,6 +2218,15 @@ gbadsDash.layout = html.Div([
 
     #### TABS
     dcc.Tabs([
+        
+        #### USER GUIDE TAB
+        dcc.Tab(label="User Guide & References", children =[
+            html.Iframe(src="assets/GBADs_Documentation/_build/html/index.html", # this is for the jupyter books
+                        style={"width":"100%",
+                                "height":"3600px",   # Set large enough for your largest page and guide will use browser scroll bar. Otherwise, longer pages will get their own scroll bars.
+                                },)
+        ### END OF USER GUIDE TAB
+            ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
 
         #### GLOBAL OVERVIEW TAB
         dcc.Tab(label="Global Overview [WIP]", children = [
@@ -3384,7 +3393,9 @@ gbadsDash.layout = html.Div([
                                       "margin-left":"10px",     # Space between buttons if inline=True
                                       },
                                   ),
-                    ],width=2),
+                    ]
+                    # ,width=2
+                    ),
                 
                 # Item or Year Control switch
                 dbc.Col([
@@ -3393,14 +3404,16 @@ gbadsDash.layout = html.Div([
                                  clearable = False,
                                  placeholder='(all)',
                                  ),
-                    ],width=1),
+                    ]
+                    # ,width=1
+                    ),
                 
                 # Geographical breakdown options
                 dbc.Col([
                     html.H5("Geographical View"),
                     dcc.RadioItems(id='select-geo-view-ecs',
                                   options=ecs_geo_view_options,
-                                  value='Single Year',
+                                  value='National',
                                   inline=True,                  # True: arrange buttons horizontally
                                   inputStyle={
                                       "margin-right":"2px",     # This pulls the words off of the button
@@ -3411,13 +3424,15 @@ gbadsDash.layout = html.Div([
                 
                 # Regional dropdwon
                 dbc.Col([
-                    html.H5("Region"),
+                    html.H5("Region", id='select-region-ecs-title'),
                     dcc.Dropdown(id='select-region-ecs',
                                  options=ecs_region_options,
-                                 # value='',
+                                 placeholder='Select Region...',
                                  clearable = False,
                                  ),
-                    ],width=2),
+                    ]
+                    # ,width=2
+                    ),
                 
                 # END OF SECOND CONTROL ROW
                 ], justify='evenly'),
@@ -3748,6 +3763,14 @@ gbadsDash.layout = html.Div([
 
              # END OF MAP ROW
             ]),
+            
+            #### -- MAP FOOTNOTES
+            dbc.Row([
+                # Do not have data for 3 cities
+                html.P("	* Currently do not have data for Addis Ababa, Dire Dawa, or Harari regions."),
+            ], style={'margin-left':"40px", 'font-style': 'italic'}
+            ),
+            
             html.Br(),
 
             #### -- GRAPHICS PT.2
@@ -4637,15 +4660,6 @@ gbadsDash.layout = html.Div([
 
             ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
 
-
-        #### USER GUIDE TAB
-        dcc.Tab(label="User Guide & References", children =[
-            html.Iframe(src="assets/GBADs_Documentation/_build/html/index.html", # this is for the jupyter books
-                        style={"width":"100%",
-                                "height":"3600px",   # Set large enough for your largest page and guide will use browser scroll bar. Otherwise, longer pages will get their own scroll bars.
-                                },)
-        ### END OF USER GUIDE TAB
-            ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
 
         ### END OF TABS ###
         ],style={'margin-right':'10px',
@@ -7527,6 +7541,52 @@ def update_year_select_ecs(graph):
 
 #     return options, value, title
 
+# Disable geographical options for longitudinal graphs
+@gbadsDash.callback(
+    Output('select-geo-view-ecs','options'),
+    Input('select-graph-ahle-ecs','value'),
+    )
+def update_geo_view_options_ecs(graph):
+    options = ecs_geo_view_options.copy()
+
+    # Disable controls if Over Time selected
+    if graph == 'Over Time':
+        for d in options:
+            d['disabled']=True
+    else:
+        for d in options:
+            d['disabled']=False
+
+    return options
+
+@gbadsDash.callback(
+    Output('select-region-ecs','style'),
+    Output('select-region-ecs-title','style'),
+    Output('select-region-ecs','value'),
+    Output('select-region-ecs','options'),
+    Input('select-graph-ahle-ecs','value'),
+    Input('select-geo-view-ecs','value'),
+    )
+def update_ahle_graph_controls(graph, geo_view):
+    options2 = ecs_region_options.copy()
+    
+    for d in options2:
+        if graph == 'Over Time':
+            block = {'display': 'none'} # hide 
+            value = ''
+            d['disabled']=True
+            
+        else:
+            block = {'display': 'block'}
+            if geo_view == 'National':
+                value = ''
+                d['disabled']=True
+            else:
+                value='Afar'
+                d['disabled']=False
+
+    return block, block, value, options2
+
 # Show Item select when display is over time
 @gbadsDash.callback(
     Output('select-item-ecs','options'),
@@ -7694,7 +7754,7 @@ def update_map_display_options_ecs(species):
     # Build dictionary
     options=[]
     for i in item_options:
-        str(options.append({'label':i,'value':(i)}))
+        str(options.append({'label':'Current ' + i,'value':(i)}))
 
     return options
 

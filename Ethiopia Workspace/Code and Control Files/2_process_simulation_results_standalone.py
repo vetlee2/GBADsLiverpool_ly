@@ -478,21 +478,6 @@ del ahle_cattle_regional_aslist
 datainfo(ahle_cattle_regional ,120)
 
 # Recode region names to match those in geojson for mapping
-'''
-"ADM1_EN": "Addis Ababa", "ADM1_PCODE": "ET14"
-"ADM1_EN": "Afar", "ADM1_PCODE": "ET02"
-"ADM1_EN": "Amhara", "ADM1_PCODE": "ET03"
-"ADM1_EN": "Benishangul Gumz", "ADM1_PCODE": "ET06"
-"ADM1_EN": "Dire Dawa", "ADM1_PCODE": "ET15"
-"ADM1_EN": "Gambela", "ADM1_PCODE": "ET12"
-"ADM1_EN": "Harari", "ADM1_PCODE": "ET13"
-"ADM1_EN": "Oromia", "ADM1_PCODE": "ET04"
-"ADM1_EN": "Sidama", "ADM1_PCODE": "ET16"
-"ADM1_EN": "SNNP", "ADM1_PCODE": "ET07"
-"ADM1_EN": "Somali", "ADM1_PCODE": "ET05"
-"ADM1_EN": "South West Ethiopia", "ADM1_PCODE": "ET11"
-"ADM1_EN": "Tigray", "ADM1_PCODE": "ET01"
-'''
 rename_regions = {
     'Afar':'Afar'
     ,'Amhara':'Amhara'
@@ -789,18 +774,6 @@ print(check_agesex_sums.groupby(['region' ,'species' ,'production_system' ,'year
 print('\nMinimum ratio \n-------------')
 print(check_agesex_sums.groupby(['region' ,'species' ,'production_system' ,'year'])['check_ratio'].min())
 
-#%% Convert count items to monetary value
-'''
-Some items are counts (e.g. animal head counts) and cannot be easily converted
-after summing over groups (e.g. all small ruminants is the sum of sheep and goats).
-The motivating example is mortality, which is reported as number of animals, but
-must be put in monetary value for the AHLE calculations. Since the value per head
-is different for sheep and goats, this must be applied before summing.
-'''
-# Transpose to get each item in a column
-
-# Calculate monteary values
-
 #%% Add group summaries
 '''
 Creating aggregate groups for filtering in the dashboard
@@ -815,12 +788,13 @@ sd_cols = [i for i in list(ahle_combo) if 'stdev' in i]
 # =============================================================================
 #### Drop aggregate groups
 # =============================================================================
-# Some items only exist for Overall group in original file. Get all existing Overall records.
-_overall_rows = (ahle_combo['group'].str.upper() == 'OVERALL')
-ahle_combo_overall = ahle_combo.loc[_overall_rows].copy()
+# Some items only exist for Overall group in original file. Separate all existing Overall records.
+_combined_rows = (ahle_combo['group'].str.upper() == 'OVERALL')\
+    | (ahle_combo['group'].str.contains('COMBINED' ,case=False ,na=False))
+ahle_combo_overall = ahle_combo.loc[_combined_rows].copy()
 
 # Create version without any aggregate groups
-ahle_combo_indiv = ahle_combo.loc[~ _overall_rows].copy()
+ahle_combo_indiv = ahle_combo.loc[~ _combined_rows].copy()
 
 # Get distinct values for ages and sexes without aggregates
 age_group_values = list(ahle_combo_indiv['age_group'].unique())
@@ -875,7 +849,7 @@ for i ,VARCOL in enumerate(var_cols):
 # -----------------------------------------------------------------------------
 # Create Overall age/sex group
 # -----------------------------------------------------------------------------
-#!!! Must be first sum to avoid double-counting!
+# Must be first sum to avoid double-counting!
 ahle_combo_withagg_sumall = ahle_combo_withagg.pivot_table(
     index=['region' ,'species' ,'production_system' ,'item' ,'year']
     ,values=mean_cols + var_cols
@@ -940,7 +914,7 @@ for SEX_GRP in sex_values:
 del ahle_combo_withagg_sumages
 
 # -----------------------------------------------------------------------------
-# Add back original Overall and de-dup
+# Add back original Overall age/sex and de-dup
 # -----------------------------------------------------------------------------
 # Concatenate original Overall group data
 ahle_combo_withagg = pd.concat(
@@ -957,7 +931,7 @@ ahle_combo_withagg = ahle_combo_withagg.drop_duplicates(
 )
 
 # -----------------------------------------------------------------------------
-# Create overall production system for each species and group
+# Create overall production system
 # -----------------------------------------------------------------------------
 ahle_combo_withagg_sumprod = ahle_combo_withagg.pivot_table(
    index=['region' ,'species' ,'item' ,'group' ,'age_group' ,'sex' ,'year']
@@ -1113,7 +1087,7 @@ ahle_combo_withagg_smry = ahle_combo_withagg[keepcols].copy()
 datainfo(ahle_combo_withagg_smry)
 
 ahle_combo_withagg_smry.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.csv') ,index=False)
-ahle_combo_withagg_smry.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.pkl.gz'))
+# ahle_combo_withagg_smry.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary.pkl.gz'))
 
 # Output for Dash
 ahle_combo_withagg_smry.to_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv') ,index=False)
@@ -1135,11 +1109,7 @@ _groups_for_summary = (ahle_combo_withagg['group'].str.upper() == 'OVERALL')
 keep_items = [
     'gross margin'
     ,'health cost'
-    ,'total mortality'
-
-    # Need pop growth and value to back-calculate value per head
-    ,'cml pop growth'
-    ,'value of herd increase'
+    ,'value of total mortality'
     ]
 keep_items_upper = [i.upper() for i in keep_items]
 _items_for_ahle = (ahle_combo_withagg['item'].str.upper().isin(keep_items_upper))
@@ -1198,20 +1168,21 @@ ahle_combo_withahle.eval(
     ahle_dueto_productionloss_mean = ahle_total_mean - ahle_dueto_mortality_mean - ahle_dueto_healthcost_mean
     '''
     # Disease-specific
-    # Total mortality is in number of head: need to translate to value in Birr
     '''
     ahle_dueto_ppr_total_mean = mean_ideal_gross_margin - mean_ppr_gross_margin
-    '''
-    # avg_value_perhead = mean_current_value_of_herd_increase / mean_current_cml_pop_growth
-    # ahle_dueto_ppr_mortality_mean = mean_ppr_total_mortality * avg_value_perhead
-    # ahle_dueto_ppr_healthcost_mean = mean_ppr_health_cost
-    # ahle_dueto_ppr_productionloss_mean = ahle_dueto_ppr_total_mean - ahle_dueto_ppr_mortality_mean - ahle_dueto_ppr_healthcost_mean
-    '''
+    ahle_dueto_ppr_mortality_mean = mean_ppr_value_of_total_mortality
+    ahle_dueto_ppr_healthcost_mean = mean_ppr_health_cost
+    ahle_dueto_ppr_productionloss_mean = ahle_dueto_ppr_total_mean - ahle_dueto_ppr_mortality_mean - ahle_dueto_ppr_healthcost_mean
+
     ahle_dueto_otherdisease_total_mean = ahle_total_mean - ahle_dueto_ppr_total_mean
+    ahle_dueto_otherdisease_mortality_mean = ahle_dueto_mortality_mean - ahle_dueto_ppr_mortality_mean
+    ahle_dueto_otherdisease_healthcost_mean = ahle_dueto_healthcost_mean - ahle_dueto_ppr_healthcost_mean
+    ahle_dueto_otherdisease_productionloss_mean = ahle_dueto_productionloss_mean - ahle_dueto_ppr_productionloss_mean
     '''
-    # ahle_dueto_otherdisease_mortality_mean = ahle_dueto_mortality_mean - ahle_dueto_ppr_mortality_mean
-    # ahle_dueto_otherdisease_healthcost_mean = ahle_dueto_healthcost_mean - ahle_dueto_ppr_healthcost_mean
-    # ahle_dueto_otherdisease_productionloss_mean = ahle_dueto_productionloss_mean - ahle_dueto_ppr_productionloss_mean
+    # Check other disease production loss alternative calculation
+    # Result: same as ahle_dueto_otherdisease_productionloss_mean
+    # ahle_dueto_otherdisease_productionloss_mean_alt = ahle_dueto_otherdisease_total_mean - ahle_dueto_otherdisease_mortality_mean - ahle_dueto_otherdisease_healthcost_mean
+    # ahle_dueto_otherdisease_productionloss_mean_chk = ahle_dueto_otherdisease_productionloss_mean_alt / ahle_dueto_otherdisease_productionloss_mean
 
     # Scenarios applied to specific age/sex groups
     '''
@@ -1292,27 +1263,45 @@ ahle_combo_withahle.eval(
     ,inplace=True
 )
 
-# Standard deviations require summing variances and taking square root
-# Must be done outside eval()
-ahle_combo_withahle['ahle_total_stdev'] = \
-    np.sqrt(ahle_combo_withahle['stdev_ideal_gross_margin']**2 \
-            + ahle_combo_withahle['stdev_current_gross_margin']**2)
+# -----------------------------------------------------------------------------
+# Standard deviations
+# -----------------------------------------------------------------------------
+# Require summing variances and taking square root. Must be done outside eval().
+# Base
+ahle_combo_withahle['ahle_total_stdev'] = np.sqrt(
+    ahle_combo_withahle['stdev_ideal_gross_margin']**2 + ahle_combo_withahle['stdev_current_gross_margin']**2
+    )
+ahle_combo_withahle['ahle_dueto_mortality_stdev'] = np.sqrt(
+    ahle_combo_withahle['stdev_mortality_zero_gross_margin']**2 + ahle_combo_withahle['stdev_current_gross_margin']**2
+    )
+ahle_combo_withahle['ahle_dueto_healthcost_stdev'] = ahle_combo_withahle['stdev_current_health_cost']
+ahle_combo_withahle['ahle_dueto_productionloss_stdev'] = np.sqrt(
+    ahle_combo_withahle['ahle_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_healthcost_stdev']**2
+    )
 
-ahle_combo_withahle['ahle_dueto_mortality_stdev'] = \
-    np.sqrt(ahle_combo_withahle['stdev_mortality_zero_gross_margin']**2 \
-            + ahle_combo_withahle['stdev_current_gross_margin']**2)
+# PPR
+ahle_combo_withahle['ahle_dueto_ppr_total_stdev'] = np.sqrt(
+    ahle_combo_withahle['stdev_ideal_gross_margin']**2 + ahle_combo_withahle['stdev_ppr_gross_margin']**2
+    )
+ahle_combo_withahle['ahle_dueto_ppr_mortality_stdev'] = ahle_combo_withahle['stdev_ppr_value_of_total_mortality']
+ahle_combo_withahle['ahle_dueto_ppr_healthcost_stdev'] = ahle_combo_withahle['stdev_ppr_health_cost']
+ahle_combo_withahle['ahle_dueto_ppr_productionloss_stdev'] = np.sqrt(
+    ahle_combo_withahle['ahle_dueto_ppr_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_healthcost_stdev']**2
+    )
 
-ahle_combo_withahle['ahle_dueto_healthcost_stdev'] = \
-    np.sqrt(ahle_combo_withahle['stdev_current_health_cost']**2)
-
-ahle_combo_withahle['ahle_dueto_productionloss_stdev'] = \
-    np.sqrt(ahle_combo_withahle['ahle_total_stdev']**2 \
-            + ahle_combo_withahle['ahle_dueto_mortality_stdev']**2 \
-                + ahle_combo_withahle['ahle_dueto_healthcost_stdev']**2)
-
-ahle_combo_withahle['ahle_dueto_ppr_stdev'] = \
-    np.sqrt(ahle_combo_withahle['stdev_ideal_gross_margin']**2 \
-            + ahle_combo_withahle['stdev_ppr_gross_margin']**2)
+# Other disease
+ahle_combo_withahle['ahle_dueto_otherdisease_total_stdev'] = np.sqrt(
+    ahle_combo_withahle['ahle_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_total_stdev']**2
+    )
+ahle_combo_withahle['ahle_dueto_otherdisease_mortality_stdev'] = np.sqrt(
+    ahle_combo_withahle['ahle_dueto_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_mortality_stdev']**2
+    )
+ahle_combo_withahle['ahle_dueto_otherdisease_healthcost_stdev'] = np.sqrt(
+    ahle_combo_withahle['ahle_dueto_healthcost_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_healthcost_stdev']**2
+    )
+ahle_combo_withahle['ahle_dueto_otherdisease_productionloss_stdev'] = np.sqrt(
+    ahle_combo_withahle['ahle_dueto_productionloss_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_productionloss_stdev']**2
+    )
 
 # =============================================================================
 #### Add currency conversion
@@ -1355,7 +1344,7 @@ ahle_combo_withahle_smry = ahle_combo_withahle[_cols_for_summary].reset_index(dr
 datainfo(ahle_combo_withahle_smry)
 
 ahle_combo_withahle_smry.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary2.csv') ,index=False)
-ahle_combo_withahle_smry.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary2.pkl.gz'))
+# ahle_combo_withahle_smry.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_summary2.pkl.gz'))
 
 # Output for Dash
 ahle_combo_withahle_smry.to_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary2.csv') ,index=False)
@@ -1364,7 +1353,9 @@ ahle_combo_withahle_smry.to_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary
 
 ahle_combo_withahle_smry_checks = ahle_combo_withahle_smry.copy()
 
+# -----------------------------------------------------------------------------
 # Sum of individual age/sex AHLE compared to overall AHLE
+# -----------------------------------------------------------------------------
 ahle_combo_withahle_smry_checks.eval(
     '''
     sum_ahle_individual = ahle_when_af_ideal_mean + ahle_when_am_ideal_mean \
@@ -1377,6 +1368,18 @@ ahle_combo_withahle_smry_checks.eval(
 )
 print('\n> Checking the sum AHLE for individual ideal scenarios against the overall')
 print(ahle_combo_withahle_smry_checks[['region' ,'species' ,'production_system' ,'year' ,'sum_ahle_individual_vs_overall']])
+
+# -----------------------------------------------------------------------------
+# Disease-specific AHLE vs. total
+# -----------------------------------------------------------------------------
+ahle_combo_withahle_smry_checks.eval(
+    '''
+    ahle_dueto_ppr_vs_total = ahle_dueto_ppr_total_mean / ahle_total_mean
+    '''
+    ,inplace=True
+)
+print('\n> Checking the AHLE for PPR against the overall')
+print(ahle_combo_withahle_smry_checks.query("ahle_dueto_ppr_total_mean.notnull()")[['species' ,'production_system' ,'year' ,'ahle_dueto_ppr_vs_total']])
 
 #%% Create alternative scenario summary
 '''
@@ -1452,45 +1455,51 @@ def fill_column_where(
         ,COLUMN_TOUSE       # String
         ,DROP=False         # True: drop COLUMN_TOUSE
     ):
+    funcname = inspect.currentframe().f_code.co_name
     dfmod = DATAFRAME.copy()
-    print(f"> Processing {dfmod.loc[LOC].shape[0]} rows.")
+    print(f"<{funcname}> Processing {dfmod.loc[LOC].shape[0]} rows.")
     try:
         dfmod[COLUMN_TOUSE]     # If column to use exists
-        print(f">> Filling {COLUMN_TOFILL} with {COLUMN_TOUSE}.")
+        print(f"<{funcname}>> Filling {COLUMN_TOFILL} with {COLUMN_TOUSE}.")
         dfmod.loc[LOC ,COLUMN_TOFILL] = dfmod.loc[LOC ,COLUMN_TOUSE]
         if DROP:
             dfmod = dfmod.drop(columns=COLUMN_TOUSE)
     except:
-        print(f">> {COLUMN_TOUSE} not found. Filling {COLUMN_TOFILL} with nan.")
+        print(f"<{funcname}>> {COLUMN_TOUSE} not found. Filling {COLUMN_TOFILL} with nan.")
         dfmod.loc[LOC ,COLUMN_TOFILL] = np.nan
     return dfmod
 
 # -----------------------------------------------------------------------------
 # Adult Female
 # -----------------------------------------------------------------------------
-_scen_af = (ahle_combo_scensmry['agesex_scenario'].str.upper() == 'ADULT FEMALE')
-print(f"> Selected {_scen_af.sum(): ,} rows.")
+select_agesex_scenario = 'adult female'
+select_agesex_scenario_upcase = select_agesex_scenario.upper()
+_scen_select = (ahle_combo_scensmry['agesex_scenario'].str.upper() == select_agesex_scenario_upcase)
+print(f"\n> Selected {_scen_select.sum(): ,} rows where agesex_scenario is {select_agesex_scenario_upcase}.")
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'mean_ideal' ,'mean_ideal_af' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'stdev_ideal' ,'stdev_ideal_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ideal' ,'mean_ideal_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ideal' ,'stdev_ideal_af' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'mean_mortality_zero' ,'mean_mortality_zero_af' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'stdev_mortality_zero' ,'stdev_mortality_zero_af' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_af' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_af' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_af' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_af' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_af' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_af' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_af' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_af' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_af' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_af' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_af' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_af' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_af' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_af' ,DROP=True)
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_af' ,DROP=True)
 
 # Reproduction scenario already applies to adult females
 # 'mean_current_repro_25_imp'
@@ -1501,386 +1510,431 @@ ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_af ,'stdev_cu
 # -----------------------------------------------------------------------------
 # Adult Male
 # -----------------------------------------------------------------------------
-_scen_am = (ahle_combo_scensmry['agesex_scenario'].str.upper() == 'ADULT MALE')
-print(f"> Selected {_scen_am.sum(): ,} rows.")
+select_agesex_scenario = 'adult male'
+select_agesex_scenario_upcase = select_agesex_scenario.upper()
+_scen_select = (ahle_combo_scensmry['agesex_scenario'].str.upper() == select_agesex_scenario_upcase)
+print(f"\n> Selected {_scen_select.sum(): ,} rows where agesex_scenario is {select_agesex_scenario_upcase}.")
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'mean_ideal' ,'mean_ideal_am' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'stdev_ideal' ,'stdev_ideal_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ideal' ,'mean_ideal_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ideal' ,'stdev_ideal_am' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'mean_mortality_zero' ,'mean_mortality_zero_am' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'stdev_mortality_zero' ,'stdev_mortality_zero_am' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_am' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_am' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_am' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_am' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_am' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_am' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_am' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_am' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_am' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_am' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_am' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_am' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_am' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_am ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_am' ,DROP=True)
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_am' ,DROP=True)
 
 # Reproduction scenario only applies to adult females
-ahle_combo_scensmry.loc[_scen_am ,'mean_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_am ,'mean_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_am ,'mean_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_am ,'mean_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_100_imp'] = np.nan
 
-ahle_combo_scensmry.loc[_scen_am ,'stdev_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_am ,'stdev_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_am ,'stdev_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_am ,'stdev_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_100_imp'] = np.nan
 
 # -----------------------------------------------------------------------------
 # Adult combined - currently poultry only
 # -----------------------------------------------------------------------------
-_scen_ac = (ahle_combo_scensmry['agesex_scenario'].str.upper() == 'ADULT COMBINED')
-print(f"> Selected {_scen_ac.sum(): ,} rows.")
+select_agesex_scenario = 'adult combined'
+select_agesex_scenario_upcase = select_agesex_scenario.upper()
+_scen_select = (ahle_combo_scensmry['agesex_scenario'].str.upper() == select_agesex_scenario_upcase)
+print(f"\n> Selected {_scen_select.sum(): ,} rows where agesex_scenario is {select_agesex_scenario_upcase}.")
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'mean_ideal' ,'mean_ideal_a' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'stdev_ideal' ,'stdev_ideal_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ideal' ,'mean_ideal_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ideal' ,'stdev_ideal_a' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'mean_mortality_zero' ,'mean_mortality_zero_a' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'stdev_mortality_zero' ,'stdev_mortality_zero_a' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_a' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_a' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_a' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_a' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_a' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_a' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_a' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_a' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_a' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_a' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_a' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_a' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_a' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ac ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_a' ,DROP=True)
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_a' ,DROP=True)
 
 # Reproduction scenario only applies to adult females
-ahle_combo_scensmry.loc[_scen_ac ,'mean_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_ac ,'mean_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_ac ,'mean_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_ac ,'mean_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_100_imp'] = np.nan
 
-ahle_combo_scensmry.loc[_scen_ac ,'stdev_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_ac ,'stdev_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_ac ,'stdev_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_ac ,'stdev_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_100_imp'] = np.nan
 
 # -----------------------------------------------------------------------------
 # Juvenile Female
 # -----------------------------------------------------------------------------
-_scen_jf = (ahle_combo_scensmry['agesex_scenario'].str.upper() == 'JUVENILE FEMALE')
-print(f"> Selected {_scen_jf.sum(): ,} rows.")
+select_agesex_scenario = 'juvenile female'
+select_agesex_scenario_upcase = select_agesex_scenario.upper()
+_scen_select = (ahle_combo_scensmry['agesex_scenario'].str.upper() == select_agesex_scenario_upcase)
+print(f"\n> Selected {_scen_select.sum(): ,} rows where agesex_scenario is {select_agesex_scenario_upcase}.")
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'mean_ideal' ,'mean_ideal_jf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'stdev_ideal' ,'stdev_ideal_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ideal' ,'mean_ideal_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ideal' ,'stdev_ideal_jf' ,DROP=True)
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_jf' ,DROP=True)
 
 # For juveniles, mortality scenarios are not sex specific
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'mean_mortality_zero' ,'mean_mortality_zero_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'stdev_mortality_zero' ,'stdev_mortality_zero_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_j')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_j')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_j')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_j')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_j')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_j')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_j')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_j')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_j')
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'mean_mortality_zero' ,'mean_mortality_zero_jf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'stdev_mortality_zero' ,'stdev_mortality_zero_jf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_jf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_jf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_jf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_jf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_jf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_jf' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_jf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_jf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_jf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_jf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_jf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_jf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_jf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jf ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_jf' ,DROP=True)
 
 # Reproduction scenario only applies to adult females
-ahle_combo_scensmry.loc[_scen_jf ,'mean_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jf ,'mean_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jf ,'mean_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jf ,'mean_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_100_imp'] = np.nan
 
-ahle_combo_scensmry.loc[_scen_jf ,'stdev_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jf ,'stdev_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jf ,'stdev_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jf ,'stdev_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_100_imp'] = np.nan
 
 # -----------------------------------------------------------------------------
 # Juvenile Male
 # -----------------------------------------------------------------------------
-_scen_jm = (ahle_combo_scensmry['agesex_scenario'].str.upper() == 'JUVENILE MALE')
-print(f"> Selected {_scen_jm.sum(): ,} rows.")
+select_agesex_scenario = 'juvenile male'
+select_agesex_scenario_upcase = select_agesex_scenario.upper()
+_scen_select = (ahle_combo_scensmry['agesex_scenario'].str.upper() == select_agesex_scenario_upcase)
+print(f"\n> Selected {_scen_select.sum(): ,} rows where agesex_scenario is {select_agesex_scenario_upcase}.")
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'mean_ideal' ,'mean_ideal_jm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'stdev_ideal' ,'stdev_ideal_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ideal' ,'mean_ideal_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ideal' ,'stdev_ideal_jm' ,DROP=True)
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_jm' ,DROP=True)
 
 # For juveniles, mortality scenarios are not sex specific
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'mean_mortality_zero' ,'mean_mortality_zero_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'stdev_mortality_zero' ,'stdev_mortality_zero_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_j' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_j' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_j' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_j' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_j' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_j' ,DROP=True)
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_j')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_j')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_j' ,DROP=True)
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_j' ,DROP=True)
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_j' ,DROP=True)
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_j' ,DROP=True)
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_j' ,DROP=True)
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_j' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'mean_mortality_zero' ,'mean_mortality_zero_jm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'stdev_mortality_zero' ,'stdev_mortality_zero_jm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_jm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_jm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_jm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_jm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_jm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_jm' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_jm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_jm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_jm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_jm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_jm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_jm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_jm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jm ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_jm' ,DROP=True)
 
 # Reproduction scenario only applies to adult females
-ahle_combo_scensmry.loc[_scen_jm ,'mean_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jm ,'mean_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jm ,'mean_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jm ,'mean_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_100_imp'] = np.nan
 
-ahle_combo_scensmry.loc[_scen_jm ,'stdev_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jm ,'stdev_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jm ,'stdev_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jm ,'stdev_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_100_imp'] = np.nan
 
 # -----------------------------------------------------------------------------
 # Juvenile combined - currently poultry only
 # -----------------------------------------------------------------------------
-_scen_jc = (ahle_combo_scensmry['agesex_scenario'].str.upper() == 'JUVENILE COMBINED')
-print(f"> Selected {_scen_jc.sum(): ,} rows.")
+select_agesex_scenario = 'juvenile combined'
+select_agesex_scenario_upcase = select_agesex_scenario.upper()
+_scen_select = (ahle_combo_scensmry['agesex_scenario'].str.upper() == select_agesex_scenario_upcase)
+print(f"\n> Selected {_scen_select.sum(): ,} rows where agesex_scenario is {select_agesex_scenario_upcase}.")
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'mean_ideal' ,'mean_ideal_j' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'stdev_ideal' ,'stdev_ideal_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ideal' ,'mean_ideal_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ideal' ,'stdev_ideal_j' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'mean_mortality_zero' ,'mean_mortality_zero_j' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'stdev_mortality_zero' ,'stdev_mortality_zero_j' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_j' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_j' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_j' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_j' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_j' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_j' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_j' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_j' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_j' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_j' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_j' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_j' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_j' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_jc ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_j' ,DROP=True)
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_j' ,DROP=True)
 
 # Reproduction scenario only applies to adult females
-ahle_combo_scensmry.loc[_scen_jc ,'mean_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jc ,'mean_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jc ,'mean_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jc ,'mean_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_100_imp'] = np.nan
 
-ahle_combo_scensmry.loc[_scen_jc ,'stdev_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jc ,'stdev_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jc ,'stdev_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_jc ,'stdev_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_100_imp'] = np.nan
 
 # -----------------------------------------------------------------------------
 # Neonatal Female
 # -----------------------------------------------------------------------------
-_scen_nf = (ahle_combo_scensmry['agesex_scenario'].str.upper() == 'NEONATAL FEMALE')
-print(f"> Selected {_scen_nf.sum(): ,} rows.")
+select_agesex_scenario = 'neonatal female'
+select_agesex_scenario_upcase = select_agesex_scenario.upper()
+_scen_select = (ahle_combo_scensmry['agesex_scenario'].str.upper() == select_agesex_scenario_upcase)
+print(f"\n> Selected {_scen_select.sum(): ,} rows where agesex_scenario is {select_agesex_scenario_upcase}.")
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'mean_ideal' ,'mean_ideal_nf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'stdev_ideal' ,'stdev_ideal_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ideal' ,'mean_ideal_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ideal' ,'stdev_ideal_nf' ,DROP=True)
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_nf' ,DROP=True)
 
 # For neonates, mortality scenarios are not sex specific
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'mean_mortality_zero' ,'mean_mortality_zero_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'stdev_mortality_zero' ,'stdev_mortality_zero_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_n')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_n')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_n')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_n')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_n')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_n')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_n')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_n')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_n')
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'mean_mortality_zero' ,'mean_mortality_zero_nf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'stdev_mortality_zero' ,'stdev_mortality_zero_nf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_nf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_nf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_nf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_nf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_nf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_nf' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_nf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_nf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_nf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_nf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_nf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_nf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_nf' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nf ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_nf' ,DROP=True)
 
 # Reproduction scenario only applies to adult females
-ahle_combo_scensmry.loc[_scen_nf ,'mean_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nf ,'mean_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nf ,'mean_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nf ,'mean_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_100_imp'] = np.nan
 
-ahle_combo_scensmry.loc[_scen_nf ,'stdev_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nf ,'stdev_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nf ,'stdev_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nf ,'stdev_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_100_imp'] = np.nan
 
 # -----------------------------------------------------------------------------
 # Neonatal Male
 # -----------------------------------------------------------------------------
-_scen_nm = (ahle_combo_scensmry['agesex_scenario'].str.upper() == 'NEONATAL MALE')
-print(f"> Selected {_scen_nm.sum(): ,} rows.")
+select_agesex_scenario = 'neonatal male'
+select_agesex_scenario_upcase = select_agesex_scenario.upper()
+_scen_select = (ahle_combo_scensmry['agesex_scenario'].str.upper() == select_agesex_scenario_upcase)
+print(f"\n> Selected {_scen_select.sum(): ,} rows where agesex_scenario is {select_agesex_scenario_upcase}.")
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'mean_ideal' ,'mean_ideal_nm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'stdev_ideal' ,'stdev_ideal_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ideal' ,'mean_ideal_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ideal' ,'stdev_ideal_nm' ,DROP=True)
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_nm' ,DROP=True)
 
 # For neonates, mortality scenarios are not sex specific
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'mean_mortality_zero' ,'mean_mortality_zero_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'stdev_mortality_zero' ,'stdev_mortality_zero_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_n' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_n' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_n' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_n' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_n' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_n' ,DROP=True)
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_n')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_n')
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_n' ,DROP=True)
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_n' ,DROP=True)
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_n' ,DROP=True)
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_n' ,DROP=True)
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_n' ,DROP=True)
+# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_n' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'mean_mortality_zero' ,'mean_mortality_zero_nm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'stdev_mortality_zero' ,'stdev_mortality_zero_nm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_nm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_nm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_nm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_nm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_nm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_nm' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_nm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_nm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_nm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_nm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_nm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_nm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_nm' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nm ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_nm' ,DROP=True)
 
 # Reproduction scenario only applies to adult females
-ahle_combo_scensmry.loc[_scen_nm ,'mean_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nm ,'mean_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nm ,'mean_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nm ,'mean_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_100_imp'] = np.nan
 
-ahle_combo_scensmry.loc[_scen_nm ,'stdev_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nm ,'stdev_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nm ,'stdev_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nm ,'stdev_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_100_imp'] = np.nan
 
 # -----------------------------------------------------------------------------
 # Neonatal combined - currently poultry only
 # -----------------------------------------------------------------------------
-_scen_nc = (ahle_combo_scensmry['agesex_scenario'].str.upper() == 'NEONATAL COMBINED')
-print(f"> Selected {_scen_nc.sum(): ,} rows.")
+select_agesex_scenario = 'neonatal combined'
+select_agesex_scenario_upcase = select_agesex_scenario.upper()
+_scen_select = (ahle_combo_scensmry['agesex_scenario'].str.upper() == select_agesex_scenario_upcase)
+print(f"\n> Selected {_scen_select.sum(): ,} rows where agesex_scenario is {select_agesex_scenario_upcase}.")
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'mean_ideal' ,'mean_ideal_n' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'stdev_ideal' ,'stdev_ideal_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ideal' ,'mean_ideal_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ideal' ,'stdev_ideal_n' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'mean_mortality_zero' ,'mean_mortality_zero_n' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'stdev_mortality_zero' ,'stdev_mortality_zero_n' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_n' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_n' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_n' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_n' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_n' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_n' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_n' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_n' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_n' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_n' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_n' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_n' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_n' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_nc ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_n' ,DROP=True)
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_n' ,DROP=True)
 
 # Reproduction scenario only applies to adult females
-ahle_combo_scensmry.loc[_scen_nc ,'mean_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nc ,'mean_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nc ,'mean_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nc ,'mean_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_100_imp'] = np.nan
 
-ahle_combo_scensmry.loc[_scen_nc ,'stdev_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nc ,'stdev_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nc ,'stdev_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_nc ,'stdev_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_100_imp'] = np.nan
 
 # -----------------------------------------------------------------------------
 # Oxen
 # -----------------------------------------------------------------------------
-_scen_ox = (ahle_combo_scensmry['agesex_scenario'].str.upper() == 'OXEN')
-print(f"> Selected {_scen_ox.sum(): ,} rows.")
+select_agesex_scenario = 'oxen'
+select_agesex_scenario_upcase = select_agesex_scenario.upper()
+_scen_select = (ahle_combo_scensmry['agesex_scenario'].str.upper() == select_agesex_scenario_upcase)
+print(f"\n> Selected {_scen_select.sum(): ,} rows where agesex_scenario is {select_agesex_scenario_upcase}.")
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'mean_ideal' ,'mean_ideal_o' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'stdev_ideal' ,'stdev_ideal_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ideal' ,'mean_ideal_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ideal' ,'stdev_ideal_o' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'mean_mortality_zero' ,'mean_mortality_zero_o' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'stdev_mortality_zero' ,'stdev_mortality_zero_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_o' ,DROP=True)
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_o' ,DROP=True)
 
 # Mortality and growth improvement scenarios have not been run for cattle
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_o' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_o' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_o' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_o' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_o' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_o' ,DROP=True)
 
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_o' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_o' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_o' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_o' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_o' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_o' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_o' ,DROP=True)
-ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_ox ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_25_imp_all' ,'mean_current_growth_25_imp_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_25_imp_all' ,'stdev_current_growth_25_imp_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_50_imp_all' ,'mean_current_growth_50_imp_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_50_imp_all' ,'stdev_current_growth_50_imp_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_75_imp_all' ,'mean_current_growth_75_imp_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_75_imp_all' ,'stdev_current_growth_75_imp_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_current_growth_100_imp_all' ,'mean_current_growth_100_imp_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_current_growth_100_imp_all' ,'stdev_current_growth_100_imp_o' ,DROP=True)
 
 # Reproduction scenario only applies to adult females
-ahle_combo_scensmry.loc[_scen_ox ,'mean_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_ox ,'mean_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_ox ,'mean_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_ox ,'mean_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'mean_current_repro_100_imp'] = np.nan
 
-ahle_combo_scensmry.loc[_scen_ox ,'stdev_current_repro_25_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_ox ,'stdev_current_repro_50_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_ox ,'stdev_current_repro_75_imp'] = np.nan
-ahle_combo_scensmry.loc[_scen_ox ,'stdev_current_repro_100_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_25_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_50_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_75_imp'] = np.nan
+ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_100_imp'] = np.nan
 
 # =============================================================================
 #### Create aggregate Species and Production System
@@ -2004,13 +2058,15 @@ ahle_combo_scensmry = ahle_combo_scensmry.drop(columns=dropcols)
 datainfo(ahle_combo_scensmry)
 
 ahle_combo_scensmry.to_csv(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_scensmry.csv') ,index=False)
-ahle_combo_scensmry.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_scensmry.pkl.gz'))
+# ahle_combo_scensmry.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_scensmry.pkl.gz'))
 
 # Output for Dash
 ahle_combo_scensmry.to_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry.csv') ,index=False)
 
 #%% Calculate alternative AHLE
-
+'''
+Note 4/20/2023: these calculations are redone in Dash.
+'''
 # =============================================================================
 #### Restructure
 # =============================================================================

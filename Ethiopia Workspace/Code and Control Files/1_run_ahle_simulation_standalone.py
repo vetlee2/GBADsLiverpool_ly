@@ -51,8 +51,10 @@ def run_cmd(
       for line in stdout_list[:SHOW_MAXLINES]:
          print(f'    {line}')
    print(f'<{funcname}> Ended with returncode = {cmd_status.returncode}')
+   if cmd_status.returncode == 3221225477:
+       print(f'<{funcname}> This return code indicates that a file was not found. Check your working directory and folder locations.')
 
-   return None    # If you want to use something that is returned, add it here. Assign it when you call the function e.g. returned_object = run_cmd().
+   return cmd_status.returncode    # If you want to use something that is returned, add it here. Assign it when you call the function e.g. returned_object = run_cmd().
 
 # To time a piece of code
 def timerstart(LABEL=None):      # String (opt): add a label to the printed timer messages
@@ -97,17 +99,14 @@ ETHIOPIA_DATA_FOLDER = os.path.join(PARENT_FOLDER ,'Data')
 # Full path to rscript.exe
 r_executable = 'C:\\Program Files\\R\\R-4.2.1\\bin\\x64\\Rscript.exe'
 
-#%% Run AHLE simulation - Small ruminants
+#%% Small ruminants
 
-# =============================================================================
-#### Using Gemma's original AHLE function
-# =============================================================================
 # Full path to the R program you want to run
 r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table_SMALLRUMINANTS.R')
 
-# -----------------------------------------------------------------------------
-# Regular run
-# -----------------------------------------------------------------------------
+# =============================================================================
+#### Regular run
+# =============================================================================
 # Arguments to R function, as list of strings.
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
@@ -129,9 +128,14 @@ timerstart()
 run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
 timerstop()
 
-# -----------------------------------------------------------------------------
-# PPR-specific
-# -----------------------------------------------------------------------------
+# =============================================================================
+#### PPR scenario
+# =============================================================================
+'''
+Note: any scenarios that exist in this file will overwrite results of previous
+run. As of 4/20/2023, this includes ideal and current scenarios in addition to
+PPR.
+'''
 r_args = [
     # Arg 1: Number of simulation runs
     '10'
@@ -152,22 +156,25 @@ run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
 timerstop()
 
 # =============================================================================
-#### Using Stephen's updated AHLE function
+#### Brucellosis scenario
 # =============================================================================
+
+#%% Small Ruminants using Murdoch's updated function
+
 # This file defines the function
 r_script = os.path.join(CURRENT_FOLDER ,'ahle_sr.R')
 run_cmd([r_executable ,r_script] ,SHOW_MAXLINES=999)
 
 # Now call the function and pass arguments
 
-#%% Run AHLE simulation - Cattle
+#%% Cattle
 
 # Full path to the R program you want to run
 r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table_CATTLE.R')
 
-# -----------------------------------------------------------------------------
-# Single scenario
-# -----------------------------------------------------------------------------
+# =============================================================================
+#### Single scenario
+# =============================================================================
 # Arguments to R function, as list of strings.
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
@@ -188,17 +195,20 @@ timerstart()
 run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
 timerstop()
 
-# -----------------------------------------------------------------------------
-# Yearly scenarios
-# -----------------------------------------------------------------------------
+# =============================================================================
+#### Yearly scenarios
+# =============================================================================
 list_years = list(range(2017, 2022))
+
+# Initialize list to save return codes
+cattle_yearly_returncodes = []
 
 # Loop through years, calling scenario file for each and saving outputs to a new folder
 for YEAR in list_years:
     print(f"> Running compartmental model for year {YEAR}...")
 
     # Define input scenario file
-    SCENARIO_FILE = os.path.join(ETHIOPIA_CODE_FOLDER ,f'{YEAR}_AHLE scenario parameters CATTLE_20230209.xlsx')
+    SCENARIO_FILE = os.path.join(ETHIOPIA_CODE_FOLDER ,'Yearly parameters' ,f'{YEAR}_AHLE scenario parameters CATTLE_20230209 scenarios only.xlsx')
 
     # Create subfolder for results if it doesn't exist
     OUTFOLDER = os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE' ,f'{YEAR}')
@@ -221,14 +231,15 @@ for YEAR in list_years:
         ,'-1'
     ]
     timerstart()
-    run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+    rc = run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+    cattle_yearly_returncodes.append(rc)
     timerstop()
 
     print(f"> Finished compartmental model for year {YEAR}.")
 
-# -----------------------------------------------------------------------------
-# Subnational/regional scenarios
-# -----------------------------------------------------------------------------
+# =============================================================================
+#### Subnational/regional scenarios
+# =============================================================================
 # List names as they appear in regional scenario files
 list_eth_regions = [
     'Afar'
@@ -241,6 +252,9 @@ list_eth_regions = [
     ,'Somali'
     ,'Tigray'
     ]
+
+# Initialize list to save return codes
+cattle_regional_returncodes = []
 
 # Loop through regions, calling scenario file for each and saving outputs to a new folder
 for REGION in list_eth_regions:
@@ -270,12 +284,13 @@ for REGION in list_eth_regions:
         ,'-1'
     ]
     timerstart()
-    run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+    rc = run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+    cattle_regional_returncodes.append(rc)
     timerstop()
 
     print(f"> Finished compartmental model for region {REGION}.")
 
-#%% Run AHLE simulation - Poultry
+#%% Poultry
 
 # Full path to the R program you want to run
 r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table _ POULTRY.R')

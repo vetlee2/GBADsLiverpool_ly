@@ -743,6 +743,16 @@ ecs_graph_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Sing
                                                                            "Over Time",
                                                                            ]]
 
+# Geographial View
+ecs_geo_view_options = [{'label': i, 'value': i, 'disabled': False} for i in ["National",
+                                                                              "Regional",
+                                                                              ]]
+
+# Region - removing 'National' from the options
+ecs_region_options = []
+for i in ecs_ahle_scensmry.query("region != 'National'").region.unique():
+    str(ecs_region_options.append({'label':i,'value':(i)}))
+
 # Display
 ecs_display_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Difference",
                                                                              "Side by Side",
@@ -3332,7 +3342,7 @@ gbadsDash.layout = html.Div([
                     html.H4("Species"),
                     dcc.Dropdown(id='select-species-ecs',
                                 options=ecs_species_options,
-                                value='All Small Ruminants',
+                                value='Cattle',
                                 clearable = False,
                                 ),
                     ]),
@@ -3359,6 +3369,8 @@ gbadsDash.layout = html.Div([
                     ]),
 
                 ]),
+            
+            # SECOND CONTROL ROW            
             dbc.Row([
                 dbc.Col([
                     # Switch between single year and over time
@@ -3373,6 +3385,7 @@ gbadsDash.layout = html.Div([
                                       },
                                   ),
                     ],width=2),
+                
                 # Item or Year Control switch
                 dbc.Col([
                     html.H5("Year"),
@@ -3381,7 +3394,34 @@ gbadsDash.layout = html.Div([
                                  placeholder='(all)',
                                  ),
                     ],width=1),
-                ]),
+                
+                # Geographical breakdown options
+                dbc.Col([
+                    html.H5("Geographical View"),
+                    dcc.RadioItems(id='select-geo-view-ecs',
+                                  options=ecs_geo_view_options,
+                                  value='Single Year',
+                                  inline=True,                  # True: arrange buttons horizontally
+                                  inputStyle={
+                                      "margin-right":"2px",     # This pulls the words off of the button
+                                      "margin-left":"10px",     # Space between buttons if inline=True
+                                      },
+                                  ),
+                    ]),
+                
+                # Regional dropdwon
+                dbc.Col([
+                    html.H5("Region"),
+                    dcc.Dropdown(id='select-region-ecs',
+                                 options=ecs_region_options,
+                                 # value='',
+                                 clearable = False,
+                                 ),
+                    ],width=2),
+                
+                # END OF SECOND CONTROL ROW
+                ], justify='evenly'),
+            
             html.Br(),
             dbc.Row([
 

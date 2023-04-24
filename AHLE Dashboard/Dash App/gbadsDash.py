@@ -190,7 +190,7 @@ swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'
 # AHLE Summary
 # ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv'))
 # Using alternative data which summarizes results from age/sex specific scenarios
-ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry.csv'))
+ahle_all_scensmry = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry.csv'))
 
 # AHLE Summary 2 - for stacked bar
 ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary2.csv'))
@@ -201,9 +201,9 @@ ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary
 ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv'))
 
 # JR 2023-4-19: added regional results. Testing with Nationl level (should be same as before).
-# ecs_ahle_summary = ecs_ahle_summary.query("region == 'National'")
-# ecs_ahle_summary2 = ecs_ahle_summary2.query("region == 'National'")
-# ecs_ahle_all_withattr = ecs_ahle_all_withattr.query("region == 'National'")
+ecs_ahle_summary = ahle_all_scensmry.query("region == 'National'")
+ecs_ahle_summary2 = ecs_ahle_summary2.query("region == 'National'")
+ecs_ahle_all_withattr = ecs_ahle_all_withattr.query("region == 'National'")
 
 # Ethiopia geojson files from S3
 # Regional level
@@ -751,7 +751,7 @@ ecs_geo_view_options = [{'label': i, 'value': i, 'disabled': False} for i in ["N
 
 # Region - removing 'National' from the options
 ecs_region_options = []
-for i in ecs_ahle_summary.query("region != 'National'").region.unique():
+for i in ahle_all_scensmry.query("region != 'National'").region.unique():
     str(ecs_region_options.append({'label':i,'value':(i)}))
 
 # Display

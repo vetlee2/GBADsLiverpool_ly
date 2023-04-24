@@ -190,19 +190,20 @@ swinebreedstd_liverpool_model3 = pd.read_pickle(os.path.join(DASH_DATA_FOLDER ,'
 # AHLE Summary
 # ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary.csv'))
 # Using alternative data which summarizes results from age/sex specific scenarios
-ecs_ahle_scensmry = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry.csv'))
+ecs_ahle_summary = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry.csv'))
 
 # AHLE Summary 2 - for stacked bar
 ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary2.csv'))
 
 # Attribution Summary
 # ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr.csv'))
+# Using alternative data with placeholders for disease-specific attribution
 ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv'))
 
 # JR 2023-4-19: added regional results. Testing with Nationl level (should be same as before).
-ecs_ahle_summary = ecs_ahle_scensmry.query("region == 'National'")
-ecs_ahle_summary2 = ecs_ahle_summary2.query("region == 'National'")
-ecs_ahle_all_withattr = ecs_ahle_all_withattr.query("region == 'National'")
+# ecs_ahle_summary = ecs_ahle_summary.query("region == 'National'")
+# ecs_ahle_summary2 = ecs_ahle_summary2.query("region == 'National'")
+# ecs_ahle_all_withattr = ecs_ahle_all_withattr.query("region == 'National'")
 
 # Ethiopia geojson files from S3
 # Regional level
@@ -2678,7 +2679,7 @@ gbadsDash.layout = html.Div([
                 html.P("Antimicrobial Expenditure shown is the estimated global total based on usage and price selected on the Antimicrobial Usage tab."),
                 # html.P("Using morbidity and mortality rates according to income group"),
                 ]),
-            
+
             # # Regional AM Expenditure Estimator Button
             # dbc.Col([
             #     dcc.Link(
@@ -2694,7 +2695,7 @@ gbadsDash.layout = html.Div([
             #                     #        }
             #                     ),
             #         href='#AMU-regional-expenditure', refresh=True),
-                
+
             #     # html.Button('Antimicrobial Expenditure', id='am-expend-button-ga'),
             #     ]),
 
@@ -9201,25 +9202,25 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency):
 
     # Set the featureid key needed for the chrorpleth mapbox map
     featurekey = (f'properties.{featureid}')
-    
+
     # Data from waterfall chart
-    input_df = ecs_ahle_scensmry.query("region != 'National'")
-    
+    input_df = ecs_ahle_summary.query("region != 'National'")
+
     # Filter based on species - Currently only have Cattle for 2021
-    input_df = ecs_ahle_scensmry.query("species == 'Cattle'")
-    
-    
+    input_df = ecs_ahle_summary.query("species == 'Cattle'")
+
+
     # Allow user to select agesex, prodsys, and item to view
-    input_df = ecs_ahle_scensmry.query("agesex_scenario == @agesex_scenario")
-    input_df = ecs_ahle_scensmry.query("production_system == @prodsys")
-    input_df = ecs_ahle_scensmry.query("item == @item")
-    
+    input_df = ecs_ahle_summary.query("agesex_scenario == @agesex_scenario")
+    input_df = ecs_ahle_summary.query("production_system == @prodsys")
+    input_df = ecs_ahle_summary.query("item == @item")
+
     # If currency is USD, use USD columns
     display_currency = 'Ethiopian Birr'
     if currency == 'USD':
         display_currency = 'USD'
         input_df['mean_current'] = input_df['mean_current_usd']
-     
+
     # Color scale by current value
     color_by = 'mean_current'
     input_df = input_df.sort_values(by=[f'{color_by}'])
@@ -9230,13 +9231,13 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency):
     ecs_map_fig.update_layout(
         margin=dict(l=5, r=5, b=5),
         )
-    
+
     # Add title
     ecs_map_fig.update_layout(
         title_text=f'{item} by Region | {agesex_scenario} Cattle, {prodsys} in 2021',
         font_size=15
         )
-    
+
     # # Update legend title
     # ecs_map_fig.update_layout(legend=dict(
     #     title=f"{display_currency}",

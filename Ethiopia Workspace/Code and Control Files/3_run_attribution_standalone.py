@@ -154,6 +154,31 @@ def cleancolnames(INPUT_DF):
       .str.replace('&' ,'_and_' ,regex=False)
    return None
 
+# Create a function to fill values of one column with another for a subset of rows
+# Example usage:
+# _row_select = (df['col'] == 'value')
+# df = fill_column_where(df ,_row_select ,'col' ,'fill_col' ,DROP=True)
+def fill_column_where(
+        DATAFRAME           # Dataframe
+        ,LOC                # Dataframe mask e.g. _loc = (df['col'] == 'Value')
+        ,COLUMN_TOFILL      # String
+        ,COLUMN_TOUSE       # String
+        ,DROP=False         # True: drop COLUMN_TOUSE
+    ):
+    funcname = inspect.currentframe().f_code.co_name
+    dfmod = DATAFRAME.copy()
+    print(f"<{funcname}> Processing {dfmod.loc[LOC].shape[0]} rows.")
+    try:
+        dfmod[COLUMN_TOUSE]     # If column to use exists
+        print(f"<{funcname}> Filling {COLUMN_TOFILL} with {COLUMN_TOUSE}.")
+        dfmod.loc[LOC ,COLUMN_TOFILL] = dfmod.loc[LOC ,COLUMN_TOUSE]
+        if DROP:
+            dfmod = dfmod.drop(columns=COLUMN_TOUSE)
+    except:
+        print(f"<{funcname}> {COLUMN_TOUSE} not found. Filling {COLUMN_TOFILL} with nan.")
+        dfmod.loc[LOC ,COLUMN_TOFILL] = np.nan
+    return dfmod
+
 #%% Define folder paths
 
 CURRENT_FOLDER = os.getcwd()
@@ -216,25 +241,61 @@ Combined-sex AHLE components will be missing for some species and ages depending
 on the scenarios run in the simulation model.  While these cannot be calculated
 exactly outside of the simulation model, I will fill in values here based on
 the scenarios that are present.
-'''
-# # Split age and sex groups into their own columns
-# ahle_combo_scensmry_withahle_sub[['age_group' ,'sex']] = \
-#     ahle_combo_scensmry_withahle_sub['agesex_scenario'].str.split(' ' ,expand=True)
 
-# # For each species, production system, and age group, fill in the Combined sex result based on the Male and Female results
-# for SPECIES in ahle_combo_scensmry_withahle_sub['species'].unique():
-#     _species = (ahle_combo_scensmry_withahle_sub['species'] == SPECIES)
-#     for PRODSYS in ahle_combo_scensmry_withahle_sub.loc[_species ,'production_system'].unique():
-#         _prodsys = (ahle_combo_scensmry_withahle_sub['production_system'] == PRODSYS)
-#         for AGEGRP in ['Adult' ,'Juvenile' ,'Neonatal']:
-#             _agegrp = (ahle_combo_scensmry_withahle_sub['age_group'] == AGEGRP)
-#             print(f'> {SPECIES=} {PRODSYS=} {AGEGRP=}')
-#             print(ahle_combo_scensmry_withahle_sub.loc[_species & _prodsys & _agegrp ,'ahle_total_mean'])
+This will replace the Create Aggregate Groups sections for the individual species
+below, which are currently not working anyway because they don't recalculate
+production loss after filling in missing ahle_total_mean and ahle_dueto_mortality_mean.
+
+Plan: create Combined sex estimates for ahle_total_mean and ahle_dueto_mortality_mean
+wherever they are missing by summing the individual sex estimates, e.g.:
+    Adult Combined = Adult Female + Adult Male
+
+    Then recalculate ahle_dueto_productionloss_mean.
+
+Trick: the agesex_scenarios are in separate rows, so this requires summing across
+rows and must be done carefully to use the correct rows for each distinct BY group
+(by region, species, production system, and year).
+'''
+# Split age and sex groups into their own columns
+ahle_combo_scensmry_withahle_sub[['age_group' ,'sex']] = \
+    ahle_combo_scensmry_withahle_sub['agesex_scenario'].str.split(' ' ,expand=True)
+
+ahle_combo_scensmry_withahle_sub['sex'].unique()
+
+# For each species, production system, region, year, and age group:
+#    calculate the Combined sex result based on the Male and Female results
+fillsex_byvars = [
+    'region'
+    ,'species'
+    ,'production_system'
+    ,'age_group'
+    ,'year'
+    ]
+ahle_combo_scensmry_withahle_sub['ahle_total_mean_combined'] = \
+    ahle_combo_scensmry_withahle_sub.groupby(fillsex_byvars)['ahle_total_mean'].transform('sum')
+ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_mean_combined'] = \
+    ahle_combo_scensmry_withahle_sub.groupby(fillsex_byvars)['ahle_dueto_mortality_mean'].transform('sum')
+
+# For Combined sex rows, fill in missing values with sums
+_combined_sex = (ahle_combo_scensmry_withahle_sub['sex'] == 'Combined')
+ahle_combo_scensmry_withahle_sub = fill_column_where(
+    ahle_combo_scensmry_withahle_sub
+    ,_combined_sex
+    ,'ahle_total_mean'
+    ,'ahle_total_mean_combined'
+    ,DROP=True
+    )
+ahle_combo_scensmry_withahle_sub = fill_column_where(
+    ahle_combo_scensmry_withahle_sub
+    ,_combined_sex
+    ,'ahle_dueto_mortality_mean'
+    ,'ahle_dueto_mortality_mean_combined'
+    ,DROP=True
+    )
 
 # Recalculate AHLE due to production loss
-'''
-ahle_dueto_productionloss_mean = ahle_total_mean - ahle_dueto_mortality_mean - ahle_dueto_healthcost_mean
-'''
+ahle_combo_scensmry_withahle_sub['ahle_dueto_productionloss_mean'] = \
+    ahle_combo_scensmry_withahle_sub['ahle_total_mean'] - ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_mean'] - ahle_combo_scensmry_withahle_sub['ahle_dueto_healthcost_mean']
 
 # =============================================================================
 #### Restructure for Attribution function
@@ -252,7 +313,7 @@ ahle_combo_forattr_stdev = ahle_combo_scensmry_withahle_sub.melt(
    ,value_name='stdev'
 )
 
-# Rename AHLE components to match expert opinion file (data.csv)
+# Rename AHLE components to match expert opinion file
 simplify_ahle_comps = {
    "ahle_dueto_mortality_mean":"Mortality"
    ,"ahle_dueto_healthcost_mean":"Health cost"
@@ -286,36 +347,8 @@ system or age class.
 '''
 _droprows = (ahle_combo_forattr_1['production_system'].str.upper() == 'OVERALL') \
     | (ahle_combo_forattr_1['agesex_scenario'].str.upper() == 'OVERALL')
-print(f"> Dropping {_droprows.sum() :,} rows where production system or agesex are 'Overall'.")
+print(f"> Dropping {_droprows.sum() :,} rows where production_system or agesex_scenario are 'Overall'.")
 ahle_combo_forattr_1 = ahle_combo_forattr_1.drop(ahle_combo_forattr_1.loc[_droprows].index).reset_index(drop=True)
-
-# =============================================================================
-#### Adjust Mortality AHLE
-# =============================================================================
-'''
-Mortality AHLE results are non-sex-specific for Juveniles and Neonates. This is
-due to the way scenarios are defined, and is true for all species.
-'''
-# Keep only one sex
-_droprows = (ahle_combo_forattr_1['ahle_component'] == 'Mortality') \
-    & (ahle_combo_forattr_1['agesex_scenario'].isin(['Juvenile Male' ,'Neonatal Male']))
-print(f"> Dropping {_droprows.sum() :,} rows.")
-ahle_combo_forattr_1 = ahle_combo_forattr_1.drop(ahle_combo_forattr_1.loc[_droprows].index).reset_index(drop=True)
-
-# Change group label
-relabel_mort = {
-    "Juvenile Female": "Juvenile Combined"
-    ,"Neonatal Female": "Neonatal Combined"
-    }
-_mortrows = (ahle_combo_forattr_1['ahle_component'] == 'Mortality')
-ahle_combo_forattr_1.loc[_mortrows] = ahle_combo_forattr_1.loc[_mortrows].replace(relabel_mort)
-
-# Drop duplicates
-# Different processing for different species may have produced duplicates
-ahle_combo_forattr_1 = ahle_combo_forattr_1.drop_duplicates(
- 	subset=['region' ,'species' ,'production_system' ,'agesex_scenario' ,'ahle_component' ,'year']
- 	,keep='first'                   # String: which occurrence to keep, 'first' or 'last'
-)
 
 #%% Prep for Attribution - Small Ruminants
 '''
@@ -940,25 +973,43 @@ ahle_combo_withattr = pd.concat(
 # =============================================================================
 #### Add disease-specific placeholder
 # =============================================================================
-# Create placeholder data frame
-diseases_ext = pd.DataFrame({
-    "cause":'External'
-    ,"disease":['Cause A' ,'Cause B' ,'Cause C' ,'Cause D']
-    ,"disease_proportion":[0.50 ,0.25 ,0.15 ,0.10]     # List: proportion of attribution going to each disease. Must add up to 1.
-    }
-)
+'''
+This creates placeholders for specific infectious, non-infectious, and external
+factors.
+
+When we have estimates of AHLE due to individual diseases, we will use them instead.
+'''
+# -----------------------------------------------------------------------------
+# Create placeholder data frames
+# -----------------------------------------------------------------------------
+# diseases_inf = pd.DataFrame({
+#     "cause":'Infectious'
+#     ,"disease":['Pathogen A' ,'Pathogen B' ,'Pathogen C' ,'Pathogen D']
+#     ,"disease_proportion":[0.50 ,0.25 ,0.15 ,0.10]     # List: proportion of attribution going to each disease. Must add up to 1.
+#     }
+# )
+# Infectious disease placeholders are replaced with estimates
 diseases_inf = pd.DataFrame({
     "cause":'Infectious'
-    ,"disease":['Pathogen A' ,'Pathogen B' ,'Pathogen C' ,'Pathogen D']
-    ,"disease_proportion":[0.50 ,0.25 ,0.15 ,0.10]     # List: proportion of attribution going to each disease. Must add up to 1.
+    ,"disease":['PPR' ,'Other Infectious']
+    ,"mean":[]
     }
 )
+
 diseases_non = pd.DataFrame({
     "cause":'Non-infectious'
     ,"disease":['Condition A' ,'Condition B' ,'Condition C' ,'Condition D']
     ,"disease_proportion":[0.50 ,0.25 ,0.15 ,0.10]     # List: proportion of attribution going to each disease. Must add up to 1.
     }
 )
+diseases_ext = pd.DataFrame({
+    "cause":'External'
+    ,"disease":['Cause A' ,'Cause B' ,'Cause C' ,'Cause D']
+    ,"disease_proportion":[0.50 ,0.25 ,0.15 ,0.10]     # List: proportion of attribution going to each disease. Must add up to 1.
+    }
+)
+
+# Concatenate
 diseases = pd.concat(
     [diseases_ext ,diseases_inf ,diseases_non]
     ,axis=0
@@ -966,7 +1017,9 @@ diseases = pd.concat(
     ,ignore_index=True   # True: do not keep index values on concatenation axis
 )
 
+# -----------------------------------------------------------------------------
 # Merge
+# -----------------------------------------------------------------------------
 ahle_combo_withattr = pd.merge(
     left=ahle_combo_withattr
     ,right=diseases
@@ -974,8 +1027,9 @@ ahle_combo_withattr = pd.merge(
     ,how='outer'
     )
 
+# -----------------------------------------------------------------------------
 # Calculate placeholder values
-ahle_combo_withattr['median'] = ahle_combo_withattr['median'] * ahle_combo_withattr['disease_proportion']
+# -----------------------------------------------------------------------------
 ahle_combo_withattr['mean'] = ahle_combo_withattr['mean'] * ahle_combo_withattr['disease_proportion']
 ahle_combo_withattr['sd'] = np.sqrt(ahle_combo_withattr['sd']**2 * ahle_combo_withattr['disease_proportion']**2)
 ahle_combo_withattr['lower95'] = ahle_combo_withattr['mean'] - (1.96 * ahle_combo_withattr['sd'])

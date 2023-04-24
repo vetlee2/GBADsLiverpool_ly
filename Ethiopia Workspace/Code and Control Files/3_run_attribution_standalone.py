@@ -205,19 +205,19 @@ exchg_data_tomerge = pd.read_pickle(os.path.join(ETHIOPIA_DATA_FOLDER ,'wb_exchg
 
 #%% Run Attribution using example inputs
 
-# r_script = os.path.join(ETHIOPIA_CODE_FOLDER ,'Attribution function.R')    # Full path to the R program you want to run
-#
-# # Arguments to R function, as list of strings.
-# # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
-# r_args = [
-#     os.path.join(ETHIOPIA_CODE_FOLDER ,'Attribution function input - example AHLE.csv')                # String: full path to AHLE estimates file (csv)
-#     ,os.path.join(ETHIOPIA_CODE_FOLDER ,'attribution_experts_smallruminants.csv')               # String: full path to expert opinion attribution file (csv)
-#     ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_example.csv')    # String: full path to output file (csv)
-# ]
-#
-# timerstart()
-# run_cmd([r_executable ,r_script] + r_args)
-# timerstop()
+r_script = os.path.join(ETHIOPIA_CODE_FOLDER ,'Attribution function.R')    # Full path to the R program you want to run
+
+# Arguments to R function, as list of strings.
+# ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
+r_args = [
+    os.path.join(ETHIOPIA_CODE_FOLDER ,'Attribution function input - example AHLE.csv')                # String: full path to AHLE estimates file (csv)
+    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'attribution_experts_smallruminants.csv')               # String: full path to expert opinion attribution file (csv)
+    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'attribution_summary_example.csv')    # String: full path to output file (csv)
+]
+
+timerstart()
+run_cmd([r_executable ,r_script] + r_args)
+timerstop()
 
 #%% Read data and restructure
 '''
@@ -232,7 +232,6 @@ datainfo(ahle_combo_scensmry_withahle_sub)
 # =============================================================================
 #### Fill in missing components
 # =============================================================================
-#!!! Come back to this
 '''
 With the exception of adults for small ruminants, the expert attribution files
 use combined-sex groups for all species and age groups.
@@ -262,6 +261,10 @@ ahle_combo_scensmry_withahle_sub[['age_group' ,'sex']] = \
 
 ahle_combo_scensmry_withahle_sub['sex'].unique()
 
+# Add variance columns for summing
+ahle_combo_scensmry_withahle_sub['ahle_total_variance'] = ahle_combo_scensmry_withahle_sub['ahle_total_stdev']**2
+ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_variance'] = ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_stdev']**2
+
 # For each species, production system, region, year, and age group:
 #    calculate the Combined sex result based on the Male and Female results
 fillsex_byvars = [
@@ -273,29 +276,46 @@ fillsex_byvars = [
     ]
 ahle_combo_scensmry_withahle_sub['ahle_total_mean_combined'] = \
     ahle_combo_scensmry_withahle_sub.groupby(fillsex_byvars)['ahle_total_mean'].transform('sum')
+ahle_combo_scensmry_withahle_sub['ahle_total_variance_combined'] = \
+    ahle_combo_scensmry_withahle_sub.groupby(fillsex_byvars)['ahle_total_variance'].transform('sum')
+ahle_combo_scensmry_withahle_sub['ahle_total_stdev_combined'] = \
+    np.sqrt(ahle_combo_scensmry_withahle_sub['ahle_total_variance_combined'])
+
 ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_mean_combined'] = \
     ahle_combo_scensmry_withahle_sub.groupby(fillsex_byvars)['ahle_dueto_mortality_mean'].transform('sum')
+ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_variance_combined'] = \
+    ahle_combo_scensmry_withahle_sub.groupby(fillsex_byvars)['ahle_dueto_mortality_variance'].transform('sum')
+ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_stdev_combined'] = \
+    np.sqrt(ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_variance_combined'])
 
 # For Combined sex rows, fill in missing values with sums
 _combined_sex = (ahle_combo_scensmry_withahle_sub['sex'] == 'Combined')
-ahle_combo_scensmry_withahle_sub = fill_column_where(
-    ahle_combo_scensmry_withahle_sub
-    ,_combined_sex
-    ,'ahle_total_mean'
-    ,'ahle_total_mean_combined'
-    ,DROP=True
-    )
-ahle_combo_scensmry_withahle_sub = fill_column_where(
-    ahle_combo_scensmry_withahle_sub
-    ,_combined_sex
-    ,'ahle_dueto_mortality_mean'
-    ,'ahle_dueto_mortality_mean_combined'
-    ,DROP=True
-    )
+ahle_combo_scensmry_withahle_sub = fill_column_where(ahle_combo_scensmry_withahle_sub ,_combined_sex ,'ahle_total_mean' ,'ahle_total_mean_combined' ,DROP=True)
+ahle_combo_scensmry_withahle_sub = fill_column_where(ahle_combo_scensmry_withahle_sub ,_combined_sex ,'ahle_total_stdev' ,'ahle_total_stdev_combined' ,DROP=True)
+ahle_combo_scensmry_withahle_sub = fill_column_where(ahle_combo_scensmry_withahle_sub ,_combined_sex ,'ahle_dueto_mortality_mean' ,'ahle_dueto_mortality_mean_combined' ,DROP=True)
+ahle_combo_scensmry_withahle_sub = fill_column_where(ahle_combo_scensmry_withahle_sub ,_combined_sex ,'ahle_dueto_mortality_stdev' ,'ahle_dueto_mortality_stdev_combined' ,DROP=True)
 
 # Recalculate AHLE due to production loss
 ahle_combo_scensmry_withahle_sub['ahle_dueto_productionloss_mean'] = \
     ahle_combo_scensmry_withahle_sub['ahle_total_mean'] - ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_mean'] - ahle_combo_scensmry_withahle_sub['ahle_dueto_healthcost_mean']
+
+ahle_combo_scensmry_withahle_sub['ahle_dueto_productionloss_stdev'] = \
+    np.sqrt(ahle_combo_scensmry_withahle_sub['ahle_total_stdev']**2 \
+            + ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_stdev']**2 \
+                + ahle_combo_scensmry_withahle_sub['ahle_dueto_healthcost_stdev']**2)
+
+# =============================================================================
+#### Drop unneeded rows
+# =============================================================================
+'''
+Regardless of species, attribution function does not need aggregate production
+system or age class.
+'''
+_droprows = (ahle_combo_scensmry_withahle_sub['production_system'].str.upper() == 'OVERALL') \
+    | (ahle_combo_scensmry_withahle_sub['agesex_scenario'].str.upper() == 'OVERALL')
+print(f"> Dropping {_droprows.sum() :,} rows where production_system or agesex_scenario are 'Overall'.")
+ahle_combo_scensmry_withahle_sub = \
+    ahle_combo_scensmry_withahle_sub.drop(ahle_combo_scensmry_withahle_sub.loc[_droprows].index).reset_index(drop=True)
 
 # =============================================================================
 #### Restructure for Attribution function
@@ -338,18 +358,6 @@ del ahle_combo_forattr_means ,ahle_combo_forattr_stdev
 # Add variance column for summing
 ahle_combo_forattr_1['variance'] = ahle_combo_forattr_1['stdev']**2
 
-# =============================================================================
-#### Drop unneeded rows
-# =============================================================================
-'''
-Regardless of species, attribution function does not need aggregate production
-system or age class.
-'''
-_droprows = (ahle_combo_forattr_1['production_system'].str.upper() == 'OVERALL') \
-    | (ahle_combo_forattr_1['agesex_scenario'].str.upper() == 'OVERALL')
-print(f"> Dropping {_droprows.sum() :,} rows where production_system or agesex_scenario are 'Overall'.")
-ahle_combo_forattr_1 = ahle_combo_forattr_1.drop(ahle_combo_forattr_1.loc[_droprows].index).reset_index(drop=True)
-
 #%% Prep for Attribution - Small Ruminants
 '''
 For sheep and goats, the expert attribution file uses non-sex-specific Juvenile
@@ -361,56 +369,6 @@ and Neonatal groups, while the compartmental model produces sex-specific scenari
 _row_selection = (ahle_combo_forattr_1['species'].str.upper().isin(['SHEEP' ,'GOAT']))
 print(f"> Selected {_row_selection.sum() :,} rows.")
 ahle_combo_forattr_smallrum = ahle_combo_forattr_1.loc[_row_selection].reset_index(drop=True)
-
-# =============================================================================
-#### Create aggregate groups
-#!!! Note: I am using the SUM here even though AHLE estimates don't exactly sum
-# over agesex scenarios. This is because there is no way to exactly calculate the
-# AHLE for a scenario that hasn't been run through the simulation model.
-# =============================================================================
-# -----------------------------------------------------------------------------
-# Combine sexes for Juveniles and Neonates
-# Does not apply to Mortality
-# -----------------------------------------------------------------------------
-# Juveniles
-_agg_juv = (ahle_combo_forattr_smallrum['agesex_scenario'].str.contains('Juvenile')) \
-    & (ahle_combo_forattr_smallrum['ahle_component'] != 'Mortality')
-ahle_combo_forattr_smallrum_aggjuv = ahle_combo_forattr_smallrum.loc[_agg_juv].pivot_table(
-	index=['region' ,'species' ,'production_system' ,'ahle_component' ,'year']
-	,values=['mean' ,'variance']
-	,aggfunc='sum'
-)
-ahle_combo_forattr_smallrum_aggjuv = ahle_combo_forattr_smallrum_aggjuv.reset_index()         # Pivoting will change columns to indexes. Change them back.
-ahle_combo_forattr_smallrum_aggjuv['agesex_scenario'] = 'Juvenile Combined'
-ahle_combo_forattr_smallrum_aggjuv['stdev'] = np.sqrt(ahle_combo_forattr_smallrum_aggjuv['variance'])
-
-# Neonates
-_agg_neo = (ahle_combo_forattr_smallrum['agesex_scenario'].str.contains('Neonatal')) \
-    & (ahle_combo_forattr_smallrum['ahle_component'] != 'Mortality')
-ahle_combo_forattr_smallrum_aggneo = ahle_combo_forattr_smallrum.loc[_agg_neo].pivot_table(
-	index=['region' ,'species' ,'production_system' ,'ahle_component' ,'year']
-	,values=['mean' ,'variance']
-	,aggfunc='sum'
-)
-ahle_combo_forattr_smallrum_aggneo = ahle_combo_forattr_smallrum_aggneo.reset_index()         # Pivoting will change columns to indexes. Change them back.
-ahle_combo_forattr_smallrum_aggneo['agesex_scenario'] = 'Neonatal Combined'
-ahle_combo_forattr_smallrum_aggneo['stdev'] = np.sqrt(ahle_combo_forattr_smallrum_aggneo['variance'])
-
-# Concatenate with original
-ahle_combo_forattr_smallrum_base = ahle_combo_forattr_smallrum.loc[~ _agg_juv].loc[~ _agg_neo]  # Drop rows to avoid duplicates
-ahle_combo_forattr_smallrum = pd.concat(
-    [ahle_combo_forattr_smallrum_base ,ahle_combo_forattr_smallrum_aggjuv ,ahle_combo_forattr_smallrum_aggneo]
-	,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
-	,join='outer'        # 'outer': keep all index values from all data frames
-	,ignore_index=True   # True: do not keep index values on concatenation axis
-)
-del ahle_combo_forattr_smallrum_base ,ahle_combo_forattr_smallrum_aggjuv ,ahle_combo_forattr_smallrum_aggneo
-
-# Fill in missing standard deviations with zero
-ahle_combo_forattr_smallrum['stdev'] = ahle_combo_forattr_smallrum['stdev'].replace(np.nan ,0)
-
-# Drop variance column
-ahle_combo_forattr_smallrum = ahle_combo_forattr_smallrum.drop(columns=['variance'])
 
 # =============================================================================
 #### Filter groups and rename
@@ -467,69 +425,6 @@ For cattle, expert attribution file:
 _row_selection = (ahle_combo_forattr_1['species'].str.upper() == 'CATTLE')
 print(f"> Selected {_row_selection.sum() :,} rows.")
 ahle_combo_forattr_cattle = ahle_combo_forattr_1.loc[_row_selection].reset_index(drop=True)
-
-# =============================================================================
-#### Create aggregate groups
-#!!! Note: I am using the SUM here even though AHLE estimates don't exactly sum
-# over agesex scenarios. This is because there is no way to exactly estimate the
-# AHLE for a scenario that hasn't been run through the simulation model.
-# =============================================================================
-# -----------------------------------------------------------------------------
-# Combine sexes for Juveniles, Neonates, and Adults
-# -----------------------------------------------------------------------------
-# Juveniles
-# Does not apply to mortality
-_agg_juv = (ahle_combo_forattr_cattle['agesex_scenario'].str.contains('Juvenile')) \
-    & (ahle_combo_forattr_cattle['ahle_component'] != 'Mortality')
-ahle_combo_forattr_cattle_aggjuv = ahle_combo_forattr_cattle.loc[_agg_juv].pivot_table(
-	index=['region' ,'species' ,'production_system' ,'ahle_component' ,'year']
-	,values=['mean' ,'variance']
-	,aggfunc='sum'
-)
-ahle_combo_forattr_cattle_aggjuv = ahle_combo_forattr_cattle_aggjuv.reset_index()         # Pivoting will change columns to indexes. Change them back.
-ahle_combo_forattr_cattle_aggjuv['agesex_scenario'] = 'Juvenile Combined'
-ahle_combo_forattr_cattle_aggjuv['stdev'] = np.sqrt(ahle_combo_forattr_cattle_aggjuv['variance'])
-
-# Neonates
-# Does not apply to mortality
-_agg_neo = (ahle_combo_forattr_cattle['agesex_scenario'].str.contains('Neonatal')) \
-    & (ahle_combo_forattr_cattle['ahle_component'] != 'Mortality')
-ahle_combo_forattr_cattle_aggneo = ahle_combo_forattr_cattle.loc[_agg_neo].pivot_table(
-	index=['region' ,'species' ,'production_system' ,'ahle_component' ,'year']
-	,values=['mean' ,'variance']
-	,aggfunc='sum'
-)
-ahle_combo_forattr_cattle_aggneo = ahle_combo_forattr_cattle_aggneo.reset_index()         # Pivoting will change columns to indexes. Change them back.
-ahle_combo_forattr_cattle_aggneo['agesex_scenario'] = 'Neonatal Combined'
-ahle_combo_forattr_cattle_aggneo['stdev'] = np.sqrt(ahle_combo_forattr_cattle_aggneo['variance'])
-
-# Adults
-# Including mortality
-_agg_adt = (ahle_combo_forattr_cattle['agesex_scenario'].str.contains('Adult'))
-ahle_combo_forattr_cattle_aggadt = ahle_combo_forattr_cattle.loc[_agg_adt].pivot_table(
-	index=['region' ,'species' ,'production_system' ,'ahle_component' ,'year']
-	,values=['mean' ,'variance']
-	,aggfunc='sum'
-)
-ahle_combo_forattr_cattle_aggadt = ahle_combo_forattr_cattle_aggadt.reset_index()         # Pivoting will change columns to indexes. Change them back.
-ahle_combo_forattr_cattle_aggadt['agesex_scenario'] = 'Adult Combined'
-ahle_combo_forattr_cattle_aggadt['stdev'] = np.sqrt(ahle_combo_forattr_cattle_aggadt['variance'])
-
-# Concatenate with original
-ahle_combo_forattr_cattle_base = ahle_combo_forattr_cattle.loc[~ _agg_juv].loc[~ _agg_neo].loc[~ _agg_adt]
-ahle_combo_forattr_cattle = pd.concat(
-    [ahle_combo_forattr_cattle_base ,ahle_combo_forattr_cattle_aggjuv ,ahle_combo_forattr_cattle_aggneo ,ahle_combo_forattr_cattle_aggadt]
-	,axis=0              # axis=0: concatenate rows (stack), axis=1: concatenate columns (merge)
-	,join='outer'        # 'outer': keep all index values from all data frames
-	,ignore_index=True   # True: do not keep index values on concatenation axis
-)
-del ahle_combo_forattr_cattle_base ,ahle_combo_forattr_cattle_aggjuv ,ahle_combo_forattr_cattle_aggneo ,ahle_combo_forattr_cattle_aggadt
-
-# Fill in missing standard deviations with zero
-ahle_combo_forattr_cattle['stdev'] = ahle_combo_forattr_cattle['stdev'].replace(np.nan ,0)
-
-# Drop variance column
-ahle_combo_forattr_cattle = ahle_combo_forattr_cattle.drop(columns=['variance'])
 
 # =============================================================================
 #### Filter groups and rename
@@ -599,27 +494,9 @@ For poultry, expert attribution file:
 # =============================================================================
 #### Subset data to correct species
 # =============================================================================
-_row_selection = (ahle_combo_forattr_1['species'].str.upper().isin(['POULTRY HYBRID' ,'POULTRY INDIGENOUS']))
+_row_selection = (ahle_combo_forattr_1['species'].str.upper() == 'ALL POULTRY')     # Applying attribution to combined poultry species
 print(f"> Selected {_row_selection.sum() :,} rows.")
 ahle_combo_forattr_poultry = ahle_combo_forattr_1.loc[_row_selection].reset_index(drop=True)
-
-# =============================================================================
-#### Create aggregate groups
-# =============================================================================
-# -----------------------------------------------------------------------------
-# Combine subspecies (hybrid and indegenous)
-# -----------------------------------------------------------------------------
-ahle_combo_forattr_poultry = ahle_combo_forattr_poultry.pivot_table(
-	index=['region' ,'production_system' ,'agesex_scenario' ,'ahle_component' ,'year']
-	,values=['mean' ,'variance']
-	,aggfunc='sum'
-)
-ahle_combo_forattr_poultry = ahle_combo_forattr_poultry.reset_index()         # Pivoting will change columns to indexes. Change them back.
-ahle_combo_forattr_poultry['species'] = 'All Poultry'
-ahle_combo_forattr_poultry['stdev'] = np.sqrt(ahle_combo_forattr_poultry['variance'])
-
-# Drop variance column
-ahle_combo_forattr_poultry = ahle_combo_forattr_poultry.drop(columns=['variance'])
 
 # =============================================================================
 #### Filter groups and rename
@@ -861,10 +738,9 @@ healthcost_smallrum = ahle_combo_forattr_smallrum.loc[_row_selection].reset_inde
 cleancolnames(healthcost_smallrum)
 
 # Sum sheep and goats
-healthcost_smallrum['sqrd_sd'] = healthcost_smallrum['sd']**2       # Calculate variance for summing
 healthcost_smallrum = healthcost_smallrum.pivot_table(
    index=['production_system' ,'age_class' ,'ahle' ,'region' ,'year']
-   ,values=['mean' ,'sqrd_sd']
+   ,values=['mean' ,'variance']
    ,aggfunc='sum'
 ).reset_index()
 healthcost_smallrum['species'] = 'All Small Ruminants'
@@ -879,11 +755,11 @@ healthcost_smallrum = pd.merge(
 
 # Allocate health cost AHLE equally to categories
 healthcost_smallrum['mean'] = healthcost_smallrum['mean'] / len(healthcost_category_list)               # Mean(1/3 X) = 1/3 Mean(X)
-healthcost_smallrum['sqrd_sd'] = healthcost_smallrum['sqrd_sd'] / (len(healthcost_category_list)**2)      # Var(1/3 X) = 1/9 Var(X)
+healthcost_smallrum['variance'] = healthcost_smallrum['variance'] / (len(healthcost_category_list)**2)      # Var(1/3 X) = 1/9 Var(X)
 
 # Calc standard deviation and upper and lower 95% CI
-healthcost_smallrum['sd'] = np.sqrt(healthcost_smallrum['sqrd_sd'])
-del healthcost_smallrum['sqrd_sd']
+healthcost_smallrum['sd'] = np.sqrt(healthcost_smallrum['variance'])
+del healthcost_smallrum['variance']
 
 healthcost_smallrum['lower95'] = healthcost_smallrum['mean'] - 1.96 * healthcost_smallrum['sd']
 healthcost_smallrum['upper95'] = healthcost_smallrum['mean'] + 1.96 * healthcost_smallrum['sd']
@@ -914,13 +790,12 @@ healthcost_cattle = pd.merge(
 )
 
 # Allocate health cost AHLE equally to categories
-healthcost_cattle['sqrd_sd'] = healthcost_cattle['sd']**2       # Calculate variance for summing
 healthcost_cattle['mean'] = healthcost_cattle['mean'] / len(healthcost_category_list)               # Mean(1/3 X) = 1/3 Mean(X)
-healthcost_cattle['sqrd_sd'] = healthcost_cattle['sqrd_sd'] / (len(healthcost_category_list)**2)    # Var(1/3 X) = 1/9 Var(X)
+healthcost_cattle['variance'] = healthcost_cattle['variance'] / (len(healthcost_category_list)**2)    # Var(1/3 X) = 1/9 Var(X)
 
 # Calc standard deviation and upper and lower 95% CI
-healthcost_cattle['sd'] = np.sqrt(healthcost_cattle['sqrd_sd'])
-del healthcost_cattle['sqrd_sd']
+healthcost_cattle['sd'] = np.sqrt(healthcost_cattle['variance'])
+del healthcost_cattle['variance']
 
 healthcost_cattle['lower95'] = healthcost_cattle['mean'] - 1.96 * healthcost_cattle['sd']
 healthcost_cattle['upper95'] = healthcost_cattle['mean'] + 1.96 * healthcost_cattle['sd']
@@ -951,13 +826,12 @@ healthcost_poultry = pd.merge(
 )
 
 # Allocate health cost AHLE equally to categories
-healthcost_poultry['sqrd_sd'] = healthcost_poultry['sd']**2       # Calculate variance for summing
 healthcost_poultry['mean'] = healthcost_poultry['mean'] / len(healthcost_category_list)               # Mean(1/3 X) = 1/3 Mean(X)
-healthcost_poultry['sqrd_sd'] = healthcost_poultry['sqrd_sd'] / (len(healthcost_category_list)**2)    # Var(1/3 X) = 1/9 Var(X)
+healthcost_poultry['variance'] = healthcost_poultry['variance'] / (len(healthcost_category_list)**2)    # Var(1/3 X) = 1/9 Var(X)
 
 # Calc standard deviation and upper and lower 95% CI
-healthcost_poultry['sd'] = np.sqrt(healthcost_poultry['sqrd_sd'])
-del healthcost_poultry['sqrd_sd']
+healthcost_poultry['sd'] = np.sqrt(healthcost_poultry['variance'])
+del healthcost_poultry['variance']
 
 healthcost_poultry['lower95'] = healthcost_poultry['mean'] - 1.96 * healthcost_poultry['sd']
 healthcost_poultry['upper95'] = healthcost_poultry['mean'] + 1.96 * healthcost_poultry['sd']
@@ -982,19 +856,19 @@ When we have estimates of AHLE due to individual diseases, we will use them inst
 # -----------------------------------------------------------------------------
 # Create placeholder data frames
 # -----------------------------------------------------------------------------
-# diseases_inf = pd.DataFrame({
-#     "cause":'Infectious'
-#     ,"disease":['Pathogen A' ,'Pathogen B' ,'Pathogen C' ,'Pathogen D']
-#     ,"disease_proportion":[0.50 ,0.25 ,0.15 ,0.10]     # List: proportion of attribution going to each disease. Must add up to 1.
-#     }
-# )
-# Infectious disease placeholders are replaced with estimates
 diseases_inf = pd.DataFrame({
     "cause":'Infectious'
-    ,"disease":['PPR' ,'Other Infectious']
-    ,"mean":[]
+    ,"disease":['Pathogen A' ,'Pathogen B' ,'Pathogen C' ,'Pathogen D']
+    ,"disease_proportion":[0.50 ,0.25 ,0.15 ,0.10]     # List: proportion of attribution going to each disease. Must add up to 1.
     }
 )
+# Infectious disease placeholders are replaced with estimates
+# diseases_inf = pd.DataFrame({
+#     "cause":'Infectious'
+#     ,"disease":['PPR' ,'Other Infectious']
+#     ,"mean":[]
+#     }
+# )
 
 diseases_non = pd.DataFrame({
     "cause":'Non-infectious'

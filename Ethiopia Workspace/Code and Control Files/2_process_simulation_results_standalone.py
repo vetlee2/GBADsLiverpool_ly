@@ -88,6 +88,31 @@ def colnames_from_index(INPUT_DF):
    dfmod.columns = cols_new
    return dfmod
 
+# Create a function to fill values of one column with another for a subset of rows
+# Example usage:
+# _row_select = (df['col'] == 'value')
+# df = fill_column_where(df ,_row_select ,'col' ,'fill_col' ,DROP=True)
+def fill_column_where(
+        DATAFRAME           # Dataframe
+        ,LOC                # Dataframe mask e.g. _loc = (df['col'] == 'Value')
+        ,COLUMN_TOFILL      # String
+        ,COLUMN_TOUSE       # String
+        ,DROP=False         # True: drop COLUMN_TOUSE
+    ):
+    funcname = inspect.currentframe().f_code.co_name
+    dfmod = DATAFRAME.copy()
+    print(f"<{funcname}> Processing {dfmod.loc[LOC].shape[0]} rows.")
+    try:
+        dfmod[COLUMN_TOUSE]     # If column to use exists
+        print(f"<{funcname}> Filling {COLUMN_TOFILL} with {COLUMN_TOUSE}.")
+        dfmod.loc[LOC ,COLUMN_TOFILL] = dfmod.loc[LOC ,COLUMN_TOUSE]
+        if DROP:
+            dfmod = dfmod.drop(columns=COLUMN_TOUSE)
+    except:
+        print(f"<{funcname}> {COLUMN_TOUSE} not found. Filling {COLUMN_TOFILL} with nan.")
+        dfmod.loc[LOC ,COLUMN_TOFILL] = np.nan
+    return dfmod
+
 #%% Define folder paths
 
 CURRENT_FOLDER = os.getcwd()
@@ -1384,15 +1409,15 @@ scenario_basetable = pd.DataFrame({
    'agesex_scenario':[
       'Adult Female'
       ,'Adult Male'
-      ,'Adult Combined'     # Only applied to poultry
+      ,'Adult Combined'
 
       ,'Juvenile Female'
       ,'Juvenile Male'
-      ,'Juvenile Combined'     # Only applied to poultry
+      ,'Juvenile Combined'
 
       ,'Neonatal Female'
       ,'Neonatal Male'
-      ,'Neonatal Combined'     # Only applied to poultry
+      ,'Neonatal Combined'
 
       ,'Oxen'       # Only applies to Cattle
 
@@ -1421,28 +1446,6 @@ ahle_combo_scensmry = ahle_combo_scensmry.drop(ahle_combo_scensmry.loc[_droprows
 Note that current scenario column applies to every row.
 Note also that columns are already populated for the Overall group.
 '''
-# Create a function to fill values of one column with another for a subset of rows
-def fill_column_where(
-        DATAFRAME           # Dataframe
-        ,LOC                # Dataframe mask e.g. _loc = (df['col'] == 'Value')
-        ,COLUMN_TOFILL      # String
-        ,COLUMN_TOUSE       # String
-        ,DROP=False         # True: drop COLUMN_TOUSE
-    ):
-    funcname = inspect.currentframe().f_code.co_name
-    dfmod = DATAFRAME.copy()
-    print(f"<{funcname}> Processing {dfmod.loc[LOC].shape[0]} rows.")
-    try:
-        dfmod[COLUMN_TOUSE]     # If column to use exists
-        print(f"<{funcname}>> Filling {COLUMN_TOFILL} with {COLUMN_TOUSE}.")
-        dfmod.loc[LOC ,COLUMN_TOFILL] = dfmod.loc[LOC ,COLUMN_TOUSE]
-        if DROP:
-            dfmod = dfmod.drop(columns=COLUMN_TOUSE)
-    except:
-        print(f"<{funcname}>> {COLUMN_TOUSE} not found. Filling {COLUMN_TOFILL} with nan.")
-        dfmod.loc[LOC ,COLUMN_TOFILL] = np.nan
-    return dfmod
-
 # -----------------------------------------------------------------------------
 # Adult Female
 # -----------------------------------------------------------------------------
@@ -1525,7 +1528,7 @@ ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_75_imp'] = np.nan
 ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_100_imp'] = np.nan
 
 # -----------------------------------------------------------------------------
-# Adult combined - currently poultry only
+# Adult combined
 # -----------------------------------------------------------------------------
 select_agesex_scenario = 'adult combined'
 select_agesex_scenario_upcase = select_agesex_scenario.upper()
@@ -1581,16 +1584,7 @@ ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stde
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_jf' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_jf' ,DROP=True)
 
-# For juveniles, mortality scenarios are not sex specific
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_j')
-
+# For juveniles, sex-specific mortality scenarios are missing
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_jf' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_jf' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_jf' ,DROP=True)
@@ -1634,16 +1628,7 @@ ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stde
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_jm' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_jm' ,DROP=True)
 
-# For juveniles, mortality scenarios are not sex specific
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_j')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_j' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_j' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_j' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_j' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_j' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_j' ,DROP=True)
-
+# For juveniles, sex-specific mortality scenarios are missing
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_jm' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_jm' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_jm' ,DROP=True)
@@ -1674,7 +1659,7 @@ ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_75_imp'] = np.nan
 ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_100_imp'] = np.nan
 
 # -----------------------------------------------------------------------------
-# Juvenile combined - currently poultry only
+# Juvenile combined
 # -----------------------------------------------------------------------------
 select_agesex_scenario = 'juvenile combined'
 select_agesex_scenario_upcase = select_agesex_scenario.upper()
@@ -1730,16 +1715,7 @@ ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stde
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_nf' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_nf' ,DROP=True)
 
-# For neonates, mortality scenarios are not sex specific
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_n')
-
+# For neonates, sex-specific mortality scenarios are missing
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_nf' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_nf' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_nf' ,DROP=True)
@@ -1783,16 +1759,7 @@ ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stde
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_nm' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_nm' ,DROP=True)
 
-# For neonates, mortality scenarios are not sex specific
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_n')
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_n' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_25_imp' ,'stdev_mort_25_imp_n' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_50_imp' ,'mean_mort_50_imp_n' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_50_imp' ,'stdev_mort_50_imp_n' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_75_imp' ,'mean_mort_75_imp_n' ,DROP=True)
-# ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_all_mort_75_imp' ,'stdev_mort_75_imp_n' ,DROP=True)
-
+# For neonates, sex-specific mortality scenarios are missing
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_nm' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_nm' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_nm' ,DROP=True)
@@ -1823,7 +1790,7 @@ ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_75_imp'] = np.nan
 ahle_combo_scensmry.loc[_scen_select ,'stdev_current_repro_100_imp'] = np.nan
 
 # -----------------------------------------------------------------------------
-# Neonatal combined - currently poultry only
+# Neonatal combined
 # -----------------------------------------------------------------------------
 select_agesex_scenario = 'neonatal combined'
 select_agesex_scenario_upcase = select_agesex_scenario.upper()

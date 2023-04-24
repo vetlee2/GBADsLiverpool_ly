@@ -154,6 +154,31 @@ def cleancolnames(INPUT_DF):
       .str.replace('&' ,'_and_' ,regex=False)
    return None
 
+# Create a function to fill values of one column with another for a subset of rows
+# Example usage:
+# _row_select = (df['col'] == 'value')
+# df = fill_column_where(df ,_row_select ,'col' ,'fill_col' ,DROP=True)
+def fill_column_where(
+        DATAFRAME           # Dataframe
+        ,LOC                # Dataframe mask e.g. _loc = (df['col'] == 'Value')
+        ,COLUMN_TOFILL      # String
+        ,COLUMN_TOUSE       # String
+        ,DROP=False         # True: drop COLUMN_TOUSE
+    ):
+    funcname = inspect.currentframe().f_code.co_name
+    dfmod = DATAFRAME.copy()
+    print(f"<{funcname}> Processing {dfmod.loc[LOC].shape[0]} rows.")
+    try:
+        dfmod[COLUMN_TOUSE]     # If column to use exists
+        print(f"<{funcname}> Filling {COLUMN_TOFILL} with {COLUMN_TOUSE}.")
+        dfmod.loc[LOC ,COLUMN_TOFILL] = dfmod.loc[LOC ,COLUMN_TOUSE]
+        if DROP:
+            dfmod = dfmod.drop(columns=COLUMN_TOUSE)
+    except:
+        print(f"<{funcname}> {COLUMN_TOUSE} not found. Filling {COLUMN_TOFILL} with nan.")
+        dfmod.loc[LOC ,COLUMN_TOFILL] = np.nan
+    return dfmod
+
 #%% Define folder paths
 
 CURRENT_FOLDER = os.getcwd()
@@ -232,30 +257,45 @@ rows and must be done carefully to use the correct rows for each distinct BY gro
 (by region, species, production system, and year).
 '''
 # Split age and sex groups into their own columns
-# ahle_combo_scensmry_withahle_sub[['age_group' ,'sex']] = \
-#     ahle_combo_scensmry_withahle_sub['agesex_scenario'].str.split(' ' ,expand=True)
+ahle_combo_scensmry_withahle_sub[['age_group' ,'sex']] = \
+    ahle_combo_scensmry_withahle_sub['agesex_scenario'].str.split(' ' ,expand=True)
+
+ahle_combo_scensmry_withahle_sub['sex'].unique()
 
 # For each species, production system, region, year, and age group:
-#    fill in the Combined sex result based on the Male and Female results
-# byvars = [
-#     'region'
-#     ,'species'
-#     ,'production_system'
-#     ,'age_group'
-#     ,'sex'
-#     ,'year'
-#     ]
-# for SPECIES in ahle_combo_scensmry_withahle_sub['species'].unique():
-#     _species = (ahle_combo_scensmry_withahle_sub['species'] == SPECIES)
-#     for PRODSYS in ahle_combo_scensmry_withahle_sub.loc[_species ,'production_system'].unique():
-#         _prodsys = (ahle_combo_scensmry_withahle_sub['production_system'] == PRODSYS)
-#         for AGEGRP in ['Adult' ,'Juvenile' ,'Neonatal']:
-#             _agegrp = (ahle_combo_scensmry_withahle_sub['age_group'] == AGEGRP)
-#             print(f'> {SPECIES=} {PRODSYS=} {AGEGRP=}')
-#             print(ahle_combo_scensmry_withahle_sub.loc[_species & _prodsys & _agegrp][byvars + ['ahle_total_mean']])
+#    calculate the Combined sex result based on the Male and Female results
+fillsex_byvars = [
+    'region'
+    ,'species'
+    ,'production_system'
+    ,'age_group'
+    ,'year'
+    ]
+ahle_combo_scensmry_withahle_sub['ahle_total_mean_combined'] = \
+    ahle_combo_scensmry_withahle_sub.groupby(fillsex_byvars)['ahle_total_mean'].transform('sum')
+ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_mean_combined'] = \
+    ahle_combo_scensmry_withahle_sub.groupby(fillsex_byvars)['ahle_dueto_mortality_mean'].transform('sum')
+
+# For Combined sex rows, fill in missing values with sums
+_combined_sex = (ahle_combo_scensmry_withahle_sub['sex'] == 'Combined')
+ahle_combo_scensmry_withahle_sub = fill_column_where(
+    ahle_combo_scensmry_withahle_sub
+    ,_combined_sex
+    ,'ahle_total_mean'
+    ,'ahle_total_mean_combined'
+    ,DROP=True
+    )
+ahle_combo_scensmry_withahle_sub = fill_column_where(
+    ahle_combo_scensmry_withahle_sub
+    ,_combined_sex
+    ,'ahle_dueto_mortality_mean'
+    ,'ahle_dueto_mortality_mean_combined'
+    ,DROP=True
+    )
 
 # Recalculate AHLE due to production loss
-# ahle_dueto_productionloss_mean = ahle_total_mean - ahle_dueto_mortality_mean - ahle_dueto_healthcost_mean
+ahle_combo_scensmry_withahle_sub['ahle_dueto_productionloss_mean'] = \
+    ahle_combo_scensmry_withahle_sub['ahle_total_mean'] - ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_mean'] - ahle_combo_scensmry_withahle_sub['ahle_dueto_healthcost_mean']
 
 # =============================================================================
 #### Restructure for Attribution function
@@ -307,36 +347,8 @@ system or age class.
 '''
 _droprows = (ahle_combo_forattr_1['production_system'].str.upper() == 'OVERALL') \
     | (ahle_combo_forattr_1['agesex_scenario'].str.upper() == 'OVERALL')
-print(f"> Dropping {_droprows.sum() :,} rows where production system or agesex are 'Overall'.")
+print(f"> Dropping {_droprows.sum() :,} rows where production_system or agesex_scenario are 'Overall'.")
 ahle_combo_forattr_1 = ahle_combo_forattr_1.drop(ahle_combo_forattr_1.loc[_droprows].index).reset_index(drop=True)
-
-# =============================================================================
-#### Adjust Mortality AHLE
-# =============================================================================
-'''
-Mortality AHLE results are non-sex-specific for Juveniles and Neonates. This is
-due to the way scenarios are defined, and is true for all species.
-'''
-# Keep only one sex
-_droprows = (ahle_combo_forattr_1['ahle_component'] == 'Mortality') \
-    & (ahle_combo_forattr_1['agesex_scenario'].isin(['Juvenile Male' ,'Neonatal Male']))
-print(f"> Dropping {_droprows.sum() :,} rows.")
-ahle_combo_forattr_1 = ahle_combo_forattr_1.drop(ahle_combo_forattr_1.loc[_droprows].index).reset_index(drop=True)
-
-# Change group label
-relabel_mort = {
-    "Juvenile Female": "Juvenile Combined"
-    ,"Neonatal Female": "Neonatal Combined"
-    }
-_mortrows = (ahle_combo_forattr_1['ahle_component'] == 'Mortality')
-ahle_combo_forattr_1.loc[_mortrows] = ahle_combo_forattr_1.loc[_mortrows].replace(relabel_mort)
-
-# Drop duplicates
-# Different processing for different species may have produced duplicates
-ahle_combo_forattr_1 = ahle_combo_forattr_1.drop_duplicates(
- 	subset=['region' ,'species' ,'production_system' ,'agesex_scenario' ,'ahle_component' ,'year']
- 	,keep='first'                   # String: which occurrence to keep, 'first' or 'last'
-)
 
 #%% Prep for Attribution - Small Ruminants
 '''

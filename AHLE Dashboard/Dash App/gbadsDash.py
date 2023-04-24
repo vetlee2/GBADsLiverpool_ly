@@ -751,7 +751,7 @@ ecs_geo_view_options = [{'label': i, 'value': i, 'disabled': False} for i in ["N
 
 # Region - removing 'National' from the options
 ecs_region_options = []
-for i in ecs_ahle_scensmry.query("region != 'National'").region.unique():
+for i in ecs_ahle_summary.query("region != 'National'").region.unique():
     str(ecs_region_options.append({'label':i,'value':(i)}))
 
 # Display
@@ -2219,7 +2219,7 @@ gbadsDash.layout = html.Div([
 
     #### TABS
     dcc.Tabs([
-        
+
         #### USER GUIDE TAB
         dcc.Tab(label="User Guide & References", children =[
             html.Iframe(src="assets/GBADs_Documentation/_build/html/index.html", # this is for the jupyter books
@@ -3379,8 +3379,8 @@ gbadsDash.layout = html.Div([
                     ]),
 
                 ]),
-            
-            # SECOND CONTROL ROW            
+
+            # SECOND CONTROL ROW
             dbc.Row([
                 dbc.Col([
                     # Switch between single year and over time
@@ -3397,7 +3397,7 @@ gbadsDash.layout = html.Div([
                     ]
                     # ,width=2
                     ),
-                
+
                 # Item or Year Control switch
                 dbc.Col([
                     html.H5("Year"),
@@ -3408,7 +3408,7 @@ gbadsDash.layout = html.Div([
                     ]
                     # ,width=1
                     ),
-                
+
                 # Geographical breakdown options
                 dbc.Col([
                     html.H5("Geographical View"),
@@ -3422,7 +3422,7 @@ gbadsDash.layout = html.Div([
                                       },
                                   ),
                     ]),
-                
+
                 # Regional dropdwon
                 dbc.Col([
                     html.H5("Region", id='select-region-ecs-title'),
@@ -3434,10 +3434,10 @@ gbadsDash.layout = html.Div([
                     ]
                     # ,width=2
                     ),
-                
+
                 # END OF SECOND CONTROL ROW
                 ], justify='evenly'),
-            
+
             html.Br(),
             dbc.Row([
 
@@ -3764,14 +3764,14 @@ gbadsDash.layout = html.Div([
 
              # END OF MAP ROW
             ]),
-            
+
             #### -- MAP FOOTNOTES
             dbc.Row([
                 # Do not have data for 3 cities
                 html.P("	* Currently do not have data for Addis Ababa, Dire Dawa, or Harari regions."),
             ], style={'margin-left':"40px", 'font-style': 'italic'}
             ),
-            
+
             html.Br(),
 
             #### -- GRAPHICS PT.2
@@ -7570,13 +7570,13 @@ def update_geo_view_options_ecs(graph):
     )
 def update_ahle_graph_controls(graph, geo_view):
     options2 = ecs_region_options.copy()
-    
+
     for d in options2:
         if graph == 'Over Time':
-            block = {'display': 'none'} # hide 
+            block = {'display': 'none'} # hide
             value = ''
             d['disabled']=True
-            
+
         else:
             block = {'display': 'block'}
             if geo_view == 'National':

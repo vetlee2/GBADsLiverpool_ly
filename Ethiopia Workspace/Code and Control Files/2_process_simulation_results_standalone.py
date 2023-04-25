@@ -104,12 +104,13 @@ def fill_column_where(
     print(f"<{funcname}> Processing {dfmod.loc[LOC].shape[0]} rows.")
     try:
         dfmod[COLUMN_TOUSE]     # If column to use exists
-        print(f"<{funcname}> Filling {COLUMN_TOFILL} with {COLUMN_TOUSE}.")
+        print(f"<{funcname}> - Filling {COLUMN_TOFILL} with {COLUMN_TOUSE}.")
         dfmod.loc[LOC ,COLUMN_TOFILL] = dfmod.loc[LOC ,COLUMN_TOUSE]
         if DROP:
             dfmod = dfmod.drop(columns=COLUMN_TOUSE)
+            print(f"<{funcname}> Dropping {COLUMN_TOUSE}.")
     except:
-        print(f"<{funcname}> {COLUMN_TOUSE} not found. Filling {COLUMN_TOFILL} with nan.")
+        print(f"<{funcname}> - {COLUMN_TOUSE} not found. Filling {COLUMN_TOFILL} with nan.")
         dfmod.loc[LOC ,COLUMN_TOFILL] = np.nan
     return dfmod
 
@@ -1129,6 +1130,9 @@ Relying on the following properties of sums of random variables:
     mean(aX + bY) = a*mean(X) + b*mean(Y), regardless of correlation
     var(aX + bY) = a^2*var(X) + b^2*var(Y), assuming X and Y are uncorrelated
 '''
+#??? Should ahle_dueto_healthcost_mean be expenditure on individual age/sex groups? Right now it is system total.
+# This would represent a break from the way we've done it. Stay consistent.
+# Consider: use system total but split proportionally among age/sex groups.
 ahle_combo_withahle = ahle_combo_withagg_p.copy()
 
 ahle_combo_withahle.eval(
@@ -1890,11 +1894,11 @@ mixing apples and oranges.
 Note: while item values do not sum across age/sex scenarios, they do sum across
 species and production systems.
 '''
-mean_cols = [i for i in list(ahle_combo_scensmry) if 'mean' in i]
-sd_cols = [i for i in list(ahle_combo_scensmry) if 'stdev' in i]
-var_cols = ['sqrd_' + COLNAME for COLNAME in sd_cols]
+mean_cols_scensmry = [i for i in list(ahle_combo_scensmry) if 'mean' in i]
+sd_cols_scensmry = [i for i in list(ahle_combo_scensmry) if 'stdev' in i]
+var_cols = ['sqrd_' + COLNAME for COLNAME in sd_cols_scensmry]
 for i ,VARCOL in enumerate(var_cols):
-   SDCOL = sd_cols[i]
+   SDCOL = sd_cols_scensmry[i]
    ahle_combo_scensmry[VARCOL] = ahle_combo_scensmry[SDCOL]**2
 
 # -----------------------------------------------------------------------------
@@ -1902,7 +1906,7 @@ for i ,VARCOL in enumerate(var_cols):
 # -----------------------------------------------------------------------------
 ahle_combo_scensmry_sumprod = ahle_combo_scensmry.pivot_table(
    index=['region' ,'species' ,'item' ,'agesex_scenario' ,'year']
-   ,values=mean_cols + var_cols
+   ,values=mean_cols_scensmry + var_cols
    ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
 ).reset_index()
 ahle_combo_scensmry_sumprod['production_system'] = 'Overall'
@@ -1921,7 +1925,7 @@ del ahle_combo_scensmry_sumprod
 # "All Small Ruminants" for Sheep and Goats
 ahle_combo_scensmry_sumspec1 = ahle_combo_scensmry.query("species.str.upper().isin(['SHEEP' ,'GOAT'])").pivot_table(
    index=['region' ,'production_system' ,'item' ,'agesex_scenario' ,'year']
-   ,values=mean_cols + var_cols
+   ,values=mean_cols_scensmry + var_cols
    ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
 ).reset_index()
 ahle_combo_scensmry_sumspec1['species'] = 'All Small Ruminants'
@@ -1929,7 +1933,7 @@ ahle_combo_scensmry_sumspec1['species'] = 'All Small Ruminants'
 # "All poultry"
 ahle_combo_scensmry_sumspec2 = ahle_combo_scensmry.query("species.str.contains('poultry' ,case=False ,na=False)").pivot_table(
    index=['region' ,'production_system' ,'item' ,'agesex_scenario' ,'year']
-   ,values=mean_cols + var_cols
+   ,values=mean_cols_scensmry + var_cols
    ,aggfunc=lambda x: x.mean() * x.count()  # Hack: sum is equal to zero if all values are missing. This will cause all missings to produce missing.
 ).reset_index()
 ahle_combo_scensmry_sumspec2['species'] = 'All Poultry'
@@ -1947,7 +1951,7 @@ del ahle_combo_scensmry_sumspec1 ,ahle_combo_scensmry_sumspec2
 # Calculate standard deviations
 # -----------------------------------------------------------------------------
 for i ,VARCOL in enumerate(var_cols):
-   SDCOL = sd_cols[i]
+   SDCOL = sd_cols_scensmry[i]
    ahle_combo_scensmry[SDCOL] = np.sqrt(ahle_combo_scensmry[VARCOL])
    del ahle_combo_scensmry[VARCOL]
 
@@ -1969,19 +1973,55 @@ del ahle_combo_scensmry['country_name']
 currency_items_containing = ['cost' ,'value' ,'margin' ,'expenditure']
 currency_items = []
 for STR in currency_items_containing:
-   currency_items = currency_items + [item for item in ahle_combo_scensmry['item'].unique() if STR.upper() in item.upper()]
+    currency_items = currency_items + [item for item in ahle_combo_scensmry['item'].unique() if STR.upper() in item.upper()]
 
-for MEANCOL in mean_cols:
-   MEANCOL_USD = MEANCOL + '_usd'
-   ahle_combo_scensmry.loc[ahle_combo_scensmry['item'].isin(currency_items) ,MEANCOL_USD] = \
-      ahle_combo_scensmry[MEANCOL] / ahle_combo_scensmry['exchg_rate_lcuperusdol']
+for MEANCOL in mean_cols_scensmry:
+    MEANCOL_USD = MEANCOL + '_usd'
+    ahle_combo_scensmry.loc[ahle_combo_scensmry['item'].isin(currency_items) ,MEANCOL_USD] = \
+        ahle_combo_scensmry[MEANCOL] / ahle_combo_scensmry['exchg_rate_lcuperusdol']
 
-# For standard deviations, convert to variances then scale by the squared exchange rate
+# For standard deviations, convert to variances then scale by the squared denominator
 # VAR(aX) = a^2 * VAR(X).  a = 1/exchange rate.
-for SDCOL in sd_cols:
-   SDCOL_USD = SDCOL + '_usd'
-   ahle_combo_scensmry.loc[ahle_combo_scensmry['item'].isin(currency_items) ,SDCOL_USD] = \
-      np.sqrt(ahle_combo_scensmry[SDCOL]**2 / ahle_combo_scensmry['exchg_rate_lcuperusdol']**2)
+for SDCOL in sd_cols_scensmry:
+    SDCOL_USD = SDCOL + '_usd'
+    ahle_combo_scensmry.loc[ahle_combo_scensmry['item'].isin(currency_items) ,SDCOL_USD] = \
+        np.sqrt(ahle_combo_scensmry[SDCOL]**2 / ahle_combo_scensmry['exchg_rate_lcuperusdol']**2)
+
+# =============================================================================
+#### Add columns per kg biomass
+# =============================================================================
+# Get current population liveweight by region into its own column
+regional_wt_byvars = ['region' ,'species' ,'production_system' ,'year']
+liveweight_byregion = ahle_combo_scensmry.query("item == 'Population Liveweight (kg)'")[regional_wt_byvars + ['item' ,'mean_current']].drop_duplicates()
+liveweight_byregion = liveweight_byregion.pivot(
+    index=regional_wt_byvars
+    ,columns='item'
+    ,values='mean_current'
+    ).reset_index()
+cleancolnames(liveweight_byregion)
+
+# Merge with original data
+ahle_combo_scensmry = pd.merge(
+    left=ahle_combo_scensmry
+    ,right=liveweight_byregion
+    ,on=regional_wt_byvars
+    ,how='left'
+    )
+
+# Calculate value columns per kg liveweight
+# Recreate column lists to include USD columns
+mean_cols_scensmry = [i for i in list(ahle_combo_scensmry) if 'mean' in i]
+sd_cols_scensmry = [i for i in list(ahle_combo_scensmry) if 'stdev' in i]
+
+for MEANCOL in mean_cols_scensmry:
+    NEWCOL_NAME = MEANCOL + '_perkgbiomass'
+    ahle_combo_scensmry[NEWCOL_NAME] = ahle_combo_scensmry[MEANCOL] / ahle_combo_scensmry['population_liveweight__kg_']
+
+# For standard deviations, convert to variances then scale by the squared denominator
+# VAR(aX) = a^2 * VAR(X).  a = 1/exchange rate.
+for SDCOL in sd_cols_scensmry:
+    NEWCOL_NAME = SDCOL + '_perkgbiomass'
+    ahle_combo_scensmry[NEWCOL_NAME] = np.sqrt(ahle_combo_scensmry[SDCOL]**2 / ahle_combo_scensmry['population_liveweight__kg_']**2)
 
 # =============================================================================
 #### Cleanup and export
@@ -2014,8 +2054,8 @@ here to be used as input to the attribution function.
 # =============================================================================
 # For AHLE calcs, we want each item in a column
 # Need means and standard deviations for later calculations
-mean_cols = [i for i in list(ahle_combo_scensmry) if 'mean' in i]
-sd_cols = [i for i in list(ahle_combo_scensmry) if 'stdev' in i]
+mean_cols_scensmry = [i for i in list(ahle_combo_scensmry) if 'mean' in i]
+sd_cols_scensmry = [i for i in list(ahle_combo_scensmry) if 'stdev' in i]
 
 # Only need some items for AHLE calcs
 keep_items = [
@@ -2029,7 +2069,7 @@ _items_for_ahle = (ahle_combo_scensmry['item'].str.upper().isin(keep_items_upper
 ahle_combo_scensmry_p = ahle_combo_scensmry.loc[_items_for_ahle].pivot(
     index=['region' ,'species' ,'production_system' ,'agesex_scenario' ,'year']
     ,columns='item'
-    ,values=mean_cols + sd_cols
+    ,values=mean_cols_scensmry + sd_cols_scensmry
 ).reset_index()
 ahle_combo_scensmry_p = colnames_from_index(ahle_combo_scensmry_p)   # Change multi-index to column names
 cleancolnames(ahle_combo_scensmry_p)
@@ -2158,15 +2198,15 @@ ahle_combo_scensmry_withahle = pd.merge(
 del ahle_combo_scensmry_withahle['country_name']
 
 # Add columns in USD
-mean_cols_ahle = [i for i in list(ahle_combo_scensmry_withahle) if 'mean' in i and 'ahle' in i]
-for MEANCOL in mean_cols_ahle:
+mean_cols_scensmry_ahle = [i for i in list(ahle_combo_scensmry_withahle) if 'mean' in i and 'ahle' in i]
+for MEANCOL in mean_cols_scensmry_ahle:
     MEANCOL_USD = MEANCOL + '_usd'
     ahle_combo_scensmry_withahle[MEANCOL_USD] = ahle_combo_scensmry_withahle[MEANCOL] / ahle_combo_scensmry_withahle['exchg_rate_lcuperusdol']
 
 # For standard deviations, convert to variances then scale by the squared exchange rate
 # VAR(aX) = a^2 * VAR(X).  a = 1/exchange rate.
-sd_cols_ahle = [i for i in list(ahle_combo_scensmry_withahle) if 'stdev' in i and 'ahle' in i]
-for SDCOL in sd_cols_ahle:
+sd_cols_scensmry_ahle = [i for i in list(ahle_combo_scensmry_withahle) if 'stdev' in i and 'ahle' in i]
+for SDCOL in sd_cols_scensmry_ahle:
     SDCOL_USD = SDCOL + '_usd'
     ahle_combo_scensmry_withahle[SDCOL_USD] = np.sqrt(ahle_combo_scensmry_withahle[SDCOL]**2 / ahle_combo_scensmry_withahle['exchg_rate_lcuperusdol']**2)
 

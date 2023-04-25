@@ -170,12 +170,13 @@ def fill_column_where(
     print(f"<{funcname}> Processing {dfmod.loc[LOC].shape[0]} rows.")
     try:
         dfmod[COLUMN_TOUSE]     # If column to use exists
-        print(f"<{funcname}> Filling {COLUMN_TOFILL} with {COLUMN_TOUSE}.")
+        print(f"<{funcname}> - Filling {COLUMN_TOFILL} with {COLUMN_TOUSE}.")
         dfmod.loc[LOC ,COLUMN_TOFILL] = dfmod.loc[LOC ,COLUMN_TOUSE]
         if DROP:
             dfmod = dfmod.drop(columns=COLUMN_TOUSE)
+            print(f"<{funcname}> Dropping {COLUMN_TOUSE}.")
     except:
-        print(f"<{funcname}> {COLUMN_TOUSE} not found. Filling {COLUMN_TOFILL} with nan.")
+        print(f"<{funcname}> - {COLUMN_TOUSE} not found. Filling {COLUMN_TOFILL} with nan.")
         dfmod.loc[LOC ,COLUMN_TOFILL] = np.nan
     return dfmod
 
@@ -305,19 +306,6 @@ ahle_combo_scensmry_withahle_sub['ahle_dueto_productionloss_stdev'] = \
                 + ahle_combo_scensmry_withahle_sub['ahle_dueto_healthcost_stdev']**2)
 
 # =============================================================================
-#### Drop unneeded rows
-# =============================================================================
-'''
-Regardless of species, attribution function does not need aggregate production
-system or age class.
-'''
-_droprows = (ahle_combo_scensmry_withahle_sub['production_system'].str.upper() == 'OVERALL') \
-    | (ahle_combo_scensmry_withahle_sub['agesex_scenario'].str.upper() == 'OVERALL')
-print(f"> Dropping {_droprows.sum() :,} rows where production_system or agesex_scenario are 'Overall'.")
-ahle_combo_scensmry_withahle_sub = \
-    ahle_combo_scensmry_withahle_sub.drop(ahle_combo_scensmry_withahle_sub.loc[_droprows].index).reset_index(drop=True)
-
-# =============================================================================
 #### Restructure for Attribution function
 # =============================================================================
 ahle_combo_forattr_means = ahle_combo_scensmry_withahle_sub.melt(
@@ -358,15 +346,47 @@ del ahle_combo_forattr_means ,ahle_combo_forattr_stdev
 # Add variance column for summing
 ahle_combo_forattr_1['variance'] = ahle_combo_forattr_1['stdev']**2
 
+# =============================================================================
+#### Drop unneeded rows
+# =============================================================================
+'''
+Attribution function does not need aggregate production system or age class.
+'''
+_droprows = (ahle_combo_forattr_1['production_system'].str.upper() == 'OVERALL') \
+    | (ahle_combo_forattr_1['agesex_scenario'].str.upper() == 'OVERALL')
+print(f"> Dropping {_droprows.sum() :,} rows where production_system or agesex_scenario are 'Overall'.")
+ahle_combo_forattr_1 = \
+    ahle_combo_forattr_1.drop(ahle_combo_forattr_1.loc[_droprows].index).reset_index(drop=True)
+
+# =============================================================================
+#### Rename and reorder columns
+# =============================================================================
+'''
+The attribution function refers to some columns by position and others by name
+Put all the expected columns first, with correct names and ordering
+'''
+colnames_ordered_forattr = {
+    "species":"Species"
+    ,"production_system":"Production system"
+    ,"agesex_scenario":"Age class"
+    ,"ahle_component":"AHLE"
+    ,"mean":"mean"
+    ,"stdev":"sd"
+}
+cols_first = list(colnames_ordered_forattr)
+cols_other = [i for i in list(ahle_combo_forattr_1) if i not in cols_first]
+
+ahle_combo_forattr_1 = ahle_combo_forattr_1[cols_first + cols_other].rename(columns=colnames_ordered_forattr)
+
 #%% Prep for Attribution - Small Ruminants
 '''
 For sheep and goats, the expert attribution file uses non-sex-specific Juvenile
-and Neonatal groups, while the compartmental model produces sex-specific scenarios.
+and Neonatal groups.
 '''
 # =============================================================================
 #### Subset data to correct species
 # =============================================================================
-_row_selection = (ahle_combo_forattr_1['species'].str.upper().isin(['SHEEP' ,'GOAT']))
+_row_selection = (ahle_combo_forattr_1['Species'].str.upper().isin(['SHEEP' ,'GOAT']))
 print(f"> Selected {_row_selection.sum() :,} rows.")
 ahle_combo_forattr_smallrum = ahle_combo_forattr_1.loc[_row_selection].reset_index(drop=True)
 
@@ -385,35 +405,17 @@ groups_for_attribution = {
 groups_for_attribution_upper = [i.upper() for i in list(groups_for_attribution)]
 
 # Filter agesex groups
-_row_selection = (ahle_combo_forattr_smallrum['agesex_scenario'].str.upper().isin(groups_for_attribution_upper))
+_row_selection = (ahle_combo_forattr_smallrum['Age class'].str.upper().isin(groups_for_attribution_upper))
 print(f"> Selected {_row_selection.sum() :,} rows.")
 ahle_combo_forattr_smallrum = ahle_combo_forattr_smallrum.loc[_row_selection].reset_index(drop=True)
 
 # Rename groups to match attribution code
-ahle_combo_forattr_smallrum['agesex_scenario'] = ahle_combo_forattr_smallrum['agesex_scenario'].replace(groups_for_attribution)
-
-# -----------------------------------------------------------------------------
-# Rename and reorder columns
-# -----------------------------------------------------------------------------
-# The attribution function refers to some columns by position and others by name
-# Put all the expected columns first, with correct names and ordering
-colnames_ordered_forattr = {
-    "species":"Species"
-    ,"production_system":"Production system"
-    ,"agesex_scenario":"Age class"
-    ,"ahle_component":"AHLE"
-    ,"mean":"mean"
-    ,"stdev":"sd"
-}
-cols_first = list(colnames_ordered_forattr)
-cols_other = [i for i in list(ahle_combo_forattr_smallrum) if i not in cols_first]
-
-ahle_combo_forattr_smallrum = ahle_combo_forattr_smallrum[cols_first + cols_other].rename(columns=colnames_ordered_forattr)
+ahle_combo_forattr_smallrum['Age class'] = ahle_combo_forattr_smallrum['Age class'].replace(groups_for_attribution)
 
 #%% Prep for Attribution - Cattle
 '''
 For cattle, expert attribution file:
-    - Uses non-sex-specific groups for all ages, while the AHLE scenarios are sex-specific for all ages.
+    - Uses non-sex-specific groups for all ages
     - Has an additional group 'oxen'
     - Has different labels for groups:
         'Juvenile' maps to 'Neonate' in the AHLE file
@@ -422,7 +424,7 @@ For cattle, expert attribution file:
 # =============================================================================
 #### Subset data to correct species
 # =============================================================================
-_row_selection = (ahle_combo_forattr_1['species'].str.upper() == 'CATTLE')
+_row_selection = (ahle_combo_forattr_1['Species'].str.upper() == 'CATTLE')
 print(f"> Selected {_row_selection.sum() :,} rows.")
 ahle_combo_forattr_cattle = ahle_combo_forattr_1.loc[_row_selection].reset_index(drop=True)
 
@@ -441,48 +443,30 @@ groups_for_attribution = {
 groups_for_attribution_upper = [i.upper() for i in list(groups_for_attribution)]
 
 # Filter
-_row_selection = (ahle_combo_forattr_cattle['agesex_scenario'].str.upper().isin(groups_for_attribution_upper))
+_row_selection = (ahle_combo_forattr_cattle['Age class'].str.upper().isin(groups_for_attribution_upper))
 print(f"> Selected {_row_selection.sum() :,} rows.")
 ahle_combo_forattr_cattle = ahle_combo_forattr_cattle.loc[_row_selection].reset_index(drop=True)
 
 # Rename to match attribution code
-ahle_combo_forattr_cattle['agesex_scenario'] = ahle_combo_forattr_cattle['agesex_scenario'].replace(groups_for_attribution)
+ahle_combo_forattr_cattle['Age class'] = ahle_combo_forattr_cattle['Age class'].replace(groups_for_attribution)
 
 # -----------------------------------------------------------------------------
 # Production systems
 # -----------------------------------------------------------------------------
-prodsys_for_attribution = {
+cattle_prodsys_forattribution = {
     'Crop livestock mixed':'Crop livestock mixed'
     ,'Pastoral':'Pastoral'
     ,'Periurban dairy':'Dairy'
 }
-prodsys_for_attribution_upper = [i.upper() for i in list(prodsys_for_attribution)]
+cattle_prodsys_forattribution_upper = [i.upper() for i in list(cattle_prodsys_forattribution)]
 
 # Filter
-_row_selection = (ahle_combo_forattr_cattle['production_system'].str.upper().isin(prodsys_for_attribution_upper))
+_row_selection = (ahle_combo_forattr_cattle['Production system'].str.upper().isin(cattle_prodsys_forattribution_upper))
 print(f"> Selected {_row_selection.sum() :,} rows.")
 ahle_combo_forattr_cattle = ahle_combo_forattr_cattle.loc[_row_selection].reset_index(drop=True)
 
 # Rename to match attribution code
-ahle_combo_forattr_cattle['production_system'] = ahle_combo_forattr_cattle['production_system'].replace(prodsys_for_attribution)
-
-# -----------------------------------------------------------------------------
-# Rename and reorder columns
-# -----------------------------------------------------------------------------
-# The attribution function refers to some columns by position and others by name
-# Put all the expected columns first, with correct names and ordering
-colnames_ordered_forattr = {
-    "species":"Species"
-    ,"production_system":"Production system"
-    ,"agesex_scenario":"Age class"
-    ,"ahle_component":"AHLE"
-    ,"mean":"mean"
-    ,"stdev":"sd"
-}
-cols_first = list(colnames_ordered_forattr)
-cols_other = [i for i in list(ahle_combo_forattr_cattle) if i not in cols_first]
-
-ahle_combo_forattr_cattle = ahle_combo_forattr_cattle[cols_first + cols_other].rename(columns=colnames_ordered_forattr)
+ahle_combo_forattr_cattle['Production system'] = ahle_combo_forattr_cattle['Production system'].replace(cattle_prodsys_forattribution)
 
 #%% Prep for Attribution - Poultry
 '''
@@ -494,7 +478,7 @@ For poultry, expert attribution file:
 # =============================================================================
 #### Subset data to correct species
 # =============================================================================
-_row_selection = (ahle_combo_forattr_1['species'].str.upper() == 'ALL POULTRY')     # Applying attribution to combined poultry species
+_row_selection = (ahle_combo_forattr_1['Species'].str.upper() == 'ALL POULTRY')     # Applying attribution to combined poultry species
 print(f"> Selected {_row_selection.sum() :,} rows.")
 ahle_combo_forattr_poultry = ahle_combo_forattr_1.loc[_row_selection].reset_index(drop=True)
 
@@ -512,30 +496,12 @@ groups_for_attribution = {
 groups_for_attribution_upper = [i.upper() for i in list(groups_for_attribution)]
 
 # Filter agesex groups
-_row_selection = (ahle_combo_forattr_poultry['agesex_scenario'].str.upper().isin(groups_for_attribution_upper))
+_row_selection = (ahle_combo_forattr_poultry['Age class'].str.upper().isin(groups_for_attribution_upper))
 print(f"> Selected {_row_selection.sum() :,} rows.")
 ahle_combo_forattr_poultry = ahle_combo_forattr_poultry.loc[_row_selection].reset_index(drop=True)
 
 # Rename groups to match attribution code
-ahle_combo_forattr_poultry['agesex_scenario'] = ahle_combo_forattr_poultry['agesex_scenario'].replace(groups_for_attribution)
-
-# -----------------------------------------------------------------------------
-# Rename and reorder columns
-# -----------------------------------------------------------------------------
-# The attribution function refers to some columns by position and others by name
-# Put all the expected columns first, with correct names and ordering
-colnames_ordered_forattr = {
-    "species":"Species"
-    ,"production_system":"Production system"
-    ,"agesex_scenario":"Age class"
-    ,"ahle_component":"AHLE"
-    ,"mean":"mean"
-    ,"stdev":"sd"
-}
-cols_first = list(colnames_ordered_forattr)
-cols_other = [i for i in list(ahle_combo_forattr_poultry) if i not in cols_first]
-
-ahle_combo_forattr_poultry = ahle_combo_forattr_poultry[cols_first + cols_other].rename(columns=colnames_ordered_forattr)
+ahle_combo_forattr_poultry['Age class'] = ahle_combo_forattr_poultry['Age class'].replace(groups_for_attribution)
 
 #%% Run Attribution
 
@@ -714,8 +680,11 @@ ahle_combo_withattr = pd.concat(
 cleancolnames(ahle_combo_withattr)
 datainfo(ahle_combo_withattr)
 
+# Drop Median column as it will not be valid after adding placeholders
+del ahle_combo_withattr['median']
+
 # =============================================================================
-#### Add health cost placeholder
+#### Add health cost component
 # =============================================================================
 # -----------------------------------------------------------------------------
 # Define placeholder attribution categories
@@ -845,7 +814,7 @@ ahle_combo_withattr = pd.concat(
 )
 
 # =============================================================================
-#### Add disease-specific placeholder
+#### Add disease-specific component
 # =============================================================================
 '''
 This creates placeholders for specific infectious, non-infectious, and external
@@ -853,6 +822,58 @@ factors.
 
 When we have estimates of AHLE due to individual diseases, we will use them instead.
 '''
+# Impact of PPR is only estimated for Overall agesex_scenario (we do not specify which age/sex groups are infected)
+# Get impact of PPR as proportion of infectious at system-total level
+
+# Get disaggregation proportions of infectious AHLE to age_class and ahle component
+# Separately by region, species, production_system, and year
+disagg_byvars = [
+    'region'
+    ,'species'
+    ,'production_system'
+    ,'year'
+    ,'cause'
+    ]
+disagg_into = [
+    'age_class'
+    ,'ahle'
+    ]
+ahle_disagg_causes = ahle_combo_withattr[disagg_byvars + disagg_into + ['mean']].copy()
+ahle_disagg_causes['sum_byvars'] = ahle_disagg_causes.groupby(disagg_byvars)['mean'].transform('sum')
+ahle_disagg_causes['disagg_prpn'] = ahle_disagg_causes['mean'] / ahle_disagg_causes['sum_byvars']
+
+# Get impact of PPR at system total level
+# By region, species, production_system, and year
+# This is cause = 'Infectious'
+by_vars = [
+    'region'
+    ,'species'
+    ,'production_system'
+    ,'year'
+    ]
+disease_vars = [
+    'ahle_dueto_ppr_total_mean'
+    ,'ahle_dueto_otherdisease_total_mean'
+    ]
+ahle_diseases = ahle_combo_scensmry_withahle_sub.query("agesex_scenario == 'Overall'")[by_vars + disease_vars]
+ahle_diseases['cause'] = 'Infectious'
+
+# Recode by_vars to match attribution code
+ahle_diseases.loc[ahle_diseases['species'] == 'Cattle' ,'production_system'] = \
+    ahle_diseases.loc[ahle_diseases['species'] == 'Cattle' ,'production_system'].replace(cattle_prodsys_forattribution)
+
+# Merge impact of PPR
+ahle_disagg_causes_diseases = pd.merge(
+    left=ahle_disagg_causes
+    ,right=ahle_diseases
+    ,on=disagg_byvars
+    ,how='left'
+    )
+
+# Assign disease AHLE to each age_class and ahle component according to disaggregation proportions
+ahle_disagg_causes_diseases['ahle_dueto_ppr_disagg'] = \
+    ahle_disagg_causes_diseases['ahle_dueto_ppr_total_mean'] * ahle_disagg_causes['disagg_prpn']
+
 # -----------------------------------------------------------------------------
 # Create placeholder data frames
 # -----------------------------------------------------------------------------
@@ -932,7 +953,6 @@ ahle_combo_withattr = ahle_combo_withattr.drop(columns=['country_name' ,'time'])
 
 # Add columns in USD
 ahle_combo_withattr['mean_usd'] = ahle_combo_withattr['mean'] / ahle_combo_withattr['exchg_rate_lcuperusdol']
-ahle_combo_withattr['median_usd'] = ahle_combo_withattr['median'] / ahle_combo_withattr['exchg_rate_lcuperusdol']
 ahle_combo_withattr['lower95_usd'] = ahle_combo_withattr['lower95'] / ahle_combo_withattr['exchg_rate_lcuperusdol']
 ahle_combo_withattr['upper95_usd'] = ahle_combo_withattr['upper95'] / ahle_combo_withattr['exchg_rate_lcuperusdol']
 

@@ -814,7 +814,7 @@ ahle_combo_withattr = pd.concat(
 )
 
 # =============================================================================
-#### Add disease-specific component
+#### Add disease-specific components
 # =============================================================================
 '''
 This creates placeholders for specific infectious, non-infectious, and external
@@ -858,7 +858,7 @@ disease_vars = [
 ahle_diseases = ahle_combo_scensmry_withahle_sub.query("agesex_scenario == 'Overall'")[by_vars + disease_vars]
 ahle_diseases['cause'] = 'Infectious'
 
-# Recode by_vars to match attribution code
+# Recode by_vars to match results of attribution code
 ahle_diseases.loc[ahle_diseases['species'] == 'Cattle' ,'production_system'] = \
     ahle_diseases.loc[ahle_diseases['species'] == 'Cattle' ,'production_system'].replace(cattle_prodsys_forattribution)
 
@@ -871,6 +871,7 @@ ahle_disagg_causes_diseases = pd.merge(
     )
 
 # Assign disease AHLE to each age_class and ahle component according to disaggregation proportions
+#!!! Pick up here. Want to restructure this with one row per disease, like disease placeholders.
 ahle_disagg_causes_diseases['ahle_dueto_ppr_disagg'] = \
     ahle_disagg_causes_diseases['ahle_dueto_ppr_total_mean'] * ahle_disagg_causes['disagg_prpn']
 

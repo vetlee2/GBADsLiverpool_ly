@@ -105,7 +105,7 @@ r_executable = 'C:\\Program Files\\R\\R-4.2.1\\bin\\x64\\Rscript.exe'
 r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table_SMALLRUMINANTS.R')
 
 # =============================================================================
-#### Regular run
+#### Base scenarios
 # =============================================================================
 # Arguments to R function, as list of strings.
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
@@ -125,7 +125,7 @@ r_args = [
     # ,'-1'
 ]
 timerstart()
-run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+returncode_smallrum = run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
 timerstop()
 
 # =============================================================================
@@ -133,9 +133,11 @@ timerstop()
 # =============================================================================
 '''
 Note: any scenarios that exist in this file will overwrite results of previous
-run. As of 4/20/2023, this includes ideal and current scenarios in addition to
+run. As of April 2023, this includes ideal and current scenarios in addition to
 PPR.
 '''
+# Arguments to R function, as list of strings.
+# ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
     # Arg 1: Number of simulation runs
     '10'
@@ -152,12 +154,37 @@ r_args = [
     # ,'-1'
 ]
 timerstart()
-run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+returncode_smallrum_ppr = run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
 timerstop()
 
 # =============================================================================
 #### Brucellosis scenario
 # =============================================================================
+'''
+Note: any scenarios that exist in this file will overwrite results of previous
+run. As of April 2023, this includes ideal and current scenarios in addition to
+PPR.
+'''
+# Arguments to R function, as list of strings.
+# ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
+r_args = [
+    # Arg 1: Number of simulation runs
+    '10'
+
+    # Arg 2: Folder location for saving output files
+    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
+
+    # Arg 3: full path to scenario control file
+    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'Bruc_AHLE scenario parameters SMALLRUMINANTS.xlsx')
+
+    # Arg 4: only run the first N scenarios from the control file
+    # -1: use all scenarios
+    # 9/28: Gemma removed the code that performed this task
+    # ,'-1'
+]
+timerstart()
+returncode_smallrum_bruc = run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+timerstop()
 
 #%% Small Ruminants using Murdoch's updated function
 
@@ -173,8 +200,13 @@ run_cmd([r_executable ,r_script] ,SHOW_MAXLINES=999)
 r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table_CATTLE.R')
 
 # =============================================================================
-#### Single scenario
+#### Base scenarios
 # =============================================================================
+'''
+WARNING: since moving to yearly cattle scenarios, the base ahle CATTLE folder
+is no longer used. Any scenarios stored here will not be read in by
+2_process_simulation_results_standalone.py.
+'''
 # Arguments to R function, as list of strings.
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
@@ -192,7 +224,36 @@ r_args = [
     ,'-1'
 ]
 timerstart()
-run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+returncode_cattle = run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+timerstop()
+
+# =============================================================================
+#### Brucellosis scenario
+# =============================================================================
+'''
+Note: any scenarios that exist in this file will overwrite results of previous
+run. As of April 2023, this includes ideal and current scenarios in addition to
+PPR.
+'''
+# Arguments to R function, as list of strings.
+# ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
+r_args = [
+    # Arg 1: Number of simulation runs
+    '10'
+
+    # Arg 2: Folder location for saving output files
+    #!!! Note putting this in year 2021 folder although it has only been produced for a single year.
+    ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE' ,'2021')
+
+    # Arg 3: full path to scenario control file
+    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'Bruc_AHLE scenario parameters CATTLE.xlsx')
+
+    # Arg 4: only run the first N scenarios from the control file
+    # -1: use all scenarios
+    ,'-1'
+]
+timerstart()
+returncode_cattle_bruc = run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
 timerstop()
 
 # =============================================================================
@@ -201,7 +262,7 @@ timerstop()
 list_years = list(range(2017, 2022))
 
 # Initialize list to save return codes
-cattle_yearly_returncodes = []
+returncode_cattle_yearly = []
 
 # Loop through years, calling scenario file for each and saving outputs to a new folder
 for YEAR in list_years:
@@ -232,7 +293,7 @@ for YEAR in list_years:
     ]
     timerstart()
     rc = run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
-    cattle_yearly_returncodes.append(rc)
+    returncode_cattle_yearly.append(rc)
     timerstop()
 
     print(f"> Finished compartmental model for year {YEAR}.")
@@ -254,7 +315,7 @@ list_eth_regions = [
     ]
 
 # Initialize list to save return codes
-cattle_regional_returncodes = []
+returncode_cattle_regional = []
 
 # Loop through regions, calling scenario file for each and saving outputs to a new folder
 for REGION in list_eth_regions:
@@ -285,7 +346,7 @@ for REGION in list_eth_regions:
     ]
     timerstart()
     rc = run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
-    cattle_regional_returncodes.append(rc)
+    returncode_cattle_regional.append(rc)
     timerstop()
 
     print(f"> Finished compartmental model for region {REGION}.")
@@ -312,5 +373,5 @@ r_args = [
     ,'-1'
 ]
 timerstart()
-run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
+returncode_poultry = run_cmd([r_executable ,r_script] + r_args ,SHOW_MAXLINES=999)
 timerstop()

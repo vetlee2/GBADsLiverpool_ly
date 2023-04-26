@@ -225,7 +225,9 @@ small_rum_suffixes=[
     ,'ideal_NF'
     ,'ideal_NM'
 
+    # Disease-specific scenarios
     ,'PPR'
+    ,'Bruc'
 
     ,'all_mortality_zero'
     ,'mortality_zero_AF'
@@ -340,7 +342,11 @@ ahle_goat_clm.columns = ahle_goat_clm.columns.str.replace('_all_mortality_zero' 
 ahle_goat_past.columns = ahle_goat_past.columns.str.replace('_all_mortality_zero' ,'_mortality_zero')
 
 # =============================================================================
-#### Cattle
+#### Cattle base
+# =============================================================================
+
+# =============================================================================
+#### Cattle Yearly
 # =============================================================================
 '''
 These scenarios have been run for 5 years (2017-2021), so this includes a loop
@@ -365,6 +371,9 @@ cattle_suffixes = [
     ,'mortality_zero_J'
     ,'mortality_zero_N'
     ,'mortality_zero_O'
+
+    # Disease-specific scenarios
+    ,'Bruc'
 ]
 
 ahle_cattle_aslist = []         # Initialize

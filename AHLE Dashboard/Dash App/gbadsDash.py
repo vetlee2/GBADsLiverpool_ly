@@ -203,7 +203,7 @@ ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_wit
 # JR 2023-4-19: added regional results. Testing with Nationl level (should be same as before).
 ecs_ahle_summary = ahle_all_scensmry.query("region == 'National'")
 ecs_ahle_summary2 = ecs_ahle_summary2.query("region == 'National'")
-ecs_ahle_all_withattr = ecs_ahle_all_withattr.query("region == 'National'")
+# ecs_ahle_all_withattr = ecs_ahle_all_withattr.query("region == 'National'")
 
 # Ethiopia geojson files from S3
 # Regional level
@@ -3421,7 +3421,10 @@ gbadsDash.layout = html.Div([
                                       "margin-left":"10px",     # Space between buttons if inline=True
                                       },
                                   ),
+                    # Text underneath
+                    html.P("*Currently only regional data for cattle" ,style={'font-style':'italic'}),
                     ]),
+                
 
                 # Regional dropdwon
                 dbc.Col([
@@ -3705,7 +3708,7 @@ gbadsDash.layout = html.Div([
             #### -- FOOTNOTES PT.1
             dbc.Row([
                 dbc.Col([   # Waterfall footnote
-                  html.P("Blue indicates an increase, red indicates a decrease in cost/value for each category. Orange is the sum/difference of all of them."),
+                  html.P("Blue indicates an increase, red indicates a decrease in cost/value for each category. Orange is the sum/difference of all of them.", id="waterfall-footnote-ecs"),
                 ]),
                 dbc.Col([   # Treemap footnote
                   html.P("Attribution is reported for species groups rather than individual species."),
@@ -4044,7 +4047,7 @@ gbadsDash.layout = html.Div([
                          value='Top Global Classes',
                          clearable=False,
                          ),
-                   # Text underneath slider
+                   # Text underneath
                    html.P("See user guide for descriptions of importance categories" ,style={'font-style':'italic'}),
                    ]),
 
@@ -7546,17 +7549,25 @@ def update_year_select_ecs(graph):
 @gbadsDash.callback(
     Output('select-geo-view-ecs','options'),
     Input('select-graph-ahle-ecs','value'),
+    Input('select-species-ecs','value'),
     )
-def update_geo_view_options_ecs(graph):
+def update_geo_view_options_ecs(graph, species):
     options = ecs_geo_view_options.copy()
 
     # Disable controls if Over Time selected
-    if graph == 'Over Time':
+    if graph.upper() == 'OVER TIME':
         for d in options:
             d['disabled']=True
     else:
-        for d in options:
-            d['disabled']=False
+        # Only currently have regional data for cattle
+        if species.upper() == 'CATTLE':
+            for d in options:
+                d['disabled']=False
+        else:
+            options = [{'label': "National", 'value': "National", 'disabled': False},
+                       {'label': "Regional", 'value': "Regional", 'disabled': True},
+                       ]
+
 
     return options
 
@@ -7651,30 +7662,6 @@ def update_item_dropdown_ecs(graph, species):
 
     return options, display_style, display_style
 
-# # Hide options for Value & Cost graphs when displaying the longitudinal chart
-# @gbadsDash.callback(
-#     Output('select-agesex-ecs','style'),
-#     Output('select-agesex-ecs-title','style'),
-#     Output('select-compare-ecs','style'),
-#     Output('select-compare-ecs-title','style'),
-#     Input('select-graph-ahle-ecs','value'),
-#     )
-# def update_ahle_graph_controls(graph):
-#     options2 = ecs_agesex_options.copy()
-#     options3 = ecs_year_options.copy()
-#     for d in options2:
-#         if graph == 'Single Year':
-#             block = {'display': 'block'}
-#         else:
-#             block = {'display': 'none'} # hide
-#     for d in options3:
-#         if graph == 'Single Year':
-#             block = {'display': 'block'}
-#         else:
-#             block = {'display': 'none'} # hide
-
-#     return block, block, block, block
-
 # Enable the options for factor/improvement when 'Improvement' selected
 @gbadsDash.callback(
     Output('select-factor-ecs','options'),
@@ -7759,6 +7746,18 @@ def update_map_display_options_ecs(species):
 
     return options
 
+# Hide waterfall specific footnote when waterfall is not showing
+@gbadsDash.callback(
+    Output('waterfall-footnote-ecs','style'),
+    Input('select-graph-ahle-ecs','value'),
+    )
+def update_footnote(graph):
+    if graph.upper() == 'SINGLE YEAR':
+        block = {'display': 'block'}
+    else:
+        block = {'display': 'none'} # hide
+
+    return block
 
 # ------------------------------------------------------------------------------
 #### -- Data
@@ -8020,6 +8019,8 @@ def update_ecs_attr_expert_data(species):
     # Input('select-year-item-switch-ecs', 'value'),
     Input('select-year-ecs', 'value'),
     Input('select-item-ecs', 'value'),
+    Input('select-geo-view-ecs','value'),
+    Input('select-region-ecs','value'),
     )
 def update_ahle_value_and_cost_viz_ecs(
         graph_options,
@@ -8034,9 +8035,11 @@ def update_ahle_value_and_cost_viz_ecs(
         # year_or_item,
         selected_year,
         selected_item,
+        geo_view,
+        region,
     ):
     # Read in data and apply filters
-    input_df = ecs_ahle_summary
+    input_df = ahle_all_scensmry
     # Species filter
     input_df = input_df.loc[(input_df['species'] == species)]
     # Production System filter
@@ -8045,6 +8048,13 @@ def update_ahle_value_and_cost_viz_ecs(
     input_df=input_df.loc[(input_df['production_system'] == prodsys)]
     # Age/sex filter
     input_df=input_df.loc[(input_df['agesex_scenario'] == agesex)]
+    # Geographic filter
+    if geo_view.upper() == "NATIONAL":
+        input_df = input_df.query("region == 'National'")
+        reg_title = 'National'
+    else:
+        input_df = input_df.query("region == @region")
+        reg_title = region
 
     # Prep the data
     prep_df = prep_ahle_forwaterfall_ecs(input_df)
@@ -8153,23 +8163,13 @@ def update_ahle_value_and_cost_viz_ecs(
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
                     y = prep_df['mean_all_mort_75_AHLE']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
-                    y = prep_df['mean_AHLE_mortality']
-                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '25%':
-                    y = prep_df['mean_all_current_repro_25_AHLE']
-                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '50%':
-                    y = prep_df['mean_all_current_repro_50_AHLE']
-                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '75%':
-                    y = prep_df['mean_all_current_repro_75_AHLE']
-                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '100%':
-                    y = prep_df['mean_all_current_repro_100_AHLE']
-                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '25%':
-                    y = prep_df['mean_all_current_growth_25_AHLE']
-                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '50%':
-                    y = prep_df['mean_all_current_growth_50_AHLE']
-                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '75%':
-                    y = prep_df['mean_all_current_growth_75_AHLE']
-                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
-                    y = prep_df['mean_all_current_growth_100_AHLE']
+                    y = prep_df['mean_AHLE_mortality']                  
+                elif impvmnt_factor == 'Parturition Rate':
+                    number_split = impvmnt_value.split('%')[0]
+                    y = prep_df[f'mean_all_current_repro_{number_split}_AHLE']
+                elif impvmnt_factor == 'Live Weight':
+                    number_split = impvmnt_value.split('%')[0]
+                    y = prep_df[f'mean_all_current_growth_{number_split}_AHLE']
 
 
             # AHLE graph
@@ -8182,7 +8182,7 @@ def update_ahle_value_and_cost_viz_ecs(
 
             ecs_waterfall_fig = make_subplots()
             ecs_waterfall_fig.add_trace(plot_ahle_value)
-            ecs_waterfall_fig.update_layout(title=f'{selected_item} Over Time | {species}, {prodsys} <br><sup>Difference between Current and {compare} scenario</sup><br>',
+            ecs_waterfall_fig.update_layout(title=f'{reg_title} {selected_item} Over Time | {species}, {prodsys} <br><sup>Difference between Current and {compare} scenario</sup><br>',
                                             yaxis_title=display_currency,
                                             font_size=15,
                                             plot_bgcolor="#ededed",)
@@ -8220,23 +8220,13 @@ def update_ahle_value_and_cost_viz_ecs(
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
                     y = prep_df['mean_all_mort_75_imp']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
-                    y = prep_df['mean_mortality_zero']
-                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '25%':
-                    y = prep_df['mean_current_repro_25_imp']
-                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '50%':
-                    y = prep_df['mean_current_repro_50_imp']
-                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '75%':
-                    y = prep_df['mean_current_repro_75_imp']
-                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '100%':
-                    y = prep_df['mean_current_repro_100_imp']
-                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '25%':
-                    y = prep_df['mean_current_growth_25_imp_all']
-                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '50%':
-                    y = prep_df['mean_current_growth_50_imp_all']
-                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '75%':
-                    y = prep_df['mean_current_growth_75_imp_all']
-                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
-                    y = prep_df['mean_current_growth_100_imp_all']
+                    y = prep_df['mean_mortality_zero']                    
+                elif impvmnt_factor == 'Parturition Rate':
+                    number_split = impvmnt_value.split('%')[0]
+                    y = prep_df[f'mean_current_repro_{number_split}_imp']
+                elif impvmnt_factor == 'Live Weight':
+                    number_split = impvmnt_value.split('%')[0]
+                    y = prep_df[f'mean_current_growth_{number_split}_imp_all']
 
                 name = impvmnt_factor + "- " + impvmnt_value
                 # Overlay zero mortality value
@@ -8250,7 +8240,7 @@ def update_ahle_value_and_cost_viz_ecs(
             ecs_waterfall_fig = make_subplots()
             ecs_waterfall_fig.add_trace(plot_compare_value)
             ecs_waterfall_fig.add_trace(plot_current_value)
-            ecs_waterfall_fig.update_layout(title=f'{selected_item} Over Time | {species}, {prodsys} <br><sup>Current and {compare} scenario</sup><br>',
+            ecs_waterfall_fig.update_layout(title=f'{reg_title} {selected_item} Over Time | {species}, {prodsys} <br><sup>Current and {compare} scenario</sup><br>',
                                             yaxis_title=display_currency,
                                             font_size=15,
                                             plot_bgcolor="#ededed",)
@@ -8378,7 +8368,7 @@ def update_ahle_value_and_cost_viz_ecs(
 
             # Add title
             ecs_waterfall_fig.update_layout(
-                title_text=f'Animal Health Loss Envelope | {species}, {prodsys} <br><sup>Difference between current values and {agesex} {compare} scenario, {selected_year}</sup><br>',
+                title_text=f'{reg_title} Animal Health Loss Envelope | {species}, {prodsys} <br><sup>Difference between current values and {agesex} {compare} scenario, {selected_year}</sup><br>',
                 yaxis_title=display_currency,
                 font_size=15,
                 margin=dict(t=100)
@@ -8496,22 +8486,12 @@ def update_ahle_value_and_cost_viz_ecs(
                     y = prep_df['mean_all_mort_75_imp']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
                     y = prep_df['mean_mortality_zero']
-                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '25%':
-                    y = prep_df['mean_current_repro_25_imp']
-                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '50%':
-                    y = prep_df['mean_current_repro_50_imp']
-                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '75%':
-                    y = prep_df['mean_current_repro_75_imp']
-                elif impvmnt_factor == 'Parturition Rate' and impvmnt_value == '100%':
-                    y = prep_df['mean_current_repro_100_imp']
-                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '25%':
-                    y = prep_df['mean_current_growth_25_imp_all']
-                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '50%':
-                    y = prep_df['mean_current_growth_50_imp_all']
-                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '75%':
-                    y = prep_df['mean_current_growth_75_imp_all']
-                elif impvmnt_factor == 'Live Weight' and impvmnt_value == '100%':
-                    y = prep_df['mean_current_growth_100_imp_all']
+                elif impvmnt_factor == 'Parturition Rate':
+                    number_split = impvmnt_value.split('%')[0]
+                    y = prep_df[f'mean_current_repro_{number_split}_imp']
+                elif impvmnt_factor == 'Live Weight':
+                    number_split = impvmnt_value.split('%')[0]
+                    y = prep_df[f'mean_current_growth_{number_split}_imp_all']
 
                 name = impvmnt_factor + "- " + impvmnt_value + " (solid)"
                 # Create graph
@@ -8534,7 +8514,7 @@ def update_ahle_value_and_cost_viz_ecs(
 
             # Add title
             ecs_waterfall_fig.update_layout(
-                title_text=f'Values and Costs | {species}, {prodsys} <br><sup>Current vs. {agesex} {compare} scenario, {selected_year}</sup><br>',
+                title_text=f'{reg_title} Values and Costs | {species}, {prodsys} <br><sup>Current vs. {agesex} {compare} scenario, {selected_year}</sup><br>',
                 yaxis_title=display_currency,
                 font_size=15,
                 margin=dict(t=100),
@@ -8610,6 +8590,8 @@ def update_ahle_value_and_cost_viz_ecs(
     # Input('select-year-item-switch-ecs', 'value'),
     Input('select-year-ecs', 'value'),
     Input('select-item-ecs', 'value'),
+    Input('select-geo-view-ecs','value'),
+    Input('select-region-ecs','value'),
 )
 def update_attr_treemap_ecs(
         prodsys,
@@ -8624,9 +8606,19 @@ def update_attr_treemap_ecs(
         # year_or_item,
         selected_year,
         selected_item,
+        geo_view,
+        region,
     ):
     # Data
     input_df = ecs_ahle_all_withattr
+    
+    # Geographic filter
+    if geo_view.upper() == "NATIONAL":
+        input_df = input_df.query("region == 'National'")
+        reg_title = 'National'
+    else:
+        input_df = input_df.query("region == @region")
+        reg_title = region
 
     # Production System filter
     # If All production systems, don't filter. Attribution data is not aggregated to that level.
@@ -8687,7 +8679,7 @@ def update_attr_treemap_ecs(
 
         # Add title
         ecs_treemap_fig.update_layout(
-            title_text=f'AHLE Attribution | {species_label}, {prodsys}<br><sup>{selected_year}',
+            title_text=f'{reg_title} AHLE Attribution | {species_label}, {prodsys}<br><sup>{selected_year}',
             font_size=15,
             margin=dict(t=100)
             )
@@ -8723,7 +8715,7 @@ def update_attr_treemap_ecs(
             ,barmode='relative'
             )
         ecs_treemap_fig.update_layout(
-            title_text=f'AHLE Attribution over time | {species_label}, {prodsys}<br><sup>by {segment_by}',
+            title_text=f'{reg_title} AHLE Attribution over time | {species_label}, {prodsys}<br><sup>by {segment_by}',
             font_size=15,
             margin=dict(t=100)
             )

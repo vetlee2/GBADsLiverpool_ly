@@ -1941,7 +1941,7 @@ def create_map_display_ecs(input_df, geojson, location, featurekey, color_by):
                                        mapbox_style="carto-positron",
                                        zoom=5,
                                        center = {"lat": 9.1450, "lon": 40.4897},
-                                       labels={'ADM1_EN': 'Region'}
+                                       labels={'region': 'Region'}
                                        )
 
     return ecs_map_fig
@@ -7743,6 +7743,10 @@ def update_map_display_options_ecs(species):
     options=[]
     for i in item_options:
         str(options.append({'label':'Current ' + i,'value':(i)}))
+        
+    # Add options for Ideal gross margin and AHLE
+    options += [{'label': i, 'value': i, 'disabled': False} for i in ["Ideal Gross Margin",
+                                                                      "AHLE"]]
 
     return options
 
@@ -7847,7 +7851,7 @@ def update_ecs_ahle_data(currency, species, prodsys, agesex):
                 #### AHLE Data
 
                 Showing the major production and cost values under current and ideal scenarios
-
+                
                 *Output of the compartmental population model*
                 '''
                 ),
@@ -7928,7 +7932,7 @@ def update_ecs_attr_data(currency, prodsys, species):
                 #### Attribution Data
 
                 Attributing the AHLE components to infectious, non-infectious, and external causes
-
+                
                 *Based on expert opinion attribution proportions*
                 '''
                 ),
@@ -8724,6 +8728,11 @@ def update_attr_treemap_ecs(
             ecs_treemap_fig.update_yaxes(title_text='Ethiopian Birr')
         elif currency == 'USD':
             ecs_treemap_fig.update_yaxes(title_text='USD')
+            
+    # Adjust margins
+    ecs_treemap_fig.update_layout(
+        margin=dict(l=5, r=5, b=5),
+        )
 
     return ecs_treemap_fig
 
@@ -9205,16 +9214,34 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency):
     # Allow user to select agesex, prodsys, and item to view
     input_df = ahle_all_scensmry.query("agesex_scenario == @agesex_scenario")
     input_df = ahle_all_scensmry.query("production_system == @prodsys")
-    input_df = ahle_all_scensmry.query("item == @item")
+    if item == 'Ideal Gross Margin' or item == 'AHLE':
+        item_filter = 'Gross Margin'
+    else:
+        item_filter = item
+    input_df = ahle_all_scensmry.query("item == @item_filter")
+    
+    # Create AHLE column
+    input_df['mean_AHLE'] = input_df['mean_ideal'] - input_df['mean_current']
+    input_df['mean_AHLE_usd'] = input_df['mean_ideal_usd'] - input_df['mean_current_usd']
 
     # If currency is USD, use USD columns
     display_currency = 'Ethiopian Birr'
     if currency == 'USD':
         display_currency = 'USD'
         input_df['mean_current'] = input_df['mean_current_usd']
+        input_df['mean_ideal'] = input_df['mean_ideal_usd']
+        input_df['mean_AHLE'] = input_df['mean_AHLE_usd']
 
-    # Color scale by current value
-    color_by = 'mean_current'
+    # Color scale by current, ideal or AHLE
+    # TODO: Numbers for ideal (and in turn, AHLE, are not matching the ahle_all_scensmry data)
+    if item == 'Ideal Gross Margin':
+        color_by = 'mean_ideal'
+    elif item == 'AHLE':
+        color_by = 'mean_AHLE'
+    else:
+        color_by = 'mean_current'
+    
+    
     input_df = input_df.sort_values(by=[f'{color_by}'])
 
     ecs_map_fig = create_map_display_ecs(input_df, geojson_ecs_df, location, featurekey, color_by)

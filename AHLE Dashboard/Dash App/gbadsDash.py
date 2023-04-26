@@ -9196,16 +9196,16 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency):
     featurekey = (f'properties.{featureid}')
 
     # Data from waterfall chart
-    input_df = ecs_ahle_summary.query("region != 'National'")
+    input_df = ahle_all_scensmry.query("region != 'National'")
 
     # Filter based on species - Currently only have Cattle for 2021
-    input_df = ecs_ahle_summary.query("species == 'Cattle'")
+    input_df = ahle_all_scensmry.query("species == 'Cattle'")
 
 
     # Allow user to select agesex, prodsys, and item to view
-    input_df = ecs_ahle_summary.query("agesex_scenario == @agesex_scenario")
-    input_df = ecs_ahle_summary.query("production_system == @prodsys")
-    input_df = ecs_ahle_summary.query("item == @item")
+    input_df = ahle_all_scensmry.query("agesex_scenario == @agesex_scenario")
+    input_df = ahle_all_scensmry.query("production_system == @prodsys")
+    input_df = ahle_all_scensmry.query("item == @item")
 
     # If currency is USD, use USD columns
     display_currency = 'Ethiopian Birr'
@@ -9230,11 +9230,12 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency):
         font_size=15
         )
 
-    # # Update legend title
-    # ecs_map_fig.update_layout(legend=dict(
-    #     title=f"{display_currency}",
-    #     font=dict(size=12)
-    #     ))
+    # Update legend title   
+    ecs_map_fig.update_layout(
+    coloraxis_colorbar=dict(
+        title=f"{display_currency}",
+        )
+    )
 
     return ecs_map_fig
 

@@ -822,8 +822,8 @@ factors.
 
 When we have estimates of AHLE due to individual diseases, we will use them instead.
 '''
-# Impact of PPR is only estimated for Overall agesex_scenario (we do not specify which age/sex groups are infected)
-# Get impact of PPR as proportion of infectious at system-total level
+# Impact of PPR and Brucellosis is only estimated for Overall agesex_scenario
+# (we do not specify which age/sex groups are infected)
 
 # Get disaggregation proportions of infectious AHLE to age_class and ahle component
 # Separately by region, species, production_system, and year
@@ -842,7 +842,7 @@ ahle_disagg_causes = ahle_combo_withattr[disagg_byvars + disagg_into + ['mean']]
 ahle_disagg_causes['sum_byvars'] = ahle_disagg_causes.groupby(disagg_byvars)['mean'].transform('sum')
 ahle_disagg_causes['disagg_prpn'] = ahle_disagg_causes['mean'] / ahle_disagg_causes['sum_byvars']
 
-# Get impact of PPR at system total level
+# Get impact of PPR and Brucellosis at system total level
 # By region, species, production_system, and year
 # This is cause = 'Infectious'
 by_vars = [
@@ -853,6 +853,7 @@ by_vars = [
     ]
 disease_vars = [
     'ahle_dueto_ppr_total_mean'
+    ,'ahle_dueto_bruc_total_mean'
     ,'ahle_dueto_otherdisease_total_mean'
     ]
 ahle_diseases = ahle_combo_scensmry_withahle_sub.query("agesex_scenario == 'Overall'")[by_vars + disease_vars]
@@ -862,7 +863,7 @@ ahle_diseases['cause'] = 'Infectious'
 ahle_diseases.loc[ahle_diseases['species'] == 'Cattle' ,'production_system'] = \
     ahle_diseases.loc[ahle_diseases['species'] == 'Cattle' ,'production_system'].replace(cattle_prodsys_forattribution)
 
-# Merge impact of PPR
+# Merge impact of specific diseases
 ahle_disagg_causes_diseases = pd.merge(
     left=ahle_disagg_causes
     ,right=ahle_diseases
@@ -874,6 +875,9 @@ ahle_disagg_causes_diseases = pd.merge(
 #!!! Pick up here. Want to restructure this with one row per disease, like disease placeholders.
 ahle_disagg_causes_diseases['ahle_dueto_ppr_disagg'] = \
     ahle_disagg_causes_diseases['ahle_dueto_ppr_total_mean'] * ahle_disagg_causes['disagg_prpn']
+
+ahle_disagg_causes_diseases['ahle_dueto_bruc_disagg'] = \
+    ahle_disagg_causes_diseases['ahle_dueto_bruc_total_mean'] * ahle_disagg_causes['disagg_prpn']
 
 # -----------------------------------------------------------------------------
 # Create placeholder data frames

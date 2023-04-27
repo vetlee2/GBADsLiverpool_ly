@@ -3449,7 +3449,7 @@ gbadsDash.layout = html.Div([
                                 className="card-title",
                                 style={"font-weight": "bold"}),
                         html.Label(
-                            ["Displaying the difference in gross margin and its components under the current scenario and a comparison scenario"],
+                            ["Showing the difference between current gross margin and a comparison scenario"],
                             style={'font-style':'italic'}
                              ),
                         dbc.Row([
@@ -3548,7 +3548,7 @@ gbadsDash.layout = html.Div([
                             className="card-title",
                             style={"font-weight": "bold"}),
                     html.Label(
-                        ["Displaying how much each component contributes to the total animal health loss envelope"],
+                        ["Showing how much each component contributes to the total animal health loss envelope"],
                         style={'font-style':'italic'}
                          ),
                     dbc.Row([

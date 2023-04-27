@@ -1139,9 +1139,6 @@ Relying on the following properties of sums of random variables:
     mean(aX + bY) = a*mean(X) + b*mean(Y), regardless of correlation
     var(aX + bY) = a^2*var(X) + b^2*var(Y), assuming X and Y are uncorrelated
 '''
-#??? Should ahle_dueto_healthcost_mean be expenditure on individual age/sex groups? Right now it is system total.
-# This would represent a break from the way we've done it. Stay consistent.
-# Consider: use system total but split proportionally among age/sex groups.
 ahle_combo_withahle = ahle_combo_withagg_p.copy()
 
 ahle_combo_withahle.eval(
@@ -1159,16 +1156,20 @@ ahle_combo_withahle.eval(
     ahle_dueto_ppr_healthcost_mean = mean_ppr_health_cost
     ahle_dueto_ppr_productionloss_mean = ahle_dueto_ppr_total_mean - ahle_dueto_ppr_mortality_mean - ahle_dueto_ppr_healthcost_mean
 
-    ahle_dueto_otherdisease_total_mean = ahle_total_mean - ahle_dueto_ppr_total_mean
-    ahle_dueto_otherdisease_mortality_mean = ahle_dueto_mortality_mean - ahle_dueto_ppr_mortality_mean
-    ahle_dueto_otherdisease_healthcost_mean = ahle_dueto_healthcost_mean - ahle_dueto_ppr_healthcost_mean
-    ahle_dueto_otherdisease_productionloss_mean = ahle_dueto_productionloss_mean - ahle_dueto_ppr_productionloss_mean
+    ahle_dueto_bruc_total_mean = mean_ideal_gross_margin - mean_bruc_gross_margin
+    ahle_dueto_bruc_mortality_mean = mean_bruc_value_of_total_mortality
+    ahle_dueto_bruc_healthcost_mean = mean_bruc_health_cost
+    ahle_dueto_bruc_productionloss_mean = ahle_dueto_bruc_total_mean - ahle_dueto_bruc_mortality_mean - ahle_dueto_bruc_healthcost_mean
     '''
-    # Check other disease production loss alternative calculation
-    # Result: same as ahle_dueto_otherdisease_productionloss_mean
-    # ahle_dueto_otherdisease_productionloss_mean_alt = ahle_dueto_otherdisease_total_mean - ahle_dueto_otherdisease_mortality_mean - ahle_dueto_otherdisease_healthcost_mean
-    # ahle_dueto_otherdisease_productionloss_mean_chk = ahle_dueto_otherdisease_productionloss_mean_alt / ahle_dueto_otherdisease_productionloss_mean
-
+    # AHLE due to Other Disease will depend on which diseases were estimated.
+    # E.g. PPR only impacts small ruminants, so should not be part of the calculation for Cattle.
+    # Don't calculate this here. Handle it when needed (attribution).
+    # '''
+    # ahle_dueto_otherdisease_total_mean = ahle_total_mean - ahle_dueto_ppr_total_mean - ahle_dueto_bruc_total_mean
+    # ahle_dueto_otherdisease_mortality_mean = ahle_dueto_mortality_mean - ahle_dueto_ppr_mortality_mean - ahle_dueto_bruc_mortality_mean
+    # ahle_dueto_otherdisease_healthcost_mean = ahle_dueto_healthcost_mean - ahle_dueto_ppr_healthcost_mean - ahle_dueto_bruc_healthcost_mean
+    # ahle_dueto_otherdisease_productionloss_mean = ahle_dueto_otherdisease_total_mean - ahle_dueto_otherdisease_mortality_mean - ahle_dueto_otherdisease_healthcost_mean
+    # '''
     # Scenarios applied to specific age/sex groups
     '''
     ahle_when_af_repro_imp25_mean = mean_current_repro_25_imp_gross_margin - mean_current_gross_margin
@@ -1274,19 +1275,29 @@ ahle_combo_withahle['ahle_dueto_ppr_productionloss_stdev'] = np.sqrt(
     ahle_combo_withahle['ahle_dueto_ppr_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_healthcost_stdev']**2
     )
 
+# Brucellosis
+ahle_combo_withahle['ahle_dueto_bruc_total_stdev'] = np.sqrt(
+    ahle_combo_withahle['stdev_ideal_gross_margin']**2 + ahle_combo_withahle['stdev_bruc_gross_margin']**2
+    )
+ahle_combo_withahle['ahle_dueto_bruc_mortality_stdev'] = ahle_combo_withahle['stdev_bruc_value_of_total_mortality']
+ahle_combo_withahle['ahle_dueto_bruc_healthcost_stdev'] = ahle_combo_withahle['stdev_bruc_health_cost']
+ahle_combo_withahle['ahle_dueto_bruc_productionloss_stdev'] = np.sqrt(
+    ahle_combo_withahle['ahle_dueto_bruc_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_bruc_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_bruc_healthcost_stdev']**2
+    )
+
 # Other disease
-ahle_combo_withahle['ahle_dueto_otherdisease_total_stdev'] = np.sqrt(
-    ahle_combo_withahle['ahle_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_total_stdev']**2
-    )
-ahle_combo_withahle['ahle_dueto_otherdisease_mortality_stdev'] = np.sqrt(
-    ahle_combo_withahle['ahle_dueto_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_mortality_stdev']**2
-    )
-ahle_combo_withahle['ahle_dueto_otherdisease_healthcost_stdev'] = np.sqrt(
-    ahle_combo_withahle['ahle_dueto_healthcost_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_healthcost_stdev']**2
-    )
-ahle_combo_withahle['ahle_dueto_otherdisease_productionloss_stdev'] = np.sqrt(
-    ahle_combo_withahle['ahle_dueto_productionloss_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_productionloss_stdev']**2
-    )
+# ahle_combo_withahle['ahle_dueto_otherdisease_total_stdev'] = np.sqrt(
+#     ahle_combo_withahle['ahle_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_bruc_total_stdev']**2
+#     )
+# ahle_combo_withahle['ahle_dueto_otherdisease_mortality_stdev'] = np.sqrt(
+#     ahle_combo_withahle['ahle_dueto_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_bruc_mortality_stdev']**2
+#     )
+# ahle_combo_withahle['ahle_dueto_otherdisease_healthcost_stdev'] = np.sqrt(
+#     ahle_combo_withahle['ahle_dueto_healthcost_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_healthcost_stdev']**2 + ahle_combo_withahle['ahle_dueto_bruc_healthcost_stdev']**2
+#     )
+# ahle_combo_withahle['ahle_dueto_otherdisease_productionloss_stdev'] = np.sqrt(
+#     ahle_combo_withahle['ahle_dueto_otherdisease_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_otherdisease_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_otherdisease_healthcost_stdev']**2
+#     )
 
 # =============================================================================
 #### Add currency conversion
@@ -1388,11 +1399,15 @@ print(ahle_combo_withahle_checks[['region' ,'species' ,'production_system' ,'yea
 ahle_combo_withahle_checks.eval(
     '''
     ahle_dueto_ppr_vs_total = ahle_dueto_ppr_total_mean / ahle_total_mean
+    ahle_dueto_bruc_vs_total = ahle_dueto_bruc_total_mean / ahle_total_mean
     '''
     ,inplace=True
 )
 print('\n> Checking the AHLE for PPR against the overall')
 print(ahle_combo_withahle_checks.query("ahle_dueto_ppr_total_mean.notnull()")[['species' ,'production_system' ,'year' ,'ahle_dueto_ppr_vs_total']])
+
+print('\n> Checking the AHLE for Brucellosis against the overall')
+print(ahle_combo_withahle_checks.query("ahle_dueto_bruc_total_mean.notnull()")[['species' ,'production_system' ,'year' ,'ahle_dueto_bruc_vs_total']])
 
 #%% Create scenario summary table
 '''
@@ -1473,6 +1488,9 @@ ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stde
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_af' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_af' ,DROP=True)
 
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_bruc' ,'mean_bruc_af' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_bruc' ,'stdev_bruc_af' ,DROP=True)
+
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_af' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_af' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_af' ,DROP=True)
@@ -1510,6 +1528,9 @@ ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stde
 
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_am' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_am' ,DROP=True)
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_bruc' ,'mean_bruc_am' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_bruc' ,'stdev_bruc_am' ,DROP=True)
 
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_am' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_am' ,DROP=True)
@@ -1554,6 +1575,9 @@ ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stde
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_a' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_a' ,DROP=True)
 
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_bruc' ,'mean_bruc_a' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_bruc' ,'stdev_bruc_a' ,DROP=True)
+
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_a' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_a' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_a' ,DROP=True)
@@ -1596,6 +1620,9 @@ ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stde
 
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_jf' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_jf' ,DROP=True)
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_bruc' ,'mean_bruc_jf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_bruc' ,'stdev_bruc_jf' ,DROP=True)
 
 # For juveniles, sex-specific mortality scenarios are missing
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_jf' ,DROP=True)
@@ -1641,6 +1668,9 @@ ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stde
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_jm' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_jm' ,DROP=True)
 
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_bruc' ,'mean_bruc_jm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_bruc' ,'stdev_bruc_jm' ,DROP=True)
+
 # For juveniles, sex-specific mortality scenarios are missing
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_jm' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_jm' ,DROP=True)
@@ -1685,6 +1715,9 @@ ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stde
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_j' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_j' ,DROP=True)
 
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_bruc' ,'mean_bruc_j' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_bruc' ,'stdev_bruc_j' ,DROP=True)
+
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_j' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_j' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_j' ,DROP=True)
@@ -1727,6 +1760,9 @@ ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stde
 
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_nf' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_nf' ,DROP=True)
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_bruc' ,'mean_bruc_nf' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_bruc' ,'stdev_bruc_nf' ,DROP=True)
 
 # For neonates, sex-specific mortality scenarios are missing
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_nf' ,DROP=True)
@@ -1772,6 +1808,9 @@ ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stde
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_nm' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_nm' ,DROP=True)
 
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_bruc' ,'mean_bruc_nm' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_bruc' ,'stdev_bruc_nm' ,DROP=True)
+
 # For neonates, sex-specific mortality scenarios are missing
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_nm' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_nm' ,DROP=True)
@@ -1816,6 +1855,9 @@ ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stde
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_n' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_n' ,DROP=True)
 
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_bruc' ,'mean_bruc_n' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_bruc' ,'stdev_bruc_n' ,DROP=True)
+
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_n' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_n' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_all_mort_25_imp' ,'mean_mort_25_imp_n' ,DROP=True)
@@ -1858,6 +1900,9 @@ ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stde
 
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_ppr' ,'mean_ppr_o' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_ppr' ,'stdev_ppr_o' ,DROP=True)
+
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_bruc' ,'mean_bruc_o' ,DROP=True)
+ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_bruc' ,'stdev_bruc_o' ,DROP=True)
 
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'mean_mortality_zero' ,'mean_mortality_zero_o' ,DROP=True)
 ahle_combo_scensmry = fill_column_where(ahle_combo_scensmry ,_scen_select ,'stdev_mortality_zero' ,'stdev_mortality_zero_o' ,DROP=True)
@@ -2107,26 +2152,37 @@ Relying on the following properties of sums of random variables:
 '''
 ahle_combo_scensmry_withahle = ahle_combo_scensmry_p.copy()
 
+# AHLE due to health cost in this view should be the reduction in total health expenditure when the indicated age/sex group is at ideal.
+# This is calculated as (current system total health cost) minus (system total health cost when that group is at ideal).
 ahle_combo_scensmry_withahle.eval(
-    # Overall
+    # Top level
     '''
     ahle_total_mean = mean_ideal_gross_margin - mean_current_gross_margin
     ahle_dueto_mortality_mean = mean_mortality_zero_gross_margin - mean_current_gross_margin
-    ahle_dueto_healthcost_mean = mean_current_health_cost
+    ahle_dueto_healthcost_mean = mean_current_health_cost - mean_ideal_health_cost
     ahle_dueto_productionloss_mean = ahle_total_mean - ahle_dueto_mortality_mean - ahle_dueto_healthcost_mean
     '''
     # Disease-specific
     '''
     ahle_dueto_ppr_total_mean = mean_ideal_gross_margin - mean_ppr_gross_margin
     ahle_dueto_ppr_mortality_mean = mean_ppr_value_of_total_mortality
-    ahle_dueto_ppr_healthcost_mean = mean_ppr_health_cost
+    ahle_dueto_ppr_healthcost_mean = mean_ppr_health_cost - mean_ideal_health_cost
     ahle_dueto_ppr_productionloss_mean = ahle_dueto_ppr_total_mean - ahle_dueto_ppr_mortality_mean - ahle_dueto_ppr_healthcost_mean
 
-    ahle_dueto_otherdisease_total_mean = ahle_total_mean - ahle_dueto_ppr_total_mean
-    ahle_dueto_otherdisease_mortality_mean = ahle_dueto_mortality_mean - ahle_dueto_ppr_mortality_mean
-    ahle_dueto_otherdisease_healthcost_mean = ahle_dueto_healthcost_mean - ahle_dueto_ppr_healthcost_mean
-    ahle_dueto_otherdisease_productionloss_mean = ahle_dueto_productionloss_mean - ahle_dueto_ppr_productionloss_mean
+    ahle_dueto_bruc_total_mean = mean_ideal_gross_margin - mean_bruc_gross_margin
+    ahle_dueto_bruc_mortality_mean = mean_bruc_value_of_total_mortality
+    ahle_dueto_bruc_healthcost_mean = mean_bruc_health_cost - mean_ideal_health_cost
+    ahle_dueto_bruc_productionloss_mean = ahle_dueto_bruc_total_mean - ahle_dueto_bruc_mortality_mean - ahle_dueto_bruc_healthcost_mean
     '''
+    # AHLE due to Other Disease will depend on which diseases were estimated.
+    # E.g. PPR only impacts small ruminants, so should not be part of the calculation for Cattle.
+    # Don't calculate this here. Handle it when needed (attribution).
+    # '''
+    # ahle_dueto_otherdisease_total_mean = ahle_total_mean - ahle_dueto_ppr_total_mean - ahle_dueto_bruc_total_mean
+    # ahle_dueto_otherdisease_mortality_mean = ahle_dueto_mortality_mean - ahle_dueto_ppr_mortality_mean - ahle_dueto_bruc_mortality_mean
+    # ahle_dueto_otherdisease_healthcost_mean = ahle_dueto_healthcost_mean - ahle_dueto_ppr_healthcost_mean - ahle_dueto_bruc_healthcost_mean
+    # ahle_dueto_otherdisease_productionloss_mean = ahle_dueto_otherdisease_total_mean - ahle_dueto_otherdisease_mortality_mean - ahle_dueto_otherdisease_healthcost_mean
+    # '''
     # Marginal improvement
     '''
     ahle_when_mort_imp25_mean = mean_all_mort_25_imp_gross_margin - mean_current_gross_margin
@@ -2178,19 +2234,29 @@ ahle_combo_withahle['ahle_dueto_ppr_productionloss_stdev'] = np.sqrt(
     ahle_combo_withahle['ahle_dueto_ppr_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_healthcost_stdev']**2
     )
 
+# Brucellosis
+ahle_combo_withahle['ahle_dueto_bruc_total_stdev'] = np.sqrt(
+    ahle_combo_withahle['stdev_ideal_gross_margin']**2 + ahle_combo_withahle['stdev_bruc_gross_margin']**2
+    )
+ahle_combo_withahle['ahle_dueto_bruc_mortality_stdev'] = ahle_combo_withahle['stdev_bruc_value_of_total_mortality']
+ahle_combo_withahle['ahle_dueto_bruc_healthcost_stdev'] = ahle_combo_withahle['stdev_bruc_health_cost']
+ahle_combo_withahle['ahle_dueto_bruc_productionloss_stdev'] = np.sqrt(
+    ahle_combo_withahle['ahle_dueto_bruc_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_bruc_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_bruc_healthcost_stdev']**2
+    )
+
 # Other disease
-ahle_combo_withahle['ahle_dueto_otherdisease_total_stdev'] = np.sqrt(
-    ahle_combo_withahle['ahle_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_total_stdev']**2
-    )
-ahle_combo_withahle['ahle_dueto_otherdisease_mortality_stdev'] = np.sqrt(
-    ahle_combo_withahle['ahle_dueto_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_mortality_stdev']**2
-    )
-ahle_combo_withahle['ahle_dueto_otherdisease_healthcost_stdev'] = np.sqrt(
-    ahle_combo_withahle['ahle_dueto_healthcost_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_healthcost_stdev']**2
-    )
-ahle_combo_withahle['ahle_dueto_otherdisease_productionloss_stdev'] = np.sqrt(
-    ahle_combo_withahle['ahle_dueto_productionloss_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_productionloss_stdev']**2
-    )
+# ahle_combo_withahle['ahle_dueto_otherdisease_total_stdev'] = np.sqrt(
+#     ahle_combo_withahle['ahle_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_bruc_total_stdev']**2
+#     )
+# ahle_combo_withahle['ahle_dueto_otherdisease_mortality_stdev'] = np.sqrt(
+#     ahle_combo_withahle['ahle_dueto_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_bruc_mortality_stdev']**2
+#     )
+# ahle_combo_withahle['ahle_dueto_otherdisease_healthcost_stdev'] = np.sqrt(
+#     ahle_combo_withahle['ahle_dueto_healthcost_stdev']**2 + ahle_combo_withahle['ahle_dueto_ppr_healthcost_stdev']**2 + ahle_combo_withahle['ahle_dueto_bruc_healthcost_stdev']**2
+#     )
+# ahle_combo_withahle['ahle_dueto_otherdisease_productionloss_stdev'] = np.sqrt(
+#     ahle_combo_withahle['ahle_dueto_otherdisease_total_stdev']**2 + ahle_combo_withahle['ahle_dueto_otherdisease_mortality_stdev']**2 + ahle_combo_withahle['ahle_dueto_otherdisease_healthcost_stdev']**2
+#     )
 
 # =============================================================================
 #### Add currency conversion

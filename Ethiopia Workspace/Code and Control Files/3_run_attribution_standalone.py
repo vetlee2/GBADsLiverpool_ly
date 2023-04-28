@@ -90,7 +90,7 @@ def timerstop():
       elapsed = _timerstop - _timerstart
       hours = (elapsed.days * 24) + (elapsed.seconds // 3600)
       minutes = (elapsed.seconds % 3600) // 60
-      seconds = (elapsed.seconds % 60) + (elapsed.microseconds / 1000000)
+      seconds = (elapsed.seconds % 60) + (elapsed.microseconds / 1e6)
       print(f"\n<{funcname}> {_timerstop :%I:%M:%S %p}")
       if _timerstart_label:
          print(f"<{funcname}> {_timerstart_label} Elapsed {hours}h: {minutes}m: {seconds :.1f}s \n")

@@ -77,7 +77,7 @@ def timerstop():
       elapsed = _timerstop - _timerstart
       hours = (elapsed.days * 24) + (elapsed.seconds // 3600)
       minutes = (elapsed.seconds % 3600) // 60
-      seconds = (elapsed.seconds % 60) + (elapsed.microseconds / 1000000)
+      seconds = (elapsed.seconds % 60) + (elapsed.microseconds / 1e6)
       print(f"\n<{funcname}> {_timerstop :%I:%M:%S %p}")
       if _timerstart_label:
          print(f"<{funcname}> {_timerstart_label} Elapsed {hours}h: {minutes}m: {seconds :.1f}s \n")
@@ -206,7 +206,7 @@ r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table_CATTLE.R')
 #### Base scenarios
 # =============================================================================
 '''
-WARNING: since moving to yearly cattle scenarios, the base ahle CATTLE folder
+#!!! WARNING: since moving to yearly cattle scenarios, the base ahle CATTLE folder
 is no longer used. Any scenarios stored here will not be read in by
 2_process_simulation_results_standalone.py.
 '''
@@ -245,7 +245,7 @@ r_args = [
     N_RUNS
 
     # Arg 2: Folder location for saving output files
-    #!!! Note putting this in year 2021 folder although it has only been produced for a single year.
+    # Note putting this in year 2021 folder although it has only been produced for a single year.
     ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE' ,'2021')
 
     # Arg 3: full path to scenario control file

@@ -161,7 +161,9 @@ datainfo(exchg_data_tomerge)
 exchg_data_tomerge.to_pickle(os.path.join(ETHIOPIA_DATA_FOLDER ,'wb_exchg_data_processed.pkl.gz'))
 
 #%% Combine scenario result files
-
+'''
+This imports CSV files that are output from the compartmental model.
+'''
 def combine_ahle_scenarios(
         input_folder
         ,input_file_prefix      # String
@@ -347,7 +349,9 @@ ahle_goat_past.columns = ahle_goat_past.columns.str.replace('_all_mortality_zero
 # =============================================================================
 #### Cattle base
 # =============================================================================
-
+'''
+These are not being used as they have been replaced by year-specific scenarios.
+'''
 # =============================================================================
 #### Cattle Yearly
 # =============================================================================
@@ -379,7 +383,7 @@ cattle_suffixes = [
     ,'Bruc'
 ]
 
-ahle_cattle_aslist = []         # Initialize
+ahle_cattle_yearly_aslist = []         # Initialize
 for YEAR in range(2017 ,2022):
     # Import CLM
     ahle_cattle_clm = combine_ahle_scenarios(
@@ -395,7 +399,7 @@ for YEAR in range(2017 ,2022):
 
 	# Turn into list and append to master
     ahle_cattle_clm_aslist = ahle_cattle_clm.to_dict(orient='records')
-    ahle_cattle_aslist.extend(ahle_cattle_clm_aslist)
+    ahle_cattle_yearly_aslist.extend(ahle_cattle_clm_aslist)
     del ahle_cattle_clm_aslist
 
     # Import pastoral
@@ -412,7 +416,7 @@ for YEAR in range(2017 ,2022):
 
 	# Turn into list and append to master
     ahle_cattle_past_aslist = ahle_cattle_past.to_dict(orient='records')
-    ahle_cattle_aslist.extend(ahle_cattle_past_aslist)
+    ahle_cattle_yearly_aslist.extend(ahle_cattle_past_aslist)
     del ahle_cattle_past_aslist
 
     # Import periurban dairy
@@ -429,13 +433,13 @@ for YEAR in range(2017 ,2022):
 
 	# Turn into list and append to master
     ahle_cattle_peri_aslist = ahle_cattle_peri.to_dict(orient='records')
-    ahle_cattle_aslist.extend(ahle_cattle_peri_aslist)
+    ahle_cattle_yearly_aslist.extend(ahle_cattle_peri_aslist)
     del ahle_cattle_peri_aslist
 
 # Convert master list into data frame
-ahle_cattle = pd.DataFrame.from_dict(ahle_cattle_aslist ,orient='columns')
-del ahle_cattle_aslist
-datainfo(ahle_cattle ,120)
+ahle_cattle_yearly = pd.DataFrame.from_dict(ahle_cattle_yearly_aslist ,orient='columns')
+del ahle_cattle_yearly_aslist
+datainfo(ahle_cattle_yearly ,120)
 
 # =============================================================================
 #### Cattle Regional
@@ -443,6 +447,8 @@ datainfo(ahle_cattle ,120)
 '''
 These scenarios have been run for regions within Ethiopia, so this uses a loop
 to import each region and append to a master regional dataframe.
+
+These have not been run for different years. They are being assigned year 2021.
 '''
 # Should match list defined in 1_run_ahle_simulation_standalone.py
 list_eth_regions = [
@@ -595,7 +601,7 @@ concat_list = [
     ,ahle_goat_clm
     ,ahle_goat_past
 
-    ,ahle_cattle
+    ,ahle_cattle_yearly
     ,ahle_cattle_regional
 
     ,ahle_poultry_smallholder

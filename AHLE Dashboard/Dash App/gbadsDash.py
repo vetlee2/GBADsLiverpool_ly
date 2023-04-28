@@ -800,6 +800,10 @@ ecs_improve_options = [{'label': i, 'value': i, 'disabled': True} for i in ['25%
                                                                             '75%',
                                                                             '100%',
                                                                             ]]
+# Map Denominator
+ecs_map_denominator_options = [{'label': i, 'value': i, 'disabled': False} for i in ['Total',
+                                                                                     'Per kg biomass',
+                                                                                     ]]
 
 # =============================================================================
 #### Global Aggregate options
@@ -1930,13 +1934,13 @@ def create_stacked_bar_ecs(input_df, x, y, text, color, yaxis_title):
     return bar_fig
 
 # Define Ethiopia subnation level map
-def create_map_display_ecs(input_df, geojson, location, featurekey, color_by):
+def create_map_display_ecs(input_df, geojson, location, featurekey, color_by, color_scale):
     ecs_map_fig = px.choropleth_mapbox(input_df,
                                        geojson=geojson,
                                        locations=location,
                                        featureidkey=featurekey,
                                        color=color_by,
-                                       color_discrete_sequence=px.colors.qualitative.Dark24,
+                                       color_continuous_scale=color_scale,
                                        opacity=0.7,
                                        mapbox_style="carto-positron",
                                        zoom=5,
@@ -3725,15 +3729,28 @@ gbadsDash.layout = html.Div([
             dbc.Card([
                 dbc.CardBody([
                     html.H3("Ethiopian Subnational Graph"),
+                    
                 dbc.Row([
                     # Map Display
                     dbc.Col([
-                        html.H6("Select Value/Expenditure Category"),
+                        html.H6("Value/Expenditure Category"),
                         dcc.Dropdown(id='select-map-display-ecs',
                                       value='Gross Margin',
                                       clearable=False,
                                       ),
                         ]),
+                    
+                    # Denominator
+                    dbc.Col([
+                        html.H6("Denominator"),
+                        dcc.RadioItems(id='select-map-denominator-ecs',
+                                      options=ecs_map_denominator_options,
+                                      value= "Total",
+                                      inputStyle={"margin-right": "2px", # This pulls the words off of the button
+                                                  "margin-left": "10px"},
+                                      ),
+                        ],
+                    ),
 
                     ]), # END OF MAP SELECTIONS ROW
 
@@ -7703,28 +7720,16 @@ def update_map_display_options_ecs(species):
     if 'CATTLE' in species.upper():    # Cattle have draught
         item_options = ('Value of Offtake',
                         'Value of Herd Increase',
-                        'Value of Draught',
+                        'Value of draught',
                         'Value of Milk',
                         'Value of Manure',
                         'Value of Hides',
-                        'Expenditure on Feed',
-                        'Expenditure on Labour',
-                        'Expenditure on Health',
-                        'Expenditure on Housing',
-                        'Expenditure on Capital',
-                        'Gross Margin'
                         )
     elif 'POULTRY' in species.upper():   # Poultry have value of eggs, do not have manure or hides
         item_options = ('Value of Offtake',
                         'Value of Herd Increase',
                         'Value of Eggs consumed',
                         'Value of Eggs sold',
-                        'Expenditure on Feed',
-                        'Expenditure on Labour',
-                        'Expenditure on Health',
-                        'Expenditure on Housing',
-                        'Expenditure on Capital',
-                        'Gross Margin'
                         )
     else:
         item_options = ('Value of Offtake',
@@ -7732,21 +7737,26 @@ def update_map_display_options_ecs(species):
                         'Value of Milk',
                         'Value of Manure',
                         'Value of Hides',
-                        'Expenditure on Feed',
-                        'Expenditure on Labour',
-                        'Expenditure on Health',
-                        'Expenditure on Housing',
-                        'Expenditure on Capital',
-                        'Gross Margin'
                         )
     # Build dictionary
     options=[]
     for i in item_options:
         str(options.append({'label':'Current ' + i,'value':(i)}))
         
+    # Add Expenditure values
+    options += [{'label':"Current Expenditure on Feed", 'value':"Feed Cost"},
+                {'label':"Current Expenditure on Labour", 'value':"Labour Cost"},
+                {'label':"Current Expenditure on Health", 'value':"Health Cost"},
+                {'label':"Current Expenditure on Housing", 'value':"Infrastructure Cost"},
+                {'label':"Current Expenditure on Capital", 'value':"Capital Cost"},
+                {'label':"Current Gross Margin", 'value':"Gross Margin"},]
+
+        
     # Add options for Ideal gross margin and AHLE
     options += [{'label': i, 'value': i, 'disabled': False} for i in ["Ideal Gross Margin",
                                                                       "AHLE"]]
+    
+   
 
     return options
 
@@ -9191,8 +9201,9 @@ def update_stacked_bar_ecs(
     Input('select-prodsys-ecs','value'),
     Input('select-map-display-ecs','value'),
     Input('select-currency-ecs','value'),
+    Input('select-map-denominator-ecs','value'),
     )
-def update_map_display_ecs(agesex_scenario, prodsys, item, currency):
+def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator):
     # Ethiopia subnational level map data from S3
     geojson_ecs_df = geojson_ecs.copy()
     # geojson_ecs_df = gpd.read_file('<filename>.geojson')
@@ -9220,17 +9231,32 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency):
         item_filter = item
     input_df = ahle_all_scensmry.query("item == @item_filter")
     
-    # Create AHLE column
+    # Create AHLE columns
     input_df['mean_AHLE'] = input_df['mean_ideal'] - input_df['mean_current']
     input_df['mean_AHLE_usd'] = input_df['mean_ideal_usd'] - input_df['mean_current_usd']
-
+    # input_df['mean_AHLE_perkgbiomass'] = input_df['mean_ideal_perkgbiomass'] - input_df['mean_current_perkgbiomass']
+    # input_df['mean_AHLE_usd_perkgbiomass'] = input_df['mean_ideal_usd_perkgbiomass'] - input_df['mean_current_usd_perkgbiomass']
+    
+    # Set values based on selected currency and denominator values
     # If currency is USD, use USD columns
     display_currency = 'Ethiopian Birr'
-    if currency == 'USD':
-        display_currency = 'USD'
-        input_df['mean_current'] = input_df['mean_current_usd']
-        input_df['mean_ideal'] = input_df['mean_ideal_usd']
-        input_df['mean_AHLE'] = input_df['mean_AHLE_usd']
+    if denominator.upper() == 'PER KG BIOMASS':
+        if currency == 'USD':
+            display_currency = 'USD'
+            input_df['mean_current'] = input_df['mean_current_usd_perkgbiomass']
+            input_df['mean_ideal'] = input_df['mean_ideal_usd_perkgbiomass']
+            input_df['mean_AHLE'] = input_df['mean_AHLE_usd_perkgbiomass']
+        else:
+            input_df['mean_current'] = input_df['mean_current_perkgbiomass']
+            input_df['mean_ideal'] = input_df['mean_ideal_perkgbiomass']
+            input_df['mean_AHLE'] = input_df['mean_AHLE_perkgbiomass']
+            
+    else:
+        if currency == 'USD':
+            display_currency = 'USD'
+            input_df['mean_current'] = input_df['mean_current_usd']
+            input_df['mean_ideal'] = input_df['mean_ideal_usd']
+            input_df['mean_AHLE'] = input_df['mean_AHLE_usd']
 
     # Color scale by current, ideal or AHLE
     # TODO: Numbers for ideal (and in turn, AHLE, are not matching the ahle_all_scensmry data)
@@ -9243,8 +9269,16 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency):
     
     
     input_df = input_df.sort_values(by=[f'{color_by}'])
+    
+    # Set color scale to match waterfall colors
+    if "GROSS MARGIN" in item.upper() or "AHLE" in item.upper():
+        color_scale = [(0, "#F7F9FB"), (0.5, "#F7C080"), (1, "#F7931D")]
+    elif "VALUE" in item.upper():
+        color_scale = [(0, "#ecf5fc"), (0.5, "#88c2ea"), (1, "#3598db")]
+    elif "COST" in item.upper():
+        color_scale = [(0, "#fdeeec"), (0.5, "#f08d83"), (1, "#E84C3D")]
 
-    ecs_map_fig = create_map_display_ecs(input_df, geojson_ecs_df, location, featurekey, color_by)
+    ecs_map_fig = create_map_display_ecs(input_df, geojson_ecs_df, location, featurekey, color_by, color_scale)
 
     # Adjust margins
     ecs_map_fig.update_layout(
@@ -9253,7 +9287,7 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency):
 
     # Add title
     ecs_map_fig.update_layout(
-        title_text=f'{item} by Region | {agesex_scenario} Cattle, {prodsys} in 2021',
+        title_text=f'{item} {denominator} by Region | {agesex_scenario} Cattle, {prodsys} in 2021',
         font_size=15
         )
 

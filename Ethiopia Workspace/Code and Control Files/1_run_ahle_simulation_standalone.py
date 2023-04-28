@@ -1,15 +1,16 @@
 #%% About
 '''
-The University of Liverpool (UoL) has provided R code to run the simulation
+The University of Liverpool (UoL) has built R code to run the simulation
 compartmental model to estimate the production values and costs for different
 species.
 
 This program runs the UoL R code using the subprocess library.
-Any R libraries required must be installed first, which I have done through RGui.
-- Run RGui as administrator
-- In console run: install.packages('package_name')
+Required R libraries must be installed first.
 
 This code does not need to be run if UoL has already run the simulations.
+
+IMPORTANT: before running this, set Python's working directory to the folder
+where this code is stored.
 '''
 #%% Packages and functions
 
@@ -86,7 +87,7 @@ def timerstop():
       print(f"<{funcname}> Error: no start time defined. Call timerstart() first.")
    return None
 
-#%% Define folder paths
+#%% Paths and variables
 
 CURRENT_FOLDER = os.getcwd()
 PARENT_FOLDER = os.path.dirname(CURRENT_FOLDER)
@@ -98,6 +99,8 @@ ETHIOPIA_DATA_FOLDER = os.path.join(PARENT_FOLDER ,'Data')
 
 # Full path to rscript.exe
 r_executable = 'C:\\Program Files\\R\\R-4.2.1\\bin\\x64\\Rscript.exe'
+
+N_RUNS = '1000'   # String: number of simulation runs for each scenario
 
 #%% Small ruminants
 
@@ -111,7 +114,7 @@ r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table_SMALLRUMINAN
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
     # Arg 1: Number of simulation runs
-    '10'
+    N_RUNS
 
     # Arg 2: Folder location for saving output files
     ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
@@ -140,7 +143,7 @@ PPR.
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
     # Arg 1: Number of simulation runs
-    '10'
+    N_RUNS
 
     # Arg 2: Folder location for saving output files
     ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
@@ -169,7 +172,7 @@ PPR.
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
     # Arg 1: Number of simulation runs
-    '10'
+    N_RUNS
 
     # Arg 2: Folder location for saving output files
     ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
@@ -211,7 +214,7 @@ is no longer used. Any scenarios stored here will not be read in by
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
     # Arg 1: Number of simulation runs
-    '10'
+    N_RUNS
 
     # Arg 2: Folder location for saving output files
     ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE')
@@ -239,7 +242,7 @@ PPR.
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
     # Arg 1: Number of simulation runs
-    '10'
+    N_RUNS
 
     # Arg 2: Folder location for saving output files
     #!!! Note putting this in year 2021 folder although it has only been produced for a single year.
@@ -279,7 +282,7 @@ for YEAR in list_years:
     # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
     r_args = [
         # Arg 1: Number of simulation runs
-        '10'
+        N_RUNS
 
         # Arg 2: Folder location for saving output files
         ,OUTFOLDER
@@ -332,7 +335,7 @@ for REGION in list_eth_regions:
     # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
     r_args = [
         # Arg 1: Number of simulation runs
-        '100'
+        N_RUNS
 
         # Arg 2: Folder location for saving output files
         ,OUTFOLDER
@@ -360,7 +363,7 @@ r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table _ POULTRY.R'
 # ORDER MATTERS! SEE HOW THIS LIST IS PARSED INSIDE R SCRIPT.
 r_args = [
     # Arg 1: Number of simulation runs
-    '10'
+    N_RUNS
 
     # Arg 2: Folder location for saving output files
     ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle POULTRY')

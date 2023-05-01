@@ -3789,6 +3789,8 @@ gbadsDash.layout = html.Div([
             dbc.Row([
                 # Do not have data for 3 cities
                 html.P("	* Currently do not have data for Addis Ababa, Dire Dawa, or Harari regions."),
+                # SNNP and South West Ethiopia
+                html.P("	* South West Ethiopia and SNNP are using the same values due to limit data for South West Ethiopia."),
             ], style={'margin-left':"40px", 'font-style': 'italic'}
             ),
 

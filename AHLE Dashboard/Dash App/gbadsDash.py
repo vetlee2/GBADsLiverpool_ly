@@ -3428,7 +3428,7 @@ gbadsDash.layout = html.Div([
                     # Text underneath
                     html.P("*Currently only regional data for cattle" ,style={'font-style':'italic'}),
                     ]),
-                
+
 
                 # Regional dropdwon
                 dbc.Col([
@@ -3729,7 +3729,7 @@ gbadsDash.layout = html.Div([
             dbc.Card([
                 dbc.CardBody([
                     html.H3("Ethiopian Subnational Graph"),
-                    
+
                 dbc.Row([
                     # Map Display
                     dbc.Col([
@@ -3739,7 +3739,7 @@ gbadsDash.layout = html.Div([
                                       clearable=False,
                                       ),
                         ]),
-                    
+
                     # Denominator
                     dbc.Col([
                         html.H6("Denominator"),
@@ -7742,7 +7742,7 @@ def update_map_display_options_ecs(species):
     options=[]
     for i in item_options:
         str(options.append({'label':'Current ' + i,'value':(i)}))
-        
+
     # Add Expenditure values
     options += [{'label':"Current Expenditure on Feed", 'value':"Feed Cost"},
                 {'label':"Current Expenditure on Labour", 'value':"Labour Cost"},
@@ -7751,12 +7751,12 @@ def update_map_display_options_ecs(species):
                 {'label':"Current Expenditure on Capital", 'value':"Capital Cost"},
                 {'label':"Current Gross Margin", 'value':"Gross Margin"},]
 
-        
+
     # Add options for Ideal gross margin and AHLE
     options += [{'label': i, 'value': i, 'disabled': False} for i in ["Ideal Gross Margin",
                                                                       "AHLE"]]
-    
-   
+
+
 
     return options
 
@@ -7861,7 +7861,7 @@ def update_ecs_ahle_data(currency, species, prodsys, agesex):
                 #### AHLE Data
 
                 Showing the major production and cost values under current and ideal scenarios
-                
+
                 *Output of the compartmental population model*
                 '''
                 ),
@@ -7942,7 +7942,7 @@ def update_ecs_attr_data(currency, prodsys, species):
                 #### Attribution Data
 
                 Attributing the AHLE components to infectious, non-infectious, and external causes
-                
+
                 *Based on expert opinion attribution proportions*
                 '''
                 ),
@@ -8177,7 +8177,7 @@ def update_ahle_value_and_cost_viz_ecs(
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
                     y = prep_df['mean_all_mort_75_AHLE']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
-                    y = prep_df['mean_AHLE_mortality']                  
+                    y = prep_df['mean_AHLE_mortality']
                 elif impvmnt_factor == 'Parturition Rate':
                     number_split = impvmnt_value.split('%')[0]
                     y = prep_df[f'mean_all_current_repro_{number_split}_AHLE']
@@ -8234,7 +8234,7 @@ def update_ahle_value_and_cost_viz_ecs(
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
                     y = prep_df['mean_all_mort_75_imp']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
-                    y = prep_df['mean_mortality_zero']                    
+                    y = prep_df['mean_mortality_zero']
                 elif impvmnt_factor == 'Parturition Rate':
                     number_split = impvmnt_value.split('%')[0]
                     y = prep_df[f'mean_current_repro_{number_split}_imp']
@@ -8625,7 +8625,7 @@ def update_attr_treemap_ecs(
     ):
     # Data
     input_df = ecs_ahle_all_withattr
-    
+
     # Geographic filter
     if geo_view.upper() == "NATIONAL":
         input_df = input_df.query("region == 'National'")
@@ -8738,7 +8738,7 @@ def update_attr_treemap_ecs(
             ecs_treemap_fig.update_yaxes(title_text='Ethiopian Birr')
         elif currency == 'USD':
             ecs_treemap_fig.update_yaxes(title_text='USD')
-            
+
     # Adjust margins
     ecs_treemap_fig.update_layout(
         margin=dict(l=5, r=5, b=5),
@@ -9225,19 +9225,19 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
     # Allow user to select agesex, prodsys, and item to view
     input_df = ahle_all_scensmry.query("agesex_scenario == @agesex_scenario")
     input_df = ahle_all_scensmry.query("production_system == @prodsys")
-    
+
     if item == 'Ideal Gross Margin' or item == 'AHLE':
         item_filter = 'Gross Margin'
     else:
         item_filter = item
     input_df = ahle_all_scensmry.query("item == @item_filter")
-    
+
     # Create AHLE columns
     input_df['mean_AHLE'] = input_df['mean_ideal'] - input_df['mean_current']
     input_df['mean_AHLE_usd'] = input_df['mean_ideal_usd'] - input_df['mean_current_usd']
     input_df['mean_AHLE_perkgbiomass'] = input_df['mean_ideal_perkgbiomass'] - input_df['mean_current_perkgbiomass']
     input_df['mean_AHLE_usd_perkgbiomass'] = input_df['mean_ideal_usd_perkgbiomass'] - input_df['mean_current_usd_perkgbiomass']
-    
+
     # Set values based on selected currency and denominator values
     # If currency is USD, use USD columns
     display_currency = 'Ethiopian Birr'
@@ -9251,7 +9251,7 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
             input_df['mean_current'] = input_df['mean_current_perkgbiomass']
             input_df['mean_ideal'] = input_df['mean_ideal_perkgbiomass']
             input_df['mean_AHLE'] = input_df['mean_AHLE_perkgbiomass']
-            
+
     else:
         if currency == 'USD':
             display_currency = 'USD'
@@ -9267,10 +9267,10 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
         color_by = 'mean_AHLE'
     else:
         color_by = 'mean_current'
-    
-    
+
+
     input_df = input_df.sort_values(by=[f'{color_by}'])
-    
+
     # Set color scale to match waterfall colors
     if "GROSS MARGIN" in item.upper() or "AHLE" in item.upper():
         color_scale = [(0, "#F7F9FB"), (0.5, "#F7C080"), (1, "#F7931D")]
@@ -9292,7 +9292,7 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
         font_size=15
         )
 
-    # Update legend title   
+    # Update legend title
     ecs_map_fig.update_layout(
     coloraxis_colorbar=dict(
         title=f"{display_currency}",

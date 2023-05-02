@@ -7662,8 +7662,9 @@ def update_item_dropdown_ecs(graph, species):
                         'Expenditure on Feed',
                         'Expenditure on Labour',
                         'Expenditure on Health',
-                        'Expenditure on Housing',
-                        'Expenditure on Capital',
+                        # May 2023: Wudu does not want housing and captial expenses in waterfall chart
+                        # 'Expenditure on Housing',
+                        # 'Expenditure on Capital',
                         'Gross Margin'
                         )
     elif 'POULTRY' in species.upper():   # Poultry have value of eggs, do not have manure or hides
@@ -7674,8 +7675,9 @@ def update_item_dropdown_ecs(graph, species):
                         'Expenditure on Feed',
                         'Expenditure on Labour',
                         'Expenditure on Health',
-                        'Expenditure on Housing',
-                        'Expenditure on Capital',
+                        # May 2023: Wudu does not want housing and captial expenses in waterfall chart
+                        # 'Expenditure on Housing',
+                        # 'Expenditure on Capital',
                         'Gross Margin'
                         )
     else:
@@ -7687,8 +7689,9 @@ def update_item_dropdown_ecs(graph, species):
                         'Expenditure on Feed',
                         'Expenditure on Labour',
                         'Expenditure on Health',
-                        'Expenditure on Housing',
-                        'Expenditure on Capital',
+                        # May 2023: Wudu does not want housing and captial expenses in waterfall chart
+                        # 'Expenditure on Housing',
+                        # 'Expenditure on Capital',
                         'Gross Margin'
                         )
     # Build dictionary
@@ -8173,7 +8176,6 @@ def update_ahle_value_and_cost_viz_ecs(
         # Filter based on selected item
         prep_df = prep_df.query('item in @selected_item')
 
-
         # Sort data by year
         prep_df = prep_df.sort_values('year')
 
@@ -8212,7 +8214,6 @@ def update_ahle_value_and_cost_viz_ecs(
                     number_split = impvmnt_value.split('%')[0]
                     y = prep_df[f'mean_all_current_growth_{number_split}_AHLE']
 
-
             # AHLE graph
             plot_ahle_value = go.Scatter(
                 x=x
@@ -8220,14 +8221,12 @@ def update_ahle_value_and_cost_viz_ecs(
                 ,name='AHLE'
                 ,line=dict(color=color)
                 )
-
             ecs_waterfall_fig = make_subplots()
             ecs_waterfall_fig.add_trace(plot_ahle_value)
             ecs_waterfall_fig.update_layout(title=f'{reg_title} {selected_item} Over Time | {species}, {prodsys} <br><sup>Difference between Current and {compare} scenario</sup><br>',
                                             yaxis_title=display_currency,
                                             font_size=15,
                                             plot_bgcolor="#ededed",)
-
 
         elif display == "Side by Side":
             # Plot current value
@@ -8304,11 +8303,12 @@ def update_ahle_value_and_cost_viz_ecs(
                                      'Expenditure on Feed',
                                      'Expenditure on Labour',
                                      'Expenditure on Health',
-                                     'Expenditure on Housing',
-                                     'Expenditure on Capital',
+                                     # May 2023: Wudu does not want housing and captial expenses in waterfall chart
+                                     # 'Expenditure on Housing',
+                                     # 'Expenditure on Capital',
                                      'Gross Margin')
             prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
-            measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+            measure = ['relative'] * (len(waterfall_plot_values) - 1) + ['total']
         elif 'POULTRY' in species.upper():   # Poultry have value of eggs, do not have manure or hides
             waterfall_plot_values = ('Value of Offtake',
                                      'Value of Herd Increase',
@@ -8317,11 +8317,12 @@ def update_ahle_value_and_cost_viz_ecs(
                                      'Expenditure on Feed',
                                      'Expenditure on Labour',
                                      'Expenditure on Health',
-                                     'Expenditure on Housing',
-                                     'Expenditure on Capital',
+                                     # May 2023: Wudu does not want housing and captial expenses in waterfall chart
+                                     # 'Expenditure on Housing',
+                                     # 'Expenditure on Capital',
                                      'Gross Margin')
             prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
-            measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+            measure = ['relative'] * (len(waterfall_plot_values) - 1) + ['total']
         else:
             waterfall_plot_values = ('Value of Offtake',
                                      'Value of Herd Increase',
@@ -8331,11 +8332,12 @@ def update_ahle_value_and_cost_viz_ecs(
                                      'Expenditure on Feed',
                                      'Expenditure on Labour',
                                      'Expenditure on Health',
-                                     'Expenditure on Housing',
-                                     'Expenditure on Capital',
+                                     # May 2023: Wudu does not want housing and captial expenses in waterfall chart
+                                     # 'Expenditure on Housing',
+                                     # 'Expenditure on Capital',
                                      'Gross Margin')
             prep_df = prep_df.loc[prep_df['item'].isin(waterfall_plot_values)]
-            measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
+            measure = ['relative'] * (len(waterfall_plot_values) - 1) + ['total']
 
         x = prep_df['item']
 
@@ -9254,13 +9256,13 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
     input_df=input_df.loc[(input_df['production_system'] == prodsys)]
     # Age/sex filter
     input_df=input_df.loc[(input_df['agesex_scenario'] == agesex_scenario)]
-    
+
     if item == 'Ideal Gross Margin' or item == 'AHLE':
         item_filter = 'Gross Margin'
     else:
         item_filter = item
     input_df = input_df.query("item == @item_filter")
-    
+
     # Create AHLE columns
     input_df['mean_AHLE'] = input_df['mean_ideal'] - input_df['mean_current']
     input_df['mean_AHLE_usd'] = input_df['mean_ideal_usd'] - input_df['mean_current_usd']
@@ -9314,8 +9316,8 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
     if min(input_df[f'{color_by}']) < 0:
         ecs_map_fig.update_layout(coloraxis=dict(cmax=max(input_df[f'{color_by}']), cmin=0))
     else:
-        ecs_map_fig.update_layout(coloraxis=dict(cmax=max(input_df[f'{color_by}']), cmin=min(input_df[f'{color_by}'])))     
-    
+        ecs_map_fig.update_layout(coloraxis=dict(cmax=max(input_df[f'{color_by}']), cmin=min(input_df[f'{color_by}'])))
+
     # Adjust margins
     ecs_map_fig.update_layout(
         margin=dict(l=5, r=5, b=5),

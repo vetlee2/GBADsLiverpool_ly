@@ -201,7 +201,7 @@ ecs_ahle_summary2 = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary
 ecs_ahle_all_withattr = pd.read_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_withattr_disease.csv'))
 
 # JR 2023-4-19: added regional results. Testing with Nationl level (should be same as before).
-ecs_ahle_summary = ahle_all_scensmry.query("region == 'National'")
+ecs_ahle_summary = ahle_all_scensmry.query("region == 'National'").copy()
 ecs_ahle_summary2 = ecs_ahle_summary2.query("region == 'National'")
 # ecs_ahle_all_withattr = ecs_ahle_all_withattr.query("region == 'National'")
 
@@ -233,8 +233,8 @@ ga_countries_biomass = ga_countries_biomass.drop(columns=['producing_animals_egg
                                                           'producing_animals_wool_hd',
                                                           'output_live_hd',
                                                           'output_total_hd',
-                                                          'output_live_biomass_kg',
-                                                          'output_total_biomass_kg',
+                                                          # 'output_live_biomass_kg',
+                                                          # 'output_total_biomass_kg',
                                                           'output_value_live_2010usd',
                                                           'output_value_total_2010usd',
                                                           'output_value_meatlive_2010usd',
@@ -262,11 +262,11 @@ ga_countries_biomass = ga_countries_biomass.loc[~ _drop_species]
 
 # Drop countries
 # Thin the regions with many countries
-ga_countries_biomass['region'].unique()
-countries_eap = list(ga_countries_biomass.query("region == 'East Asia & Pacific'")['country'].unique())
-countries_eca = list(ga_countries_biomass.query("region == 'Europe & Central Asia'")['country'].unique())
-countries_ssa = list(ga_countries_biomass.query("region == 'Sub-Saharan Africa'")['country'].unique())
-countries_lac = list(ga_countries_biomass.query("region == 'Latin America & the Caribbean'")['country'].unique())
+# ga_countries_biomass['region'].unique()
+# countries_eap = list(ga_countries_biomass.query("region == 'East Asia & Pacific'")['country'].unique())
+# countries_eca = list(ga_countries_biomass.query("region == 'Europe & Central Asia'")['country'].unique())
+# countries_ssa = list(ga_countries_biomass.query("region == 'Sub-Saharan Africa'")['country'].unique())
+# countries_lac = list(ga_countries_biomass.query("region == 'Latin America & the Caribbean'")['country'].unique())
 
 drop_countries = [
     # Europe & Central Asia
@@ -934,7 +934,7 @@ fao_swp_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Fra
 
 # World Bank regions
 # Rename Overall to more descriptive
-ga_countries_biomass['region'] = ga_countries_biomass['region'].replace({'EAP': 'East Asia & Pacific',
+ga_countries_biomass['region_label'] = ga_countries_biomass['region'].replace({'EAP': 'East Asia & Pacific',
                                                                          'ECA':'Europe & Central Asia',
                                                                          'LAC':'Latin America & the Caribbean',
                                                                          'MENA':'Middle East & North Africa',
@@ -943,7 +943,7 @@ ga_countries_biomass['region'] = ga_countries_biomass['region'].replace({'EAP': 
                                                                          'SSA':'Sub-Saharan Africa'})
 
 wb_region_options_ga = [{'label': "All", 'value': "All"}]
-for i in ga_countries_biomass['region'].unique():
+for i in ga_countries_biomass['region_label'].unique():
     str(wb_region_options_ga.append({'label':i,'value':(i)}))
 
 
@@ -951,43 +951,43 @@ for i in ga_countries_biomass['region'].unique():
 # Pulled from World Bank site (https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups)
 
 # East Asia & Pacific options
-options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'East Asia & Pacific')]
+options = ga_countries_biomass.loc[(ga_countries_biomass['region_label'] == 'East Asia & Pacific')]
 wb_eap_options_ga = [{'label': "All", 'value': "All"}]
 for i in options['country'].unique():
     str(wb_eap_options_ga.append({'label':i,'value':(i)}))
 
 # Europe & Central Asia options
-options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'Europe & Central Asia')]
+options = ga_countries_biomass.loc[(ga_countries_biomass['region_label'] == 'Europe & Central Asia')]
 wb_eca_options_ga = [{'label': "All", 'value': "All"}]
 for i in options['country'].unique():
     str(wb_eca_options_ga.append({'label':i,'value':(i)}))
 
 # Latin America & the Caribbean options
-options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'Latin America & the Caribbean')]
+options = ga_countries_biomass.loc[(ga_countries_biomass['region_label'] == 'Latin America & the Caribbean')]
 wb_lac_options_ga = [{'label': "All", 'value': "All"}]
 for i in options['country'].unique():
     str(wb_lac_options_ga.append({'label':i,'value':(i)}))
 
 # Middle East & North Africa options
-options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'Middle East & North Africa')]
+options = ga_countries_biomass.loc[(ga_countries_biomass['region_label'] == 'Middle East & North Africa')]
 wb_mena_options_ga = [{'label': "All", 'value': "All"}]
 for i in options['country'].unique():
     str(wb_mena_options_ga.append({'label':i,'value':(i)}))
 
 # North America options
-options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'North America')]
+options = ga_countries_biomass.loc[(ga_countries_biomass['region_label'] == 'North America')]
 wb_na_options_ga = [{'label': "All", 'value': "All"}]
 for i in options['country'].unique():
     str(wb_na_options_ga.append({'label':i,'value':(i)}))
 
 # South Asia options
-options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'South Asia')]
+options = ga_countries_biomass.loc[(ga_countries_biomass['region_label'] == 'South Asia')]
 wb_southasia_options_ga = [{'label': "All", 'value': "All"}]
 for i in options['country'].unique():
     str(wb_southasia_options_ga.append({'label':i,'value':(i)}))
 
 # Sub-Saharan Africa options
-options = ga_countries_biomass.loc[(ga_countries_biomass['region'] == 'Sub-Saharan Africa')]
+options = ga_countries_biomass.loc[(ga_countries_biomass['region_label'] == 'Sub-Saharan Africa')]
 wb_africa_options_ga = [{'label': "All", 'value': "All"}]
 for i in options['country'].unique():
     str(wb_africa_options_ga.append({'label':i,'value':(i)}))
@@ -1649,6 +1649,7 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
         ,'vetspend_farm_usd':'Producers vet & med costs'
         # Update 4/5/2023: William no longer wants public expenditure to appear in calculations
         # ,'vetspend_public_usd':'Public vet & med costs'
+        ,'antimicrobial_expenditure_usd':'Antimicrobial expenditure'
 
         ,'net_value_2010usd':'Net value'
     }
@@ -1665,7 +1666,7 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
 
     # Sum to country-year level (summing over species)
     country_year_level = INPUT_DF.pivot_table(
-        index=['region','country' ,'year' ,'incomegroup']
+        index=['region' ,'country' ,'year' ,'incomegroup']
         ,observed=True  # Limit to combinations of index variables that are in data
         ,values=current_value_columns + ideal_value_columns
         ,aggfunc='sum'
@@ -1673,11 +1674,10 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
         )
     country_year_level = country_year_level.reset_index()     # Pivoting will change columns to indexes. Change them back.
 
-    # Restructure to create columns 'current_value' and 'ideal_value'
-    # Keys: Country, Species, Year.  Columns: Income group, Item.
+    # Restructure to create columns 'value_usd_current' and 'value_usd_ideal'
     # Current values
     values_current = country_year_level.melt(
-        id_vars=['region','country' ,'year' ,'incomegroup']
+        id_vars=['region' ,'country' ,'year' ,'incomegroup']
         ,value_vars=current_value_columns
         ,var_name='orig_col'             # Name for new "variable" column
         ,value_name='value_usd_current'              # Name for new "value" column
@@ -1687,7 +1687,7 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
 
     # Ideal values
     values_ideal = country_year_level.melt(
-        id_vars=['region','country' ,'year' ,'incomegroup']
+        id_vars=['region' ,'country' ,'year' ,'incomegroup']
         ,value_vars=ideal_value_columns
         ,var_name='orig_col'             # Name for new "variable" column
         ,value_name='value_usd_ideal'              # Name for new "value" column
@@ -1699,7 +1699,7 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
     values_combined = pd.merge(
         left=values_current
         ,right=values_ideal
-        ,on=['region','country' ,'year' ,'incomegroup' ,'item']
+        ,on=['region' ,'country' ,'year' ,'incomegroup' ,'item']
         ,how='outer'
     )
 
@@ -1710,8 +1710,8 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
     values_combined.item.cat.set_categories(items_plotorder, inplace=True)
     values_combined = values_combined.sort_values(['item'])
 
-    # Fill in zeros for ideal vetmed costs
-    _vetmed_rows = (values_combined['item'].str.contains('VET' ,case=False))
+    # Fill in zeros for ideal costs
+    _vetmed_rows = (values_combined['item'].str.upper().isin(['VET & MED COSTS ON PRODUCERS' ,'ANTIMICROBIAL EXPENDITURE']))
     values_combined.loc[_vetmed_rows ,'value_usd_ideal'] = 0
 
     OUTPUT_DF = values_combined
@@ -6177,37 +6177,37 @@ def update_stacked_bar_swine(input_json, country, year):
 # ------------------------------------------------------------------------------
 # Update regions based on region contry aligment selection:
 @gbadsDash.callback(
-    Output(component_id='select-region-overview-ga', component_property='options'),
-    Input(component_id='Region-country-alignment-overview-ga', component_property='value'),
+    Output('select-region-overview-ga', 'options'),
+    Input('Region-country-alignment-overview-ga', 'value'),
     )
 def update_region_overview_options_ga(region_country):
     if region_country == "WOAH":
         options = WOAH_region_options_ga
     elif region_country =="FAO":
         options = fao_region_options_ga
-    elif region_country == "World Bank":
+    else:   # Fallback: World Bank
         options = wb_region_options_ga
     return options
 
 @gbadsDash.callback(
-    Output(component_id='select-region-detail-ga', component_property='options'),
-    Input(component_id='Region-country-alignment-detail-ga', component_property='value'),
+    Output('select-region-detail-ga', 'options'),
+    Input('Region-country-alignment-detail-ga', 'value'),
     )
 def update_region_detail_options_ga(region_country):
     if region_country == "WOAH":
         options = WOAH_region_options_ga
     elif region_country =="FAO":
         options = fao_region_options_ga
-    elif region_country == "World Bank":
+    else:   # Fallback: World Bank
         options = wb_region_options_ga
     return options
 
 
 # Update country options based on region and income group selection
 @gbadsDash.callback(
-    Output(component_id='select-country-overview-ga', component_property='options'),
-    Input(component_id='Region-country-alignment-overview-ga', component_property='value'),
-    Input(component_id='select-region-overview-ga', component_property='value'),
+    Output('select-country-overview-ga', 'options'),
+    Input('Region-country-alignment-overview-ga', 'value'),
+    Input('select-region-overview-ga', 'value'),
     Input('select-incomegrp-overview-ga','value'),
     )
 def update_country_overview_options_ga(region_country, region, income):
@@ -6249,7 +6249,7 @@ def update_country_overview_options_ga(region_country, region, income):
                 for i in options_df['country'].unique():
                     str(options.append({'label':i,'value':(i)}))
         else:
-            options_df = ga_countries_biomass.loc[(ga_countries_biomass['region'] == region)]
+            options_df = ga_countries_biomass.loc[(ga_countries_biomass['region_label'] == region)]
             if income == "All":
                 options = [{'label': "All", 'value': "All"}]
                 for i in options_df['country'].unique():
@@ -6310,7 +6310,7 @@ def update_country_detail_options_ga(region_country, region, income):
                 for i in options_df['country'].unique():
                     str(options.append({'label':i,'value':(i)}))
         else:
-            options_df = ga_countries_biomass.loc[(ga_countries_biomass['region'] == region)]
+            options_df = ga_countries_biomass.loc[(ga_countries_biomass['region_label'] == region)]
             if income == "All":
                 options = [{'label': "All", 'value': "All"}]
                 for i in options_df['country'].unique():
@@ -6449,15 +6449,24 @@ def update_species_options_ga(country, region):
     Input('select-region-overview-ga', 'value'),
     Input('select-country-overview-ga','value'),
     # Input('select-currency-ecs','value'),
+    Input('amu-regional-data', 'data'),
     )
-def update_overview_table_ga(species, income, region, country):
+def update_overview_table_ga(
+        species
+        ,income
+        ,region
+        ,country
+        ,amu_data_json
+    ):
     # Read in data
     input_df = ga_countries_biomass.copy()
+    input_df_amu = pd.read_json(amu_data_json, orient='split')
 
     # Add mortality, morbidity, and vetmed rate columns
     input_df = ga.add_mortality_rate(input_df)
     input_df = ga.add_morbidity_rate(input_df)
     input_df = ga.add_vetmed_rates(input_df)
+    input_df = ga.add_antimicrobial_expenditure(input_df ,input_df_amu)
 
     # Apply AHLE calcs
     input_df = ga.ahle_calcs_adj_outputs(input_df)
@@ -6595,15 +6604,23 @@ def update_overview_table_ga(species, income, region, country):
     Input('select-region-detail-ga','value'),
     Input('select-incomegrp-detail-ga','value'),
     Input('select-country-detail-ga','value'),
+    Input('amu-regional-data', 'data'),
     )
-def update_display_table_ga(selected_region ,selected_incgrp ,selected_country):
+def update_display_table_ga(
+        selected_region
+        ,selected_incgrp
+        ,selected_country
+        ,amu_data_json
+    ):
     # Read data
     input_df = ga_countries_biomass.copy()
+    input_df_amu = pd.read_json(amu_data_json, orient='split')
 
     # Add mortality, morbidity, and vetmed rate columns
     input_df = ga.add_mortality_rate(input_df)
     input_df = ga.add_morbidity_rate(input_df)
     input_df = ga.add_vetmed_rates(input_df)
+    input_df = ga.add_antimicrobial_expenditure(input_df ,input_df_amu)
 
     # Apply AHLE calcs
     input_df = ga.ahle_calcs_adj_outputs(input_df)
@@ -6839,23 +6856,34 @@ def update_display_table_ga(selected_region ,selected_incgrp ,selected_country):
 # ------------------------------------------------------------------------------
 # Biomass Map
 @gbadsDash.callback(
-   Output('ga-map-or-line-select','figure'),
-   Input('viz-radio-ga','value'),
-   Input('select-species-ga','value'),
-   Input('select-country-overview-ga', 'value'),
-   Input('select-region-overview-ga', 'value'),
-   Input('map-display-radio-ga','value'),
-   Input('select-incomegrp-overview-ga','value'),
-   # Input('select-currency-ecs','value'),
+    Output('ga-map-or-line-select','figure'),
+    Input('viz-radio-ga','value'),
+    Input('select-species-ga','value'),
+    Input('select-country-overview-ga', 'value'),
+    Input('select-region-overview-ga', 'value'),
+    Input('map-display-radio-ga','value'),
+    Input('select-incomegrp-overview-ga','value'),
+    # Input('select-currency-ecs','value'),
+    Input('amu-regional-data', 'data'),
    )
-def update_bio_ahle_visual_ga(viz_selection, species, country, region, display, income):
+def update_bio_ahle_visual_ga(
+        viz_selection
+        ,species
+        ,country
+        ,region
+        ,display
+        ,income
+        ,amu_data_json
+    ):
    # Data
    input_df = ga_countries_biomass.copy()
+   input_df_amu = pd.read_json(amu_data_json, orient='split')
 
    # Add mortality, morbidity, and vetmed rate columns
    input_df = ga.add_mortality_rate(input_df)
    input_df = ga.add_morbidity_rate(input_df)
    input_df = ga.add_vetmed_rates(input_df)
+   input_df = ga.add_antimicrobial_expenditure(input_df ,input_df_amu)
 
    # Apply AHLE calcs
    input_df = ga.ahle_calcs_adj_outputs(input_df)
@@ -7012,7 +7040,14 @@ def update_bio_ahle_visual_ga(viz_selection, species, country, region, display, 
     Input('select-year-ga','value'),
     Input('select-display-ga','value'),
     )
-def update_ahle_waterfall_ga(amu_data_json, selected_region ,selected_incgrp ,selected_country ,selected_year, display):
+def update_ahle_waterfall_ga(
+        amu_data_json
+        ,selected_region
+        ,selected_incgrp
+        ,selected_country
+        ,selected_year
+        ,display
+    ):
     # Read data
     input_df = ga_countries_biomass.copy()
     input_df_amu = pd.read_json(amu_data_json, orient='split')
@@ -7021,6 +7056,7 @@ def update_ahle_waterfall_ga(amu_data_json, selected_region ,selected_incgrp ,se
     input_df = ga.add_mortality_rate(input_df)
     input_df = ga.add_morbidity_rate(input_df)
     input_df = ga.add_vetmed_rates(input_df)
+    input_df = ga.add_antimicrobial_expenditure(input_df ,input_df_amu)
 
     # Apply AHLE calcs
     input_df = ga.ahle_calcs_adj_outputs(input_df)
@@ -7029,8 +7065,8 @@ def update_ahle_waterfall_ga(amu_data_json, selected_region ,selected_incgrp ,se
     prep_df = prep_ahle_forwaterfall_ga(input_df)
 
     # Make costs negative
-    _vetmed_rows = (prep_df['item'].str.contains('VET' ,case=False))
-    prep_df.loc[_vetmed_rows ,'value_usd_current'] = -1 * prep_df['value_usd_current']
+    _vetmed_rows = (prep_df['item'].str.upper().isin(['VET & MED COSTS ON PRODUCERS' ,'ANTIMICROBIAL EXPENDITURE']))
+    prep_df.loc[_vetmed_rows ,'value_usd_current'] = -1 * prep_df.loc[_vetmed_rows ,'value_usd_current']
 
     # Apply user filters
     # There will always be a year filter
@@ -7075,46 +7111,16 @@ def update_ahle_waterfall_ga(amu_data_json, selected_region ,selected_incgrp ,se
     prep_df_sums = prep_df_filtered.groupby('item')[['value_usd_current' ,'value_usd_ideal']].sum()
     prep_df_sums = prep_df_sums.reset_index()
 
-    # Additional item: global expenditure on antimicrobials
-    # Concatenate this as a single row after summing to item level
-    n_items_start = prep_df_sums.shape[0]
-    global_am_expenditure = pd.DataFrame(
-        {'item':'Antimicrobial Expenditure'
-         ,'value_usd_current':-1 * input_df_amu['am_expenditure_usd_selected'].sum()
-         ,'value_usd_ideal':0
-         }
-        ,index=[0]
-        )
-    # prep_df_sums = pd.concat(
-    #     [prep_df_sums.iloc[0:n_items_start-1] ,global_am_expenditure ,prep_df_sums.iloc[n_items_start-1]]     # Insert before last item
-    #     ,axis=0 ,ignore_index=True
-    #     )
-    prep_df_sums = pd.concat(
-        [prep_df_sums ,global_am_expenditure]
-        ,axis=0 ,ignore_index=True
-        )
-
-    # Get total AHLE for printing
-    # _netvalue = (prep_df_sums['item'] == 'Net value')
-    # current_net_value = prep_df_sums.loc[_netvalue ,'value_usd_current'].values[0]
-    # ideal_net_value = prep_df_sums.loc[_netvalue ,'value_usd_ideal'].values[0]
-    # total_ahle = ideal_net_value - current_net_value
-
     # Create AHLE differences bars (ideal - current)
     prep_df_sums['value_usd_ahle_diff'] = prep_df_sums['value_usd_ideal'] - prep_df_sums['value_usd_current']
 
-    # Add vet spend back in
-    # prod_vetspend = prep_df_sums[prep_df_sums['item']=='Producers vet & med costs']['value_usd_ahle_diff'].values[0]
-    # pub_vetspend = prep_df_sums[prep_df_sums['item']=='Public vet & med costs']['value_usd_ahle_diff'].values[0]
-
-    # prep_df_sums['value_usd_ahle_diff'] = prep_df_sums['value_usd_ahle_diff'] + prep_df_sums[prep_df_sums['item']=='Biomass']
-    total_ahle = prep_df_sums[prep_df_sums['item']=='Net value']['value_usd_ahle_diff'].values[0]
-    # total_ahle = total_ahle + prod_vetspend + pub_vetspend
+    # Get total AHLE for printing
+    total_ahle = prep_df_sums.query("item.str.upper() == 'NET VALUE'")['value_usd_ahle_diff'].values[0]
 
     if display =='Side by Side':
         # Create graph with current values
         name = 'Current'
-        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "total"]
+        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
         x = prep_df_sums['item']
         y = prep_df_sums['value_usd_current']
         ga_waterfall_fig = create_ahle_waterfall_ga(prep_df_sums, name, measure, x, y)
@@ -7140,7 +7146,7 @@ def update_ahle_waterfall_ga(amu_data_json, selected_region ,selected_incgrp ,se
     else:
         # Create graph with differences
         name = 'AHLE'
-        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "total"]
+        measure = ["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"]
         x = prep_df_sums['item']
         y = prep_df_sums['value_usd_ahle_diff']
         ga_waterfall_fig = create_ahle_waterfall_ga(prep_df_sums, name, measure, x, y)
@@ -7159,15 +7165,25 @@ def update_ahle_waterfall_ga(amu_data_json, selected_region ,selected_incgrp ,se
     Input('select-country-detail-ga','value'),
     Input('select-item-ga','value'),
     Input('select-display-ga','value'),
+    Input('amu-regional-data', 'data'),
     )
-def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,selected_item ,display):
+def update_ahle_lineplot_ga(
+        selected_region
+        ,selected_incgrp
+        ,selected_country
+        ,selected_item
+        ,display
+        ,amu_data_json
+    ):
     # Read data
     input_df = ga_countries_biomass.copy()
+    input_df_amu = pd.read_json(amu_data_json, orient='split')
 
     # Add mortality, morbidity, and vetmed rate columns
     input_df = ga.add_mortality_rate(input_df)
     input_df = ga.add_morbidity_rate(input_df)
     input_df = ga.add_vetmed_rates(input_df)
+    input_df = ga.add_antimicrobial_expenditure(input_df ,input_df_amu)
 
     # Apply AHLE calcs
     input_df = ga.ahle_calcs_adj_outputs(input_df)
@@ -7218,7 +7234,7 @@ def update_ahle_lineplot_ga(selected_region ,selected_incgrp ,selected_country ,
             print_selected_country = f'{selected_country}'
             print_selected_incgrp = ''
 
-    # Create AHLE (dfiierence) value
+    # Create AHLE (difference) value
     prep_df_filtered['value_usd_ahle_diff'] = prep_df_filtered['value_usd_ideal'] - prep_df_filtered['value_usd_current']
 
     # Get sum for each year

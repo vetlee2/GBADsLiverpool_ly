@@ -5,6 +5,7 @@ This defines the functions to calculate AHLE for the global aggregate tab.
 #%% Imports
 
 import numpy as np
+import pandas as pd
 
 #%% Define functions
 
@@ -31,20 +32,24 @@ def add_mortality_rate(INPUT_DF):
         ,"Upper Middle":0.06
         ,"High":0.04
     }
-    INPUT_DF['mortality_rate'] = INPUT_DF['incomegroup'].apply(lookup_from_dictionary ,DICT=mortality_byincome)
-    return INPUT_DF
+    OUTPUT_DF = INPUT_DF.copy()
+    OUTPUT_DF['mortality_rate'] = OUTPUT_DF['incomegroup'].apply(lookup_from_dictionary ,DICT=mortality_byincome)
+    return OUTPUT_DF
 
 def add_morbidity_rate(INPUT_DF):
+    OUTPUT_DF = INPUT_DF.copy()
     morbidity_byincome = {
         "Low":0.15
         ,"Lower Middle":0.15
         ,"Upper Middle":0.15
         ,"High":0.15
     }
-    INPUT_DF['morbidity_rate'] = INPUT_DF['incomegroup'].apply(lookup_from_dictionary ,DICT=morbidity_byincome)
-    return INPUT_DF
+    OUTPUT_DF['morbidity_rate'] = OUTPUT_DF['incomegroup'].apply(lookup_from_dictionary ,DICT=morbidity_byincome)
+    return OUTPUT_DF
 
 def add_vetmed_rates(INPUT_DF):
+    OUTPUT_DF = INPUT_DF.copy()
+
     # Spend per kg biomass, farm level
     farmspend_perkg_biomass_byincome = {
         "Low":0.01
@@ -66,13 +71,54 @@ def add_vetmed_rates(INPUT_DF):
         ,"Upper Middle":0.01
         ,"High":0.01
     }
-    INPUT_DF['vetspend_biomass_farm_usdperkgbm'] = \
-        INPUT_DF['incomegroup'].apply(lookup_from_dictionary ,DICT=farmspend_perkg_biomass_byincome)
-    INPUT_DF['vetspend_biomass_public_usdperkgbm'] = \
-        INPUT_DF['incomegroup'].apply(lookup_from_dictionary ,DICT=pubspend_perkg_biomass_byincome)
-    INPUT_DF['vetspend_production_usdperkgprod'] = \
-        INPUT_DF['incomegroup'].apply(lookup_from_dictionary ,DICT=vetspend_perkg_prod_byincome)
-    return INPUT_DF
+    OUTPUT_DF['vetspend_biomass_farm_usdperkgbm'] = \
+        OUTPUT_DF['incomegroup'].apply(lookup_from_dictionary ,DICT=farmspend_perkg_biomass_byincome)
+    OUTPUT_DF['vetspend_biomass_public_usdperkgbm'] = \
+        OUTPUT_DF['incomegroup'].apply(lookup_from_dictionary ,DICT=pubspend_perkg_biomass_byincome)
+    OUTPUT_DF['vetspend_production_usdperkgprod'] = \
+        OUTPUT_DF['incomegroup'].apply(lookup_from_dictionary ,DICT=vetspend_perkg_prod_byincome)
+    return OUTPUT_DF
+
+# =============================================================================
+# Add antimicrobial expenditure from AMU data
+# =============================================================================
+def add_antimicrobial_expenditure(
+        INPUT_DF
+        ,AMU_DF     # Data containing antimicrobial expenditure in USD by Region. Currently only a single year.
+    ):
+    OUTPUT_DF = INPUT_DF.copy()
+
+    # Recode regions to match antimicrobial data
+    map_wb_regions_to_woah = {
+        "EAP":"Asia, Far East and Oceania"
+        ,"ECA":"Europe"
+        ,"LAC":"Americas"
+        ,"MENA":"Middle East"
+        ,"NA":"Americas"
+        ,"SA":"Asia, Far East and Oceania"
+        ,"SSA":"Africa"
+        }
+    OUTPUT_DF['region_woah'] = OUTPUT_DF['region'].replace(map_wb_regions_to_woah)
+
+    # Merge antimicrobial expenditure by region
+    OUTPUT_DF = pd.merge(
+        left=OUTPUT_DF
+        ,right=AMU_DF.rename(columns={'region':'region_woah'})[['region_woah' ,'am_expenditure_usd_selected']]
+        ,on='region_woah'
+        ,how='left'
+        )
+
+    # Calculate proportion of region total biomass each country and species makes up, by year
+    OUTPUT_DF['output_total_biomass_kg_thisregion_thisyear'] = \
+        OUTPUT_DF.groupby(['region_woah' ,'year'])['output_total_biomass_kg'].transform('sum')
+    OUTPUT_DF['output_total_biomass_prpnofregion_thisyear'] = \
+        OUTPUT_DF['output_total_biomass_kg'] / OUTPUT_DF['output_total_biomass_kg_thisregion_thisyear']
+
+    # Assign AM expenditure to country and species according to their proportion of region total biomass
+    OUTPUT_DF['antimicrobial_expenditure_usd'] = \
+        OUTPUT_DF['am_expenditure_usd_selected'] * OUTPUT_DF['output_total_biomass_prpnofregion_thisyear']
+
+    return OUTPUT_DF
 
 # =============================================================================
 # These center on adjusting OUTPUTS under ideal conditions and match the original
@@ -131,7 +177,8 @@ def ahle_calcs_adj_outputs(INPUT_DF):
         # Setting to zero here so net value will calculate correctly
         '''
         vetspend_public_usd = 0
-        net_value_2010usd = output_plus_biomass_value_2010usd - vetspend_farm_usd - vetspend_public_usd
+        net_value_2010usd = output_plus_biomass_value_2010usd \
+            - vetspend_farm_usd - vetspend_public_usd - antimicrobial_expenditure_usd
 
         ideal_output_plus_biomass_value_2010usd = ideal_biomass_value_2010usd + ideal_output_value_meat_2010usd \
             + ideal_output_value_eggs_2010usd + ideal_output_value_milk_2010usd + ideal_output_value_wool_2010usd
@@ -141,7 +188,7 @@ def ahle_calcs_adj_outputs(INPUT_DF):
         # ----------------------------------------------------------------------
         '''
         ahle_dueto_reducedoutput_2010usd = ideal_output_plus_biomass_value_2010usd - output_plus_biomass_value_2010usd
-        ahle_dueto_vetandmedcost_2010usd = vetspend_farm_usd + vetspend_public_usd
+        ahle_dueto_vetandmedcost_2010usd = output_plus_biomass_value_2010usd - net_value_2010usd
         ahle_total_2010usd = ahle_dueto_reducedoutput_2010usd + ahle_dueto_vetandmedcost_2010usd
         ahle_2010usd_perkgbm = ahle_total_2010usd / biomass
 

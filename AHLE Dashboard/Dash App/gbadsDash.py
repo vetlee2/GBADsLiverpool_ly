@@ -1379,21 +1379,21 @@ def prep_bod_forstackedbar_swine(INPUT_DF):
 
 
 def prep_ahle_fortreemap_ecs(INPUT_DF):
-   working_df = INPUT_DF.copy()
+   ecs_ahle_attr_treemap = INPUT_DF.copy()
 
-   # Trim the data to keep things needed for the treemap
-   ecs_ahle_attr_treemap = working_df[[
-       'species',
-       'production_system',
-       'age_group',
-       'sex',
-       'year',
-       'ahle_component',
-       'cause',
-       'disease',
-       'mean',
-       # 'pct_of_total'
-       ]]
+   # # Trim the data to keep things needed for the treemap
+   # ecs_ahle_attr_treemap = working_df[[
+   #     'species',
+   #     'production_system',
+   #     'age_group',
+   #     'sex',
+   #     'year',
+   #     'ahle_component',
+   #     'cause',
+   #     'disease',
+   #     'mean',
+   #     # 'pct_of_total'
+   #     ]]
 
    # Can only have positive values
    ecs_ahle_attr_treemap['mean'] = abs(ecs_ahle_attr_treemap['mean'])
@@ -1404,6 +1404,9 @@ def prep_ahle_fortreemap_ecs(INPUT_DF):
 
    # Replace mortality with mortality loss
    ecs_ahle_attr_treemap['ahle_component'] = ecs_ahle_attr_treemap['ahle_component'].replace({'Mortality': 'Mortality Loss'})
+
+   # Fill in missing values with 0
+   ecs_ahle_attr_treemap = ecs_ahle_attr_treemap.fillna(0)
 
    OUTPUT_DF = ecs_ahle_attr_treemap
 
@@ -1945,7 +1948,10 @@ def create_map_display_ecs(input_df, geojson, location, featurekey, color_by, co
                                        mapbox_style="carto-positron",
                                        zoom=5,
                                        center = {"lat": 9.1450, "lon": 40.4897},
-                                       labels={'region': 'Region'}
+                                       labels={'region': 'Region',
+                                               'mean_current': 'Current',
+                                               'mean_ideal': 'Ideal',
+                                               'mean_AHLE': 'AHLE'}
                                        )
 
     return ecs_map_fig
@@ -8662,7 +8668,7 @@ def update_attr_treemap_ecs(
 
     # If currency is USD, use USD columns
     if currency == 'USD':
-        input_df['median'] = input_df['median_usd']
+        # input_df['median'] = input_df['median_usd']
         input_df['mean'] = input_df['mean_usd']
         input_df['sd'] = input_df['sd_usd']
         input_df['lower95'] = input_df['lower95_usd']
@@ -9293,11 +9299,7 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
     if min(input_df[f'{color_by}']) < 0:
         ecs_map_fig.update_layout(coloraxis=dict(cmax=max(input_df[f'{color_by}']), cmin=0))
     else:
-        ecs_map_fig.update_layout(coloraxis=dict(cmax=max(input_df[f'{color_by}']), cmin=min(input_df[f'{color_by}'])))
-    
-    # Set legend range for per kg biomass
-    # if denominator.upper() == 'PER KG BIOMASS':
-        
+        ecs_map_fig.update_layout(coloraxis=dict(cmax=max(input_df[f'{color_by}']), cmin=min(input_df[f'{color_by}'])))     
     
     # Adjust margins
     ecs_map_fig.update_layout(

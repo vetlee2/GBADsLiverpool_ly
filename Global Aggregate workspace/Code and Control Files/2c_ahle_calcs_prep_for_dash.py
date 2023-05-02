@@ -82,6 +82,12 @@ world_ahle_abt.eval(
     ,inplace=True
 )
 
+# Add proportion of global total biomass each country and species makes up in a year
+world_ahle_abt['output_total_biomass_kg_glbl_thisyear'] = \
+    world_ahle_abt.groupby('year')['output_total_biomass_kg'].transform('sum')
+world_ahle_abt['output_total_biomass_prpnofglbl_thisyear'] = \
+    world_ahle_abt['output_total_biomass_kg'] / world_ahle_abt['output_total_biomass_kg_glbl_thisyear']
+
 datainfo(world_ahle_abt)
 
 # =============================================================================
@@ -154,8 +160,10 @@ world_ahle_abt_fordash.to_pickle(os.path.join(FINDATA_FOLDER ,'world_ahle_abt_fo
 # Output to Dash data folder
 world_ahle_abt_fordash.to_pickle(os.path.join(DASH_DATA_FOLDER ,'world_ahle_abt_fordash.pkl.gz'))
 
-#%% Add mortality and other rates
+#%% Add mortality and expenditure rates
 '''
+Calculations from here on will be repeated inside Dash so they can respond to user input.
+
 Currently using the same rates for all species.
 '''
 
@@ -214,6 +222,66 @@ vetspend_perkg_prod_byincome = {
 }
 world_ahle_abt_withcalcs['vetspend_production_usdperkgprod'] = \
     world_ahle_abt_withcalcs['incomegroup'].apply(lookup_from_dictionary ,DICT=vetspend_perkg_prod_byincome)
+
+# -----------------------------------------------------------------------------
+# Antimicrobial Expenditure
+# -----------------------------------------------------------------------------
+# Add antimicrobial expenditure at the region level
+# Simple lookup based on region?
+map_wb_regions_to_woah = {
+    "EAP":"Asia, Far East and Oceania"
+    ,"ECA":"Europe"
+    ,"LAC":"Americas"
+    ,"MENA":"Middle East"
+    ,"NA":"Americas"
+    ,"SA":"Asia, Far East and Oceania"
+    ,"SSA":"Africa"
+    }
+world_ahle_abt_withcalcs['region_woah'] = world_ahle_abt_withcalcs['region'].replace(map_wb_regions_to_woah)
+
+# Merge antimicrobial usage by region
+# Read AMU data
+amu_combined_regional = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_combined_regional.csv"))
+
+# Add selected usage and price values as columns
+usage_africa = 1
+price_africa = 2
+
+usage_americas = 3
+price_americas = 4
+
+usage_asia = 5
+price_asia = 6
+
+usage_europe = 7
+price_europe = 8
+
+usage_mideast = 9
+price_mideast = 10
+
+amu_combined_regional.loc[amu_combined_regional['region'].str.contains('africa' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_usdpertonne_selected']] = \
+    [usage_africa ,price_africa]
+amu_combined_regional.loc[amu_combined_regional['region'].str.contains('americas' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_usdpertonne_selected']] = \
+    [usage_americas ,price_americas]
+amu_combined_regional.loc[amu_combined_regional['region'].str.contains('asia' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_usdpertonne_selected']] = \
+    [usage_asia ,price_asia]
+amu_combined_regional.loc[amu_combined_regional['region'].str.contains('europe' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_usdpertonne_selected']] = \
+    [usage_europe ,price_europe]
+amu_combined_regional.loc[amu_combined_regional['region'].str.contains('middle' ,case=False) ,['amu_terrestrial_tonnes_selected' ,'am_price_usdpertonne_selected']] = \
+    [usage_mideast ,price_mideast]
+
+# Calculate expenditure based on usage and price slider input
+amu_combined_regional['am_expenditure_usd_selected'] = amu_combined_regional['amu_terrestrial_tonnes_selected'] * amu_combined_regional['am_price_usdpertonne_selected']
+amu_combined_regional['am_expenditure_usd_perkg_selected'] = amu_combined_regional['am_expenditure_usd_selected'] / amu_combined_regional['biomass_terr_kg_region']
+
+amu_combined_regional = amu_combined_regional.rename(columns={'region':'region_woah'})
+
+world_ahle_abt_withcalcs = pd.merge(
+    left=world_ahle_abt_withcalcs
+    ,right=amu_combined_regional[['region_woah' ,'am_expenditure_usd_selected']]
+    ,on='region_woah'
+    ,how='left'
+    )
 
 # =============================================================================
 #### Carcass yield
@@ -291,7 +359,12 @@ world_ahle_abt_withcalcs.eval(
     vetspend_farm_usd = vetspend_biomass_farm_usd + vetspend_production_meat_usd \
         + vetspend_production_eggs_usd + vetspend_production_milk_usd + vetspend_production_wool_usd
     vetspend_public_usd = vetspend_biomass_public_usd
-    net_value_2010usd = output_plus_biomass_value_2010usd - vetspend_farm_usd - vetspend_public_usd
+    '''
+    # Update 4/5/2023: William no longer wants public expenditure to appear in calculations
+    # Setting to zero here so net value will calculate correctly
+    '''
+    vetspend_public_usd = 0
+    net_value_2010usd = output_plus_biomass_value_2010usd - vetspend_farm_usd - vetspend_public_usd - am_expenditure_usd_selected
 
     ideal_output_plus_biomass_value_2010usd = ideal_biomass_value_2010usd + ideal_output_value_meat_2010usd \
         + ideal_output_value_eggs_2010usd + ideal_output_value_milk_2010usd + ideal_output_value_wool_2010usd
@@ -301,7 +374,7 @@ world_ahle_abt_withcalcs.eval(
     # ----------------------------------------------------------------------
     '''
     ahle_dueto_reducedoutput_2010usd = ideal_output_plus_biomass_value_2010usd - output_plus_biomass_value_2010usd
-    ahle_dueto_vetandmedcost_2010usd = vetspend_farm_usd + vetspend_public_usd
+    ahle_dueto_vetandmedcost_2010usd = output_plus_biomass_value_2010usd - net_value_2010usd
     ahle_total_2010usd = ahle_dueto_reducedoutput_2010usd + ahle_dueto_vetandmedcost_2010usd
 
     ahle_dueto_reducedoutput_pctofoutput = (ahle_dueto_reducedoutput_2010usd / output_plus_biomass_value_2010usd) * 100
@@ -450,6 +523,10 @@ world_ahle_abt_withcalcs.to_csv(os.path.join(FINDATA_FOLDER ,'world_ahle_abt_wit
 world_ahle_abt_withcalcs.to_pickle(os.path.join(FINDATA_FOLDER ,'world_ahle_abt_withcalcs.pkl.gz'))
 
 #%% Experimenting for Dash
+'''
+All of these calcs will be repeated in Dash so they can respond to user input.
+This is for testing.
+'''
 
 current_values_labels = {
     'biomass_value_2010usd':'Biomass'
@@ -459,7 +536,9 @@ current_values_labels = {
     ,'output_value_wool_2010usd':'Wool'
 
     ,'vetspend_farm_usd':'Vet & Med costs on producers'
-    ,'vetspend_public_usd':'Vet & Med costs on public'
+    # Update 4/5/2023: William no longer wants public expenditure to appear in calculations
+    # ,'vetspend_public_usd':'Vet & Med costs on public'
+    ,'am_expenditure_usd_selected':'Antimicrobial expenditure'
 
     ,'net_value_2010usd':'Net value'
 }
@@ -476,19 +555,18 @@ ideal_value_columns = list(ideal_values_labels)
 
 # Sum to country-year level (summing over species)
 country_year_level = world_ahle_abt_withcalcs.pivot_table(
-    index=['country' ,'year' ,'incomegroup']
+    index=['region' ,'country' ,'year' ,'incomegroup']
     ,observed=True  # Limit to combinations of index variables that are in data
     ,values=current_value_columns + ideal_value_columns
     ,aggfunc='sum'
-    ,fill_value=0                     # Replace missing values with this
-    )
-country_year_level = country_year_level.reset_index()     # Pivoting will change columns to indexes. Change them back.
+    ,fill_value=0       # Replace missing values with this
+    ).reset_index()     # Pivoting will change columns to indexes. Change them back.
 
 # Restructure to create columns 'current_value' and 'ideal_value'
 # Keys: Country, Species, Year.  Columns: Income group, Item.
 # Current values
 values_current = country_year_level.melt(
-    id_vars=['country' ,'year' ,'incomegroup']
+    id_vars=['region' ,'country' ,'year' ,'incomegroup']
     ,value_vars=current_value_columns
     ,var_name='orig_col'             # Name for new "variable" column
     ,value_name='value_usd_current'              # Name for new "value" column
@@ -498,7 +576,7 @@ del values_current['orig_col']
 
 # Ideal values
 values_ideal = country_year_level.melt(
-    id_vars=['country' ,'year' ,'incomegroup']
+    id_vars=['region' ,'country' ,'year' ,'incomegroup']
     ,value_vars=ideal_value_columns
     ,var_name='orig_col'             # Name for new "variable" column
     ,value_name='value_usd_ideal'              # Name for new "value" column
@@ -510,17 +588,18 @@ del values_ideal['orig_col']
 values_combined = pd.merge(
     left=values_current
     ,right=values_ideal
-    ,on=['country' ,'year' ,'incomegroup' ,'item']
+    ,on=['region' ,'country' ,'year' ,'incomegroup' ,'item']
     ,how='outer'
 )
 datainfo(values_combined)
 
-# Fill in zeros for ideal vetmed costs
-_vetmed_rows = (values_combined['item'].str.contains('VET' ,case=False))
+# Fill in zeros for ideal costs
+_vetmed_rows = (values_combined['item'].str.upper().isin(['VET & MED COSTS ON PRODUCERS' ,'ANTIMICROBIAL EXPENDITURE']))
 values_combined.loc[_vetmed_rows ,'value_usd_ideal'] = 0
 
-# Make costs negative
-values_combined.loc[_vetmed_rows ,'value_usd_current'] = -1 * values_combined['value_usd_current']
+# Make actual costs negative
+values_combined.loc[_vetmed_rows ,'value_usd_current'] = \
+    -1 * values_combined.loc[_vetmed_rows ,'value_usd_current']
 
 # Filter
 values_combined_filtered = values_combined.query("year == 2020")
@@ -530,7 +609,7 @@ values_combined_filtered_sum = values_combined_filtered.groupby('item')[['value_
 values_combined_filtered_sum = values_combined_filtered_sum.reset_index()
 
 # Extract total
-_netvalue = (values_combined_filtered_sum['item'] == 'Net value')
+_netvalue = (values_combined_filtered_sum['item'].str.upper() == 'NET VALUE')
 current_net_value = values_combined_filtered_sum.loc[_netvalue ,'value_usd_current'].values[0]
 ideal_net_value = values_combined_filtered_sum.loc[_netvalue ,'value_usd_ideal'].values[0]
 total_ahle = ideal_net_value - current_net_value

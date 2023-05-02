@@ -4,6 +4,7 @@
 #%% Extend biomass data
 '''
 Biomass table from GBADSKE only has data to 2017. Extend with FAOstat population data to 2020.
+
 UPDATE JAN. 2023: This is no longer necessary because Informatics has provided an updated
 biomass table with data through 2020.
 '''

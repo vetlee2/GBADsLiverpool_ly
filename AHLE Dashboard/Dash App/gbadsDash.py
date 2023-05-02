@@ -3368,7 +3368,11 @@ gbadsDash.layout = html.Div([
                                 # value='All Production Systems',
                                 clearable = False,
                                 ),
-                    ]),
+                    ],style={
+                            # "margin-top":"10px",
+                            "margin-bottom":"30px", # Adding this to account for the additional space created by the radio buttons
+                            }
+                    ),
                 dbc.Col([
                     html.H4("Currency"),
                     dcc.Dropdown(id='select-currency-ecs',
@@ -3377,83 +3381,10 @@ gbadsDash.layout = html.Div([
                                 clearable = False,
                                 ),
                     ]),
+
                 ]),
-            html.Hr(style={'margin-right':'10px',}),
-
-            #### -- MAP
-            dbc.Card([
-                dbc.CardBody([
-                    html.H3("Animal health loss envelope by region"),
-                    html.Label(["Animal health loss envelope is the difference in gross margin between the current and ideal scenario"]
-                               ,style={'font-style':'italic'}
-                               ),
-                dbc.Row([
-                    # Map Display
-                    dbc.Col([
-                        html.H6("Value/Expenditure Category"),
-                        dcc.Dropdown(id='select-map-display-ecs',
-                                      value='Gross Margin',
-                                      clearable=False,
-                                      ),
-                        ]),
-
-                    # Denominator
-                    dbc.Col([
-                        html.H6("Denominator"),
-                        dcc.RadioItems(id='select-map-denominator-ecs',
-                                      options=ecs_map_denominator_options,
-                                      value= "Total",
-                                      inputStyle={"margin-right": "2px", # This pulls the words off of the button
-                                                  "margin-left": "10px"},
-                                      ),
-                        ],
-                    ),
-
-                    ]), # END OF MAP SELECTIONS ROW
-
-                # END OF CARD BODY
-                ]),
-
-            # END OF CARD
-            ], color='#F2F2F2', style={"margin-right": "10px"}),
-
-            # Map viz
-            dbc.Row([
-                dbc.Col([ # Ethiopian subnational level
-                    dbc.Spinner(children=[
-                    dcc.Graph(id='ecs-map',
-                                style = {"height":"650px"},
-                              config = {
-                                  "displayModeBar" : True,
-                                  "displaylogo": False,
-                                  'toImageButtonOptions': {
-                                      'format': 'png', # one of png, svg, jpeg, webp
-                                      'filename': 'GBADs_Ethiopia_Subnational_Viz'
-                                      },
-                                  }
-                              )
-                # End of Spinner
-                ],size="md", color="#393375", fullscreen=False),
-                # End of Map
-                ]),
-
-             # END OF MAP ROW
-            ]),
-
-            #### -- MAP FOOTNOTES
-            dbc.Row([
-                # Do not have data for 3 cities
-                html.P("	* Currently do not have data for Addis Ababa, Dire Dawa, or Harari regions."),
-            ], style={'margin-left':"40px", 'font-style': 'italic'}
-            ),
-            html.Hr(style={'margin-right':'10px',}),
 
             # SECOND CONTROL ROW
-            html.H3("Exploring production values and costs under the current and ideal scenarios"),
-            html.Label(['With attribution to infectious, non-infectious, and external causes']
-                       ,style={'font-style':'italic'}
-                       ),
-            html.Br(),
             dbc.Row([
                 dbc.Col([
                     # Switch between single year and over time
@@ -3524,9 +3455,10 @@ gbadsDash.layout = html.Div([
                         html.H5("Animal Health Loss Envelope (AHLE)",
                                 className="card-title",
                                 style={"font-weight": "bold"}),
-                        html.Label(["Showing the difference between current gross margin and a comparison scenario"]
-                                   ,style={'font-style':'italic'}
-                                   ),
+                        html.Label(
+                            ["Showing the difference between current gross margin and a comparison scenario"],
+                            style={'font-style':'italic'}
+                             ),
                         dbc.Row([
                             # Switch between side by side and difference
                             dbc.Col([
@@ -3622,9 +3554,10 @@ gbadsDash.layout = html.Div([
                     html.H5("AHLE Attribution",
                             className="card-title",
                             style={"font-weight": "bold"}),
-                    html.Label(["Showing how much each component contributes to the total animal health loss envelope"]
-                               ,style={'font-style':'italic'}
-                               ),
+                    html.Label(
+                        ["Showing how much each component contributes to the total animal health loss envelope"],
+                        style={'font-style':'italic'}
+                         ),
                     dbc.Row([
                         # # Hierarchy
                         # html.H5("Hierarchy",
@@ -3712,6 +3645,7 @@ gbadsDash.layout = html.Div([
 
 
             # html.Hr(style={'margin-right':'10px'}),
+
             html.Br(),
 
             #### -- GRAPHICS PT.1
@@ -3791,6 +3725,74 @@ gbadsDash.layout = html.Div([
             html.Br(),
             ### END OF FOOTNOTES
 
+            #### -- MAP
+            dbc.Card([
+                dbc.CardBody([
+                    html.H3("Ethiopian Subnational Graph"),
+
+                dbc.Row([
+                    # Map Display
+                    dbc.Col([
+                        html.H6("Value/Expenditure Category"),
+                        dcc.Dropdown(id='select-map-display-ecs',
+                                      value='Gross Margin',
+                                      clearable=False,
+                                      ),
+                        ]),
+
+                    # Denominator
+                    dbc.Col([
+                        html.H6("Denominator"),
+                        dcc.RadioItems(id='select-map-denominator-ecs',
+                                      options=ecs_map_denominator_options,
+                                      value= "Total",
+                                      inputStyle={"margin-right": "2px", # This pulls the words off of the button
+                                                  "margin-left": "10px"},
+                                      ),
+                        ],
+                    ),
+
+                    ]), # END OF MAP SELECTIONS ROW
+
+                # END OF CARD BODY
+                ]),
+
+            # END OF CARD
+            ], color='#F2F2F2', style={"margin-right": "10px"}),
+
+            html.Hr(style={'margin-right':'10px',}),
+
+            # Map viz
+            dbc.Row([
+                dbc.Col([ # Ethiopian subnational level
+                    dbc.Spinner(children=[
+                    dcc.Graph(id='ecs-map',
+                                style = {"height":"650px"},
+                              config = {
+                                  "displayModeBar" : True,
+                                  "displaylogo": False,
+                                  'toImageButtonOptions': {
+                                      'format': 'png', # one of png, svg, jpeg, webp
+                                      'filename': 'GBADs_Ethiopia_Subnational_Viz'
+                                      },
+                                  }
+                              )
+                # End of Spinner
+                ],size="md", color="#393375", fullscreen=False),
+                # End of Map
+                ]),
+
+             # END OF MAP ROW
+            ]),
+
+            #### -- MAP FOOTNOTES
+            dbc.Row([
+                # Do not have data for 3 cities
+                html.P("	* Currently do not have data for Addis Ababa, Dire Dawa, or Harari regions."),
+            ], style={'margin-left':"40px", 'font-style': 'italic'}
+            ),
+
+            html.Br(),
 
             #### -- GRAPHICS PT.2
             dbc.Row([
@@ -3822,20 +3824,20 @@ gbadsDash.layout = html.Div([
                         ),
 
                 # Sankey
-                # dbc.Col([
-                # dbc.Spinner(children=[
-                #     html.H4("Sankey for Attribution"),
-                #         html.Div(children=[
-                #                 html.Img(src=(os.environ.get("DASH_BASE_URL") if os.environ.get("DASH_BASE_URL") else "") + '/assets/ECS_Sanky_diagram_from_Gemma.png',
-                #                 style = {'width':'120vw'}),
-                #                 ],
-                #                   style = {
-                #                           "margin-bottom":"10px",
-                #                           'margin-right':"10px",},
-                #                   ),
-                #         # End of Spinner
-                #         ],size="md", color="#393375", fullscreen=False),
-                #     ]),
+                dbc.Col([
+                dbc.Spinner(children=[
+                    html.H4("Sankey for Attribution"),
+                        html.Div(children=[
+                                html.Img(src=(os.environ.get("DASH_BASE_URL") if os.environ.get("DASH_BASE_URL") else "") + '/assets/ECS_Sanky_diagram_from_Gemma.png',
+                                style = {'width':'120vw'}),
+                                ],
+                                  style = {
+                                          "margin-bottom":"10px",
+                                          'margin-right':"10px",},
+                                  ),
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                    ]),
 
             ]), # END OF ROW
 
@@ -3846,17 +3848,17 @@ gbadsDash.layout = html.Div([
                   html.P("*Expenditure on Health is not recorded for individual age groups so is not included in individual AHLE calculations."),
                   html.P("**Expenditure on Health is very small, so the impact on AHLE is negligible."),
                 ]),
-                # dbc.Col([
-                #   # Sankey
-                #   # No footnote
-                # ]),
+                dbc.Col([
+                  # Sankey
+                  # No footnote
+                ]),
             ], style={'margin-left':"40px", 'font-style': 'italic'}
             ),
 
 
             #### -- DATATABLES
             html.Hr(style={'margin-right':'10px',}),
-            html.H3("Data Viewer", id="ETH-data-export"),
+            html.H3("Data Export", id="ETH-data-export"),
             dbc.Row([
 
                 dbc.Col([
@@ -4015,14 +4017,14 @@ gbadsDash.layout = html.Div([
 
            #### -- DROPDOWN CONTROLS
            html.H3("Livestock Antimicrobial Usage by Region & Antimicrobial Importance/Classes", id="AMU-Regional-Global"),
-           # html.P("Displaying antimicrobial usage as reported to WOAH" ,style={'font-style':'italic'}),
-           # html.A("Source: WOAH 2018"
-           #        ,href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf'
-           #        ,style={'font-style':'italic'}
-           #        ),
-           html.Label(['Displaying antimicrobial usage as reported to ',
-                       html.A('WOAH (2018)', href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf')
-                       ], style={'font-style':'italic'}),
+            # html.P("Displaying antimicrobial usage as reported to WOAH" ,style={'font-style':'italic'}),
+            # html.A("Source: WOAH 2018"
+            #        ,href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf'
+            #        ,style={'font-style':'italic'}
+            #        ),
+            html.Label(['Displaying antimicrobial usage as reported to ',
+                        html.A('WOAH (2018)', href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf')
+                        ], style={'font-style':'italic'}),
            html.Br(),
            dbc.Row([
 

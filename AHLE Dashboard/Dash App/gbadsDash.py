@@ -3790,7 +3790,7 @@ gbadsDash.layout = html.Div([
                 # Do not have data for 3 cities
                 html.P("	* Currently do not have data for Addis Ababa, Dire Dawa, or Harari regions."),
                 # SNNP and South West Ethiopia
-                html.P("	* South West Ethiopia and SNNP are using the same values due to limit data for South West Ethiopia."),
+                html.P("	** South West Ethiopia and SNNP are using the same values due to limit data for South West Ethiopia."),
             ], style={'margin-left':"40px", 'font-style': 'italic'}
             ),
 
@@ -7567,6 +7567,7 @@ def update_year_select_ecs(graph):
 # Disable geographical options for longitudinal graphs
 @gbadsDash.callback(
     Output('select-geo-view-ecs','options'),
+    Output('select-geo-view-ecs','value'),
     Input('select-graph-ahle-ecs','value'),
     Input('select-species-ecs','value'),
     )
@@ -7577,6 +7578,7 @@ def update_geo_view_options_ecs(graph, species):
     if graph.upper() == 'OVER TIME':
         for d in options:
             d['disabled']=True
+            value='National'
     else:
         # Only currently have regional data for cattle
         if species.upper() == 'CATTLE':
@@ -7586,9 +7588,9 @@ def update_geo_view_options_ecs(graph, species):
             options = [{'label': "National", 'value': "National", 'disabled': False},
                        {'label': "Regional", 'value': "Regional", 'disabled': True},
                        ]
+        value='National'
 
-
-    return options
+    return options, value
 
 @gbadsDash.callback(
     Output('select-region-ecs','style'),
@@ -7875,7 +7877,8 @@ def update_ecs_ahle_data(currency, species, prodsys, agesex):
                     # 'minWidth': '250px',
                     'font-family':'sans-serif',
                     },
-                style_table={'overflowX': 'scroll'},
+                style_table={'overflowX': 'scroll',
+                             'height': '785px',},
             )
         ]
 
@@ -9217,22 +9220,25 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
     # Set the featureid key needed for the chrorpleth mapbox map
     featurekey = (f'properties.{featureid}')
 
-    # Data from waterfall chart
-    input_df = ahle_all_scensmry.query("region != 'National'")
-
+    # Read in data and apply filters
+    input_df = ahle_all_scensmry
     # Filter based on species - Currently only have Cattle for 2021
-    input_df = ahle_all_scensmry.query("species == 'Cattle'")
+    input_df = input_df.loc[(input_df['species'] == 'Cattle')]
+    # Remove 'National' for regional view
+    input_df = input_df.query("region != 'National'")
+    # Production System filter
+    # Rename values to match filters
+    input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
+    input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+    # Age/sex filter
+    input_df=input_df.loc[(input_df['agesex_scenario'] == agesex_scenario)]
 
-
-    # Allow user to select agesex, prodsys, and item to view
-    input_df = ahle_all_scensmry.query("agesex_scenario == @agesex_scenario")
-    input_df = ahle_all_scensmry.query("production_system == @prodsys")
     
     if item == 'Ideal Gross Margin' or item == 'AHLE':
         item_filter = 'Gross Margin'
     else:
         item_filter = item
-    input_df = ahle_all_scensmry.query("item == @item_filter")
+    input_df = input_df.query("item == @item_filter")
     
     # Create AHLE columns
     input_df['mean_AHLE'] = input_df['mean_ideal'] - input_df['mean_current']
@@ -9283,6 +9289,16 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
 
     ecs_map_fig = create_map_display_ecs(input_df, geojson_ecs_df, location, featurekey, color_by, color_scale)
 
+    # Set min to 0
+    if min(input_df[f'{color_by}']) < 0:
+        ecs_map_fig.update_layout(coloraxis=dict(cmax=max(input_df[f'{color_by}']), cmin=0))
+    else:
+        ecs_map_fig.update_layout(coloraxis=dict(cmax=max(input_df[f'{color_by}']), cmin=min(input_df[f'{color_by}'])))
+    
+    # Set legend range for per kg biomass
+    # if denominator.upper() == 'PER KG BIOMASS':
+        
+    
     # Adjust margins
     ecs_map_fig.update_layout(
         margin=dict(l=5, r=5, b=5),

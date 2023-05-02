@@ -681,13 +681,13 @@ swine_lookup_breed_df = {
 # for i in np.sort(ecs_ahle_summary['species'].unique()):
 #     str(ecs_species_options.append({'label':i,'value':(i)}))
 # Specify the order of the species
-ecs_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["All Small Ruminants",
+ecs_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Cattle",
+                                                                             "All Small Ruminants",
                                                                              "Goat",
                                                                              "Sheep",
                                                                              "All Poultry",
                                                                              "Poultry hybrid",
                                                                              "Poultry indigenous",
-                                                                             "Cattle"
                                                                              ]]
 
 # Production system
@@ -3394,7 +3394,7 @@ gbadsDash.layout = html.Div([
             dbc.Row([
                 dbc.Col([
                     # Switch between single year and over time
-                    html.H5("Display AHLE for..."),
+                    html.H4("Display AHLE for..."),
                     dcc.RadioItems(id='select-graph-ahle-ecs',
                                   options=ecs_graph_options,
                                   value='Single Year',
@@ -3404,24 +3404,20 @@ gbadsDash.layout = html.Div([
                                       "margin-left":"10px",     # Space between buttons if inline=True
                                       },
                                   ),
-                    ]
-                    # ,width=2
-                    ),
+                    ]),
 
-                # Item or Year Control switch
+                # Year selector
                 dbc.Col([
                     html.H5("Year"),
                     dcc.Dropdown(id='select-year-ecs',
                                  clearable = False,
                                  placeholder='(all)',
                                  ),
-                    ]
-                    # ,width=1
-                    ),
+                    ]),
 
                 # Geographical breakdown options
                 dbc.Col([
-                    html.H5("Geographical View"),
+                    html.H4("Geographical View"),
                     dcc.RadioItems(id='select-geo-view-ecs',
                                   options=ecs_geo_view_options,
                                   value='National',
@@ -3432,9 +3428,8 @@ gbadsDash.layout = html.Div([
                                       },
                                   ),
                     # Text underneath
-                    html.P("*Currently only regional data for cattle" ,style={'font-style':'italic'}),
+                    html.P("*Regional data is currently only available for cattle" ,style={'font-style':'italic'}),
                     ]),
-
 
                 # Regional dropdwon
                 dbc.Col([
@@ -3444,14 +3439,14 @@ gbadsDash.layout = html.Div([
                                  placeholder='Select Region...',
                                  clearable = False,
                                  ),
-                    ]
-                    # ,width=2
-                    ),
+                    ]),
 
                 # END OF SECOND CONTROL ROW
-                ], justify='evenly'),
+                ]
+                ,justify='evenly'
+                ),
+            html.Hr(style={'margin-right':'10px'}),
 
-            html.Br(),
             dbc.Row([
 
                 # AHLE Specific Controls

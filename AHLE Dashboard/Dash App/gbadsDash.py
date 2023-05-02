@@ -3741,7 +3741,7 @@ gbadsDash.layout = html.Div([
                     dbc.Col([
                         html.H6("Value/Expenditure Category"),
                         dcc.Dropdown(id='select-map-display-ecs',
-                                      value='Gross Margin',
+                                      value='AHLE',
                                       clearable=False,
                                       ),
                         ]),

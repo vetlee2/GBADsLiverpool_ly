@@ -1877,7 +1877,7 @@ def create_ahle_waterfall_ecs(input_df, name, measure, x, y):
         increasing = {'marker':{"color":'#3598DB'}},
         totals = {'marker':{"color":'#F7931D'}},
         connector = {"line":{"color":"darkgrey"}},
-        customdata=y,
+        customdata=np.stack((y, input_df['item']), axis=-1),
         ))
 
     waterfall_fig.update_layout(clickmode='event+select', ### EVENT SELECT ??????
@@ -8339,7 +8339,7 @@ def update_ahle_value_and_cost_viz_ecs(
 
         x = prep_df['item']
 
-        # display and Compare filters
+        # Display and Compare filters
         if display == "Difference":
             # Applying the condition
             prep_df["item"] = np.where(prep_df["item"] == "Gross Margin", "Gross Margin (AHLE)", prep_df["item"])
@@ -8381,7 +8381,6 @@ def update_ahle_value_and_cost_viz_ecs(
             # Reset indicies
             x = x.reset_index(drop=True)
             y = y.reset_index(drop=True)
-
             # Get cumulative sum value for Y unless Gross Margin
             y_error_sum=[]
             for i in x.values:
@@ -8390,13 +8389,13 @@ def update_ahle_value_and_cost_viz_ecs(
                 elif i == 'Gross Margin (AHLE)':
                     GM_index = x[x == 'Gross Margin (AHLE)'].index[0]
                     y_error_sum[GM_index] = y[GM_index]
-
             # Add trace for error
             ecs_waterfall_fig.add_trace(
                 go.Scatter(
                  	x=x,
                  	y=y_error_sum,
                     marker=dict(color='black'),
+                    customdata=np.stack((y, prep_df['item']), axis=-1),
                  	error_y=dict(
                         type='data',
                         array=stdev
@@ -8419,9 +8418,11 @@ def update_ahle_value_and_cost_viz_ecs(
                 y = prep_df['mean_ideal']
                 stdev = prep_df['stdev_ideal']
                 name = "Ideal (solid)"
+                # Create numeric, dynamic x axis based off of items
+                x_len = np.arange(1,len(x)+1,1)
+                
                 # Create graph
-                ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
-
+                ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x_len-.3, y)
                 # Add error bars
                 # Reset indicies
                 x = x.reset_index(drop=True)
@@ -8437,32 +8438,34 @@ def update_ahle_value_and_cost_viz_ecs(
                 # Add trace for error
                 ecs_waterfall_fig.add_trace(
                     go.Scatter(
-                     	x=x,
+                     	x=x_len-.3,
                      	y=y_error_sum,
                         marker=dict(color='black'),
+                        customdata=np.stack((y, prep_df['item']), axis=-1),
                      	error_y=dict(
                             type='data',
                             array=stdev
                         ),
                         mode="markers",
-                        hoverinfo='none'
+                        hoverinfo='none',
+                        showlegend=False
+                        
                     ),
                 )
-
+                
                 # Add current with lag
                 y = prep_df['mean_current']
                 ecs_waterfall_fig.add_trace(go.Waterfall(
                     name = 'Current (outline)',
                     measure = measure,
-                    x = x,
+                    x = x_len+.3,
                     y = y,
                     decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
                     increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
                     totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
                     connector = {"line":{"dash":"dot"}},
-                    customdata=y,
+                    customdata=np.stack((y, prep_df['item']), axis=-1),
                     ))
-
                 # Add error bars
                 # Reset indicies
                 y = prep_df['mean_current']
@@ -8476,82 +8479,244 @@ def update_ahle_value_and_cost_viz_ecs(
                     elif i == 'Gross Margin':
                         GM_index = x[x == 'Gross Margin'].index[0]
                         y_error_sum[GM_index] = y[GM_index]
+                        
                 # Add trace for error
                 ecs_waterfall_fig.add_trace(
                     go.Scatter(
-                     	x=x,
+                     	x=x_len+.3,
                      	y=y_error_sum,
                         marker=dict(color='black'),
+                        customdata=np.stack((y, prep_df['item']), axis=-1),
                      	error_y=dict(
                             type='data',
                             array=prep_df['stdev_current']
                         ),
                         mode="markers",
                         hoverinfo='none',
+                        name='Est. range'
                     ),
                 )
-
+                
                 ecs_waterfall_fig.update_layout(
-                    waterfallgroupgap = 0.5,
-                    # scattermode="group",
-                    # scattergap=0.75
+                    xaxis = dict(
+                        tickmode = 'array',
+                        tickvals = x_len,
+                        ticktext = waterfall_plot_values
                     )
+                )
+
+                # ecs_waterfall_fig.update_layout(
+                #     waterfallgroupgap = 0.5,
+                #     # scattermode="group",
+                #     # scattergap=0.75
+                #     )
 
             elif compare == 'Zero Mortality':
                 y = prep_df['mean_mortality_zero']
+                stdev = prep_df['stdev_mortality_zero']
                 name = 'Zero Mortality (solid)'
+                # Create numeric, dynamic x axis based off of items
+                x_len = np.arange(1,len(x)+1,1)
+                
                 # Create graph
-                ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
+                ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x_len-.3, y)
+                # Add error bars
+                # Reset indicies
+                x = x.reset_index(drop=True)
+                y = y.reset_index(drop=True)
+                # Get cumulative sum value for Y unless Gross Margin
+                y_error_sum=[]
+                for i in x.values:
+                    if i != 'Gross Margin':
+                        y_error_sum = np.cumsum(y)
+                    elif i == 'Gross Margin':
+                        GM_index = x[x == 'Gross Margin'].index[0]
+                        y_error_sum[GM_index] = y[GM_index]
+                # Add trace for error
+                ecs_waterfall_fig.add_trace(
+                    go.Scatter(
+                     	x=x_len-.3,
+                     	y=y_error_sum,
+                        marker=dict(color='black'),
+                        customdata=np.stack((y, prep_df['item']), axis=-1),
+                     	error_y=dict(
+                            type='data',
+                            array=stdev
+                        ),
+                        mode="markers",
+                        hoverinfo='none',
+                        showlegend=False
+                        
+                    ),
+                )
+                
                 # Add current with lag
                 ecs_waterfall_fig.add_trace(go.Waterfall(
                     name = 'Current (outline)',
                     measure = measure,
-                    x = x,
+                    x = x_len+.3,
                     y = prep_df['mean_current'],
                     decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
                     increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
                     totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
                     connector = {"line":{"dash":"dot"}},
-                    customdata=prep_df['mean_current'],
+                    customdata=np.stack((prep_df['mean_current'], prep_df['item']), axis=-1),
                     ))
+                # Add error bars
+                # Reset indicies
+                y = prep_df['mean_current']
+                x = x.reset_index(drop=True)
+                y = y.reset_index(drop=True)
+                # Get cumulative sum value for Y unless Gross Margin
+                y_error_sum=[]
+                for i in x.values:
+                    if i != 'Gross Margin':
+                        y_error_sum = np.cumsum(y)
+                    elif i == 'Gross Margin':
+                        GM_index = x[x == 'Gross Margin'].index[0]
+                        y_error_sum[GM_index] = y[GM_index]
+                        
+                # Add trace for error
+                ecs_waterfall_fig.add_trace(
+                    go.Scatter(
+                     	x=x_len+.3,
+                     	y=y_error_sum,
+                        marker=dict(color='black'),
+                        customdata=np.stack((y, prep_df['item']), axis=-1),
+                     	error_y=dict(
+                            type='data',
+                            array=prep_df['stdev_current']
+                        ),
+                        mode="markers",
+                        hoverinfo='none',
+                        name='Est. range'
+                    ),
+                )
+                
                 ecs_waterfall_fig.update_layout(
-                    waterfallgroupgap = 0.5,
+                    xaxis = dict(
+                        tickmode = 'array',
+                        tickvals = x_len,
+                        ticktext = waterfall_plot_values
                     )
+                )
+                
+                # ecs_waterfall_fig.update_layout(
+                #     waterfallgroupgap = 0.5,
+                #     )
 
             else:
                 if impvmnt_factor == 'Mortality' and impvmnt_value == '25%':
                     y = prep_df['mean_all_mort_25_imp']
+                    stdev = prep_df['stdev_all_mort_25_imp']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '50%':
                     y = prep_df['mean_all_mort_50_imp']
+                    stdev = prep_df['stdev_all_mort_50_imp']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
                     y = prep_df['mean_all_mort_75_imp']
+                    stdev = prep_df['stdev_all_mort_75_imp']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
                     y = prep_df['mean_mortality_zero']
+                    y = prep_df['stdev_mortality_zero']
                 elif impvmnt_factor == 'Parturition Rate':
                     number_split = impvmnt_value.split('%')[0]
                     y = prep_df[f'mean_current_repro_{number_split}_imp']
+                    stdev = prep_df[f'stdev_current_repro_{number_split}_imp']
                 elif impvmnt_factor == 'Live Weight':
                     number_split = impvmnt_value.split('%')[0]
                     y = prep_df[f'mean_current_growth_{number_split}_imp_all']
+                    stdev = prep_df[f'stdev_current_growth_{number_split}_imp_all']
 
                 name = impvmnt_factor + "- " + impvmnt_value + " (solid)"
+                # Create numeric, dynamic x axis based off of items
+                x_len = np.arange(1,len(x)+1,1)
+                
                 # Create graph
-                ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x, y)
+                ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x_len-.3, y)
+                # Add error bars
+                # Reset indicies
+                x = x.reset_index(drop=True)
+                y = y.reset_index(drop=True)
+                # Get cumulative sum value for Y unless Gross Margin
+                y_error_sum=[]
+                for i in x.values:
+                    if i != 'Gross Margin':
+                        y_error_sum = np.cumsum(y)
+                    elif i == 'Gross Margin':
+                        GM_index = x[x == 'Gross Margin'].index[0]
+                        y_error_sum[GM_index] = y[GM_index]
+                # Add trace for error
+                ecs_waterfall_fig.add_trace(
+                    go.Scatter(
+                     	x=x_len-.3,
+                     	y=y_error_sum,
+                        marker=dict(color='black'),
+                        customdata=np.stack((y, prep_df['item']), axis=-1),
+                     	error_y=dict(
+                            type='data',
+                            array=stdev
+                        ),
+                        mode="markers",
+                        hoverinfo='none',
+                        showlegend=False
+                        
+                    ),
+                )
+                
                 # Add current with lag
                 ecs_waterfall_fig.add_trace(go.Waterfall(
                     name = 'Current (outline)',
                     measure = measure,
-                    x = x,
+                    x = x_len+.3,
                     y = prep_df['mean_current'],
                     decreasing = {"marker":{"color":"white", "line":{"color":"#E84C3D", "width":3}}},
                     increasing = {"marker":{"color":"white", "line":{"color":"#3598DB", "width":3}}},
                     totals = {"marker":{"color":"white", "line":{"color":"#F7931D", "width":3}}},
                     connector = {"line":{"dash":"dot"}},
-                    customdata=prep_df['mean_current'],
+                    customdata=np.stack((prep_df['mean_current'], prep_df['item']), axis=-1),
                     ))
+                # Add error bars
+                # Reset indicies
+                y = prep_df['mean_current']
+                x = x.reset_index(drop=True)
+                y = y.reset_index(drop=True)
+                # Get cumulative sum value for Y unless Gross Margin
+                y_error_sum=[]
+                for i in x.values:
+                    if i != 'Gross Margin':
+                        y_error_sum = np.cumsum(y)
+                    elif i == 'Gross Margin':
+                        GM_index = x[x == 'Gross Margin'].index[0]
+                        y_error_sum[GM_index] = y[GM_index]
+                        
+                # Add trace for error
+                ecs_waterfall_fig.add_trace(
+                    go.Scatter(
+                     	x=x_len+.3,
+                     	y=y_error_sum,
+                        marker=dict(color='black'),
+                        customdata=np.stack((y, prep_df['item']), axis=-1),
+                     	error_y=dict(
+                            type='data',
+                            array=prep_df['stdev_current']
+                        ),
+                        mode="markers",
+                        hoverinfo='none',
+                        name='Est. range'
+                    ),
+                )
+                
                 ecs_waterfall_fig.update_layout(
-                    waterfallgroupgap = 0.5,
+                    xaxis = dict(
+                        tickmode = 'array',
+                        tickvals = x_len,
+                        ticktext = waterfall_plot_values
                     )
+                )
+                
+                # ecs_waterfall_fig.update_layout(
+                #     waterfallgroupgap = 0.5,
+                #     )
 
             # Add title
             ecs_waterfall_fig.update_layout(
@@ -8568,50 +8733,20 @@ def update_ahle_value_and_cost_viz_ecs(
 
         # Add tooltip
         if currency == 'Birr':
-            ecs_waterfall_fig.update_traces(hovertemplate='Category: %{x}'+
-                                            '<br>Value: %{customdata:,.0f} Birr<extra></extra>'+
+            ecs_waterfall_fig.update_traces(hovertemplate='Category: %{customdata[1]}'+
+                                            '<br>Value: %{customdata[0]:,.0f} Birr<extra></extra>'+
                                             '<br>Cumulative Value: %{y:,.0f} Birr'
                                             )
         elif currency == 'USD':
-            ecs_waterfall_fig.update_traces(hovertemplate='Category: %{x}'+
-                                            '<br>Value: %{customdata:,.0f} USD<extra></extra>'+
+            ecs_waterfall_fig.update_traces(hovertemplate='Category: %{customdata[1]}'+
+                                            '<br>Value: %{customdata[0]:,.0f} USD<extra></extra>'+
                                             '<br>Cumulative Value: %{y:,.0f} USD'
                                             )
         else:
-            ecs_waterfall_fig.update_traces(hovertemplate='Category: %{x}'+
-                                            '<br>Value: %{customdata:,.0f} <extra></extra>'+
+            ecs_waterfall_fig.update_traces(hovertemplate='Category: %{customdata[1]}'+
+                                            '<br>Value: %{customdata[0]:,.0f} <extra></extra>'+
                                             '<br>Cumulative Value: %{y:,.0f} '
                                             )
-
-        # # Add error bars
-        # # Reset indicies
-        # x = x.reset_index(drop=True)
-        # y = y.reset_index(drop=True)
-
-        # # Get cumulative sum value for Y
-        # y_error_sum=[]
-        # for i in x.values:
-        #     if i != 'Gross Margin (AHLE)':
-        #         y_error_sum = np.cumsum(y)
-        #     elif i == 'Gross Margin (AHLE)':
-        #         GM_index = x[x == 'Gross Margin (AHLE)'].index[0]
-        #         y_error_sum[GM_index] = y[GM_index]
-
-        # # Add trace for error
-        # ecs_waterfall_fig.add_trace(
-        #     go.Scatter(
-        #      	x=x,
-        #      	y=y_error_sum,
-        #         marker=dict(color='black'),
-        #      	error_y=dict(
-        #             type='data',
-        #             array=stdev
-        #         ),
-        #         mode="markers",
-        #         hoverinfo='none',
-        #         name='Est. range'
-        #     ),
-        # )
 
     return ecs_waterfall_fig
 

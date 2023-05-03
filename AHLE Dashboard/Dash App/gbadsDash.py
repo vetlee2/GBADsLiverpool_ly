@@ -819,7 +819,14 @@ for i in ga_countries_biomass['country'].unique():
 
 # Income group
 # Rename Overall to more descriptive
-ga_countries_biomass['incomegroup'] = ga_countries_biomass['incomegroup'].replace({'L': 'Low', 'LM':'Lower Middle', 'UM':'Upper Middle', 'H':'High', 'UNK':'Unassigned', 'NaN':'Unassigned'})
+ga_countries_biomass['incomegroup'] = ga_countries_biomass['incomegroup'].replace(
+    {'L': 'Low',
+     'LM':'Lower Middle',
+     'UM':'Upper Middle',
+     'H':'High',
+     'UNK':'Unassigned',
+     'NaN':'Unassigned'
+     })
 
 # replacing na values in college with No college
 ga_countries_biomass['incomegroup'].fillna("Unassigned", inplace = True)
@@ -933,7 +940,6 @@ fao_swp_options_ga = [{'label': i, 'value': i, 'disabled': False} for i in ["Fra
                                                                             "United States of America"]]
 
 # World Bank regions
-# Rename Overall to more descriptive
 ga_countries_biomass['region_label'] = ga_countries_biomass['region'].replace({'EAP': 'East Asia & Pacific',
                                                                          'ECA':'Europe & Central Asia',
                                                                          'LAC':'Latin America & the Caribbean',
@@ -945,7 +951,6 @@ ga_countries_biomass['region_label'] = ga_countries_biomass['region'].replace({'
 wb_region_options_ga = [{'label': "All", 'value': "All"}]
 for i in ga_countries_biomass['region_label'].unique():
     str(wb_region_options_ga.append({'label':i,'value':(i)}))
-
 
 # World Bank region-country mapping
 # Pulled from World Bank site (https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups)
@@ -6205,7 +6210,6 @@ def update_region_detail_options_ga(region_country):
         options = wb_region_options_ga
     return options
 
-
 # Update country options based on region and income group selection
 @gbadsDash.callback(
     Output('select-country-overview-ga', 'options'),
@@ -6609,7 +6613,7 @@ def update_overview_table_ga(
     Input('select-country-detail-ga','value'),
     Input('amu-regional-data', 'data'),
     )
-def update_display_table_ga(
+def update_detail_table_ga(
         selected_region
         ,selected_incgrp
         ,selected_country
@@ -6674,7 +6678,13 @@ def update_display_table_ga(
         ,'year':'Year'
         ,'population':'Population (head)'
         ,'liveweight':'Average liveweight (kg)'
-        ,'biomass':'Biomass (kg)'
+        ,'biomass':'Biomass of standing stock (kg)'
+
+        ,'output_total_biomass_kg':'output_total_biomass_kg'
+        ,'output_total_biomass_kg_thisregion_thisyear':'output_total_biomass_kg_thisregion_thisyear'
+        ,'output_total_biomass_prpnofregion_thisyear':'output_total_biomass_prpnofregion_thisyear'
+        ,'am_expenditure_usd_selected':'am_expenditure_usd_selected'
+        ,'antimicrobial_expenditure_usd':'antimicrobial_expenditure_usd'
 
         ,'production_eggs_tonnes':'Egg production (tonnes)'
         ,'production_meat_tonnes':'Meat production (tonnes)'
@@ -7111,8 +7121,7 @@ def update_ahle_waterfall_ga(
             print_selected_incgrp = ''
 
     # Get sum for each item (summing over countries if multiple)
-    prep_df_sums = prep_df_filtered.groupby('item')[['value_usd_current' ,'value_usd_ideal']].sum()
-    prep_df_sums = prep_df_sums.reset_index()
+    prep_df_sums = prep_df_filtered.groupby('item')[['value_usd_current' ,'value_usd_ideal']].sum().reset_index()
 
     # Create AHLE differences bars (ideal - current)
     prep_df_sums['value_usd_ahle_diff'] = prep_df_sums['value_usd_ideal'] - prep_df_sums['value_usd_current']

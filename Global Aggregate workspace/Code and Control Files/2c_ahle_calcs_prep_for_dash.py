@@ -82,12 +82,6 @@ world_ahle_abt.eval(
     ,inplace=True
 )
 
-# Add proportion of global total biomass each country and species makes up in a year
-world_ahle_abt['output_total_biomass_kg_glbl_thisyear'] = \
-    world_ahle_abt.groupby('year')['output_total_biomass_kg'].transform('sum')
-world_ahle_abt['output_total_biomass_prpnofglbl_thisyear'] = \
-    world_ahle_abt['output_total_biomass_kg'] / world_ahle_abt['output_total_biomass_kg_glbl_thisyear']
-
 datainfo(world_ahle_abt)
 
 # =============================================================================
@@ -163,10 +157,7 @@ world_ahle_abt_fordash.to_pickle(os.path.join(DASH_DATA_FOLDER ,'world_ahle_abt_
 #%% Add mortality and expenditure rates
 '''
 Calculations from here on will be repeated inside Dash so they can respond to user input.
-
-Currently using the same rates for all species.
 '''
-
 # =============================================================================
 #### Create copy of data for further calcs
 # =============================================================================
@@ -175,6 +166,7 @@ world_ahle_abt_withcalcs = world_ahle_abt.copy()
 # =============================================================================
 #### Mortality and morbidity
 # =============================================================================
+# Currently using the same rates for all species.
 mortality_byincome = {
     "L":0.15
     ,"LM":0.1
@@ -194,7 +186,7 @@ world_ahle_abt_withcalcs['morbidity_rate'] = world_ahle_abt_withcalcs['incomegro
 # =============================================================================
 #### Expenditures
 # =============================================================================
-# Currently the same for all products
+# Currently the same for all products and species
 # Spend per kg biomass
 farmspend_perkg_biomass_byincome = {
     "L":0.01

@@ -42,6 +42,8 @@ fill_iso3_region = {
     ,"GLP":"LAC"
     ,"MTQ":"LAC"
     ,"NIU":"EAP"
+    ,"REU":"ECA"    # Reunion: French territory
+    ,"VEN":"LAC"
 }
 for ISO3 ,REGION in fill_iso3_region.items():
     world_ahle_imp.loc[world_ahle_imp['country_iso3'] == ISO3 ,'region'] = REGION

@@ -91,7 +91,6 @@ world_ahle_imp['biomass'] = world_ahle_imp['liveweight'] * world_ahle_imp['popul
 
 # Cleanup intermediate columns
 world_ahle_imp = world_ahle_imp.drop(columns=[
-    # 'stocks_hd'
     'min_liveweight'
     ,'mean_liveweight'
     ,'max_liveweight'
@@ -181,6 +180,7 @@ missing_prod_wool_species = list(missing_prod_wool['species'].unique())
 #### Calculate production per kg biomass
 # Limited to biomass of producing animals for each product
 # =============================================================================
+# Create dictionary pairing each production variable with its animal count
 prod_animals_lookup = {
     'production_eggs':'producing_animals_eggs'
     ,'production_hides':'producing_animals_hides'

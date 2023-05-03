@@ -79,8 +79,13 @@ world_ahle_abt.eval(
     output_value_total_2010usd = (output_total_biomass_kg / 1000) * producer_price_meat_live_usdpertonne_cnst2010
     output_value_meatlive_2010usd = output_value_meat_2010usd + output_value_live_2010usd
     '''
+    # Hybrid: standing population plus animals slaughtered
+    '''
+    biomass_popandslaughter_kg = biomass + (producing_animals_meat_hd * liveweight)
+    '''
     ,inplace=True
-)
+    )
+world_ahle_abt[['biomass','biomass_popandslaughter_kg']].describe()
 
 datainfo(world_ahle_abt)
 
@@ -231,7 +236,7 @@ map_wb_regions_to_woah = {
     }
 world_ahle_abt_withcalcs['region_woah'] = world_ahle_abt_withcalcs['region'].replace(map_wb_regions_to_woah)
 
-# Merge antimicrobial usage by region
+# Merge antimicrobial expenditure by region
 # Read AMU data
 amu_combined_regional = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_combined_regional.csv"))
 
@@ -274,6 +279,16 @@ world_ahle_abt_withcalcs = pd.merge(
     ,on='region_woah'
     ,how='left'
     )
+
+# Calculate proportion of region total biomass each country and species makes up, by year
+world_ahle_abt_withcalcs['total_biomass_thisregion_thisyear'] = \
+    world_ahle_abt_withcalcs.groupby(['region_woah' ,'year'])['biomass_popandslaughter_kg'].transform('sum')
+world_ahle_abt_withcalcs['total_biomass_prpnofregion_thisyear'] = \
+    world_ahle_abt_withcalcs['biomass_popandslaughter_kg'] / world_ahle_abt_withcalcs['total_biomass_thisregion_thisyear']
+
+# Assign AM expenditure to country and species according to their proportion of region total biomass
+world_ahle_abt_withcalcs['antimicrobial_expenditure_usd'] = \
+    world_ahle_abt_withcalcs['am_expenditure_usd_selected'] * world_ahle_abt_withcalcs['total_biomass_prpnofregion_thisyear']
 
 # =============================================================================
 #### Carcass yield
@@ -356,7 +371,8 @@ world_ahle_abt_withcalcs.eval(
     # Setting to zero here so net value will calculate correctly
     '''
     vetspend_public_usd = 0
-    net_value_2010usd = output_plus_biomass_value_2010usd - vetspend_farm_usd - vetspend_public_usd - am_expenditure_usd_selected
+    net_value_2010usd = output_plus_biomass_value_2010usd \
+        - vetspend_farm_usd - vetspend_public_usd - antimicrobial_expenditure_usd
 
     ideal_output_plus_biomass_value_2010usd = ideal_biomass_value_2010usd + ideal_output_value_meat_2010usd \
         + ideal_output_value_eggs_2010usd + ideal_output_value_milk_2010usd + ideal_output_value_wool_2010usd
@@ -527,10 +543,10 @@ current_values_labels = {
     ,'output_value_milk_2010usd':'Milk'
     ,'output_value_wool_2010usd':'Wool'
 
-    ,'vetspend_farm_usd':'Vet & Med costs on producers'
+    ,'vetspend_farm_usd':'Producers vet & med costs'
     # Update 4/5/2023: William no longer wants public expenditure to appear in calculations
-    # ,'vetspend_public_usd':'Vet & Med costs on public'
-    ,'am_expenditure_usd_selected':'Antimicrobial expenditure'
+    # ,'vetspend_public_usd':'Public vet & med costs'
+    ,'antimicrobial_expenditure_usd':'Antimicrobial expenditure'
 
     ,'net_value_2010usd':'Net value'
 }
@@ -586,7 +602,9 @@ values_combined = pd.merge(
 datainfo(values_combined)
 
 # Fill in zeros for ideal costs
-_vetmed_rows = (values_combined['item'].str.upper().isin(['VET & MED COSTS ON PRODUCERS' ,'ANTIMICROBIAL EXPENDITURE']))
+# _vetmed_rows = (values_combined['item'].str.upper().isin(['VET & MED COSTS ON PRODUCERS' ,'ANTIMICROBIAL EXPENDITURE']))
+_vetmed_rows = (values_combined['item'].str.contains('COSTS' ,case=False ,na=False)\
+                | values_combined['item'].str.contains('EXPENDITURE' ,case=False ,na=False))
 values_combined.loc[_vetmed_rows ,'value_usd_ideal'] = 0
 
 # Make actual costs negative

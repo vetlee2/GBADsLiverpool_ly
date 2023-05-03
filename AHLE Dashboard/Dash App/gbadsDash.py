@@ -700,7 +700,6 @@ ecs_ahle_summary['production_system'] = ecs_ahle_summary['production_system'].re
 #    str(ecs_prodsys_options.append({'label':i,'value':(i)}))
 
 # Year
-# !!! - PLACEHOLDER UNTIL WE HAVE MORE DATA
 # ecs_year_options = [{'label': 2021, 'value': 2021, 'disabled': False}]
 ecs_year_options=[]
 for i in np.sort(ecs_ahle_summary['year'].unique()):
@@ -846,13 +845,15 @@ for i in np.sort(ga_countries_biomass['year'].unique()):
 # AHLE elements
 # Values here must match item names defined in prep_ahle_forwaterfall_ga()
 item_list_ga = [
-    'Meat'
+    'Biomass'
+    ,'Meat'
     ,'Eggs'
     ,'Milk'
     ,'Wool'
-    ,'Biomass'
     ,'Producers vet & med costs'
-    ,'Public vet & med costs'
+    # Update 4/5/2023: William no longer wants public expenditure to appear in calculations
+    # ,'Public vet & med costs'
+    ,'Antimicrobial expenditure'
     ,'Net value'
 ]
 item_options_ga = [{'label':i,'value':(i)} for i in item_list_ga]
@@ -1674,7 +1675,7 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
 
     # Sum to country-year level (summing over species)
     country_year_level = INPUT_DF.pivot_table(
-        index=['region' ,'country' ,'year' ,'incomegroup']
+        index=['region' ,'region_label' ,'country' ,'year' ,'incomegroup']
         ,observed=True  # Limit to combinations of index variables that are in data
         ,values=current_value_columns + ideal_value_columns
         ,aggfunc='sum'
@@ -1685,7 +1686,7 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
     # Restructure to create columns 'value_usd_current' and 'value_usd_ideal'
     # Current values
     values_current = country_year_level.melt(
-        id_vars=['region' ,'country' ,'year' ,'incomegroup']
+        id_vars=['region' ,'region_label' ,'country' ,'year' ,'incomegroup']
         ,value_vars=current_value_columns
         ,var_name='orig_col'             # Name for new "variable" column
         ,value_name='value_usd_current'              # Name for new "value" column
@@ -1695,7 +1696,7 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
 
     # Ideal values
     values_ideal = country_year_level.melt(
-        id_vars=['region' ,'country' ,'year' ,'incomegroup']
+        id_vars=['region' ,'region_label' ,'country' ,'year' ,'incomegroup']
         ,value_vars=ideal_value_columns
         ,var_name='orig_col'             # Name for new "variable" column
         ,value_name='value_usd_ideal'              # Name for new "value" column
@@ -1707,7 +1708,7 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
     values_combined = pd.merge(
         left=values_current
         ,right=values_ideal
-        ,on=['region' ,'country' ,'year' ,'incomegroup' ,'item']
+        ,on=['region' ,'region_label' ,'country' ,'year' ,'incomegroup' ,'item']
         ,how='outer'
     )
 
@@ -1719,13 +1720,13 @@ def prep_ahle_forwaterfall_ga(INPUT_DF):
     values_combined = values_combined.sort_values(['item'])
 
     # Fill in zeros for ideal costs
-    _vetmed_rows = (values_combined['item'].str.upper().isin(['VET & MED COSTS ON PRODUCERS' ,'ANTIMICROBIAL EXPENDITURE']))
+    _vetmed_rows = (values_combined['item'].str.contains('COSTS' ,case=False ,na=False)\
+                    | values_combined['item'].str.contains('EXPENDITURE' ,case=False ,na=False))
     values_combined.loc[_vetmed_rows ,'value_usd_ideal'] = 0
 
     OUTPUT_DF = values_combined
 
     return OUTPUT_DF
-
 
 # =============================================================================
 #### Define the figures
@@ -2226,7 +2227,6 @@ gbadsDash.layout = html.Div([
         )),
     ], justify='between'),
 
-
     #### Data to pass between callbacks
     dcc.Store(id='core-data-poultry'),
     dcc.Store(id='core-data-swine'),
@@ -2245,1114 +2245,1098 @@ gbadsDash.layout = html.Div([
             ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
 
         #### GLOBAL OVERVIEW TAB
-        dcc.Tab(label="Global Overview [WIP]", children = [
+        # dcc.Tab(label="Global Overview [WIP]", children = [
 
-            #### -- COUNTRY AND SPECIES CONTROLS
-            dbc.Row([
-                # Region-country alignment
-                dbc.Col([
-                    html.H6('Region-country alignment'),
-                    dcc.RadioItems(id='Region-country-alignment-overview-ga',
-                                    options=region_structure_options_ga,
-                                    inputStyle={"margin-right": "10px", # This pulls the words off of the button
-                                                "margin-left":"20px"},
-                                    value="World Bank",
-                                    style={"margin-left":'-20px'})
-                    ],
-                    style={
-                            "margin-top":"10px",
-                            "margin-right":"70px",
-                            }
+        #     #### -- COUNTRY AND SPECIES CONTROLS
+        #     dbc.Row([
+        #         # Region-country alignment
+        #         dbc.Col([
+        #             html.H6('Region-country alignment'),
+        #             dcc.RadioItems(id='Region-country-alignment-overview-ga',
+        #                             options=region_structure_options_ga,
+        #                             inputStyle={"margin-right": "10px", # This pulls the words off of the button
+        #                                         "margin-left":"20px"},
+        #                             value="World Bank",
+        #                             style={"margin-left":'-20px'})
+        #             ],
+        #             style={
+        #                     "margin-top":"10px",
+        #                     "margin-right":"70px",
+        #                     }
 
-                    ),
-                # Region
-                dbc.Col([
-                    html.H6("Region"),
-                    dcc.Dropdown(id='select-region-overview-ga',
-                                  options=wb_region_options_ga,
-                                  value='All',
-                                  clearable = False,
-                                  ),
-                    ],style={
-                              "margin-top":"10px",
-                              },
-                    ),
+        #             ),
+        #         # Region
+        #         dbc.Col([
+        #             html.H6("Region"),
+        #             dcc.Dropdown(id='select-region-overview-ga',
+        #                           options=wb_region_options_ga,
+        #                           value='All',
+        #                           clearable = False,
+        #                           ),
+        #             ],style={
+        #                       "margin-top":"10px",
+        #                       },
+        #             ),
+        #         # Income Group
+        #         dbc.Col([
+        #             html.H6("Income Group"),
+        #             dcc.Dropdown(id='select-incomegrp-overview-ga',
+        #                          options=incomegrp_options_ga,
+        #                          value='All',
+        #                          clearable = False,
+        #                          ),
+        #             ],style={
+        #                       "margin-top":"10px",
+        #                       },
+        #             ),
+        #         # Country
+        #         dbc.Col([
+        #             html.H6("Country"),
+        #             dcc.Dropdown(id='select-country-overview-ga',
+        #                           options=country_options_ga,
+        #                           # value='All',
+        #                           value='Ethiopia', #!!! - for testing
+        #                           clearable = False,
+        #                           ),
+        #             ],style={
+        #                       "margin-top":"10px",
+        #                       },
+        #             ),
+        #           # Species
+        #           dbc.Col([
+        #               html.H6("Species"),
+        #               dcc.Dropdown(id='select-species-ga',
+        #                           options=ga_species_options,
+        #                           value='Cattle',
+        #                           clearable = False,
+        #                           )
+        #               ],style={
+        #                       "margin-top":"10px",
+        #                       },
+        #               ),
+        #         ], justify='evenly', style={"margin-right": "10px"}),
 
-                # Income Group
-                dbc.Col([
-                    html.H6("Income Group"),
-                    dcc.Dropdown(id='select-incomegrp-overview-ga',
-                                 options=incomegrp_options_ga,
-                                 value='All',
-                                 clearable = False,
-                                 ),
-                    ],style={
-                              "margin-top":"10px",
-                              },
-                    ),
+        #     #### -- VISUALIZATION SWITCH
+        #     # Select Visual Control
+        #     dbc.Card([
+        #         dbc.CardBody([
+        #             html.H5("Select Visualization",
+        #                     className="card-title",
+        #                     style={"font-weight": "bold"}),
 
-                # Country
-                dbc.Col([
-                    html.H6("Country"),
-                    dcc.Dropdown(id='select-country-overview-ga',
-                                  options=country_options_ga,
-                                  # value='All',
-                                  value='Ethiopia', #!!! - for testing
-                                  clearable = False,
-                                  ),
-                    ],style={
-                              "margin-top":"10px",
-                              },
-                    ),
+        #     dbc.Row([ # Row with Control for Visuals
 
-                  # Species
-                  dbc.Col([
-                      html.H6("Species"),
-                      dcc.Dropdown(id='select-species-ga',
-                                  options=ga_species_options,
-                                  value='Cattle',
-                                  clearable = False,
-                                  )
-                      ],style={
-                              "margin-top":"10px",
-                              },
-                      ),
+        #             # Visualization
+        #             dbc.Col([
+        #                 html.H6("Visualize"),
+        #                 dcc.RadioItems(
+        #                     id='viz-radio-ga',
+        #                     options=['Map', 'Line chart'],
+        #                     value='Map',
+        #                     inputStyle={"margin-right": "2px", # This pulls the words off of the button
+        #                                 "margin-left": "10px"},
+        #                     ),
+        #                 ]),
 
-                ], justify='evenly', style={"margin-right": "10px"}),
+        #             # Map Display options
+        #             dbc.Col([
+        #                 html.H6("Map Display"),
+        #                 # dcc.RadioItems(
+        #                 dcc.Dropdown(
+        #                     id='map-display-radio-ga',
+        #                     options=map_display_options_ga,
+        #                     value='Population',
+        #                     # inputStyle={"margin-right": "2px", # This pulls the words off of the button
+        #                     #             "margin-left": "10px"},
+        #                     ),
+        #                 ]),
 
+        #     ]), # END OF ROW
 
-            #### -- VISUALIZATION SWITCH
-            # Select Visual Control
+        #         # END OF CARD BODY
+        #         ]),
 
-            dbc.Card([
-                dbc.CardBody([
-                    html.H5("Select Visualization",
-                            className="card-title",
-                            style={"font-weight": "bold"}),
+        #     ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF CARD
 
-            dbc.Row([ # Row with Control for Visuals
+        #     html.Hr(style={'margin-right':'10px',}),
+        #     html.Br(),
 
-                    # Visualization
-                    dbc.Col([
-                        html.H6("Visualize"),
-                        dcc.RadioItems(
-                            id='viz-radio-ga',
-                            options=['Map', 'Line chart'],
-                            value='Map',
-                            inputStyle={"margin-right": "2px", # This pulls the words off of the button
-                                        "margin-left": "10px"},
-                            ),
-                        ]),
+        #     #### -- GRAPHICS
+        #     dbc.Row([  # Row with GRAPHICS
 
-                    # Map Display options
-                    dbc.Col([
-                        html.H6("Map Display"),
-                        # dcc.RadioItems(
-                        dcc.Dropdown(
-                            id='map-display-radio-ga',
-                            options=map_display_options_ga,
-                            value='Population',
-                            # inputStyle={"margin-right": "2px", # This pulls the words off of the button
-                            #             "margin-left": "10px"},
-                            ),
-                        ]),
+        #         dbc.Col([ # Global Aggregation Visual
+        #             dbc.Spinner(children=[
+        #             dcc.Graph(id='ga-map-or-line-select',
+        #                         style = {"height":"650px"},
+        #                       config = {
+        #                           "displayModeBar" : True,
+        #                           "displaylogo": False,
+        #                           'toImageButtonOptions': {
+        #                               'format': 'png', # one of png, svg, jpeg, webp
+        #                               'filename': 'GBADs_Global_Agg_Viz'
+        #                               },
+        #                           }
+        #                       )
+        #             # End of Spinner
+        #             ],size="md", color="#393375", fullscreen=False),
+        #             # End of Map
+        #             ]),
 
-            ]), # END OF ROW
+        #     html.Br(),
+        #     # END OF GRAPHICS ROW
+        #     ],),
 
-                # END OF CARD BODY
-                ]),
+        # #### -- DATATABLE
+        # dbc.Row([
+        #     dbc.Spinner(children=[
+        #     dbc.Col([
+        #         html.Div([  # Core data for AHLE
+        #               html.Div( id='ga-world-abt-datatable'),
+        #         ], style={'margin-left':"20px"}),
 
-            ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF CARD
+        #     html.Br() # Spacer for bottom of page
+        #     ]),# END OF COL
+        #     # End of Spinner
+        #     ],size="md", color="#393375", fullscreen=False),
+        # ]),
+        # html.Br(),
+        # ### END OF DATATABLE
 
-
-            html.Hr(style={'margin-right':'10px',}),
-
-            html.Br(),
-
-            #### -- GRAPHICS
-            dbc.Row([  # Row with GRAPHICS
-
-                dbc.Col([ # Global Aggregation Visual
-                    dbc.Spinner(children=[
-                    dcc.Graph(id='ga-map-or-line-select',
-                                style = {"height":"650px"},
-                              config = {
-                                  "displayModeBar" : True,
-                                  "displaylogo": False,
-                                  'toImageButtonOptions': {
-                                      'format': 'png', # one of png, svg, jpeg, webp
-                                      'filename': 'GBADs_Global_Agg_Viz'
-                                      },
-                                  }
-                              )
-                    # End of Spinner
-                    ],size="md", color="#393375", fullscreen=False),
-                    # End of Map
-                    ]),
-
-            html.Br(),
-            # END OF GRAPHICS ROW
-            ],),
-
-        #### -- DATATABLE
-        dbc.Row([
-
-            dbc.Spinner(children=[
-            dbc.Col([
-                html.Div([  # Core data for AHLE
-                      html.Div( id='ga-world-abt-datatable'),
-                ], style={'margin-left':"20px"}),
-
-            html.Br() # Spacer for bottom of page
-
-            ]),# END OF COL
-            # End of Spinner
-            ],size="md", color="#393375", fullscreen=False),
-
-        ]),
-        html.Br(),
-        ### END OF DATATABLE
-
-
-        ### END OF GLOBAL AGGREGATE TAB
-        ], style=global_tab_style, selected_style=global_tab_selected_style),
+        # ### END OF GLOBAL AGGREGATE TAB
+        # ], style=global_tab_style, selected_style=global_tab_selected_style),
 
         #### GLOBAL AHLE DETAILS TAB
-        dcc.Tab(label="Global AHLE Details [WIP]", children = [
+        # dcc.Tab(label="Global AHLE Details [WIP]", children = [
 
-            #### -- COUNTRY AND CHART CONTROLS
-            dbc.Row([
-                # Display
-                dbc.Col([
-                    html.H6("Display"),
-                    dcc.RadioItems(id='select-display-ga',
-                                  options=ecs_display_options,
-                                  value='Difference',
-                                  labelStyle={'display': 'block'},
-                                  inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
-                                  ),
-                    ],
-                    style={
-                            "margin-top":"10px",
-                            "margin-right":"70px",
-                            }
-                ),
+        #     #### -- COUNTRY AND CHART CONTROLS
+        #     dbc.Row([
+        #         # Display
+        #         dbc.Col([
+        #             html.H6("Display"),
+        #             dcc.RadioItems(id='select-display-ga',
+        #                           options=ecs_display_options,
+        #                           value='Difference',
+        #                           labelStyle={'display': 'block'},
+        #                           inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
+        #                           ),
+        #             ],
+        #             style={
+        #                     "margin-top":"10px",
+        #                     "margin-right":"70px",
+        #                     }
+        #         ),
+        #         # Region-country alignment
+        #         dbc.Col([
+        #             html.H6('Region-country alignment'),
+        #             dcc.RadioItems(id='Region-country-alignment-detail-ga',
+        #                             options=region_structure_options_ga,
+        #                             inputStyle={"margin-right": "10px", # This pulls the words off of the button
+        #                                         "margin-left":"20px"},
+        #                             value="World Bank",
+        #                             style={"margin-left":'-20px'})
+        #             ],
+        #             style={
+        #                     "margin-top":"10px",
+        #                     "margin-right":"70px",
+        #                     }
 
-                # Region-country alignment
-                dbc.Col([
-                    html.H6('Region-country alignment'),
-                    dcc.RadioItems(id='Region-country-alignment-detail-ga',
-                                    options=region_structure_options_ga,
-                                    inputStyle={"margin-right": "10px", # This pulls the words off of the button
-                                                "margin-left":"20px"},
-                                    value="World Bank",
-                                    style={"margin-left":'-20px'})
-                    ],
-                    style={
-                            "margin-top":"10px",
-                            "margin-right":"70px",
-                            }
+        #             ),
+        #         # Region
+        #         dbc.Col([
+        #             html.H6("Region"),
+        #             dcc.Dropdown(id='select-region-detail-ga',
+        #                           options=wb_region_options_ga,
+        #                           value='All',
+        #                           clearable = False,
+        #                           ),
+        #             ],style={
+        #                       "margin-top":"10px",
+        #                       },
+        #             ),
+        #         # Income Group
+        #         dbc.Col([
+        #             html.H6("Income Group"),
+        #             dcc.Dropdown(id='select-incomegrp-detail-ga',
+        #                         options=incomegrp_options_ga,
+        #                         value='All',
+        #                         clearable = False,
+        #                         ),
+        #             ],style={
+        #                       "margin-top":"10px",
+        #                       },
+        #             ),
+        #         # Country
+        #         dbc.Col([
+        #             html.H6("Country"),
+        #             dcc.Dropdown(id='select-country-detail-ga',
+        #                           options=country_options_ga,
+        #                           value='All',
+        #                           clearable = False,
+        #                           ),
+        #             ],style={
+        #                       "margin-top":"10px",
+        #                       },
+        #             ),
+        #         ], style={"margin-right": "10px"}), # END OF ROW
 
-                    ),
-                # Region
-                dbc.Col([
-                    html.H6("Region"),
-                    dcc.Dropdown(id='select-region-detail-ga',
-                                  options=wb_region_options_ga,
-                                  value='All',
-                                  clearable = False,
-                                  ),
-                    ],style={
-                              "margin-top":"10px",
-                              },
-                    ),
-                # Income Group
-                dbc.Col([
-                    html.H6("Income Group"),
-                    dcc.Dropdown(id='select-incomegrp-detail-ga',
-                                options=incomegrp_options_ga,
-                                value='All',
-                                clearable = False,
-                                ),
-                    ],style={
-                              "margin-top":"10px",
-                              },
-                    ),
+        #     #### -- CHART SPECIFIC AND BOTH CONTROLS
+        #     dbc.Row([
+        #         # AHLE Specific Controls
+        #         dbc.Col([
+        #             dbc.Card([
+        #                 dbc.CardBody([
+        #                     html.H5("Output Values and Costs Graph Controls",
+        #                             className="card-title",
+        #                             style={"font-weight": "bold"}),
+        #                     dbc.Row([
+        #                     # Year
+        #                     dbc.Col([
+        #                         html.H6("Year"),
+        #                         dcc.Dropdown(id='select-year-ga',
+        #                                       options=year_options_ga,
+        #                                       value=2020,
+        #                                       clearable = False,
+        #                                       ),
+        #                         ],style={
+        #                                   "margin-top":"10px",
+        #                                   },
+        #                         ),
+        #                     ]), # END OF ROW
+        #             # END OF CARD BODY
+        #             ],),
 
-                # Country
-                dbc.Col([
-                    html.H6("Country"),
-                    dcc.Dropdown(id='select-country-detail-ga',
-                                  options=country_options_ga,
-                                  value='All',
-                                  clearable = False,
-                                  ),
-                    ],style={
-                              "margin-top":"10px",
-                              },
-                    ),
-                ], style={"margin-right": "10px"}), # END OF ROW
+        #             # END OF CARD
+        #             ], color='#F2F2F2',),
+        #         ],  width=3),
 
+        #             #### -- MORTALITY AND OTHER CONTROLS
+        #             dbc.Col([
+        #             dbc.Card([
+        #                 dbc.CardBody([
+        #                     html.H5("Exploring Contributions to AHLE (Not Active)",
+        #                             className="card-title",
+        #                             style={"font-weight": "bold"}),
+        #             dbc.Row([  # Line up all the controls in the same row.
 
-            #### -- CHART SPECIFIC AND BOTH CONTROLS
-            dbc.Row([
-                # AHLE Specific Controls
-                dbc.Col([
-                dbc.Card([
-                    dbc.CardBody([
-                        html.H5("Output Values and Costs Graph Controls",
-                                className="card-title",
-                                style={"font-weight": "bold"}),
-                        dbc.Row([
-                        # Year
-                        dbc.Col([
-                            html.H6("Year"),
-                            dcc.Dropdown(id='select-year-ga',
-                                          options=year_options_ga,
-                                          value=2020,
-                                          clearable = False,
-                                          ),
-                            ],style={
-                                      "margin-top":"10px",
-                                      },
-                            ),
-                        ]), # END OF ROW
+        #                 # Base mortality rate
+        #                 dbc.Col([
+        #                     html.H6("Base mortality rate"),
+        #                     html.Br(),
+        #                     daq.Slider(
+        #                         id='base-mortality-rate-ga',
+        #                         min=1,
+        #                         max=10,
+        #                         handleLabel={"showCurrentValue": True,"label": "%"},
+        #                         step=1,
+        #                         value=mortality_rate_ga_default,
+        #                         ),
+        #                     ],style={
+        #                               "margin-top":"10px",
+        #                               }
+        #                     ,),
 
-                # END OF CARD BODY
-                ],),
+        #                 # Base morbidity rate
+        #                 dbc.Col([
+        #                     html.H6("Base morbidity rate"),
+        #                     html.Br(),
+        #                     daq.Slider(
+        #                         id='base-morbidity-rate-ga',
+        #                         min=1,
+        #                         max=10,
+        #                         handleLabel={"showCurrentValue": True,"label": "%"},
+        #                         step=1,
+        #                         value=morbidity_rate_ga_default,
+        #                         ),
+        #                     ],style={
+        #                               "margin-top":"10px",
+        #                               }
+        #                     ,),
 
-                # END OF CARD
-                ], color='#F2F2F2',),
-                ],  width=3),
+        #                 # Live weight price
+        #                 dbc.Col([
+        #                     html.H6("Live weight price (USD per kg)"),
+        #                     html.Br(),
+        #                     daq.Slider(
+        #                         id='base-live-weight-price-ga',
+        #                         min=0.70,
+        #                         max=3.25,
+        #                         handleLabel={"showCurrentValue": True,"label": "$"},
+        #                         step=.01,
+        #                         value=live_weight_price_ga_default,
+        #                         ),
+        #                     ],style={
+        #                               "margin-top":"10px",
+        #                               }
+        #                     ,),
 
-                    #### -- MORTALITY AND OTHER CONTROLS
-                    dbc.Col([
-                    dbc.Card([
-                        dbc.CardBody([
-                            html.H5("Exploring Contributions to AHLE (Not Active)",
-                                    className="card-title",
-                                    style={"font-weight": "bold"}),
-                    dbc.Row([  # Line up all the controls in the same row.
+        #                 ## END OF ROW ##
+        #                 ], justify='evenly'),
 
-                        # Base mortality rate
-                        dbc.Col([
-                            html.H6("Base mortality rate"),
-                            html.Br(),
-                            daq.Slider(
-                                id='base-mortality-rate-ga',
-                                min=1,
-                                max=10,
-                                handleLabel={"showCurrentValue": True,"label": "%"},
-                                step=1,
-                                value=mortality_rate_ga_default,
-                                ),
-                            ],style={
-                                      "margin-top":"10px",
-                                      }
-                            ,),
+        #             # END OF CARD BODY
+        #             ],),
 
-                        # Base morbidity rate
-                        dbc.Col([
-                            html.H6("Base morbidity rate"),
-                            html.Br(),
-                            daq.Slider(
-                                id='base-morbidity-rate-ga',
-                                min=1,
-                                max=10,
-                                handleLabel={"showCurrentValue": True,"label": "%"},
-                                step=1,
-                                value=morbidity_rate_ga_default,
-                                ),
-                            ],style={
-                                      "margin-top":"10px",
-                                      }
-                            ,),
+        #             # END OF CARD
+        #             ], color='#F2F2F2'),
+        #             ], width=6),
 
-                        # Live weight price
-                        dbc.Col([
-                            html.H6("Live weight price (USD per kg)"),
-                            html.Br(),
-                            daq.Slider(
-                                id='base-live-weight-price-ga',
-                                min=0.70,
-                                max=3.25,
-                                handleLabel={"showCurrentValue": True,"label": "$"},
-                                step=.01,
-                                value=live_weight_price_ga_default,
-                                ),
-                            ],style={
-                                      "margin-top":"10px",
-                                      }
-                            ,),
+        #         # Item Over Time Specific Controls
+        #         dbc.Col([
+        #         dbc.Card([
+        #             dbc.CardBody([
+        #                 html.H5("Item Over Time Graph Controls",
+        #                         className="card-title",
+        #                         style={"font-weight": "bold"}),
+        #                 dbc.Row([
 
-                        ## END OF ROW ##
-                        ], justify='evenly'),
+        #                   # Item
+        #                   dbc.Col([
+        #                       html.H6("Item"),
+        #                       dcc.Dropdown(id='select-item-ga',
+        #                                     options=item_options_ga,
+        #                                     value=item_list_ga[-1],   # Default is last item in list
+        #                                     clearable = False,
+        #                                     ),
+        #                       ],style={
+        #                                 "margin-top":"10px",
+        #                                 },
+        #                       ),
+        #                 ]), # END OF ROW
 
-                    # END OF CARD BODY
-                    ],),
+        #         # END OF CARD BODY
+        #         ],),
 
-                    # END OF CARD
-                    ], color='#F2F2F2'),
-                    ], width=6),
+        #         # END OF CARD
+        #         ], color='#F2F2F2'),
+        #         ], width=3),
 
-                # Item Over Time Specific Controls
-                dbc.Col([
-                dbc.Card([
-                    dbc.CardBody([
-                        html.H5("Item Over Time Graph Controls",
-                                className="card-title",
-                                style={"font-weight": "bold"}),
-                        dbc.Row([
+        #         ], style={"margin-right": "10px"}),
 
-                          # Item
-                          dbc.Col([
-                              html.H6("Item"),
-                              dcc.Dropdown(id='select-item-ga',
-                                            options=item_options_ga,
-                                            value=item_list_ga[-1],   # Default is last item in list
-                                            clearable = False,
-                                            ),
-                              ],style={
-                                        "margin-top":"10px",
-                                        },
-                              ),
-                        ]), # END OF ROW
+        #     html.Br(),
 
-                # END OF CARD BODY
-                ],),
+        #     #### -- GRAPHICS ROW
+        #     dbc.Row([
+        #         # Side by side waterfall
+        #         dbc.Col([
+        #             dbc.Spinner(children=[
+        #                 dcc.Graph(id='ga-ahle-waterfall',
+        #                           style = {"height":"650px"},
+        #                           config = {
+        #                               "displayModeBar" : True,
+        #                               "displaylogo": False,
+        #                               'toImageButtonOptions': {
+        #                                   'format': 'png', # one of png, svg, jpeg, webp
+        #                                   'filename': 'GBADs_GlobalAggregate_AHLE_Waterfall'
+        #                                   },
+        #                               'modeBarButtonsToRemove': ['zoom',
+        #                                                           'zoomIn',
+        #                                                           'zoomOut',
+        #                                                           'autoScale',
+        #                                                           #'resetScale',  # Removes home button
+        #                                                           'pan',
+        #                                                           'select2d',
+        #                                                           'lasso2d']
+        #                               }
+        #                           )
+        #                 # End of Spinner
+        #                 ],size="md", color="#393375", fullscreen=False),
+        #             # End of Side by side waterfall
+        #             ],style={"width":5}),
 
-                # END OF CARD
-                ], color='#F2F2F2'),
-                ], width=3),
+        #         # Plot over time
+        #         dbc.Col([
+        #             dbc.Spinner(children=[
+        #                 dcc.Graph(id='ga-ahle-over-time',
+        #                           style = {"height":"650px"},
+        #                           config = {
+        #                               "displayModeBar" : True,
+        #                               "displaylogo": False,
+        #                               'toImageButtonOptions': {
+        #                                   'format': 'png', # one of png, svg, jpeg, webp
+        #                                   'filename': 'GBADs_GlobalAggregate_AHLE_Overtime'
+        #                                   },
+        #                               'modeBarButtonsToRemove': ['zoom',
+        #                                                           'zoomIn',
+        #                                                           'zoomOut',
+        #                                                           'autoScale',
+        #                                                           #'resetScale',  # Removes home button
+        #                                                           'pan',
+        #                                                           'select2d',
+        #                                                           'lasso2d']
+        #                               }
+        #                           )
+        #                 # End of Spinner
+        #                 ],size="md", color="#393375", fullscreen=False),
+        #             # End of plot over time
+        #             ],style={"width":5}),
+        #         ]),
 
-                ], style={"margin-right": "10px"}),
+        # #### -- FOOTNOTES
+        # dbc.Row([
+        #     dbc.Col([
+        #         # Waterfall chart
+        #         html.P("Ideal values assume increased production if there were no morbidity or mortality"),
+        #         html.P("Antimicrobial Expenditure shown is the estimated global total based on usage and price selected on the Antimicrobial Usage tab."),
+        #         # html.P("Using morbidity and mortality rates according to income group"),
+        #         ]),
 
-            html.Br(),
+        #     # # Regional AM Expenditure Estimator Button
+        #     # dbc.Col([
+        #     #     dcc.Link(
+        #     #         dbc.Button(id="am-expend-button-ga",
+        #     #             children='Antimicrobial Expenditure',
+        #     #                     # style={'color': 'white',
+        #     #                     #        'backgroundColor': '#101820',
+        #     #                     #        'fontSize': '15px ',
+        #     #                     #        'width': '150px',
+        #     #                     #        'height': '50px',
+        #     #                     #        'marginLeft': '10px',
+        #     #                     #        'marginRight': '100px',
+        #     #                     #        }
+        #     #                     ),
+        #     #         href='#AMU-regional-expenditure', refresh=True),
 
-            #### -- GRAPHICS ROW
-            dbc.Row([
-                # Side by side waterfall
-                dbc.Col([
-                    dbc.Spinner(children=[
-                        dcc.Graph(id='ga-ahle-waterfall',
-                                  style = {"height":"650px"},
-                                  config = {
-                                      "displayModeBar" : True,
-                                      "displaylogo": False,
-                                      'toImageButtonOptions': {
-                                          'format': 'png', # one of png, svg, jpeg, webp
-                                          'filename': 'GBADs_GlobalAggregate_AHLE_Waterfall'
-                                          },
-                                      'modeBarButtonsToRemove': ['zoom',
-                                                                  'zoomIn',
-                                                                  'zoomOut',
-                                                                  'autoScale',
-                                                                  #'resetScale',  # Removes home button
-                                                                  'pan',
-                                                                  'select2d',
-                                                                  'lasso2d']
-                                      }
-                                  )
-                        # End of Spinner
-                        ],size="md", color="#393375", fullscreen=False),
-                    # End of Side by side waterfall
-                    ],style={"width":5}),
+        #     #     # html.Button('Antimicrobial Expenditure', id='am-expend-button-ga'),
+        #     #     ]),
 
-                # Plot over time
-                dbc.Col([
-                    dbc.Spinner(children=[
-                        dcc.Graph(id='ga-ahle-over-time',
-                                  style = {"height":"650px"},
-                                  config = {
-                                      "displayModeBar" : True,
-                                      "displaylogo": False,
-                                      'toImageButtonOptions': {
-                                          'format': 'png', # one of png, svg, jpeg, webp
-                                          'filename': 'GBADs_GlobalAggregate_AHLE_Overtime'
-                                          },
-                                      'modeBarButtonsToRemove': ['zoom',
-                                                                  'zoomIn',
-                                                                  'zoomOut',
-                                                                  'autoScale',
-                                                                  #'resetScale',  # Removes home button
-                                                                  'pan',
-                                                                  'select2d',
-                                                                  'lasso2d']
-                                      }
-                                  )
-                        # End of Spinner
-                        ],size="md", color="#393375", fullscreen=False),
-                    # End of plot over time
-                    ],style={"width":5}),
-                ]),
+        #     dbc.Col([
+        #         # Line chart
+        #         html.P(""),
+        #         ]),
+        #     ], style={'margin-left':"40px",
+        #               'font-style': 'italic',
+        #               "margin-right": "20px"}
+        #     ),
+        # html.Br(),
 
-        #### -- FOOTNOTES
-        dbc.Row([
-            dbc.Col([
-                # Waterfall chart
-                html.P("Ideal values assume increased production if there were no morbidity or mortality"),
-                html.P("Antimicrobial Expenditure shown is the estimated global total based on usage and price selected on the Antimicrobial Usage tab."),
-                # html.P("Using morbidity and mortality rates according to income group"),
-                ]),
+        # #### -- DATATABLE
+        # dbc.Spinner(children=[
+        #     html.Div([  # Row with DATATABLE
+        #               html.Div( id='ga-detailtab-displaytable'),
+        #               ], style={'margin-left':"20px",
+        #                         "margin-right": "10px",
+        #                         # "width":"95%"
+        #                         }
+        #               ),
+        #     # End of Spinner
+        #     ],size="md", color="#393375", fullscreen=False),
+        # html.Br(), # Spacer for bottom of page
 
-            # # Regional AM Expenditure Estimator Button
-            # dbc.Col([
-            #     dcc.Link(
-            #         dbc.Button(id="am-expend-button-ga",
-            #             children='Antimicrobial Expenditure',
-            #                     # style={'color': 'white',
-            #                     #        'backgroundColor': '#101820',
-            #                     #        'fontSize': '15px ',
-            #                     #        'width': '150px',
-            #                     #        'height': '50px',
-            #                     #        'marginLeft': '10px',
-            #                     #        'marginRight': '100px',
-            #                     #        }
-            #                     ),
-            #         href='#AMU-regional-expenditure', refresh=True),
-
-            #     # html.Button('Antimicrobial Expenditure', id='am-expend-button-ga'),
-            #     ]),
-
-            dbc.Col([
-                # Line chart
-                html.P(""),
-                ]),
-            ], style={'margin-left':"40px",
-                      'font-style': 'italic',
-                      "margin-right": "20px"}
-            ),
-        html.Br(),
-
-        #### -- DATATABLE
-        dbc.Spinner(children=[
-            html.Div([  # Row with DATATABLE
-                      html.Div( id='ga-detailtab-displaytable'),
-                      ], style={'margin-left':"20px",
-                                "margin-right": "10px",
-                                # "width":"95%"
-                                }
-                      ),
-            # End of Spinner
-            ],size="md", color="#393375", fullscreen=False),
-        html.Br(), # Spacer for bottom of page
-
-        ### END OF GLOBAL AHLE DETAILS TAB
-        ], style=global_tab_style, selected_style=global_tab_selected_style),
+        # ### END OF GLOBAL AHLE DETAILS TAB
+        # ], style=global_tab_style, selected_style=global_tab_selected_style),
 
         #### POULTRY TAB
-        dcc.Tab(label="Major Producers | Poultry", children = [
+        # dcc.Tab(label="Major Producers | Poultry", children = [
 
-            #### -- COUNTRY AND YEAR CONTROLS
-            dbc.Row([
-                # Region-country alignment
-                dbc.Col([
-                    html.H6('Region-country alignment'),
-                    dcc.RadioItems(id='Region-country-alignment-poultry',
-                                    options=region_structure_options,
-                                    inputStyle={"margin-right": "10px", # This pulls the words off of the button
-                                                "margin-left":"20px"},
-                                    value="WOAH",
-                                    style={"margin-left":'-20px'})
-                    ],
-                    style={
-                            "margin-top":"10px",
-                            "margin-right":"70px",
-                            }
+        #     #### -- COUNTRY AND YEAR CONTROLS
+        #     dbc.Row([
+        #         # Region-country alignment
+        #         dbc.Col([
+        #             html.H6('Region-country alignment'),
+        #             dcc.RadioItems(id='Region-country-alignment-poultry',
+        #                             options=region_structure_options,
+        #                             inputStyle={"margin-right": "10px", # This pulls the words off of the button
+        #                                         "margin-left":"20px"},
+        #                             value="WOAH",
+        #                             style={"margin-left":'-20px'})
+        #             ],
+        #             style={
+        #                     "margin-top":"10px",
+        #                     "margin-right":"70px",
+        #                     }
 
-                    ),
-                # Region
-                dbc.Col([
-                    html.H6("Region"),
-                    dcc.Dropdown(id='select-region-poultry',
-                                  options=WOAH_region_options,
-                                  value='All',
-                                  clearable = False,
-                                  ),
-                    ],style={
-                              "margin-top":"10px",
-                              },
-                    ),
+        #             ),
+        #         # Region
+        #         dbc.Col([
+        #             html.H6("Region"),
+        #             dcc.Dropdown(id='select-region-poultry',
+        #                           options=WOAH_region_options,
+        #                           value='All',
+        #                           clearable = False,
+        #                           ),
+        #             ],style={
+        #                       "margin-top":"10px",
+        #                       },
+        #             ),
 
-                # Country
-                dbc.Col([
-                    html.H6("Country"),
-                    dcc.Dropdown(id='select-country-poultry',
-                                  options=country_options_poultry,
-                                  value='United Kingdom',
-                                  clearable = False,
-                                  ),
-                    ],style={
-                              "margin-top":"10px",
-                              },
-                    ),
+        #         # Country
+        #         dbc.Col([
+        #             html.H6("Country"),
+        #             dcc.Dropdown(id='select-country-poultry',
+        #                           options=country_options_poultry,
+        #                           value='United Kingdom',
+        #                           clearable = False,
+        #                           ),
+        #             ],style={
+        #                       "margin-top":"10px",
+        #                       },
+        #             ),
 
-                  # Year
-                  dbc.Col([
-                      html.H6("Year"),
-                      dcc.Dropdown(id='select-year-poultry',
-                                  options=year_options_poultry,
-                                  value=2020,
-                                  clearable = False,
-                                  )
-                      ],style={
-                              "margin-top":"10px",
-                              },
-                      ),
+        #           # Year
+        #           dbc.Col([
+        #               html.H6("Year"),
+        #               dcc.Dropdown(id='select-year-poultry',
+        #                           options=year_options_poultry,
+        #                           value=2020,
+        #                           clearable = False,
+        #                           )
+        #               ],style={
+        #                       "margin-top":"10px",
+        #                       },
+        #               ),
 
-              # Metric
-                dbc.Col([
-                    html.H6("Metric"),
-                    dcc.Dropdown(id='select-metric-poultry',
-                                  options=metric_options,
-                                  value="tonnes",
-                                  clearable = False,
-                                  )
-                    ],style={
-                              "margin-top":"10px",
-                              "margin-right": '10px',
-                              },
-                    ),
+        #       # Metric
+        #         dbc.Col([
+        #             html.H6("Metric"),
+        #             dcc.Dropdown(id='select-metric-poultry',
+        #                           options=metric_options,
+        #                           value="tonnes",
+        #                           clearable = False,
+        #                           )
+        #             ],style={
+        #                       "margin-top":"10px",
+        #                       "margin-right": '10px',
+        #                       },
+        #             ),
 
-                ], justify='evenly'),
+        #         ], justify='evenly'),
 
 
-            html.Hr(style={'margin-right':'10px',}),
+        #     html.Hr(style={'margin-right':'10px',}),
 
-            #### -- CALCULATION CONTROLS
-            dbc.Row([  # Line up all the controls in the same row.
+        #     #### -- CALCULATION CONTROLS
+        #     dbc.Row([  # Line up all the controls in the same row.
 
-                # Days on Feed
-                dbc.Col([
-                    html.H6("Days on feed"),
-                    html.Br(),
-                    daq.Slider(
-                        id='dof-slider-poultry',
-                        min=20,
-                        max=60,
-                        handleLabel={"showCurrentValue": True,"label": "Days"},
-                        step=1,
-                        value=dof_poultry_default,
-                        ),
+        #         # Days on Feed
+        #         dbc.Col([
+        #             html.H6("Days on feed"),
+        #             html.Br(),
+        #             daq.Slider(
+        #                 id='dof-slider-poultry',
+        #                 min=20,
+        #                 max=60,
+        #                 handleLabel={"showCurrentValue": True,"label": "Days"},
+        #                 step=1,
+        #                 value=dof_poultry_default,
+        #                 ),
 
-                    # Text underneath slider
-                    html.P(id='reference-dof-poultry'),
-                      ],style={'width': "auto",
-                              # 'margin-left':'-40px',
-                              }
-                    ),
+        #             # Text underneath slider
+        #             html.P(id='reference-dof-poultry'),
+        #               ],style={'width': "auto",
+        #                       # 'margin-left':'-40px',
+        #                       }
+        #             ),
 
-                # Achievable weight as percent of breed standard
-                dbc.Col([
-                    html.H6("Achievable % of breed standard"),
-                    html.Br(),
-                    daq.Slider(
-                        id='achievable-pct-slider-poultry',
-                        min=90,
-                        max=110,
-                        handleLabel={"showCurrentValue": True,"label": "%"},
-                        step=1,
-                        value=achievable_pct_poultry_default,
-                        ),
+        #         # Achievable weight as percent of breed standard
+        #         dbc.Col([
+        #             html.H6("Achievable % of breed standard"),
+        #             html.Br(),
+        #             daq.Slider(
+        #                 id='achievable-pct-slider-poultry',
+        #                 min=90,
+        #                 max=110,
+        #                 handleLabel={"showCurrentValue": True,"label": "%"},
+        #                 step=1,
+        #                 value=achievable_pct_poultry_default,
+        #                 ),
 
-                    # Text underneath slider
-                      html.P(id='reference-achievable-pct-poultry'),
-                      ],style={'width': "auto",
-                              }
-                      ),
+        #             # Text underneath slider
+        #               html.P(id='reference-achievable-pct-poultry'),
+        #               ],style={'width': "auto",
+        #                       }
+        #               ),
 
-                # Price to Producers Upon Sale
-                dbc.Col([
-                    html.H6("Producer price (USD per kg carcass wt.)"),
-                    html.Br(),
-                    daq.Slider(
-                        id='producer-price-slider-poultry',
-                        min=0.70,
-                        max=3.25,
-                        handleLabel={"showCurrentValue": True,"label": "$"},
-                        step=.01,
-                        value=producer_price_poultry_default
-                        ),
+        #         # Price to Producers Upon Sale
+        #         dbc.Col([
+        #             html.H6("Producer price (USD per kg carcass wt.)"),
+        #             html.Br(),
+        #             daq.Slider(
+        #                 id='producer-price-slider-poultry',
+        #                 min=0.70,
+        #                 max=3.25,
+        #                 handleLabel={"showCurrentValue": True,"label": "$"},
+        #                 step=.01,
+        #                 value=producer_price_poultry_default
+        #                 ),
 
-                    # Text underneath slider
-                    html.P(id='reference-producerprice-poultry'),
-                    ],style={'width': "auto",
-                             }
-                    ),
+        #             # Text underneath slider
+        #             html.P(id='reference-producerprice-poultry'),
+        #             ],style={'width': "auto",
+        #                      }
+        #             ),
 
-                # Ration prices
-                dbc.Col([
-                    html.H6("Feed price (USD per tonne)"),
-                    html.Br(),
-                    daq.Slider(
-                        id='ration-price-slider-poultry',
-                        min=200,
-                        max=500,
-                        handleLabel={"showCurrentValue": True,"label": "$"},
-                        step=10,
-                        value=ration_price_poultry_default
-                        ),
+        #         # Ration prices
+        #         dbc.Col([
+        #             html.H6("Feed price (USD per tonne)"),
+        #             html.Br(),
+        #             daq.Slider(
+        #                 id='ration-price-slider-poultry',
+        #                 min=200,
+        #                 max=500,
+        #                 handleLabel={"showCurrentValue": True,"label": "$"},
+        #                 step=10,
+        #                 value=ration_price_poultry_default
+        #                 ),
 
-                    # Text underneath slider
-                    html.P(id='reference-feedprice-poultry'),
-                    ],style={'width': "auto",
-                              }
-                    ),
+        #             # Text underneath slider
+        #             html.P(id='reference-feedprice-poultry'),
+        #             ],style={'width': "auto",
+        #                       }
+        #             ),
 
-                # FCR
-                dbc.Col([
-                    html.H6("Ideal feed conversion ratio"),
-                    html.Br(),
-                    daq.Slider(
-                        id='fcr-slider-poultry',
-                        min=1,
-                        max=2.5,
-                        handleLabel={"showCurrentValue": True,"label": "FCR"},
-                        step=0.1,
-                        value=fcr_poultry_default,
-                        ),
-                    # Text underneath slider
-                    html.P(id='reference-fcr-poultry'),
-                    ],style={'width': "auto",
-                              'margin-right':'20px'}
-                    ),
+        #         # FCR
+        #         dbc.Col([
+        #             html.H6("Ideal feed conversion ratio"),
+        #             html.Br(),
+        #             daq.Slider(
+        #                 id='fcr-slider-poultry',
+        #                 min=1,
+        #                 max=2.5,
+        #                 handleLabel={"showCurrentValue": True,"label": "FCR"},
+        #                 step=0.1,
+        #                 value=fcr_poultry_default,
+        #                 ),
+        #             # Text underneath slider
+        #             html.P(id='reference-fcr-poultry'),
+        #             ],style={'width': "auto",
+        #                       'margin-right':'20px'}
+        #             ),
 
-                # Reset to defaults button
-                dbc.Col([
-                    html.Button('Reset to default', id='reset-val-poultry', n_clicks=0),
-                ],style={'width': "auto",
-                          'textAlign':'center',
-                          'margin':'auto',}
-                ),
+        #         # Reset to defaults button
+        #         dbc.Col([
+        #             html.Button('Reset to default', id='reset-val-poultry', n_clicks=0),
+        #         ],style={'width': "auto",
+        #                   'textAlign':'center',
+        #                   'margin':'auto',}
+        #         ),
 
-                ## END OF POULTRY TAB CONTROLS ROW ##
-                ], justify='evenly',
-                ),
+        #         ## END OF POULTRY TAB CONTROLS ROW ##
+        #         ], justify='evenly',
+        #         ),
 
-        html.Hr(style={'margin-right':'10px',}),
+        # html.Hr(style={'margin-right':'10px',}),
 
-        #html.Hr(),
+        # #html.Hr(),
 
-        #### -- GRAPHICS
-        dbc.Row([  # Row with GRAPHICS
+        # #### -- GRAPHICS
+        # dbc.Row([  # Row with GRAPHICS
 
-            dbc.Col([ # Poultry Waterfall
-                dbc.Spinner(children=[
-                dcc.Graph(id='poultry-waterfall',
-                            style = {"height":"650px"},
-                          config = {
-                              "displayModeBar" : True,
-                              "displaylogo": False,
-                              'toImageButtonOptions': {
-                                  'format': 'png', # one of png, svg, jpeg, webp
-                                  'filename': 'GBADs_Poultry_Waterfall'
-                                  },
-                              'modeBarButtonsToRemove': ['zoom',
-                                                          'zoomIn',
-                                                          'zoomOut',
-                                                          'autoScale',
-                                                          #'resetScale',  # Removes home button
-                                                          'pan',
-                                                          'select2d',
-                                                          'lasso2d']
-                              }
-                          )
-                # End of Spinner
-                ],size="md", color="#393375", fullscreen=False),
-                # End of Waterfall
-                ],style={"width":5}),
+        #     dbc.Col([ # Poultry Waterfall
+        #         dbc.Spinner(children=[
+        #         dcc.Graph(id='poultry-waterfall',
+        #                     style = {"height":"650px"},
+        #                   config = {
+        #                       "displayModeBar" : True,
+        #                       "displaylogo": False,
+        #                       'toImageButtonOptions': {
+        #                           'format': 'png', # one of png, svg, jpeg, webp
+        #                           'filename': 'GBADs_Poultry_Waterfall'
+        #                           },
+        #                       'modeBarButtonsToRemove': ['zoom',
+        #                                                   'zoomIn',
+        #                                                   'zoomOut',
+        #                                                   'autoScale',
+        #                                                   #'resetScale',  # Removes home button
+        #                                                   'pan',
+        #                                                   'select2d',
+        #                                                   'lasso2d']
+        #                       }
+        #                   )
+        #         # End of Spinner
+        #         ],size="md", color="#393375", fullscreen=False),
+        #         # End of Waterfall
+        #         ],style={"width":5}),
 
-            # dbc.Col([ # Poultry Sankey
-            #     dbc.Spinner(children=[
-            #     dcc.Graph(id='poultry-sankey',
-            #                 style = {"height":"650px"},
-            #               config = {
-            #                   "displayModeBar" : True,
-            #                   "displaylogo": False,
-            #                   'toImageButtonOptions': {
-            #                       'format': 'png', # one of png, svg, jpeg, webp
-            #                       'filename': 'GBADs_Poultry_Sankey'
-            #                       },
-            #                   'modeBarButtonsToRemove': ['select2d',
-            #                                              'lasso2d',
-            #                                              'resetSCale']
-            #                   })
-            #         # End of Spinner
-            #         ],size="md", color="#393375", fullscreen=False),
-            #         # End of Sankey
-            #         ],style={"width":5}
-            #         ),
+        #     # dbc.Col([ # Poultry Sankey
+        #     #     dbc.Spinner(children=[
+        #     #     dcc.Graph(id='poultry-sankey',
+        #     #                 style = {"height":"650px"},
+        #     #               config = {
+        #     #                   "displayModeBar" : True,
+        #     #                   "displaylogo": False,
+        #     #                   'toImageButtonOptions': {
+        #     #                       'format': 'png', # one of png, svg, jpeg, webp
+        #     #                       'filename': 'GBADs_Poultry_Sankey'
+        #     #                       },
+        #     #                   'modeBarButtonsToRemove': ['select2d',
+        #     #                                              'lasso2d',
+        #     #                                              'resetSCale']
+        #     #                   })
+        #     #         # End of Spinner
+        #     #         ],size="md", color="#393375", fullscreen=False),
+        #     #         # End of Sankey
+        #     #         ],style={"width":5}
+        #     #         ),
 
-            dbc.Col([ # Poultry Stacked Bar
-                dbc.Spinner(children=[
-                dcc.Graph(id='poultry-stacked-bar',
-                          style = {"height":"650px"},
-                          config = {
-                              "displayModeBar" : True,
-                              "displaylogo": False,
-                              'toImageButtonOptions': {
-                                  'format': 'png', # one of png, svg, jpeg, webp
-                                  'filename': 'GBADs_Poultry_Stacked_Bar'
-                                  },
-                              'modeBarButtonsToRemove': ['zoom',
-                                                          'zoomIn',
-                                                          'zoomOut',
-                                                          'autoScale',
-                                                          #'resetScale',  # Removes home button
-                                                          'pan',
-                                                          'select2d',
-                                                          'lasso2d']
-                              })
-                    # End of Spinner
-                    ],size="md", color="#393375", fullscreen=False),
-                    # End of Stacked Bar
-                    ],style={"width":5}
-                    ),
-            ]),
-        html.Br(),
+        #     dbc.Col([ # Poultry Stacked Bar
+        #         dbc.Spinner(children=[
+        #         dcc.Graph(id='poultry-stacked-bar',
+        #                   style = {"height":"650px"},
+        #                   config = {
+        #                       "displayModeBar" : True,
+        #                       "displaylogo": False,
+        #                       'toImageButtonOptions': {
+        #                           'format': 'png', # one of png, svg, jpeg, webp
+        #                           'filename': 'GBADs_Poultry_Stacked_Bar'
+        #                           },
+        #                       'modeBarButtonsToRemove': ['zoom',
+        #                                                   'zoomIn',
+        #                                                   'zoomOut',
+        #                                                   'autoScale',
+        #                                                   #'resetScale',  # Removes home button
+        #                                                   'pan',
+        #                                                   'select2d',
+        #                                                   'lasso2d']
+        #                       })
+        #             # End of Spinner
+        #             ],size="md", color="#393375", fullscreen=False),
+        #             # End of Stacked Bar
+        #             ],style={"width":5}
+        #             ),
+        #     ]),
+        # html.Br(),
 
-        #### -- FOOTNOTES
-        dbc.Row([
-            dbc.Col([
-              # Breed Standard Potential source
-              html.P(id='waterfall-footnote-poultry'),
-            ]),
-            dbc.Col([
-              # Cost Assumptions
-              html.P("Ideal costs are those required to achieve realised production if there were no mortality or morbidity."),
-              ]),
-        ], style={'margin-left':"40px", 'font-style': 'italic'}
-        ),
-        html.Br(),
+        # #### -- FOOTNOTES
+        # dbc.Row([
+        #     dbc.Col([
+        #       # Breed Standard Potential source
+        #       html.P(id='waterfall-footnote-poultry'),
+        #     ]),
+        #     dbc.Col([
+        #       # Cost Assumptions
+        #       html.P("Ideal costs are those required to achieve realised production if there were no mortality or morbidity."),
+        #       ]),
+        # ], style={'margin-left':"40px", 'font-style': 'italic'}
+        # ),
+        # html.Br(),
 
-        #### -- DATATABLE
-        html.Div([  # Row with DATATABLE
-                  html.Div( id='poultry-background-data'),
-            ], style={'margin-left':"20px",
-                        "width":"95%"}),
-        html.Br(), # Spacer for bottom of page
+        # #### -- DATATABLE
+        # html.Div([  # Row with DATATABLE
+        #           html.Div( id='poultry-background-data'),
+        #     ], style={'margin-left':"20px",
+        #                 "width":"95%"}),
+        # html.Br(), # Spacer for bottom of page
 
-        html.Div([  # Breed standard data
-                  html.Div( id='poultry-breed-data'),
-            ], style={'margin-left':"20px",
-                      "width":"12%",}),
-        html.Br() # Spacer for bottom of page
+        # html.Div([  # Breed standard data
+        #           html.Div( id='poultry-breed-data'),
+        #     ], style={'margin-left':"20px",
+        #               "width":"12%",}),
+        # html.Br() # Spacer for bottom of page
 
-        ### END OF POULTRY TAB
-        ], style=major_producers_tab_style, selected_style=major_producers_tab_selected_style),
+        # ### END OF POULTRY TAB
+        # ], style=major_producers_tab_style, selected_style=major_producers_tab_selected_style),
 
         #### SWINE TAB
-        dcc.Tab(label="Major Producers | Swine", children = [
+        # dcc.Tab(label="Major Producers | Swine", children = [
 
-            #### -- COUNTRY AND YEAR CONTROLS
-            dbc.Row([
-                # Region-country alignment
-                dbc.Col([
-                    html.H6('Region-country alignment'),
-                    dcc.RadioItems(id='Region-country-alignment-swine',
-                                    options=region_structure_options,
-                                    inputStyle={"margin-right": "10px",
-                                                "margin-left":"20px"},
-                                    value="WOAH",
-                                    style={"margin-left":'-20px'})
-                    ],style={
-                        "margin-top":"10px",
-                        "margin-right":"70px",
-                            }
+        #     #### -- COUNTRY AND YEAR CONTROLS
+        #     dbc.Row([
+        #         # Region-country alignment
+        #         dbc.Col([
+        #             html.H6('Region-country alignment'),
+        #             dcc.RadioItems(id='Region-country-alignment-swine',
+        #                             options=region_structure_options,
+        #                             inputStyle={"margin-right": "10px",
+        #                                         "margin-left":"20px"},
+        #                             value="WOAH",
+        #                             style={"margin-left":'-20px'})
+        #             ],style={
+        #                 "margin-top":"10px",
+        #                 "margin-right":"70px",
+        #                     }
 
-                    ),
-                # Region
-                dbc.Col([
-                    html.H6("Region"),
-                    dcc.Dropdown(id='select-region-swine',
-                                  options=WOAH_region_options,
-                                  value='All',
-                                  clearable = False,
-                                  ),
-                    ],style={
-                              "margin-top":"10px"
-                              }
-                    ),
+        #             ),
+        #         # Region
+        #         dbc.Col([
+        #             html.H6("Region"),
+        #             dcc.Dropdown(id='select-region-swine',
+        #                           options=WOAH_region_options,
+        #                           value='All',
+        #                           clearable = False,
+        #                           ),
+        #             ],style={
+        #                       "margin-top":"10px"
+        #                       }
+        #             ),
 
-                # Country
-                dbc.Col([
-                    html.H6("Country"),
-                    dcc.Dropdown(id='select-country-swine',
-                                  options=country_options_swine,
-                                  value='United Kingdom',
-                                  clearable = False,
-                                  ),
-                    ],style={
-                              "margin-top":"10px"
-                              },
-                    ),
+        #         # Country
+        #         dbc.Col([
+        #             html.H6("Country"),
+        #             dcc.Dropdown(id='select-country-swine',
+        #                           options=country_options_swine,
+        #                           value='United Kingdom',
+        #                           clearable = False,
+        #                           ),
+        #             ],style={
+        #                       "margin-top":"10px"
+        #                       },
+        #             ),
 
-                  # Year
-                  dbc.Col([
-                      html.H6("Year"),
-                      dcc.Dropdown(id='select-year-swine',
-                                  options=year_options_swine,
-                                  value=2020,
-                                  clearable = False,
-                                  )
-                      ],style={
-                              "margin-top":"10px"
-                              },
-                      ),
+        #           # Year
+        #           dbc.Col([
+        #               html.H6("Year"),
+        #               dcc.Dropdown(id='select-year-swine',
+        #                           options=year_options_swine,
+        #                           value=2020,
+        #                           clearable = False,
+        #                           )
+        #               ],style={
+        #                       "margin-top":"10px"
+        #                       },
+        #               ),
 
-                # Metric
-                dbc.Col([
-                    html.H6("Metric"),
-                    dcc.Dropdown(id='select-metric-swine',
-                                  options=metric_options,
-                                  value="tonnes",
-                                  clearable = False,
-                                  )
-                    ],style={
-                              "margin-top":"10px",
-                              "margin-right": '10px',
-                              },
-                    ),
+        #         # Metric
+        #         dbc.Col([
+        #             html.H6("Metric"),
+        #             dcc.Dropdown(id='select-metric-swine',
+        #                           options=metric_options,
+        #                           value="tonnes",
+        #                           clearable = False,
+        #                           )
+        #             ],style={
+        #                       "margin-top":"10px",
+        #                       "margin-right": '10px',
+        #                       },
+        #             ),
 
-                ], justify='evenly'),
+        #         ], justify='evenly'),
 
 
-            html.Hr(style={'margin-right':'10px'}),
+        #     html.Hr(style={'margin-right':'10px'}),
 
-            #### -- CALCULATION CONTROLS
-            dbc.Row([  # Line up all the controls in the same row.
+        #     #### -- CALCULATION CONTROLS
+        #     dbc.Row([  # Line up all the controls in the same row.
 
-                # Days on Feed
-                dbc.Col([
-                    html.H6("Days on feed"),
-                    html.Br(),
-                    daq.Slider(
-                        id='dof-slider-swine',
-                        min=112,
-                        max=196,
-                        handleLabel={"showCurrentValue": True,"label": "Days"},
-                        step=7,
-                        value=dof_swine_default,
-                        ),
-                    ],style={'width': "auto",
-                              }
-                    ),
+        #         # Days on Feed
+        #         dbc.Col([
+        #             html.H6("Days on feed"),
+        #             html.Br(),
+        #             daq.Slider(
+        #                 id='dof-slider-swine',
+        #                 min=112,
+        #                 max=196,
+        #                 handleLabel={"showCurrentValue": True,"label": "Days"},
+        #                 step=7,
+        #                 value=dof_swine_default,
+        #                 ),
+        #             ],style={'width': "auto",
+        #                       }
+        #             ),
 
-                # Feed Intake
-                # Alternative to Days on Feed for determining breed standard potential
-                  # dbc.Col([
-                  #     html.H6("Feed intake (kg per head)"),
-                  #     html.Br(),
-                  #     daq.Slider(
-                  #         id='feed-slider-swine',
-                  #         min=80,
-                  #         max=355,
-                  #         handleLabel={"showCurrentValue": True,"label": "kg"},
-                  #         step=5,
-                  #         value=feed_swine_default,
-                  #         ),
-                  #     html.P(id='reference-feedintake-swine'),
-                  #      ],style={'width': "auto",
-                  #               }
-                  #     ),
+        #         # Feed Intake
+        #         # Alternative to Days on Feed for determining breed standard potential
+        #           # dbc.Col([
+        #           #     html.H6("Feed intake (kg per head)"),
+        #           #     html.Br(),
+        #           #     daq.Slider(
+        #           #         id='feed-slider-swine',
+        #           #         min=80,
+        #           #         max=355,
+        #           #         handleLabel={"showCurrentValue": True,"label": "kg"},
+        #           #         step=5,
+        #           #         value=feed_swine_default,
+        #           #         ),
+        #           #     html.P(id='reference-feedintake-swine'),
+        #           #      ],style={'width': "auto",
+        #           #               }
+        #           #     ),
 
-                # Achievable weight in kg
-                # Alternative to Achievable Percent for determining effect of feed and practices
-                dbc.Col([
-                    html.H6("Achievable live weight without disease (kg)"),
-                    html.Br(),
-                    daq.Slider(
-                      id='achievable-weight-slider-swine',
-                      min=70,
-                      max=180,
-                      handleLabel={"showCurrentValue": True,"label": "kg"},
-                      step=5,
-                      value=achievable_weight_swine_default,
-                      ),
-                    # Text underneath slider
-                    html.P(id='reference-liveweight-swine'),
-                    ],style={'width': "auto",
-                            }
-                    ),
+        #         # Achievable weight in kg
+        #         # Alternative to Achievable Percent for determining effect of feed and practices
+        #         dbc.Col([
+        #             html.H6("Achievable live weight without disease (kg)"),
+        #             html.Br(),
+        #             daq.Slider(
+        #               id='achievable-weight-slider-swine',
+        #               min=70,
+        #               max=180,
+        #               handleLabel={"showCurrentValue": True,"label": "kg"},
+        #               step=5,
+        #               value=achievable_weight_swine_default,
+        #               ),
+        #             # Text underneath slider
+        #             html.P(id='reference-liveweight-swine'),
+        #             ],style={'width': "auto",
+        #                     }
+        #             ),
 
-                # Price to Producers Upon Sale
-                dbc.Col([
-                    html.H6("Producer price (USD per kg carcass wt.)"),
-                    html.Br(),
-                    daq.Slider(
-                        id='producer-price-slider-swine',
-                        min=0.70,
-                        max=3.25,
-                        handleLabel={"showCurrentValue": True,"label": "$"},
-                        step=.01,
-                        value=producer_price_swine_default,
-                        ),
-                    # Text underneath slider
-                    html.P(id='reference-producerprice-swine'),
-                    ],style={'width': "auto",
-                              }
-                    ),
+        #         # Price to Producers Upon Sale
+        #         dbc.Col([
+        #             html.H6("Producer price (USD per kg carcass wt.)"),
+        #             html.Br(),
+        #             daq.Slider(
+        #                 id='producer-price-slider-swine',
+        #                 min=0.70,
+        #                 max=3.25,
+        #                 handleLabel={"showCurrentValue": True,"label": "$"},
+        #                 step=.01,
+        #                 value=producer_price_swine_default,
+        #                 ),
+        #             # Text underneath slider
+        #             html.P(id='reference-producerprice-swine'),
+        #             ],style={'width': "auto",
+        #                       }
+        #             ),
 
-                # Ration prices
-                dbc.Col([
-                    html.H6("Feed price (USD per tonne)"),
-                    html.Br(),
-                    daq.Slider(
-                        id='ration-price-slider-swine',
-                        min=200,
-                        max=500,
-                        handleLabel={"showCurrentValue": True,"label": "$"},
-                        step=10,
-                        value=ration_price_swine_default,
-                        ),
-                    # Text underneath slider
-                    html.P(id='reference-feedprice-swine'),
-                    ],style={'width': "auto",
-                              'margin-right':'20px'}
-                    ),
+        #         # Ration prices
+        #         dbc.Col([
+        #             html.H6("Feed price (USD per tonne)"),
+        #             html.Br(),
+        #             daq.Slider(
+        #                 id='ration-price-slider-swine',
+        #                 min=200,
+        #                 max=500,
+        #                 handleLabel={"showCurrentValue": True,"label": "$"},
+        #                 step=10,
+        #                 value=ration_price_swine_default,
+        #                 ),
+        #             # Text underneath slider
+        #             html.P(id='reference-feedprice-swine'),
+        #             ],style={'width': "auto",
+        #                       'margin-right':'20px'}
+        #             ),
 
-                # FCR
-                dbc.Col([
-                    html.H6("Ideal feed conversion ratio"),
-                    html.Br(),
-                    daq.Slider(
-                        id='fcr-slider-swine',
-                        min=1.5,
-                        max=3,
-                        handleLabel={"showCurrentValue": True,"label": "FCR"},
-                        step=0.1,
-                        value=fcr_swine_default,
-                        ),
-                    # Text underneath slider
-                    html.P(id='reference-fcr-swine'),
-                    ],style={'width': "auto",
-                              'margin-right':'20px'}
-                    ),
+        #         # FCR
+        #         dbc.Col([
+        #             html.H6("Ideal feed conversion ratio"),
+        #             html.Br(),
+        #             daq.Slider(
+        #                 id='fcr-slider-swine',
+        #                 min=1.5,
+        #                 max=3,
+        #                 handleLabel={"showCurrentValue": True,"label": "FCR"},
+        #                 step=0.1,
+        #                 value=fcr_swine_default,
+        #                 ),
+        #             # Text underneath slider
+        #             html.P(id='reference-fcr-swine'),
+        #             ],style={'width': "auto",
+        #                       'margin-right':'20px'}
+        #             ),
 
-                # Reset to defaults button
-                dbc.Col([
-                    html.Button('Reset to default', id='reset-val-swine', n_clicks=0),
-                ],style={'width': "auto",
-                          'textAlign':'center',
-                          'margin':'auto',}
-                ),
+        #         # Reset to defaults button
+        #         dbc.Col([
+        #             html.Button('Reset to default', id='reset-val-swine', n_clicks=0),
+        #         ],style={'width': "auto",
+        #                   'textAlign':'center',
+        #                   'margin':'auto',}
+        #         ),
 
-                ## END OF SWINE TAB CONTROLS ROW ##
-                ], # justify='evenly',
-                          #    style={'vertical-align':'top',
-                          # 'display':'flex',
-                          # 'no-gutters':True}
-                ),
+        #         ## END OF SWINE TAB CONTROLS ROW ##
+        #         ], # justify='evenly',
+        #                   #    style={'vertical-align':'top',
+        #                   # 'display':'flex',
+        #                   # 'no-gutters':True}
+        #         ),
 
-        #### -- GRAPHICS
-        dbc.Row([  # Row with GRAPHICS
+        # #### -- GRAPHICS
+        # dbc.Row([  # Row with GRAPHICS
 
-            dbc.Col([ # Swine Waterfall
-                dbc.Spinner(children=[
-                dcc.Graph(id='swine-waterfall',
-                          style = {"height":"650px"},
-                          config = {
-                              "displayModeBar" : True,
-                              "displaylogo": False,
-                              'toImageButtonOptions': {
-                                  'format': 'png', # one of png, svg, jpeg, webp
-                                  'filename': 'GBADs_Swine_Waterfall'
-                                  },
-                              'modeBarButtonsToRemove': ['zoom',
-                                                          'zoomIn',
-                                                          'zoomOut',
-                                                          'autoScale',
-                                                          #'resetScale',  # Removes home button
-                                                          'pan',
-                                                          'select2d',
-                                                          'lasso2d']
-                              }
-                          )
-                # End of Spinner
-                ],size="md", color="#393375", fullscreen=False),
-                # End of Waterfall
-                ],style={"width":5}),
+        #     dbc.Col([ # Swine Waterfall
+        #         dbc.Spinner(children=[
+        #         dcc.Graph(id='swine-waterfall',
+        #                   style = {"height":"650px"},
+        #                   config = {
+        #                       "displayModeBar" : True,
+        #                       "displaylogo": False,
+        #                       'toImageButtonOptions': {
+        #                           'format': 'png', # one of png, svg, jpeg, webp
+        #                           'filename': 'GBADs_Swine_Waterfall'
+        #                           },
+        #                       'modeBarButtonsToRemove': ['zoom',
+        #                                                   'zoomIn',
+        #                                                   'zoomOut',
+        #                                                   'autoScale',
+        #                                                   #'resetScale',  # Removes home button
+        #                                                   'pan',
+        #                                                   'select2d',
+        #                                                   'lasso2d']
+        #                       }
+        #                   )
+        #         # End of Spinner
+        #         ],size="md", color="#393375", fullscreen=False),
+        #         # End of Waterfall
+        #         ],style={"width":5}),
 
-            # dbc.Col([ # Swine Sankey
-            #     dbc.Spinner(children=[
-            #     dcc.Graph(id='swine-sankey',
-            #               style = {"height":"650px"},
-            #               config = {
-            #                   "displayModeBar" : True,
-            #                   "displaylogo": False,
-            #                   'toImageButtonOptions': {
-            #                       'format': 'png', # one of png, svg, jpeg, webp
-            #                       'filename': 'GBADs_Swine_Sankey'
-            #                       },
-            #                   'modeBarButtonsToRemove': ['select2d',
-            #                                              'lasso2d',
-            #                                              'resetSCale']
-            #                   })
-            #         # End of Spinner
-            #         ],size="md", color="#393375", fullscreen=False),
-            #         # End of Sankey
-            #         ],style={"width":5}
-            #         ),
+        #     # dbc.Col([ # Swine Sankey
+        #     #     dbc.Spinner(children=[
+        #     #     dcc.Graph(id='swine-sankey',
+        #     #               style = {"height":"650px"},
+        #     #               config = {
+        #     #                   "displayModeBar" : True,
+        #     #                   "displaylogo": False,
+        #     #                   'toImageButtonOptions': {
+        #     #                       'format': 'png', # one of png, svg, jpeg, webp
+        #     #                       'filename': 'GBADs_Swine_Sankey'
+        #     #                       },
+        #     #                   'modeBarButtonsToRemove': ['select2d',
+        #     #                                              'lasso2d',
+        #     #                                              'resetSCale']
+        #     #                   })
+        #     #         # End of Spinner
+        #     #         ],size="md", color="#393375", fullscreen=False),
+        #     #         # End of Sankey
+        #     #         ],style={"width":5}
+        #     #         ),
 
-            dbc.Col([ # Swine Stacked Bar
-                dbc.Spinner(children=[
-                dcc.Graph(id='swine-stacked-bar',
-                            style = {"height":"650px"},
-                          config = {
-                              "displayModeBar" : True,
-                              "displaylogo": False,
-                              'toImageButtonOptions': {
-                                  'format': 'png', # one of png, svg, jpeg, webp
-                                  'filename': 'GBADs_Swine_Stacked_Bar'
-                                  },
-                              'modeBarButtonsToRemove': ['zoom',
-                                                          'zoomIn',
-                                                          'zoomOut',
-                                                          'autoScale',
-                                                          #'resetScale',  # Removes home button
-                                                          'pan',
-                                                          'select2d',
-                                                          'lasso2d']
+        #     dbc.Col([ # Swine Stacked Bar
+        #         dbc.Spinner(children=[
+        #         dcc.Graph(id='swine-stacked-bar',
+        #                     style = {"height":"650px"},
+        #                   config = {
+        #                       "displayModeBar" : True,
+        #                       "displaylogo": False,
+        #                       'toImageButtonOptions': {
+        #                           'format': 'png', # one of png, svg, jpeg, webp
+        #                           'filename': 'GBADs_Swine_Stacked_Bar'
+        #                           },
+        #                       'modeBarButtonsToRemove': ['zoom',
+        #                                                   'zoomIn',
+        #                                                   'zoomOut',
+        #                                                   'autoScale',
+        #                                                   #'resetScale',  # Removes home button
+        #                                                   'pan',
+        #                                                   'select2d',
+        #                                                   'lasso2d']
 
-                              })
-                    # End of Spinner
-                    ],size="md", color="#393375", fullscreen=False),
-                    # End of Stacked Bar
-                    ],style={"width":5}
-                    ),
+        #                       })
+        #             # End of Spinner
+        #             ],size="md", color="#393375", fullscreen=False),
+        #             # End of Stacked Bar
+        #             ],style={"width":5}
+        #             ),
 
-            ]),
-        html.Br(),
+        #     ]),
+        # html.Br(),
 
-        #### -- FOOTNOTES
-        dbc.Row([
-            dbc.Col([
-              # Breed Standard Potential source
-              html.P("*Using PIC breed standard, assuming 75% average carcass yield."),
-            ]),
-            dbc.Col([
-              # Cost Assumptions
-              html.P("Ideal costs are those required to achieve realised production if there were no mortality or morbidity."),
-            ]),
-        ], style={'margin-left':"40px", 'font-style': 'italic'}
-        ),
-        html.Br(),
+        # #### -- FOOTNOTES
+        # dbc.Row([
+        #     dbc.Col([
+        #       # Breed Standard Potential source
+        #       html.P("*Using PIC breed standard, assuming 75% average carcass yield."),
+        #     ]),
+        #     dbc.Col([
+        #       # Cost Assumptions
+        #       html.P("Ideal costs are those required to achieve realised production if there were no mortality or morbidity."),
+        #     ]),
+        # ], style={'margin-left':"40px", 'font-style': 'italic'}
+        # ),
+        # html.Br(),
 
-        #### -- DATATABLE
-        html.Div([  # Core data for country
-                  html.Div( id='swine-background-data'),
-            ], style={'margin-left':"20px",
-                      "width":"95%",}),
-        html.Br(), # Spacer for bottom of page
+        # #### -- DATATABLE
+        # html.Div([  # Core data for country
+        #           html.Div( id='swine-background-data'),
+        #     ], style={'margin-left':"20px",
+        #               "width":"95%",}),
+        # html.Br(), # Spacer for bottom of page
 
-        html.Div([  # Breed standard data
-                  html.Div( id='swine-breed-data'),
-            ], style={'margin-left':"20px",
-                      "width":"18%",}),
-        html.Br() # Spacer for bottom of page
+        # html.Div([  # Breed standard data
+        #           html.Div( id='swine-breed-data'),
+        #     ], style={'margin-left':"20px",
+        #               "width":"18%",}),
+        # html.Br() # Spacer for bottom of page
 
-        ### END OF SWINE TAB
-        ], style=major_producers_tab_style, selected_style=major_producers_tab_selected_style),
+        # ### END OF SWINE TAB
+        # ], style=major_producers_tab_style, selected_style=major_producers_tab_selected_style),
 
         #### BEEF TAB
         # JR: Hiding the beef tab for now
@@ -3462,11 +3446,9 @@ gbadsDash.layout = html.Div([
                     dbc.CardBody([
                         html.H5("Animal Health Loss Envelope (AHLE)",
                                 className="card-title",
-                                style={"font-weight": "bold"}),
-                        html.Label(
-                            ["Showing the difference between current gross margin and a comparison scenario"],
-                            style={'font-style':'italic'}
-                             ),
+                                style={"font-weight": "bold"}
+                                ),
+                        html.Label(["Comparing current values, expenditures, and gross margin to an improvement scenario"]),
                         dbc.Row([
                             # Switch between side by side and difference
                             dbc.Col([
@@ -3477,6 +3459,8 @@ gbadsDash.layout = html.Div([
                                               labelStyle={'display': 'block'},
                                               inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                               ),
+                                html.Label(["Difference: show a single bar for each item representing the difference between the current and comparison values"] ,style={'font-style':'italic'}),
+                                html.Label(["Side by Side: show two bars for each item, one for the current value and another for the comparison value"] ,style={'font-style':'italic'}),
                                 ],
                             ),
 
@@ -3489,6 +3473,8 @@ gbadsDash.layout = html.Div([
                                               labelStyle={'display': 'block'},
                                               inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                               ),
+                                html.Label(["Ideal: the scenario with zero mortality and ideal growth and production rates"] ,style={'font-style':'italic'}),
+                                html.Label(["Zero Mortality: the scenario with zero mortality but growth and production rates at current values"] ,style={'font-style':'italic'}),
                                 ],
                             ),
 
@@ -3499,21 +3485,14 @@ gbadsDash.layout = html.Div([
                                               options=ecs_agesex_options,
                                               value='Overall',
                                               clearable = False,
-                                              )
-                                ],style={
-                                          # "margin-top":"10px",
-                                          "margin-bottom":"30px", # Adding this to account for the additional space created by the radio buttons
-                                          },
+                                              ),
+                                html.Label(["Overall: comparison scenario applies to all age/sex groups"] ,style={'font-style':'italic' ,"margin-top":"20px"}),
+                                html.Label(["Otherwise, comparison scenario applies to the selected age/sex group, keeping all others at current values"] ,style={'font-style':'italic'}),
+                                ],style={"margin-bottom":"30px",}, # Adding this to account for the additional space created by the radio buttons
                                 ),
 
                         ]), # END OF ROW
-                        dbc.Row([  # Year for waterfall and Improvement scenarios
-                            # dbc.Col([
-                            #     html.H6("Year", id='select-year-ecs-title'),
-                            #     dcc.Dropdown(id='select-year-item-switch-ecs',
-                            #                  clearable = False,
-                            #                  ),
-                            #     ]),
+                        dbc.Row([
                             dbc.Col([
                                 html.H6("Item", id='select-item-ecs-title'),
                                 dcc.Dropdown(id='select-item-ecs',
@@ -3562,83 +3541,78 @@ gbadsDash.layout = html.Div([
                     html.H5("AHLE Attribution",
                             className="card-title",
                             style={"font-weight": "bold"}),
-                    html.Label(
-                        ["Showing how much each component contributes to the total animal health loss envelope, including attribution to infectious, non-infectious, and external causes"],
-                        style={'font-style':'italic'}
-                         ),
+                    html.Label(["Showing how much each component contributes to the total animal health loss envelope, including attribution to infectious, non-infectious, and external causes"]),
+                    html.H5("Slice treemap by..."),
                     dbc.Row([
-                        # # Hierarchy
-                        # html.H5("Hierarchy",
-                        #               style={"font-weight": "bold"}),
+                        # Top Level
+                        dbc.Col([
+                            html.H6("Top Level", id="select-top-lvl-attr-ecs-title"),
+                            dcc.Dropdown(id='select-top-lvl-attr-ecs',
+                                          options=ecs_hierarchy_attr_options,
+                                          value='cause',
+                                          clearable = False,
+                                          ),
+                            ], style={
+                                "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
+                                },
+                            ),
+                        # Drill Down 1
+                        dbc.Col([
+                            html.H6("Drill Down 1", id="select-dd-1-attr-ecs-title"),
+                            dcc.Dropdown(id='select-dd-1-attr-ecs',
+                                          # options=ecs_hierarchy_dd_attr_options,
+                                          # value='production_system',
+                                           clearable = False,
+                                          ),
+                            ], style={
+                                "margin-bottom":"30px", # Adding this to account for the additional space created by the radio buttons
+                                },
+                            ),
+                        # Drill Down 2
+                        dbc.Col([
+                            html.H6("Drill Down 2", id="select-dd-2-attr-ecs-title"),
+                            dcc.Dropdown(id='select-dd-2-attr-ecs',
+                                          options=ecs_hierarchy_dd_attr_options,
+                                          value='age_group',
+                                          clearable = False,
+                                          ),
+                            ], style={
+                                "margin-bottom":"30px", # Adding this to account for the additional space created by the radio buttons
+                                },
+                            ),
 
-                    # Top Level
-                    dbc.Col([
-                        html.H6("Top Level", id="select-top-lvl-attr-ecs-title"),
-                        dcc.Dropdown(id='select-top-lvl-attr-ecs',
-                                      options=ecs_hierarchy_attr_options,
-                                      value='cause',
-                                      clearable = False,
-                                      ),
-                        ], style={
-                            "margin-bottom":"30px", # Adding this to account for the additional space creted by the radio buttons
-                            },
-                        ),
-                    # Drill Down 1
-                    dbc.Col([
-                        html.H6("Drill Down 1", id="select-dd-1-attr-ecs-title"),
-                        dcc.Dropdown(id='select-dd-1-attr-ecs',
-                                      # options=ecs_hierarchy_dd_attr_options,
-                                      # value='production_system',
-                                       clearable = False,
-                                      ),
-                        ], style={
-                            "margin-bottom":"30px", # Adding this to account for the additional space created by the radio buttons
-                            },
-                        ),
-                    # Drill Down 2
-                    dbc.Col([
-                        html.H6("Drill Down 2", id="select-dd-2-attr-ecs-title"),
-                        dcc.Dropdown(id='select-dd-2-attr-ecs',
-                                      options=ecs_hierarchy_dd_attr_options,
-                                      value='age_group',
-                                      clearable = False,
-                                      ),
-                        ], style={
-                            "margin-bottom":"30px", # Adding this to account for the additional space created by the radio buttons
-                            },
-                        ),
-
-                ]), # END OF ROW
+                        ]), # END OF ROW
 
                 dbc.Row([
-                # Drill Down 3
-                dbc.Col([
-                    html.H6("Drill Down 3", id="select-dd-3-attr-ecs-title"),
-                    dcc.Dropdown(id='select-dd-3-attr-ecs',
-                                  options=ecs_hierarchy_dd_attr_options,
-                                  value='sex',
-                                  clearable = False,
-                                  ),
-                    ]),
-                # Drill Down 4
-                dbc.Col([
-                    html.H6("Drill Down 4", id="select-dd-4-attr-ecs-title"),
-                    dcc.Dropdown(id='select-dd-4-attr-ecs',
-                                  options=ecs_hierarchy_dd_attr_options,
-                                  value='ahle_component',
-                                  clearable = False,
-                                  ),
-                    ]),
-                # # Drill Down 5
-                # dbc.Col([
-                #     html.H6("Drill Down 5"),
-                #     dcc.Dropdown(id='select-dd-5-attr-ecs',
-                #                   options=ecs_hierarchy_dd_attr_options,
-                #                   value='None',
-                #                   clearable = False,
-                #                   ),
-                #     ]),
-                ]), # END OF ROW
+                    # Drill Down 3
+                    dbc.Col([
+                        html.H6("Drill Down 3", id="select-dd-3-attr-ecs-title"),
+                        dcc.Dropdown(id='select-dd-3-attr-ecs',
+                                      options=ecs_hierarchy_dd_attr_options,
+                                      value='sex',
+                                      clearable = False,
+                                      ),
+                        ]),
+                    # Drill Down 4
+                    dbc.Col([
+                        html.H6("Drill Down 4", id="select-dd-4-attr-ecs-title"),
+                        dcc.Dropdown(id='select-dd-4-attr-ecs',
+                                      options=ecs_hierarchy_dd_attr_options,
+                                      value='ahle_component',
+                                      clearable = False,
+                                      ),
+                        ]),
+                    # # Drill Down 5
+                    # dbc.Col([
+                    #     html.H6("Drill Down 5"),
+                    #     dcc.Dropdown(id='select-dd-5-attr-ecs',
+                    #                   options=ecs_hierarchy_dd_attr_options,
+                    #                   value='None',
+                    #                   clearable = False,
+                    #                   ),
+                    #     ]),
+                    ]), # END OF ROW
+                html.Label(["Set any drill down to None to slice by fewer factors."],style={"font-style":"italic" ,"margin-top":"10px"}),
 
                 # END OF CARD BODY
                 ]),
@@ -3729,38 +3703,39 @@ gbadsDash.layout = html.Div([
                 ]),
             ], style={'margin-left':"20px", 'font-style': 'italic'}
             ),
-            html.Br(),
             ### END OF FOOTNOTES
-
+            html.Br(),
+            html.Hr(style={'margin-right':'10px',}),
             #### -- MAP
             dbc.Card([
                 dbc.CardBody([
-                    html.H3("Ethiopian Subnational Graph"),
+                    html.H3("Regional AHLE"),
+                    html.Label(["Showing the animal health loss envelope for each region"]
+                               ,style={'font-style':'italic'}
+                               ),
+                    dbc.Row([
+                        # Map Display
+                        dbc.Col([
+                            html.H6("Value/Expenditure Category"),
+                            dcc.Dropdown(id='select-map-display-ecs',
+                                          value='Animal Health Loss Envelope',
+                                          clearable=False,
+                                          ),
+                            ],width=3),
 
-                dbc.Row([
-                    # Map Display
-                    dbc.Col([
-                        html.H6("Value/Expenditure Category"),
-                        dcc.Dropdown(id='select-map-display-ecs',
-                                      value='Animal Health Loss Envelope',
-                                      clearable=False,
-                                      ),
-                        ],width=3),
+                        # Denominator
+                        dbc.Col([
+                            html.H6("Denominator"),
+                            dcc.RadioItems(id='select-map-denominator-ecs',
+                                          options=ecs_map_denominator_options,
+                                          value= "Per kg biomass",
+                                          inputStyle={"margin-right": "2px", # This pulls the words off of the button
+                                                      "margin-left": "10px"},
+                                          ),
+                            ],
+                        ),
 
-                    # Denominator
-                    dbc.Col([
-                        html.H6("Denominator"),
-                        dcc.RadioItems(id='select-map-denominator-ecs',
-                                      options=ecs_map_denominator_options,
-                                      value= "Per kg biomass",
-                                      inputStyle={"margin-right": "2px", # This pulls the words off of the button
-                                                  "margin-left": "10px"},
-                                      ),
-                        ],
-                    ),
-
-                    ]), # END OF MAP SELECTIONS ROW
-
+                        ]), # END OF MAP SELECTIONS ROW
                 # END OF CARD BODY
                 ]),
 
@@ -6334,9 +6309,9 @@ def update_country_detail_options_ga(region_country, region, income):
 
 # Update species options based on region and country selections
 @gbadsDash.callback(
-    Output(component_id='select-species-ga', component_property='options'),
-    Input(component_id='select-country-overview-ga', component_property='value'),
-    Input(component_id='select-region-overview-ga', component_property='value'),
+    Output('select-species-ga', 'options'),
+    Input('select-country-overview-ga', 'value'),
+    Input('select-region-overview-ga', 'value'),
     )
 def update_species_options_ga(country, region):
     if region == 'All':
@@ -6655,7 +6630,7 @@ def update_detail_table_ga(
             print_selected_incgrp = ''
     else:
         if selected_country == 'All':
-            input_df_filtered = input_df_filtered.query(f"region == '{selected_region}'")
+            input_df_filtered = input_df_filtered.query(f"region_label == '{selected_region}'")
             print_selected_country = f'All {selected_region} countries,'
 
             # Only need to filter income groups if no country selected
@@ -6679,12 +6654,7 @@ def update_detail_table_ga(
         ,'population':'Population (head)'
         ,'liveweight':'Average liveweight (kg)'
         ,'biomass':'Biomass of standing stock (kg)'
-
-        ,'output_total_biomass_kg':'output_total_biomass_kg'
-        ,'output_total_biomass_kg_thisregion_thisyear':'output_total_biomass_kg_thisregion_thisyear'
-        ,'output_total_biomass_prpnofregion_thisyear':'output_total_biomass_prpnofregion_thisyear'
-        ,'am_expenditure_usd_selected':'am_expenditure_usd_selected'
-        ,'antimicrobial_expenditure_usd':'antimicrobial_expenditure_usd'
+        ,'biomass_popandslaughter_kg':'Biomass of standing stock and slaughter head (kg)'
 
         ,'production_eggs_tonnes':'Egg production (tonnes)'
         ,'production_meat_tonnes':'Meat production (tonnes)'
@@ -6713,10 +6683,11 @@ def update_detail_table_ga(
         ,'ideal_output_value_wool_2010usd':'Value of ideal wool production (USD)'
 
         ,'vetspend_biomass_farm_usdperkgbm':'Producers vet & med cost per kg biomass (USD)'
-        ,'vetspend_biomass_public_usdperkgbm':'Public vet & med cost per kg biomass (USD)'
+        # ,'vetspend_biomass_public_usdperkgbm':'Public vet & med cost per kg biomass (USD)'
         ,'vetspend_production_usdperkgprod':'Producers vet & med cost per kg production (USD)'
         ,'vetspend_farm_usd':'Total producers vet & med cost (USD)'
-        ,'vetspend_public_usd':'Total public vet & med cost (USD)'
+        # ,'vetspend_public_usd':'Total public vet & med cost (USD)'
+        ,'antimicrobial_expenditure_usd':'Total expenditure on antimicrobials (USD)'
 
         ,'ahle_dueto_reducedoutput_2010usd':'Value of AHLE due to reduced output (USD)'
         ,'ahle_dueto_vetandmedcost_2010usd':'Value of AHLE due to vet & med cost (USD)'
@@ -6748,6 +6719,12 @@ def update_detail_table_ga(
 
     # Two decimal places
     input_df_filtered.update(input_df_filtered[[
+        'mortality_rate'
+        ,'morbidity_rate'
+    ]].applymap('{:,.2f}'.format))
+
+    # Dollars
+    input_df_filtered.update(input_df_filtered[[
         # 'producer_price_meat_live_usdpertonne_cnst2010'
         # ,'producer_price_eggs_usdpertonne_cnst2010'
         # ,'producer_price_meat_usdpertonne_cnst2010'
@@ -6760,10 +6737,6 @@ def update_detail_table_ga(
         ,'output_value_milk_2010usd'
         ,'output_value_wool_2010usd'
 
-
-        ,'mortality_rate'
-        ,'morbidity_rate'
-
         ,'ideal_biomass_value_2010usd'
         ,'ideal_output_value_eggs_2010usd'
         ,'ideal_output_value_meat_2010usd'
@@ -6775,12 +6748,12 @@ def update_detail_table_ga(
         ,'vetspend_production_usdperkgprod'
         ,'vetspend_farm_usd'
         # ,'vetspend_public_usd'
+        ,'antimicrobial_expenditure_usd'
 
         ,'ahle_dueto_reducedoutput_2010usd'
         ,'ahle_dueto_vetandmedcost_2010usd'
         # ,'ahle_total_2010usd'
-
-    ]].applymap('{:,.2f}'.format))
+    ]].applymap('${:,.2f}'.format))
 
     # ------------------------------------------------------------------------------
     # Hover-over text
@@ -7078,7 +7051,8 @@ def update_ahle_waterfall_ga(
     prep_df = prep_ahle_forwaterfall_ga(input_df)
 
     # Make costs negative
-    _vetmed_rows = (prep_df['item'].str.upper().isin(['VET & MED COSTS ON PRODUCERS' ,'ANTIMICROBIAL EXPENDITURE']))
+    _vetmed_rows = (prep_df['item'].str.contains('COSTS' ,case=False ,na=False)\
+                    | prep_df['item'].str.contains('EXPENDITURE' ,case=False ,na=False))
     prep_df.loc[_vetmed_rows ,'value_usd_current'] = -1 * prep_df.loc[_vetmed_rows ,'value_usd_current']
 
     # Apply user filters
@@ -7105,7 +7079,7 @@ def update_ahle_waterfall_ga(
             print_selected_incgrp = ''
     else:
         if selected_country == 'All':
-            prep_df_filtered = prep_df_filtered.query(f"region == '{selected_region}'")
+            prep_df_filtered = prep_df_filtered.query(f"region_label == '{selected_region}'")
             print_selected_country = f'All {selected_region} countries,'
 
             # Only need to filter income groups if no country selected
@@ -7231,7 +7205,7 @@ def update_ahle_lineplot_ga(
             print_selected_incgrp = ''
     else:
         if selected_country == 'All':
-            prep_df_filtered = prep_df_filtered.query(f"region == '{selected_region}'")
+            prep_df_filtered = prep_df_filtered.query(f"region_label == '{selected_region}'")
             print_selected_country = f'All {selected_region} countries, '
 
             # Only need to filter income groups if no country selected
@@ -7657,7 +7631,8 @@ def update_ahle_graph_controls(graph, geo_view):
 def update_item_dropdown_ecs(graph, species):
     # Filters Items to display based on species selected
     if species == "Cattle":     # Cattle have draught
-        item_options = ('Value of Offtake',
+        item_options = ('Gross Margin',
+                        'Value of Offtake',
                         'Value of Herd Increase',
                         'Value of Draught',
                         'Value of Milk',
@@ -7669,10 +7644,10 @@ def update_item_dropdown_ecs(graph, species):
                         # May 2023: Wudu does not want housing and captial expenses in waterfall chart
                         # 'Expenditure on Housing',
                         # 'Expenditure on Capital',
-                        'Gross Margin'
                         )
     elif 'POULTRY' in species.upper():   # Poultry have value of eggs, do not have manure or hides
-        item_options = ('Value of Offtake',
+        item_options = ('Gross Margin',
+                        'Value of Offtake',
                         'Value of Herd Increase',
                         'Value of Eggs consumed',
                         'Value of Eggs sold',
@@ -7682,10 +7657,10 @@ def update_item_dropdown_ecs(graph, species):
                         # May 2023: Wudu does not want housing and captial expenses in waterfall chart
                         # 'Expenditure on Housing',
                         # 'Expenditure on Capital',
-                        'Gross Margin'
                         )
     else:
-        item_options = ('Value of Offtake',
+        item_options = ('Gross Margin',
+                        'Value of Offtake',
                         'Value of Herd Increase',
                         'Value of Milk',
                         'Value of Manure',
@@ -7696,7 +7671,6 @@ def update_item_dropdown_ecs(graph, species):
                         # May 2023: Wudu does not want housing and captial expenses in waterfall chart
                         # 'Expenditure on Housing',
                         # 'Expenditure on Capital',
-                        'Gross Margin'
                         )
     # Build dictionary
     options=[]
@@ -8015,15 +7989,15 @@ def update_ecs_attr_expert_data(species):
     input_df.update(input_df[['min', 'avg', 'max']].applymap('{:.0%}'.format))
 
     columns_to_display_with_labels = {
-      'Expert':'Expert'
-      ,'AHLE':'AHLE Component'
-      ,'Production system':'Production system'
-      ,'Age class':'Age class'
-      ,'Cause':'Cause'
-      ,'min':'Minimum'
-      ,'avg':'Average'
-      ,'max':'Max'
-    }
+        'Expert':'Expert'
+        ,'AHLE':'AHLE Component'
+        ,'Production system':'Production system'
+        ,'Age class':'Age class'
+        ,'Cause':'Cause'
+        ,'min':'Minimum'
+        ,'avg':'Average'
+        ,'max':'Max'
+        }
     return [
             dcc.Markdown(
                 f'''

@@ -801,8 +801,8 @@ ecs_improve_options = [{'label': i, 'value': i, 'disabled': True} for i in ['25%
                                                                             '100%',
                                                                             ]]
 # Map Denominator
-ecs_map_denominator_options = [{'label': i, 'value': i, 'disabled': False} for i in ['Total',
-                                                                                     'Per kg biomass',
+ecs_map_denominator_options = [{'label': i, 'value': i, 'disabled': False} for i in ['Per kg biomass',
+                                                                                     'Total',
                                                                                      ]]
 
 # =============================================================================
@@ -3404,6 +3404,8 @@ gbadsDash.layout = html.Div([
                                       "margin-left":"10px",     # Space between buttons if inline=True
                                       },
                                   ),
+                    # Text underneath
+                    html.P("Estimates over time are currently only available for cattle" ,style={'font-style':'italic'}),
                     ]),
 
                 # Year selector
@@ -3417,7 +3419,7 @@ gbadsDash.layout = html.Div([
 
                 # Geographical breakdown options
                 dbc.Col([
-                    html.H4("Geographical View"),
+                    html.H4("AHLE Geographic Scope"),
                     dcc.RadioItems(id='select-geo-view-ecs',
                                   options=ecs_geo_view_options,
                                   value='National',
@@ -3428,7 +3430,7 @@ gbadsDash.layout = html.Div([
                                       },
                                   ),
                     # Text underneath
-                    html.P("*Regional data is currently only available for cattle" ,style={'font-style':'italic'}),
+                    html.P("Regional estimates are currently only available for cattle for 2021" ,style={'font-style':'italic'}),
                     ]),
 
                 # Regional dropdwon
@@ -3556,7 +3558,7 @@ gbadsDash.layout = html.Div([
                             className="card-title",
                             style={"font-weight": "bold"}),
                     html.Label(
-                        ["Showing how much each component contributes to the total animal health loss envelope"],
+                        ["Showing how much each component contributes to the total animal health loss envelope, including attribution to infectious, non-infectious, and external causes"],
                         style={'font-style':'italic'}
                          ),
                     dbc.Row([
@@ -3646,7 +3648,6 @@ gbadsDash.layout = html.Div([
 
 
             # html.Hr(style={'margin-right':'10px'}),
-
             html.Br(),
 
             #### -- GRAPHICS PT.1
@@ -3717,9 +3718,9 @@ gbadsDash.layout = html.Div([
                 ]),
                 dbc.Col([   # Treemap footnote
                   html.P("Attribution is reported for species groups rather than individual species."),
-                  html.P("Attribution to infectious, non-infectious, and external causes is based on expert opinion. See the user guide for a description of the expert elicitation process."),
-                  # html.P("AHLE Components are production loss, mortality loss, and health costs. Health costs make up the smallest proportion and may not be visible in this view."),
-                  html.P("Health cost is attributed evenly to infectious, non-infectious, and external causes.")
+                  html.P("Attribution to infectious, non-infectious, and external causes is based on expert opinion. See the expert opinion data below."),
+                  html.P("AHLE Components are production loss, mortality loss, and health costs. Health costs make up the smallest proportion and may not be visible in this view."),
+                  html.P("In lieu of expert opinion, health cost is attributed evenly to infectious, non-infectious, and external causes.")
                 ]),
             ], style={'margin-left':"20px", 'font-style': 'italic'}
             ),
@@ -3736,17 +3737,17 @@ gbadsDash.layout = html.Div([
                     dbc.Col([
                         html.H6("Value/Expenditure Category"),
                         dcc.Dropdown(id='select-map-display-ecs',
-                                      value='AHLE',
+                                      value='Animal Health Loss Envelope',
                                       clearable=False,
                                       ),
-                        ]),
+                        ],width=3),
 
                     # Denominator
                     dbc.Col([
                         html.H6("Denominator"),
                         dcc.RadioItems(id='select-map-denominator-ecs',
                                       options=ecs_map_denominator_options,
-                                      value= "Total",
+                                      value= "Per kg biomass",
                                       inputStyle={"margin-right": "2px", # This pulls the words off of the button
                                                   "margin-left": "10px"},
                                       ),
@@ -3789,9 +3790,9 @@ gbadsDash.layout = html.Div([
             #### -- MAP FOOTNOTES
             dbc.Row([
                 # Do not have data for 3 cities
-                html.P("	* Currently do not have data for Addis Ababa, Dire Dawa, or Harari regions."),
+                html.P("	* Livestock data is not shown for city regions (Addis Ababa, Dire Dawa, and Harari)"),
                 # SNNP and South West Ethiopia
-                html.P("	** South West Ethiopia and SNNP are using the same values due to limit data for South West Ethiopia."),
+                html.P("	** At the time of analysis, data was not available for South West Ethiopia. It is showing the same values as SNNP."),
             ], style={'margin-left':"40px", 'font-style': 'italic'}
             ),
 
@@ -3848,20 +3849,19 @@ gbadsDash.layout = html.Div([
             dbc.Row([
                 dbc.Col([
                   # Stacked bar
-                  html.P("*Expenditure on Health is not recorded for individual age groups so is not included in individual AHLE calculations."),
-                  html.P("**Expenditure on Health is very small, so the impact on AHLE is negligible."),
+                  html.P("   * Expenditure on Health is not recorded for individual age groups so is not included in individual AHLE calculations."),
+                  html.P("   ** Expenditure on Health is very small, so the impact on AHLE is negligible."),
                 ]),
                 dbc.Col([
                   # Sankey
                   # No footnote
                 ]),
-            ], style={'margin-left':"40px", 'font-style': 'italic'}
+            ], style={'font-style': 'italic'}
             ),
-
 
             #### -- DATATABLES
             html.Hr(style={'margin-right':'10px',}),
-            html.H3("Data Export", id="ETH-data-export"),
+            html.H3("Data Viewer", id="ETH-data-export"),
             dbc.Row([
 
                 dbc.Col([
@@ -7778,9 +7778,7 @@ def update_map_display_options_ecs(species):
 
     # Add options for Ideal gross margin and AHLE
     options += [{'label': i, 'value': i, 'disabled': False} for i in ["Ideal Gross Margin",
-                                                                      "AHLE"]]
-
-
+                                                                      "Animal Health Loss Envelope"]]
 
     return options
 
@@ -9252,7 +9250,7 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
     # Age/sex filter
     input_df=input_df.loc[(input_df['agesex_scenario'] == agesex_scenario)]
 
-    if item == 'Ideal Gross Margin' or item == 'AHLE':
+    if item == 'Ideal Gross Margin' or item == 'Animal Health Loss Envelope':
         item_filter = 'Gross Margin'
     else:
         item_filter = item
@@ -9289,7 +9287,7 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
     # TODO: Numbers for ideal (and in turn, AHLE, are not matching the ahle_all_scensmry data)
     if item == 'Ideal Gross Margin':
         color_by = 'mean_ideal'
-    elif item == 'AHLE':
+    elif item == 'Animal Health Loss Envelope':
         color_by = 'mean_AHLE'
     else:
         color_by = 'mean_current'
@@ -9298,7 +9296,7 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
     input_df = input_df.sort_values(by=[f'{color_by}'])
 
     # Set color scale to match waterfall colors
-    if "GROSS MARGIN" in item.upper() or "AHLE" in item.upper():
+    if "GROSS MARGIN" in item.upper() or "ANIMAL HEALTH LOSS ENVELOPE" in item.upper():
         color_scale = [(0, "#F7F9FB"), (0.5, "#F7C080"), (1, "#F7931D")]
     elif "VALUE" in item.upper():
         color_scale = [(0, "#ecf5fc"), (0.5, "#88c2ea"), (1, "#3598db")]
@@ -9320,7 +9318,7 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
 
     # Add title
     ecs_map_fig.update_layout(
-        title_text=f'{item} {denominator} by Region | {agesex_scenario} Cattle, {prodsys} in 2021',
+        title_text=f'{item} in {currency} {denominator} by Region | {agesex_scenario} Cattle, {prodsys} in 2021',
         font_size=15
         )
 

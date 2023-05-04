@@ -1110,14 +1110,22 @@ ahle_diseases_inf_m['disease'] = ahle_diseases_inf_m['disease'].replace(disease_
 '''
 Note this will duplicate rows, creating a new row for each disease.
 '''
+ahle_diseases_inf_m_tomerge = ahle_diseases_inf_m.copy()
+
 # Recode disease_byvars to match results of attribution
-ahle_diseases_inf_m.loc[ahle_diseases_inf_m['species'] == 'Cattle' ,'production_system'] = \
-    ahle_diseases_inf_m.loc[ahle_diseases_inf_m['species'] == 'Cattle' ,'production_system'].replace(cattle_prodsys_forattribution)
+ahle_diseases_inf_m_tomerge.loc[ahle_diseases_inf_m_tomerge['species'] == 'Cattle' ,'production_system'] = \
+    ahle_diseases_inf_m_tomerge.loc[ahle_diseases_inf_m_tomerge['species'] == 'Cattle' ,'production_system'].replace(cattle_prodsys_forattribution)
+
+# Use just year 2021 as that is the only year disease estimates were made
+# Do not include year in merge - this will duplicate single year for all years
+ahle_diseases_inf_m_tomerge = ahle_diseases_inf_m_tomerge.query("year == 2021").drop(columns='year')
+merge_disease_on = disease_byvars + ['cause']
+merge_disease_on.remove('year')
 
 ahle_combo_withattr_diseases = pd.merge(
     left=ahle_combo_withattr
-    ,right=ahle_diseases_inf_m
-    ,on=disease_byvars + ['cause']
+    ,right=ahle_diseases_inf_m_tomerge
+    ,on=merge_disease_on
     ,how='left'
     )
 

@@ -3345,10 +3345,10 @@ gbadsDash.layout = html.Div([
         #### ETHIOPIA TAB
         dcc.Tab(label="Ethiopia Case Study [WIP]", children =[
 
-            html.H3("Animal Health Loss Envelope and Disease Attribution"),
+            html.H3("Ethiopia Animal Health Loss Envelope and Disease Attribution"),
             html.Label(["Displaying production values, expenditures, and gross margin under the current and ideal scenario estimated by a compartmental herd dynamics model. Attribution of AHLE to infectious, non-infectious, and external causes is based on the results of expert elicitation."]),
             html.Br(),
-            html.Label(["Select a species and production system to view"] ,style={"font-style":"italic"}),
+            html.Label(["Select a species and production system to view and the currency to display for all charts"] ,style={"font-style":"italic"}),
 
             #### -- DROPDOWNS CONTROLS
             dbc.Row([
@@ -3394,7 +3394,7 @@ gbadsDash.layout = html.Div([
                                       },
                                   ),
                     # Text underneath
-                    html.P("Estimates over time are currently only available for cattle" ,style={'font-style':'italic'}),
+                    html.P("Estimates over time are currently only available for cattle. Other species will show placeholder values." ,style={'font-style':'italic'}),
                     ]),
 
                 # Year selector
@@ -3517,18 +3517,11 @@ gbadsDash.layout = html.Div([
                                                   inputStyle={"margin-right": "2px", # This pulls the words off of the button
                                                               "margin-left": "10px"},
                                                   ),
-                                    ],
-                                ),
-
-                                ## END OF ROW ##
-                                ]),
-
-                        # END OF CARD BODY
-                        ],),
-
-                    # END OF CARD
-                    ], color='#F2F2F2'),
-                ],width=6),
+                                    ]),
+                                ]),     ## END OF ROW ##
+                            ]),    # END OF CARD BODY
+                        ], color='#F2F2F2'),    # END OF CARD
+                    ],width=6),
 
                 # Attribution Specific Controls
                 dbc.Col([
@@ -3610,68 +3603,68 @@ gbadsDash.layout = html.Div([
                         ], color='#F2F2F2'),    # END OF CARD
                     ]),
                 ], justify='evenly'),   # END OF DROPDOWN CONTROLS
-            # html.Br(),
+            html.Br(),
 
             #### -- GRAPHICS PT.1
-                dbc.Row([  # Row with GRAPHICS
+            dbc.Row([  # Row with GRAPHICS
 
-                    # Values and Costs Waterfall
-                    dbc.Col([
-                        dbc.Spinner(children=[
-                        dcc.Graph(id='ecs-ahle-waterfall',
-                                    style = {"height":"650px"},
-                                  config = {
-                                      "displayModeBar" : True,
-                                      "displaylogo": False,
-                                      'toImageButtonOptions': {
-                                          'format': 'png', # one of png, svg, jpeg, webp
-                                          'filename': 'GBADs_Ethiopia_AHLE_Sunburst'
-                                          },
-                                      'modeBarButtonsToRemove': ['zoom',
-                                                                  'zoomIn',
-                                                                  'zoomOut',
-                                                                  'autoScale',
-                                                                  #'resetScale',  # Removes home button
-                                                                  'pan',
-                                                                  'select2d',
-                                                                  'lasso2d']
-                                      }
-                                  )
-                        # End of Spinner
-                        ],size="md", color="#393375", fullscreen=False),
-                        # End of AHLE Sunburst
-                        ],style={"width":5}),
+                # Values and Costs Waterfall
+                dbc.Col([
+                    dbc.Spinner(children=[
+                    dcc.Graph(id='ecs-ahle-waterfall',
+                                style = {"height":"650px"},
+                              config = {
+                                  "displayModeBar" : True,
+                                  "displaylogo": False,
+                                  'toImageButtonOptions': {
+                                      'format': 'png', # one of png, svg, jpeg, webp
+                                      'filename': 'GBADs_Ethiopia_AHLE_Sunburst'
+                                      },
+                                  'modeBarButtonsToRemove': ['zoom',
+                                                              'zoomIn',
+                                                              'zoomOut',
+                                                              'autoScale',
+                                                              #'resetScale',  # Removes home button
+                                                              'pan',
+                                                              'select2d',
+                                                              'lasso2d']
+                                  }
+                              )
+                    # End of Spinner
+                    ],size="md", color="#393375", fullscreen=False),
+                    # End of AHLE Sunburst
+                    ],style={"width":5}),
 
-                    # Attribution Treemap
-                    dbc.Col(
-                        dbc.Spinner(children=[
+                # Attribution Treemap
+                dbc.Col(
+                    dbc.Spinner(children=[
 
-                        dcc.Graph(id='ecs-attr-treemap',
-                                    style = {"height":"650px"},
-                                  config = {
-                                      "displayModeBar" : True,
-                                      "displaylogo": False,
-                                      'toImageButtonOptions': {
-                                          'format': 'png', # one of png, svg, jpeg, webp
-                                          'filename': 'GBADs_Ethiopia_Attribution_Treemap'
-                                          },
-                                       'modeBarButtonsToRemove': ['zoom',
-                                                                  'zoomIn',
-                                                                  'zoomOut',
-                                                                  'autoScale',
-                                                                  #'resetScale',  # Removes home button
-                                                                  'pan',
-                                                                  'select2d',
-                                                                  'lasso2d']
-                                      }
-                                  )
+                    dcc.Graph(id='ecs-attr-treemap',
+                                style = {"height":"650px"},
+                              config = {
+                                  "displayModeBar" : True,
+                                  "displaylogo": False,
+                                  'toImageButtonOptions': {
+                                      'format': 'png', # one of png, svg, jpeg, webp
+                                      'filename': 'GBADs_Ethiopia_Attribution_Treemap'
+                                      },
+                                   'modeBarButtonsToRemove': ['zoom',
+                                                              'zoomIn',
+                                                              'zoomOut',
+                                                              'autoScale',
+                                                              #'resetScale',  # Removes home button
+                                                              'pan',
+                                                              'select2d',
+                                                              'lasso2d']
+                                  }
+                              )
 
-                        # End of Spinner
-                        ],size="md", color="#393375", fullscreen=False),
-                        # End of Attribution Treemap
-                        style={"width":5}),
+                    # End of Spinner
+                    ],size="md", color="#393375", fullscreen=False),
+                    # End of Attribution Treemap
+                    style={"width":5}),
 
-                    ]),
+                ]),
 
             #### -- FOOTNOTES PT.1
             dbc.Row([
@@ -3697,12 +3690,13 @@ gbadsDash.layout = html.Div([
                 dbc.CardBody([
                     html.H3("Regional AHLE"),
                     html.Label(["Showing the animal health loss envelope for each region. Use the dropdown to view an individual item of revenue, expenditure, or gross margin instead."]),
+                    html.Label(["Note: a region will appear blank if there is no data for the selected production system there"] ,style={"font-style":"italic"}),
                     dbc.Row([
                         # Map Display
                         dbc.Col([
                             html.H5("Item"),
                             dcc.Dropdown(id='select-map-display-ecs',
-                                         value='Animal Health Loss Envelope',
+                                         value='Gross Margin',
                                          clearable=False,
                                          ),
                             ],width=3),

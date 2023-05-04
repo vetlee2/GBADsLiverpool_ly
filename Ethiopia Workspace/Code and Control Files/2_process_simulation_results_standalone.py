@@ -1356,12 +1356,12 @@ ahle_combo_withahle_smry.to_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_summary
 
 #%% Checks on calculated AHLE
 
-ahle_combo_withahle_checks = ahle_combo_withahle.copy()
+check_ahle_combo_withahle = ahle_combo_withahle.copy()
 
 # =============================================================================
 #### Change in Gross Margin overall vs. individual ideal scenarios
 # =============================================================================
-ahle_combo_withahle_checks.eval(
+check_ahle_combo_withahle.eval(
     '''
     gmchange_ideal_overall = mean_ideal_gross_margin - mean_current_gross_margin
 
@@ -1376,20 +1376,24 @@ ahle_combo_withahle_checks.eval(
         + gmchange_ideal_jf + gmchange_ideal_jm \
             + gmchange_ideal_nf + gmchange_ideal_nm
 
-    gmchange_ideal_sumind_withhealth = gmchange_ideal_sumind + mean_current_health_cost
+    gmchange_ideal_check = gmchange_ideal_sumind / gmchange_ideal_overall
 
+    gmchange_ideal_sumind_withhealth = gmchange_ideal_sumind + mean_current_health_cost
     gmchange_ideal_check_withhealth = gmchange_ideal_sumind_withhealth / gmchange_ideal_overall
     '''
     ,inplace=True
 )
 print('\n> Checking the change in Gross Margin for ideal overall vs. individual ideal scenarios')
+print(check_ahle_combo_withahle[['region' ,'species' ,'production_system' ,'year' ,'gmchange_ideal_check']])
+
+print('\n> Checking the change in Gross Margin for ideal overall vs. individual ideal scenarios')
 print('> With health cost added to sum of individual ideal scenarios')
-print(ahle_combo_withahle_checks[['region' ,'species' ,'production_system' ,'year' ,'gmchange_ideal_check_withhealth']])
+print(check_ahle_combo_withahle[['region' ,'species' ,'production_system' ,'year' ,'gmchange_ideal_check_withhealth']])
 
 # =============================================================================
 #### Sum of individual age/sex AHLE compared to overall AHLE
 # =============================================================================
-ahle_combo_withahle_checks.eval(
+check_ahle_combo_withahle.eval(
     '''
     sum_ahle_individual = ahle_when_af_ideal_mean + ahle_when_am_ideal_mean \
         + ahle_when_jf_ideal_mean + ahle_when_jm_ideal_mean \
@@ -1400,12 +1404,12 @@ ahle_combo_withahle_checks.eval(
     ,inplace=True
 )
 print('\n> Checking the sum AHLE for individual ideal scenarios against the overall')
-print(ahle_combo_withahle_checks[['region' ,'species' ,'production_system' ,'year' ,'sum_ahle_individual_vs_overall']])
+print(check_ahle_combo_withahle[['region' ,'species' ,'production_system' ,'year' ,'sum_ahle_individual_vs_overall']])
 
 # =============================================================================
 #### Disease-specific AHLE vs. total
 # =============================================================================
-ahle_combo_withahle_checks.eval(
+check_ahle_combo_withahle.eval(
     '''
     ahle_dueto_ppr_vs_total = ahle_dueto_ppr_total_mean / ahle_total_mean
     ahle_dueto_bruc_vs_total = ahle_dueto_bruc_total_mean / ahle_total_mean
@@ -1413,10 +1417,10 @@ ahle_combo_withahle_checks.eval(
     ,inplace=True
 )
 print('\n> Checking the AHLE for PPR against the overall')
-print(ahle_combo_withahle_checks.query("ahle_dueto_ppr_total_mean.notnull()")[['species' ,'production_system' ,'year' ,'ahle_dueto_ppr_vs_total']])
+print(check_ahle_combo_withahle.query("ahle_dueto_ppr_total_mean.notnull()")[['species' ,'production_system' ,'year' ,'ahle_dueto_ppr_vs_total']])
 
 print('\n> Checking the AHLE for Brucellosis against the overall')
-print(ahle_combo_withahle_checks.query("ahle_dueto_bruc_total_mean.notnull()")[['species' ,'production_system' ,'year' ,'ahle_dueto_bruc_vs_total']])
+print(check_ahle_combo_withahle.query("ahle_dueto_bruc_total_mean.notnull()")[['species' ,'production_system' ,'year' ,'ahle_dueto_bruc_vs_total']])
 
 #%% Create scenario summary table
 '''
@@ -2385,3 +2389,13 @@ ahle_combo_scensmry_withahle_sub.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,
 
 # Output for Dash
 ahle_combo_scensmry_withahle_sub.to_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry_ahle.csv') ,index=False)
+
+#%% Checks on calculated AHLE with scenarios
+
+check_ahle_combo_scensmry_withahle = ahle_combo_scensmry_withahle.copy()
+
+# =============================================================================
+#### Change in Gross Margin overall vs. individual ideal scenarios
+# =============================================================================
+print('\n> Checking the change in Gross Margin for ideal overall vs. individual ideal scenarios')
+print(check_ahle_combo_scensmry_withahle[['region' ,'species' ,'production_system' ,'year' ,'agesex_scenario' ,'ahle_total_mean']])

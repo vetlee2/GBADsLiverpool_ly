@@ -109,14 +109,14 @@ def add_antimicrobial_expenditure(
         )
 
     # Calculate proportion of region total biomass each country and species makes up, by year
-    OUTPUT_DF['output_total_biomass_kg_thisregion_thisyear'] = \
-        OUTPUT_DF.groupby(['region_woah' ,'year'])['output_total_biomass_kg'].transform('sum')
-    OUTPUT_DF['output_total_biomass_prpnofregion_thisyear'] = \
-        OUTPUT_DF['output_total_biomass_kg'] / OUTPUT_DF['output_total_biomass_kg_thisregion_thisyear']
+    OUTPUT_DF['total_biomass_thisregion_thisyear'] = \
+        OUTPUT_DF.groupby(['region_woah' ,'year'])['biomass_popandslaughter_kg'].transform('sum')
+    OUTPUT_DF['total_biomass_prpnofregion_thisyear'] = \
+        OUTPUT_DF['biomass_popandslaughter_kg'] / OUTPUT_DF['total_biomass_thisregion_thisyear']
 
     # Assign AM expenditure to country and species according to their proportion of region total biomass
     OUTPUT_DF['antimicrobial_expenditure_usd'] = \
-        OUTPUT_DF['am_expenditure_usd_selected'] * OUTPUT_DF['output_total_biomass_prpnofregion_thisyear']
+        OUTPUT_DF['am_expenditure_usd_selected'] * OUTPUT_DF['total_biomass_prpnofregion_thisyear']
 
     return OUTPUT_DF
 

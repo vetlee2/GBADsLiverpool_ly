@@ -253,8 +253,8 @@ Restructuring is the same for all species.
 # =============================================================================
 #### Read data
 # =============================================================================
-ahle_combo_scensmry_withahle_sub = pd.read_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_scensmry_ahle.pkl.gz'))
-datainfo(ahle_combo_scensmry_withahle_sub)
+ahle_combo_forattr = pd.read_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle_all_scensmry_ahle.pkl.gz'))
+datainfo(ahle_combo_forattr)
 
 # =============================================================================
 #### Fill in missing components
@@ -268,32 +268,30 @@ on the scenarios run in the simulation model.  While these cannot be calculated
 exactly outside of the simulation model, I will fill in values here based on
 the scenarios that are present.
 
-This will replace the Create Aggregate Groups sections for the individual species
-below, which are currently not working anyway because they don't recalculate
-production loss after filling in missing ahle_total_mean and ahle_dueto_mortality_mean.
-
-Plan: create Combined sex estimates for ahle_total_mean and ahle_dueto_mortality_mean
-wherever they are missing by summing the individual sex estimates, e.g.:
-    Adult Combined = Adult Female + Adult Male
-
-    Then recalculate ahle_dueto_productionloss_mean.
+Plan: create Combined sex estimates for ahle_total_mean, ahle_dueto_mortality_mean,
+and ahle_dueto_healthcost_mean wherever they are missing by summing the individual
+sex estimates (e.g. Adult Combined = Adult Female + Adult Male), then recalculate
+ahle_dueto_productionloss_mean.
 
 Trick: the agesex_scenarios are in separate rows, so this requires summing across
 rows and must be done carefully to use the correct rows for each distinct BY group
 (by region, species, production system, and year).
 '''
 # Split age and sex groups into their own columns
-ahle_combo_scensmry_withahle_sub[['age_group' ,'sex']] = \
-    ahle_combo_scensmry_withahle_sub['agesex_scenario'].str.split(' ' ,expand=True)
+ahle_combo_forattr[['age_group' ,'sex']] = \
+    ahle_combo_forattr['agesex_scenario'].str.split(' ' ,expand=True)
 
-ahle_combo_scensmry_withahle_sub['sex'].unique()
+ahle_combo_forattr['sex'].unique()
 
 # Add variance columns for summing
-ahle_combo_scensmry_withahle_sub['ahle_total_variance'] = ahle_combo_scensmry_withahle_sub['ahle_total_stdev']**2
-ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_variance'] = ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_stdev']**2
+ahle_combo_forattr['ahle_total_variance'] = ahle_combo_forattr['ahle_total_stdev']**2
+ahle_combo_forattr['ahle_dueto_mortality_variance'] = ahle_combo_forattr['ahle_dueto_mortality_stdev']**2
+ahle_combo_forattr['ahle_dueto_healthcost_variance'] = ahle_combo_forattr['ahle_dueto_healthcost_stdev']**2
 
+# -----------------------------------------------------------------------------
 # For each species, production system, region, year, and age group:
 #    calculate the Combined sex result based on the Male and Female results
+# -----------------------------------------------------------------------------
 fillsex_byvars = [
     'region'
     ,'species'
@@ -301,46 +299,105 @@ fillsex_byvars = [
     ,'age_group'
     ,'year'
     ]
-ahle_combo_scensmry_withahle_sub['ahle_total_mean_combined'] = \
-    ahle_combo_scensmry_withahle_sub.groupby(fillsex_byvars)['ahle_total_mean'].transform('sum')
-ahle_combo_scensmry_withahle_sub['ahle_total_variance_combined'] = \
-    ahle_combo_scensmry_withahle_sub.groupby(fillsex_byvars)['ahle_total_variance'].transform('sum')
-ahle_combo_scensmry_withahle_sub['ahle_total_stdev_combined'] = \
-    np.sqrt(ahle_combo_scensmry_withahle_sub['ahle_total_variance_combined'])
+# Total
+ahle_combo_forattr['ahle_total_mean_combined'] = \
+    ahle_combo_forattr.groupby(fillsex_byvars)['ahle_total_mean'].transform('sum')
+ahle_combo_forattr['ahle_total_variance_combined'] = \
+    ahle_combo_forattr.groupby(fillsex_byvars)['ahle_total_variance'].transform('sum')
+ahle_combo_forattr['ahle_total_stdev_combined'] = \
+    np.sqrt(ahle_combo_forattr['ahle_total_variance_combined'])
 
-ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_mean_combined'] = \
-    ahle_combo_scensmry_withahle_sub.groupby(fillsex_byvars)['ahle_dueto_mortality_mean'].transform('sum')
-ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_variance_combined'] = \
-    ahle_combo_scensmry_withahle_sub.groupby(fillsex_byvars)['ahle_dueto_mortality_variance'].transform('sum')
-ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_stdev_combined'] = \
-    np.sqrt(ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_variance_combined'])
+# Mortality
+ahle_combo_forattr['ahle_dueto_mortality_mean_combined'] = \
+    ahle_combo_forattr.groupby(fillsex_byvars)['ahle_dueto_mortality_mean'].transform('sum')
+ahle_combo_forattr['ahle_dueto_mortality_variance_combined'] = \
+    ahle_combo_forattr.groupby(fillsex_byvars)['ahle_dueto_mortality_variance'].transform('sum')
+ahle_combo_forattr['ahle_dueto_mortality_stdev_combined'] = \
+    np.sqrt(ahle_combo_forattr['ahle_dueto_mortality_variance_combined'])
 
+# Health cost
+ahle_combo_forattr['ahle_dueto_healthcost_mean_combined'] = \
+    ahle_combo_forattr.groupby(fillsex_byvars)['ahle_dueto_healthcost_mean'].transform('sum')
+ahle_combo_forattr['ahle_dueto_healthcost_variance_combined'] = \
+    ahle_combo_forattr.groupby(fillsex_byvars)['ahle_dueto_healthcost_variance'].transform('sum')
+ahle_combo_forattr['ahle_dueto_healthcost_stdev_combined'] = \
+    np.sqrt(ahle_combo_forattr['ahle_dueto_healthcost_variance_combined'])
+
+# -----------------------------------------------------------------------------
 # For Combined sex rows, fill in missing values with sums
-_combined_sex = (ahle_combo_scensmry_withahle_sub['sex'] == 'Combined')
-ahle_combo_scensmry_withahle_sub = fill_column_where(ahle_combo_scensmry_withahle_sub ,_combined_sex ,'ahle_total_mean' ,'ahle_total_mean_combined' ,DROP=True)
-ahle_combo_scensmry_withahle_sub = fill_column_where(ahle_combo_scensmry_withahle_sub ,_combined_sex ,'ahle_total_stdev' ,'ahle_total_stdev_combined' ,DROP=True)
-ahle_combo_scensmry_withahle_sub = fill_column_where(ahle_combo_scensmry_withahle_sub ,_combined_sex ,'ahle_dueto_mortality_mean' ,'ahle_dueto_mortality_mean_combined' ,DROP=True)
-ahle_combo_scensmry_withahle_sub = fill_column_where(ahle_combo_scensmry_withahle_sub ,_combined_sex ,'ahle_dueto_mortality_stdev' ,'ahle_dueto_mortality_stdev_combined' ,DROP=True)
+# -----------------------------------------------------------------------------
+_combined_sex = (ahle_combo_forattr['sex'] == 'Combined')
+
+# Total
+_ahle_total_missing = (ahle_combo_forattr['ahle_total_mean'].isnull())
+ahle_combo_forattr = fill_column_where(
+    ahle_combo_forattr
+    ,(_combined_sex & _ahle_total_missing)
+    ,'ahle_total_mean'
+    ,'ahle_total_mean_combined'
+    ,DROP=True
+    )
+ahle_combo_forattr = fill_column_where(
+    ahle_combo_forattr
+    ,(_combined_sex & _ahle_total_missing)
+    ,'ahle_total_stdev'
+    ,'ahle_total_stdev_combined'
+    ,DROP=True
+    )
+
+# Mortality
+_ahle_mortality_missing = (ahle_combo_forattr['ahle_dueto_mortality_mean'].isnull())
+ahle_combo_forattr = fill_column_where(
+    ahle_combo_forattr
+    ,(_combined_sex & _ahle_mortality_missing)
+    ,'ahle_dueto_mortality_mean'
+    ,'ahle_dueto_mortality_mean_combined'
+    ,DROP=True
+    )
+ahle_combo_forattr = fill_column_where(
+    ahle_combo_forattr
+    ,(_combined_sex & _ahle_mortality_missing)
+    ,'ahle_dueto_mortality_stdev'
+    ,'ahle_dueto_mortality_stdev_combined'
+    ,DROP=True
+    )
+
+# Health cost
+_ahle_healthcost_missing = (ahle_combo_forattr['ahle_dueto_healthcost_mean'].isnull())
+ahle_combo_forattr = fill_column_where(
+    ahle_combo_forattr
+    ,(_combined_sex & _ahle_healthcost_missing)
+    ,'ahle_dueto_healthcost_mean'
+    ,'ahle_dueto_healthcost_mean_combined'
+    ,DROP=True
+    )
+ahle_combo_forattr = fill_column_where(
+    ahle_combo_forattr
+    ,(_combined_sex & _ahle_healthcost_missing)
+    ,'ahle_dueto_healthcost_stdev'
+    ,'ahle_dueto_healthcost_stdev_combined'
+    ,DROP=True
+    )
 
 # Recalculate AHLE due to production loss
-ahle_combo_scensmry_withahle_sub['ahle_dueto_productionloss_mean'] = \
-    ahle_combo_scensmry_withahle_sub['ahle_total_mean'] - ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_mean'] - ahle_combo_scensmry_withahle_sub['ahle_dueto_healthcost_mean']
+ahle_combo_forattr['ahle_dueto_productionloss_mean'] = \
+    ahle_combo_forattr['ahle_total_mean'] - ahle_combo_forattr['ahle_dueto_mortality_mean'] - ahle_combo_forattr['ahle_dueto_healthcost_mean']
 
-ahle_combo_scensmry_withahle_sub['ahle_dueto_productionloss_stdev'] = \
-    np.sqrt(ahle_combo_scensmry_withahle_sub['ahle_total_stdev']**2 \
-            + ahle_combo_scensmry_withahle_sub['ahle_dueto_mortality_stdev']**2 \
-                + ahle_combo_scensmry_withahle_sub['ahle_dueto_healthcost_stdev']**2)
+ahle_combo_forattr['ahle_dueto_productionloss_stdev'] = \
+    np.sqrt(ahle_combo_forattr['ahle_total_stdev']**2 \
+            + ahle_combo_forattr['ahle_dueto_mortality_stdev']**2 \
+                + ahle_combo_forattr['ahle_dueto_healthcost_stdev']**2)
 
 # =============================================================================
 #### Restructure for Attribution function
 # =============================================================================
-ahle_combo_forattr_means = ahle_combo_scensmry_withahle_sub.melt(
+ahle_combo_forattr_means = ahle_combo_forattr.melt(
    id_vars=['region' ,'species' ,'production_system' ,'agesex_scenario' ,'year']
    ,value_vars=['ahle_dueto_mortality_mean' ,'ahle_dueto_healthcost_mean' ,'ahle_dueto_productionloss_mean']
    ,var_name='ahle_component'
    ,value_name='mean'
 )
-ahle_combo_forattr_stdev = ahle_combo_scensmry_withahle_sub.melt(
+ahle_combo_forattr_stdev = ahle_combo_forattr.melt(
    id_vars=['region' ,'species' ,'production_system' ,'agesex_scenario' ,'year']
    ,value_vars=['ahle_dueto_mortality_stdev' ,'ahle_dueto_healthcost_stdev' ,'ahle_dueto_productionloss_stdev']
    ,var_name='ahle_component'
@@ -883,7 +940,7 @@ THIS MAY NOT WORK.
 #     ,'ahle_dueto_otherdisease_total_stdev':'Other Infectious'
 #     }
 # # These are only estimated for Overall agesex_scenario (we do not specify which age/sex groups are infected)
-# ahle_diseases_inf = ahle_combo_scensmry_withahle_sub.query("agesex_scenario == 'Overall'")[disease_byvars + list(disease_inf_vars)]
+# ahle_diseases_inf = ahle_combo_forattr.query("agesex_scenario == 'Overall'")[disease_byvars + list(disease_inf_vars)]
 # ahle_diseases_inf['cause'] = 'Infectious'
 
 # # -----------------------------------------------------------------------------
@@ -1023,7 +1080,7 @@ disease_inf_vars = {    # Dictionary specifying label for each disease
     ,'ahle_dueto_otherdisease_total_mean':'Other Infectious'
     }
 # These are only estimated for Overall agesex_scenario (we do not specify which age/sex groups are infected)
-ahle_diseases_inf = ahle_combo_scensmry_withahle_sub.query("agesex_scenario == 'Overall'")[disease_byvars + list(disease_inf_vars) + ['ahle_total_mean']]
+ahle_diseases_inf = ahle_combo_forattr.query("agesex_scenario == 'Overall'")[disease_byvars + list(disease_inf_vars) + ['ahle_total_mean']]
 ahle_diseases_inf['cause'] = 'Infectious'
 
 # Get the proportion each disease makes up of total AHLE
@@ -1053,14 +1110,22 @@ ahle_diseases_inf_m['disease'] = ahle_diseases_inf_m['disease'].replace(disease_
 '''
 Note this will duplicate rows, creating a new row for each disease.
 '''
+ahle_diseases_inf_m_tomerge = ahle_diseases_inf_m.copy()
+
 # Recode disease_byvars to match results of attribution
-ahle_diseases_inf_m.loc[ahle_diseases_inf_m['species'] == 'Cattle' ,'production_system'] = \
-    ahle_diseases_inf_m.loc[ahle_diseases_inf_m['species'] == 'Cattle' ,'production_system'].replace(cattle_prodsys_forattribution)
+ahle_diseases_inf_m_tomerge.loc[ahle_diseases_inf_m_tomerge['species'] == 'Cattle' ,'production_system'] = \
+    ahle_diseases_inf_m_tomerge.loc[ahle_diseases_inf_m_tomerge['species'] == 'Cattle' ,'production_system'].replace(cattle_prodsys_forattribution)
+
+# Use just year 2021 as that is the only year disease estimates were made
+# Do not include year in merge - this will duplicate single year for all years
+ahle_diseases_inf_m_tomerge = ahle_diseases_inf_m_tomerge.query("year == 2021").drop(columns='year')
+merge_disease_on = disease_byvars + ['cause']
+merge_disease_on.remove('year')
 
 ahle_combo_withattr_diseases = pd.merge(
     left=ahle_combo_withattr
-    ,right=ahle_diseases_inf_m
-    ,on=disease_byvars + ['cause']
+    ,right=ahle_diseases_inf_m_tomerge
+    ,on=merge_disease_on
     ,how='left'
     )
 
@@ -1074,16 +1139,29 @@ ahle_combo_withattr_diseases = pd.merge(
 #     ,"disease_proportion":[0.50 ,0.25 ,0.15 ,0.10]     # List: proportion of attribution going to each disease. Must add up to 1.
 #     }
 # )
+# Simplifying to a single cause
+# disease_plhd_non = pd.DataFrame({
+#     "cause":'Non-infectious'
+#     ,"disease":['Condition A' ,'Condition B' ,'Condition C']
+#     ,"disease_proportion":[0.50 ,0.35 ,0.15]     # List: proportion of attribution going to each disease. Must add up to 1.
+#     }
+# )
+# disease_plhd_ext = pd.DataFrame({
+#     "cause":'External'
+#     ,"disease":['Cause A' ,'Cause B' ,'Cause C']
+#     ,"disease_proportion":[0.50 ,0.35 ,0.15]     # List: proportion of attribution going to each disease. Must add up to 1.
+#     }
+# )
 disease_plhd_non = pd.DataFrame({
     "cause":'Non-infectious'
-    ,"disease":['Condition A' ,'Condition B' ,'Condition C']
-    ,"disease_proportion":[0.50 ,0.35 ,0.15]     # List: proportion of attribution going to each disease. Must add up to 1.
+    ,"disease":['All conditions']
+    ,"disease_proportion":[1]     # List: proportion of attribution going to each disease. Must add up to 1.
     }
 )
 disease_plhd_ext = pd.DataFrame({
     "cause":'External'
-    ,"disease":['Cause A' ,'Cause B' ,'Cause C']
-    ,"disease_proportion":[0.50 ,0.35 ,0.15]     # List: proportion of attribution going to each disease. Must add up to 1.
+    ,"disease":['All causes']
+    ,"disease_proportion":[1]     # List: proportion of attribution going to each disease. Must add up to 1.
     }
 )
 
@@ -1126,7 +1204,7 @@ ahle_combo_withattr_diseases['sd'] = np.sqrt(ahle_combo_withattr_diseases['sd']*
 ahle_combo_withattr_diseases['lower95'] = ahle_combo_withattr_diseases['mean'] - (1.96 * ahle_combo_withattr_diseases['sd'])
 ahle_combo_withattr_diseases['upper95'] = ahle_combo_withattr_diseases['mean'] + (1.96 * ahle_combo_withattr_diseases['sd'])
 
-#%% Conversions
+#%% Calculations
 
 # =============================================================================
 #### Calculate as percent of total

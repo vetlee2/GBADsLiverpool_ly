@@ -8665,11 +8665,11 @@ def update_ahle_value_and_cost_viz_ecs(
                 yaxis_title=display_currency,
                 font_size=15,
                 margin=dict(t=100),
-                legend=dict(orientation="h",
-                            xanchor="right",
-                            x=1,
-                            yanchor="bottom",
-                            y=1.02,)
+                # legend=dict(orientation="v",
+                #             xanchor="right",
+                #             x=1,
+                #             yanchor="bottom",
+                #             y=1.02,)
                 )
 
         # Add tooltip

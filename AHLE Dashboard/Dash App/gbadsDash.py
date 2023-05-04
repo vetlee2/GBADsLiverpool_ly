@@ -3348,6 +3348,7 @@ gbadsDash.layout = html.Div([
             html.H3("Ethiopia Animal Health Loss Envelope and Disease Attribution"),
             html.Label(["Displaying production values, expenditures, and gross margin under the current and ideal scenario estimated by a compartmental herd dynamics model. Attribution of AHLE to infectious, non-infectious, and external causes is based on the results of expert elicitation."]),
             html.Br(),
+            html.Hr(style={'margin-right':'10px'}),
             html.Label(["Select a species and production system to view and the currency to display for all charts"] ,style={"font-style":"italic"}),
 
             #### -- DROPDOWNS CONTROLS
@@ -8425,7 +8426,7 @@ def update_ahle_value_and_cost_viz_ecs(
                         ),
                         mode="markers",
                         hoverinfo='none',
-                        name='Est. range'
+                        name='95% Confidence'
                     ),
                 )
                 
@@ -8456,6 +8457,10 @@ def update_ahle_value_and_cost_viz_ecs(
                 # Reset indicies
                 x = x.reset_index(drop=True)
                 y = y.reset_index(drop=True)
+                
+                # Scale standard deviation to achieve 95% confidence
+                stdev = 1.96 * stdev    # Simulation results are Normally distributed
+                
                 # Get cumulative sum value for Y unless Gross Margin
                 y_error_sum=[]
                 for i in x.values:
@@ -8521,7 +8526,7 @@ def update_ahle_value_and_cost_viz_ecs(
                         ),
                         mode="markers",
                         hoverinfo='none',
-                        name='Est. range'
+                        name='95% Confidence'
                     ),
                 )
                 
@@ -8569,6 +8574,10 @@ def update_ahle_value_and_cost_viz_ecs(
                 # Reset indicies
                 x = x.reset_index(drop=True)
                 y = y.reset_index(drop=True)
+                
+                # Scale standard deviation to achieve 95% confidence
+                stdev = 1.96 * stdev    # Simulation results are Normally distributed
+                
                 # Get cumulative sum value for Y unless Gross Margin
                 y_error_sum=[]
                 for i in x.values:
@@ -8634,7 +8643,7 @@ def update_ahle_value_and_cost_viz_ecs(
                         ),
                         mode="markers",
                         hoverinfo='none',
-                        name='Est. range'
+                        name='95% Confidence'
                     ),
                 )
                 

@@ -1131,16 +1131,29 @@ ahle_combo_withattr_diseases = pd.merge(
 #     ,"disease_proportion":[0.50 ,0.25 ,0.15 ,0.10]     # List: proportion of attribution going to each disease. Must add up to 1.
 #     }
 # )
+# Simplifying to a single cause
+# disease_plhd_non = pd.DataFrame({
+#     "cause":'Non-infectious'
+#     ,"disease":['Condition A' ,'Condition B' ,'Condition C']
+#     ,"disease_proportion":[0.50 ,0.35 ,0.15]     # List: proportion of attribution going to each disease. Must add up to 1.
+#     }
+# )
+# disease_plhd_ext = pd.DataFrame({
+#     "cause":'External'
+#     ,"disease":['Cause A' ,'Cause B' ,'Cause C']
+#     ,"disease_proportion":[0.50 ,0.35 ,0.15]     # List: proportion of attribution going to each disease. Must add up to 1.
+#     }
+# )
 disease_plhd_non = pd.DataFrame({
     "cause":'Non-infectious'
-    ,"disease":['Condition A' ,'Condition B' ,'Condition C']
-    ,"disease_proportion":[0.50 ,0.35 ,0.15]     # List: proportion of attribution going to each disease. Must add up to 1.
+    ,"disease":['All conditions']
+    ,"disease_proportion":[1]     # List: proportion of attribution going to each disease. Must add up to 1.
     }
 )
 disease_plhd_ext = pd.DataFrame({
     "cause":'External'
-    ,"disease":['Cause A' ,'Cause B' ,'Cause C']
-    ,"disease_proportion":[0.50 ,0.35 ,0.15]     # List: proportion of attribution going to each disease. Must add up to 1.
+    ,"disease":['All causes']
+    ,"disease_proportion":[1]     # List: proportion of attribution going to each disease. Must add up to 1.
     }
 )
 
@@ -1183,7 +1196,7 @@ ahle_combo_withattr_diseases['sd'] = np.sqrt(ahle_combo_withattr_diseases['sd']*
 ahle_combo_withattr_diseases['lower95'] = ahle_combo_withattr_diseases['mean'] - (1.96 * ahle_combo_withattr_diseases['sd'])
 ahle_combo_withattr_diseases['upper95'] = ahle_combo_withattr_diseases['mean'] + (1.96 * ahle_combo_withattr_diseases['sd'])
 
-#%% Conversions
+#%% Calculations
 
 # =============================================================================
 #### Calculate as percent of total

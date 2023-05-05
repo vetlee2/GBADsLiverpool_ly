@@ -8110,29 +8110,39 @@ def update_ahle_value_and_cost_viz_ecs(
         if display == "Difference":
             if compare == 'Ideal':
                 y = prep_df['mean_AHLE']
+                stdev = prep_df['stdev_AHLE']
             elif compare == 'Zero Mortality':
                 y = prep_df['mean_AHLE_mortality']
+                stdev = prep_df['stdev_AHLE_mortality']
             else:
                 compare = impvmnt_factor + "- " + impvmnt_value
                 if impvmnt_factor == 'Mortality' and impvmnt_value == '25%':
                     y = prep_df['mean_all_mort_25_AHLE']
+                    stdev = prep_df['stdev_all_mort_25_AHLE']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '50%':
                     y = prep_df['mean_all_mort_50_AHLE']
+                    stdev = prep_df['stdev_all_mort_50_AHLE']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
                     y = prep_df['mean_all_mort_75_AHLE']
+                    stdev = prep_df['stdev_all_mort_75_AHLE']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
                     y = prep_df['mean_AHLE_mortality']
+                    stdev = prep_df['stdev_AHLE_mortality']
                 elif impvmnt_factor == 'Parturition Rate':
                     number_split = impvmnt_value.split('%')[0]
                     y = prep_df[f'mean_all_current_repro_{number_split}_AHLE']
+                    stdev = prep_df[f'stdev_all_current_repro_{number_split}_AHLE']
                 elif impvmnt_factor == 'Live Weight':
                     number_split = impvmnt_value.split('%')[0]
                     y = prep_df[f'mean_all_current_growth_{number_split}_AHLE']
+                    stdev = prep_df[f'stdev_all_current_growth_{number_split}_AHLE']
 
             # AHLE graph
+            stdev = 1.96 * stdev    # Scale stdev to create 95% confidence
             plot_ahle_value = go.Scatter(
                 x=x
                 ,y=y
+                ,error_y=dict(type='data' ,array=stdev)
                 ,name='AHLE'
                 ,line=dict(color=color)
                 )
@@ -8142,12 +8152,14 @@ def update_ahle_value_and_cost_viz_ecs(
                                             yaxis_title=display_currency,
                                             font_size=15,
                                             plot_bgcolor="#ededed",)
+            ecs_waterfall_fig.update_xaxes(ticklabelmode="period", dtick = 1)
 
         elif display == "Side by Side":
             # Plot current value
             plot_current_value = go.Scatter(
                 x=x
                 ,y=prep_df['mean_current']
+                ,error_y=dict(type='data' ,array=prep_df['stdev_current']*1.96)
                 ,name='Current'
                 ,line=dict(color=color)
                 )
@@ -8156,6 +8168,7 @@ def update_ahle_value_and_cost_viz_ecs(
                 plot_compare_value = go.Scatter(
                     x=x
                     ,y=prep_df['mean_ideal']
+                    ,error_y=dict(type='data' ,array=prep_df['stdev_ideal']*1.96)
                     ,name=compare
                     ,line=dict(color='#00CA0F')
                     )
@@ -8164,30 +8177,39 @@ def update_ahle_value_and_cost_viz_ecs(
                 plot_compare_value = go.Scatter(
                     x=x
                     ,y = prep_df['mean_mortality_zero']
+                    ,error_y=dict(type='data' ,array=prep_df['stdev_mortality_zero']*1.96)
                     ,name=compare
                     ,line=dict(color='#00CA0F')
                     )
             else:
                 if impvmnt_factor == 'Mortality' and impvmnt_value == '25%':
                     y = prep_df['mean_all_mort_25_imp']
+                    stdev = prep_df['stdev_all_mort_25_imp']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '50%':
                     y = prep_df['mean_all_mort_50_imp']
+                    stdev = prep_df['stdev_all_mort_50_imp']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
                     y = prep_df['mean_all_mort_75_imp']
+                    stdev = prep_df['stdev_all_mort_75_imp']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
                     y = prep_df['mean_mortality_zero']
+                    stdev = prep_df['stdev_mortality_zero']
                 elif impvmnt_factor == 'Parturition Rate':
                     number_split = impvmnt_value.split('%')[0]
                     y = prep_df[f'mean_current_repro_{number_split}_imp']
+                    stdev = prep_df[f'stdev_current_repro_{number_split}_imp']
                 elif impvmnt_factor == 'Live Weight':
                     number_split = impvmnt_value.split('%')[0]
                     y = prep_df[f'mean_current_growth_{number_split}_imp_all']
+                    stdev = prep_df[f'stdev_current_growth_{number_split}_imp_all']
 
                 name = impvmnt_factor + "- " + impvmnt_value
                 # Overlay zero mortality value
+                stdev = 1.96 * stdev    # Scale stdev to create 95% confidence
                 plot_compare_value = go.Scatter(
                     x=x
                     ,y=y
+                    ,error_y=dict(type='data' ,array=stdev)
                     ,name=name
                     ,line=dict(color='#00CA0F')
                     )
@@ -8199,7 +8221,7 @@ def update_ahle_value_and_cost_viz_ecs(
                                             yaxis_title=display_currency,
                                             font_size=15,
                                             plot_bgcolor="#ededed",)
-
+            ecs_waterfall_fig.update_xaxes(ticklabelmode="period", dtick = 1)
 
     # Create waterfall chart
     if graph_options == "Single Year":

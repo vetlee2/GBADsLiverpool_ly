@@ -745,7 +745,7 @@ ecs_graph_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Sing
 
 # Geographial View
 ecs_geo_view_options = [{'label': i, 'value': i, 'disabled': False} for i in ["National",
-                                                                              "Regional",
+                                                                              "Subnational",
                                                                               ]]
 
 # Region - removing 'National' from the options
@@ -1954,7 +1954,7 @@ def create_map_display_ecs(input_df, geojson, location, featurekey, color_by, co
                                        mapbox_style="carto-positron",
                                        zoom=5,
                                        center = {"lat": 9.1450, "lon": 40.4897},
-                                       labels={'region': 'Region',
+                                       labels={'region': 'Subnation',
                                                'mean_current': 'Current',
                                                'mean_ideal': 'Ideal',
                                                'mean_AHLE': 'AHLE'}
@@ -3423,12 +3423,12 @@ gbadsDash.layout = html.Div([
                     html.P("Regional estimates are currently only available for cattle for 2021" ,style={'font-style':'italic'}),
                     ]),
 
-                # Regional dropdwon
+                # Subnational dropdwon
                 dbc.Col([
-                    html.H5("Region", id='select-region-ecs-title'),
+                    html.H5("Subnation", id='select-region-ecs-title'),
                     dcc.Dropdown(id='select-region-ecs',
                                  options=ecs_region_options,
-                                 placeholder='Select Region...',
+                                 placeholder='Select Subnation...',
                                  clearable = False,
                                  ),
                     ]),
@@ -3689,9 +3689,9 @@ gbadsDash.layout = html.Div([
             #### -- MAP
             dbc.Card([
                 dbc.CardBody([
-                    html.H3("Regional AHLE"),
-                    html.Label(["Showing the animal health loss envelope for each region. Use the dropdown to view an individual item of revenue, expenditure, or gross margin instead."]),
-                    html.Label(["Note: a region will appear blank if there is no data for the selected production system there"] ,style={"font-style":"italic"}),
+                    html.H3("Subnational AHLE"),
+                    html.Label(["Showing the animal health loss envelope for each subnation. Use the dropdown to view an individual item of revenue, expenditure, or gross margin instead."]),
+                    html.Label(["Note: a subnation will appear blank if there is no data for the selected production system there"] ,style={"font-style":"italic"}),
                     dbc.Row([
                         # Map Display
                         dbc.Col([
@@ -7538,7 +7538,7 @@ def update_geo_view_options_ecs(graph, species):
                 d['disabled']=False
         else:
             options = [{'label': "National", 'value': "National", 'disabled': False},
-                       {'label': "Regional", 'value': "Regional", 'disabled': True},
+                       {'label': "Subnational", 'value': "Subnational", 'disabled': True},
                        ]
         value='National'
 
@@ -9357,7 +9357,6 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
             input_df['mean_AHLE'] = input_df['mean_AHLE_usd']
 
     # Color scale by current, ideal or AHLE
-    # TODO: Numbers for ideal (and in turn, AHLE, are not matching the ahle_all_scensmry data)
     if item == 'Ideal Gross Margin':
         color_by = 'mean_ideal'
     elif item == 'Animal Health Loss Envelope':
@@ -9391,7 +9390,7 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
 
     # Add title
     ecs_map_fig.update_layout(
-        title_text=f'{item} in {currency} {denominator} by Region | {agesex_scenario} Cattle, {prodsys} in 2021',
+        title_text=f'{item} in {currency} {denominator} by Subnation | {agesex_scenario} Cattle, {prodsys} in 2021',
         font_size=15
         )
 
@@ -9401,6 +9400,20 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
         title=f"{display_currency}",
         )
     )
+    
+    # TODO: Refine tooltip
+    # # Update tooltip
+    # if currency == 'Birr':
+    #     ecs_map_fig.update_traces(hovertemplate='Subnation: %{location}'+
+    #                                     '<br>%{featurekey}: %{y} Birr <extra></extra>',
+    #                                     )
+    #     # Tried x, color, item, color_by, text, featurekey, y
+    # elif currency == 'USD':
+    #     ecs_map_fig.update_traces(hovertemplate='Subnation: %{location}'+
+    #                                     '<br>%{item}: %{color:,.0f} USD <extra></extra>'+
+    #                                     ''
+    #                                     )
+
 
     return ecs_map_fig
 

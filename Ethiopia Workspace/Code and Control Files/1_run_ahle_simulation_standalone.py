@@ -100,11 +100,11 @@ ETHIOPIA_DATA_FOLDER = os.path.join(PARENT_FOLDER ,'Data')
 # Full path to rscript.exe
 r_executable = 'C:\\Program Files\\R\\R-4.2.1\\bin\\x64\\Rscript.exe'
 
-N_RUNS = '1000'   # String: number of simulation runs for each scenario
+N_RUNS = '10'   # String: number of simulation runs for each scenario
 
 #%% Small ruminants
 
-# Full path to the R program you want to run
+# Full path to the AHLE function in R
 r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table_SMALLRUMINANTS.R')
 
 # =============================================================================
@@ -120,7 +120,8 @@ r_args = [
     ,os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle SMALL RUMINANTS')
 
     # Arg 3: full path to scenario control file
-    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters SMALLRUMINANTS.xlsx')
+    # ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters SMALLRUMINANTS.xlsx')
+    ,os.path.join(ETHIOPIA_CODE_FOLDER ,'AHLE scenario parameters SMALLRUMINANTS_20230504.xlsx')     # Updated 5/4/2023 but does not contain marginal improvement scenarios
 
     # Arg 4: only run the first N scenarios from the control file
     # -1: use all scenarios
@@ -191,7 +192,7 @@ timerstop()
 
 #%% Small Ruminants using Murdoch's updated function
 
-# This file defines the function
+# Full path to the AHLE function in R
 r_script = os.path.join(CURRENT_FOLDER ,'ahle_sr.R')
 run_cmd([r_executable ,r_script] ,SHOW_MAXLINES=999)
 
@@ -199,7 +200,7 @@ run_cmd([r_executable ,r_script] ,SHOW_MAXLINES=999)
 
 #%% Cattle
 
-# Full path to the R program you want to run
+# Full path to the AHLE function in R
 r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table_CATTLE.R')
 
 # =============================================================================
@@ -272,7 +273,11 @@ for YEAR in list_years:
     print(f"> Running compartmental model for year {YEAR}...")
 
     # Define input scenario file
-    SCENARIO_FILE = os.path.join(ETHIOPIA_CODE_FOLDER ,'Yearly parameters' ,f'{YEAR}_AHLE scenario parameters CATTLE_20230209 scenarios only.xlsx')
+    SCENARIO_FILE = os.path.join(
+        ETHIOPIA_CODE_FOLDER
+        ,'Yearly parameters'
+        ,f'{YEAR}_AHLE scenario parameters CATTLE_20230209 scenarios only.xlsx'
+        )
 
     # Create subfolder for results if it doesn't exist
     OUTFOLDER = os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE' ,f'{YEAR}')
@@ -325,7 +330,11 @@ for REGION in list_eth_regions:
     print(f"> Running compartmental model for region {REGION}...")
 
     # Define input scenario file
-    SCENARIO_FILE = os.path.join(ETHIOPIA_CODE_FOLDER ,'Subnational parameters' ,f'{REGION} 2021_AHLE scenario parameters CATTLE scenarios only.xlsx')
+    SCENARIO_FILE = os.path.join(
+        ETHIOPIA_CODE_FOLDER
+        ,'Subnational parameters'
+        ,f'{REGION} 2021_AHLE scenario parameters CATTLE scenarios only.xlsx'
+        )
 
     # Create subfolder for results if it doesn't exist
     OUTFOLDER = os.path.join(ETHIOPIA_OUTPUT_FOLDER ,'ahle CATTLE' ,'Subnational results' ,f'{REGION}')
@@ -356,7 +365,7 @@ for REGION in list_eth_regions:
 
 #%% Poultry
 
-# Full path to the R program you want to run
+# Full path to the AHLE function in R
 r_script = os.path.join(PARENT_FOLDER ,'Run AHLE with control table _ POULTRY.R')
 
 # Arguments to R function, as list of strings.

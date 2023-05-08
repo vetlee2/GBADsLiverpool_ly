@@ -702,10 +702,11 @@ _item_grossmargin = (check_ahle_combo['item'].str.upper() == 'GROSS MARGIN')
 _sex_combined = (check_ahle_combo['sex'].str.upper() == 'OVERALL')
 
 # =============================================================================
-#### Change in Gross Margin overall vs. individual ideal scenarios
+#### Change in Gross Margin
 # =============================================================================
 check_grossmargin_overall = check_ahle_combo.loc[_group_overall].loc[_item_grossmargin]
 check_grossmargin_overall.eval(
+    # Change in Gross Margin overall vs. individual ideal scenarios
     '''
     gmchange_ideal_overall = mean_ideal - mean_current
 
@@ -721,12 +722,19 @@ check_grossmargin_overall.eval(
 
     gmchange_ideal_check = gmchange_ideal_sumind / gmchange_ideal_overall
     '''
-
-    #### Mortality as proportion of total AHLE
+    # Mortality as proportion of total AHLE
     '''
     gmchange_dueto_mortality = mean_mortality_zero - mean_current
     gmchange_dueto_production = gmchange_ideal_overall - gmchange_dueto_mortality
     gmchange_dueto_mortality_prpn = gmchange_dueto_mortality / gmchange_ideal_overall
+    '''
+    # Change in gross margin due to specific diseases
+    '''
+    gmchange_dueto_ppr = mean_ideal - mean_ppr
+    gmchange_dueto_ppr_ratio = gmchange_dueto_ppr / gmchange_ideal_overall
+
+    gmchange_dueto_bruc = mean_ideal - mean_bruc
+    gmchange_dueto_bruc_ratio = gmchange_dueto_bruc / gmchange_ideal_overall
     '''
     ,inplace=True
 )
@@ -735,6 +743,12 @@ print(check_grossmargin_overall[['region' ,'species' ,'production_system' ,'year
 
 print('\n> Checking mortality as proportion of total AHLE')
 print(check_grossmargin_overall[['region' ,'species' ,'production_system' ,'year' ,'gmchange_dueto_mortality_prpn']])
+
+print('\n> Checking the change in gross margin due to PPR as proportion of total AHLE')
+print(check_grossmargin_overall[['region' ,'species' ,'production_system' ,'year' ,'gmchange_dueto_ppr_ratio']])
+
+print('\n> Checking the change in gross margin due to Brucellosis as proportion of total AHLE')
+print(check_grossmargin_overall[['region' ,'species' ,'production_system' ,'year' ,'gmchange_dueto_bruc_ratio']])
 
 # =============================================================================
 #### Sum of agesex groups compared to system total for each item
@@ -2390,7 +2404,7 @@ ahle_combo_scensmry_withahle_sub.to_pickle(os.path.join(ETHIOPIA_OUTPUT_FOLDER ,
 # Output for Dash
 ahle_combo_scensmry_withahle_sub.to_csv(os.path.join(DASH_DATA_FOLDER ,'ahle_all_scensmry_ahle.csv') ,index=False)
 
-#%% Checks on calculated AHLE with scenarios
+#%% Checks on AHLE using scenario summaries
 
 check_ahle_combo_scensmry_withahle = ahle_combo_scensmry_withahle.copy()
 

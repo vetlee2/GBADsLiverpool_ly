@@ -3421,10 +3421,10 @@ gbadsDash.layout = html.Div([
 
                 # Subnational dropdwon
                 dbc.Col([
-                    html.H5("Subnation", id='select-region-ecs-title'),
+                    html.H5("Subnational state", id='select-region-ecs-title'),
                     dcc.Dropdown(id='select-region-ecs',
                                  options=ecs_region_options,
-                                 placeholder='Select Subnation...',
+                                 placeholder='Select Subnational...',
                                  clearable = False,
                                  ),
                     ]),
@@ -3445,15 +3445,15 @@ gbadsDash.layout = html.Div([
                             dbc.Row([
                                 # Switch between side by side and difference
                                 dbc.Col([
-                                    html.H6("Show current and comparison as..."),
+                                    html.H6("Show current and ideal as..."),
                                     dcc.RadioItems(id='select-display-ecs',
                                                   options=ecs_display_options,
                                                   value='Difference',
                                                   labelStyle={'display': 'block'},
                                                   inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                                   ),
-                                    html.Label(["Difference: show a single bar for each item representing the difference between the current and comparison values"] ,style={'font-style':'italic' ,"margin-top":"20px"}),
-                                    html.Label(["Side by Side: show two bars for each item, one for current and another for the comparison value"] ,style={'font-style':'italic'}),
+                                    html.Label(["Difference: show a single bar for each item representing the difference between the current and ideal values"] ,style={'font-style':'italic' ,"margin-top":"20px"}),
+                                    html.Label(["Side by Side: show two bars for each item, one for current and another for the ideal value"] ,style={'font-style':'italic'}),
                                     ]),
 
                                 # Compare
@@ -3682,8 +3682,8 @@ gbadsDash.layout = html.Div([
             dbc.Card([
                 dbc.CardBody([
                     html.H3("Subnational AHLE"),
-                    html.Label(["Showing the animal health loss envelope for each subnation. Use the dropdown to view an individual item of revenue, expenditure, or gross margin instead."]),
-                    html.Label(["Note: a subnation will appear blank if there is no data for the selected production system there"] ,style={"font-style":"italic"}),
+                    html.Label(["Showing the animal health loss envelope for each subnational state. Use the dropdown to view an individual item of revenue, expenditure, or gross margin instead."]),
+                    html.Label(["Note: a subnational state will appear blank if there is no data for the selected production system there"] ,style={"font-style":"italic"}),
                     dbc.Row([
                         # Map Display
                         dbc.Col([
@@ -9404,7 +9404,7 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
 
     # Add title
     ecs_map_fig.update_layout(
-        title_text=f'{item} in {currency} {denominator} by Subnation | {agesex_scenario} Cattle, {prodsys} in 2021',
+        title_text=f'{item} in {currency} {denominator} by subnational state | {agesex_scenario} Cattle, {prodsys} in 2021',
         font_size=15
         )
 
@@ -9414,16 +9414,16 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
         title=f"{display_currency}",
         )
     )
-    
+
     # TODO: Refine tooltip
     # # Update tooltip
     # if currency == 'Birr':
-    #     ecs_map_fig.update_traces(hovertemplate='Subnation: %{location}'+
+    #     ecs_map_fig.update_traces(hovertemplate='subnational state: %{location}'+
     #                                     '<br>%{featurekey}: %{y} Birr <extra></extra>',
     #                                     )
     #     # Tried x, color, item, color_by, text, featurekey, y
     # elif currency == 'USD':
-    #     ecs_map_fig.update_traces(hovertemplate='Subnation: %{location}'+
+    #     ecs_map_fig.update_traces(hovertemplate='subnational state: %{location}'+
     #                                     '<br>%{item}: %{color:,.0f} USD <extra></extra>'+
     #                                     ''
     #                                     )

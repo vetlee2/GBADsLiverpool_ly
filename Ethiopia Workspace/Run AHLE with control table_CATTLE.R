@@ -1911,7 +1911,7 @@ build_summary_df <- function(
 				matrix_to_summarize <- dynGet(paste(base_matrix, suffix, sep=''))
 				vector_to_summarize <- matrix_to_summarize[,12]
 				
-				# For debugging: print to console
+				# Print details to console for debugging 
 				#print('base label:')
 				#print(base_label)
 				#print('group label:')

@@ -3338,16 +3338,12 @@ gbadsDash.layout = html.Div([
         ### END OF SWINE TAB
         ], style=major_producers_tab_style, selected_style=major_producers_tab_selected_style),
 
-        #### BEEF TAB
-        # JR: Hiding the beef tab for now
-        # dcc.Tab(label="Beef"),
-
         #### ETHIOPIA TAB
         dcc.Tab(label="Ethiopia Case Study [WIP]", children =[
 
             html.H3("Ethiopia Animal Health Loss Envelope and Disease Attribution"),
             html.Label(["Displaying production values, expenditures, and gross margin under the current and ideal scenario estimated by a compartmental herd dynamics model. Attribution of AHLE to infectious, non-infectious, and external causes is based on the results of expert elicitation."]),
-            html.Br(),
+            html.Label(["Results on this page are currently limited to cattle, small ruminants, and poultry, as those are the species for which the compartmental herd model has been estimated. For an estimate of the overall AHLE for all species, see the Global AHLE Details tab and select country Ethiopia."]),
             html.Hr(style={'margin-right':'10px'}),
             html.Label(["Select a species and production system to view and the currency to display for all charts"] ,style={"font-style":"italic"}),
 
@@ -3445,7 +3441,7 @@ gbadsDash.layout = html.Div([
                                     className="card-title",
                                     style={"font-weight": "bold"}
                                     ),
-                            html.Label(["Comparing current values, expenditures, and gross margin to the ideal"]),
+                            html.Label(["Comparing current values, expenditures, and gross margin to the ideal. Note that the ideal values and expenditures describe the system in an ideal state (for example, zero health expenditure); they do not describe what is required to achieve that state."]),
                             dbc.Row([
                                 # Switch between side by side and difference
                                 dbc.Col([
@@ -3457,9 +3453,8 @@ gbadsDash.layout = html.Div([
                                                   inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                                   ),
                                     html.Label(["Difference: show a single bar for each item representing the difference between the current and comparison values"] ,style={'font-style':'italic' ,"margin-top":"20px"}),
-                                    html.Label(["Side by Side: show two bars for each item, one for the current value and another for the comparison value"] ,style={'font-style':'italic'}),
-                                    ],
-                                ),
+                                    html.Label(["Side by Side: show two bars for each item, one for current and another for the comparison value"] ,style={'font-style':'italic'}),
+                                    ]),
 
                                 # Compare
                                 dbc.Col([
@@ -3471,9 +3466,8 @@ gbadsDash.layout = html.Div([
                                                   inputStyle={"margin-right": "2px"}, # This pulls the words off of the button
                                                   ),
                                     html.Label(["Ideal: zero mortality and ideal growth and production rates"] ,style={'font-style':'italic' ,"margin-top":"20px"}),
-                                    html.Label(["Zero Mortality: zero mortality but growth and production rates at current values"] ,style={'font-style':'italic'}),
-                                    ],
-                                ),
+                                    html.Label(["Zero Mortality: zero mortality but growth and production rates at current levels"] ,style={'font-style':'italic'}),
+                                    ]),
 
                                 # Age/Sex combination
                                 dbc.Col([
@@ -3484,10 +3478,8 @@ gbadsDash.layout = html.Div([
                                                   clearable = False,
                                                   ),
                                     html.Label(["Overall: comparison scenario applies to all age/sex groups"] ,style={'font-style':'italic' ,"margin-top":"20px"}),
-                                    html.Label(["Otherwise, comparison scenario applies to the selected age/sex group, keeping all others at current values"] ,style={'font-style':'italic'}),
-                                    ],style={"margin-bottom":"30px",}, # Adding this to account for the additional space created by the radio buttons
-                                    ),
-
+                                    html.Label(["Otherwise, comparison scenario applies to the selected age/sex group, keeping all other groups at current values"] ,style={'font-style':'italic'}),
+                                    ]),
                             ]), # END OF ROW
                             dbc.Row([
                                 dbc.Col([
@@ -8118,29 +8110,39 @@ def update_ahle_value_and_cost_viz_ecs(
         if display == "Difference":
             if compare == 'Ideal':
                 y = prep_df['mean_AHLE']
+                stdev = prep_df['stdev_AHLE']
             elif compare == 'Zero Mortality':
                 y = prep_df['mean_AHLE_mortality']
+                stdev = prep_df['stdev_AHLE_mortality']
             else:
                 compare = impvmnt_factor + "- " + impvmnt_value
                 if impvmnt_factor == 'Mortality' and impvmnt_value == '25%':
                     y = prep_df['mean_all_mort_25_AHLE']
+                    stdev = prep_df['stdev_all_mort_25_AHLE']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '50%':
                     y = prep_df['mean_all_mort_50_AHLE']
+                    stdev = prep_df['stdev_all_mort_50_AHLE']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
                     y = prep_df['mean_all_mort_75_AHLE']
+                    stdev = prep_df['stdev_all_mort_75_AHLE']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
                     y = prep_df['mean_AHLE_mortality']
+                    stdev = prep_df['stdev_AHLE_mortality']
                 elif impvmnt_factor == 'Parturition Rate':
                     number_split = impvmnt_value.split('%')[0]
                     y = prep_df[f'mean_all_current_repro_{number_split}_AHLE']
+                    stdev = prep_df[f'stdev_all_current_repro_{number_split}_AHLE']
                 elif impvmnt_factor == 'Live Weight':
                     number_split = impvmnt_value.split('%')[0]
                     y = prep_df[f'mean_all_current_growth_{number_split}_AHLE']
+                    stdev = prep_df[f'stdev_all_current_growth_{number_split}_AHLE']
 
             # AHLE graph
+            stdev = 1.96 * stdev    # Scale stdev to create 95% confidence
             plot_ahle_value = go.Scatter(
                 x=x
                 ,y=y
+                ,error_y=dict(type='data' ,array=stdev)
                 ,name='AHLE'
                 ,line=dict(color=color)
                 )
@@ -8150,12 +8152,14 @@ def update_ahle_value_and_cost_viz_ecs(
                                             yaxis_title=display_currency,
                                             font_size=15,
                                             plot_bgcolor="#ededed",)
+            ecs_waterfall_fig.update_xaxes(ticklabelmode="period", dtick = 1)
 
         elif display == "Side by Side":
             # Plot current value
             plot_current_value = go.Scatter(
                 x=x
                 ,y=prep_df['mean_current']
+                ,error_y=dict(type='data' ,array=prep_df['stdev_current']*1.96)
                 ,name='Current'
                 ,line=dict(color=color)
                 )
@@ -8164,6 +8168,7 @@ def update_ahle_value_and_cost_viz_ecs(
                 plot_compare_value = go.Scatter(
                     x=x
                     ,y=prep_df['mean_ideal']
+                    ,error_y=dict(type='data' ,array=prep_df['stdev_ideal']*1.96)
                     ,name=compare
                     ,line=dict(color='#00CA0F')
                     )
@@ -8172,30 +8177,39 @@ def update_ahle_value_and_cost_viz_ecs(
                 plot_compare_value = go.Scatter(
                     x=x
                     ,y = prep_df['mean_mortality_zero']
+                    ,error_y=dict(type='data' ,array=prep_df['stdev_mortality_zero']*1.96)
                     ,name=compare
                     ,line=dict(color='#00CA0F')
                     )
             else:
                 if impvmnt_factor == 'Mortality' and impvmnt_value == '25%':
                     y = prep_df['mean_all_mort_25_imp']
+                    stdev = prep_df['stdev_all_mort_25_imp']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '50%':
                     y = prep_df['mean_all_mort_50_imp']
+                    stdev = prep_df['stdev_all_mort_50_imp']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '75%':
                     y = prep_df['mean_all_mort_75_imp']
+                    stdev = prep_df['stdev_all_mort_75_imp']
                 elif impvmnt_factor == 'Mortality' and impvmnt_value == '100%':
                     y = prep_df['mean_mortality_zero']
+                    stdev = prep_df['stdev_mortality_zero']
                 elif impvmnt_factor == 'Parturition Rate':
                     number_split = impvmnt_value.split('%')[0]
                     y = prep_df[f'mean_current_repro_{number_split}_imp']
+                    stdev = prep_df[f'stdev_current_repro_{number_split}_imp']
                 elif impvmnt_factor == 'Live Weight':
                     number_split = impvmnt_value.split('%')[0]
                     y = prep_df[f'mean_current_growth_{number_split}_imp_all']
+                    stdev = prep_df[f'stdev_current_growth_{number_split}_imp_all']
 
                 name = impvmnt_factor + "- " + impvmnt_value
                 # Overlay zero mortality value
+                stdev = 1.96 * stdev    # Scale stdev to create 95% confidence
                 plot_compare_value = go.Scatter(
                     x=x
                     ,y=y
+                    ,error_y=dict(type='data' ,array=stdev)
                     ,name=name
                     ,line=dict(color='#00CA0F')
                     )
@@ -8207,7 +8221,7 @@ def update_ahle_value_and_cost_viz_ecs(
                                             yaxis_title=display_currency,
                                             font_size=15,
                                             plot_bgcolor="#ededed",)
-
+            ecs_waterfall_fig.update_xaxes(ticklabelmode="period", dtick = 1)
 
     # Create waterfall chart
     if graph_options == "Single Year":
@@ -8349,7 +8363,7 @@ def update_ahle_value_and_cost_viz_ecs(
                 name = "Ideal (solid)"
                 # Create numeric, dynamic x axis based off of items
                 x_len = np.arange(1,len(x)+1,1)
-                
+
                 # Create graph
                 ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x_len-.3, y)
                 # Add error bars
@@ -8382,10 +8396,10 @@ def update_ahle_value_and_cost_viz_ecs(
                         mode="markers",
                         hoverinfo='none',
                         showlegend=False
-                        
+
                     ),
                 )
-                
+
                 # Add current with lag
                 y = prep_df['mean_current']
                 ecs_waterfall_fig.add_trace(go.Waterfall(
@@ -8412,7 +8426,7 @@ def update_ahle_value_and_cost_viz_ecs(
                     elif i == 'Gross Margin':
                         GM_index = x[x == 'Gross Margin'].index[0]
                         y_error_sum[GM_index] = y[GM_index]
-                        
+
                 # Add trace for error
                 ecs_waterfall_fig.add_trace(
                     go.Scatter(
@@ -8429,7 +8443,7 @@ def update_ahle_value_and_cost_viz_ecs(
                         name='95% Confidence'
                     ),
                 )
-                
+
                 ecs_waterfall_fig.update_layout(
                     xaxis = dict(
                         tickmode = 'array',
@@ -8450,17 +8464,17 @@ def update_ahle_value_and_cost_viz_ecs(
                 name = 'Zero Mortality (solid)'
                 # Create numeric, dynamic x axis based off of items
                 x_len = np.arange(1,len(x)+1,1)
-                
+
                 # Create graph
                 ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x_len-.3, y)
                 # Add error bars
                 # Reset indicies
                 x = x.reset_index(drop=True)
                 y = y.reset_index(drop=True)
-                
+
                 # Scale standard deviation to achieve 95% confidence
                 stdev = 1.96 * stdev    # Simulation results are Normally distributed
-                
+
                 # Get cumulative sum value for Y unless Gross Margin
                 y_error_sum=[]
                 for i in x.values:
@@ -8483,10 +8497,10 @@ def update_ahle_value_and_cost_viz_ecs(
                         mode="markers",
                         hoverinfo='none',
                         showlegend=False
-                        
+
                     ),
                 )
-                
+
                 # Add current with lag
                 ecs_waterfall_fig.add_trace(go.Waterfall(
                     name = 'Current (outline)',
@@ -8512,7 +8526,7 @@ def update_ahle_value_and_cost_viz_ecs(
                     elif i == 'Gross Margin':
                         GM_index = x[x == 'Gross Margin'].index[0]
                         y_error_sum[GM_index] = y[GM_index]
-                        
+
                 # Add trace for error
                 ecs_waterfall_fig.add_trace(
                     go.Scatter(
@@ -8529,7 +8543,7 @@ def update_ahle_value_and_cost_viz_ecs(
                         name='95% Confidence'
                     ),
                 )
-                
+
                 ecs_waterfall_fig.update_layout(
                     xaxis = dict(
                         tickmode = 'array',
@@ -8537,7 +8551,7 @@ def update_ahle_value_and_cost_viz_ecs(
                         ticktext = waterfall_plot_values
                     )
                 )
-                
+
                 # ecs_waterfall_fig.update_layout(
                 #     waterfallgroupgap = 0.5,
                 #     )
@@ -8567,17 +8581,17 @@ def update_ahle_value_and_cost_viz_ecs(
                 name = impvmnt_factor + "- " + impvmnt_value + " (solid)"
                 # Create numeric, dynamic x axis based off of items
                 x_len = np.arange(1,len(x)+1,1)
-                
+
                 # Create graph
                 ecs_waterfall_fig = create_ahle_waterfall_ecs(prep_df, name, measure, x_len-.3, y)
                 # Add error bars
                 # Reset indicies
                 x = x.reset_index(drop=True)
                 y = y.reset_index(drop=True)
-                
+
                 # Scale standard deviation to achieve 95% confidence
                 stdev = 1.96 * stdev    # Simulation results are Normally distributed
-                
+
                 # Get cumulative sum value for Y unless Gross Margin
                 y_error_sum=[]
                 for i in x.values:
@@ -8600,10 +8614,10 @@ def update_ahle_value_and_cost_viz_ecs(
                         mode="markers",
                         hoverinfo='none',
                         showlegend=False
-                        
+
                     ),
                 )
-                
+
                 # Add current with lag
                 ecs_waterfall_fig.add_trace(go.Waterfall(
                     name = 'Current (outline)',
@@ -8629,7 +8643,7 @@ def update_ahle_value_and_cost_viz_ecs(
                     elif i == 'Gross Margin':
                         GM_index = x[x == 'Gross Margin'].index[0]
                         y_error_sum[GM_index] = y[GM_index]
-                        
+
                 # Add trace for error
                 ecs_waterfall_fig.add_trace(
                     go.Scatter(
@@ -8646,7 +8660,7 @@ def update_ahle_value_and_cost_viz_ecs(
                         name='95% Confidence'
                     ),
                 )
-                
+
                 ecs_waterfall_fig.update_layout(
                     xaxis = dict(
                         tickmode = 'array',
@@ -8654,7 +8668,7 @@ def update_ahle_value_and_cost_viz_ecs(
                         ticktext = waterfall_plot_values
                     )
                 )
-                
+
                 # ecs_waterfall_fig.update_layout(
                 #     waterfallgroupgap = 0.5,
                 #     )

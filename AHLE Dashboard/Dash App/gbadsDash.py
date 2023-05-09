@@ -10434,73 +10434,57 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
     elif quantity.upper() == 'MG PER KG BIOMASS':
         y_var = 'amu_mg_perkgbiomass'
 
+    # Define color sets
+    color_map_impctg = {
+        # WHO and WOAH categories
+        "A: Critically Important": '#EF553B',
+        "B: Highly Important": '#00CC96',
+        "C: Other": '#636EFA',
+        "D: Unknown": '#AB63FA',
+
+        # OneHealth categories
+        "Important": '#EF553B',
+        "Other": '#636EFA',
+        "Unknown": '#AB63FA'
+        }
+    color_map_indiv = {
+        # Individual classes/top classes
+        "Aggregated Class Data": '#636EFA',
+        "Aminoglycosides": '#EF553B',
+        "Amphenicols": '#00CC96',
+        "Fluoroquinolones": '#AB63FA',
+        "Macrolides": '#AAFFE1',
+        "Other": '#C6CAFD',
+        "Others": '#C6CAFD',
+        "Other (Important)": '#FF6692',
+        "Penicillins": '#FECB52',
+        "Pleuromutilins": '#F7A799',
+        "Polypeptides": '#FFA15A',
+        "Sulfonamides (With Trimethoprim)": '#B6E880',
+        "Tetracyclines": '#FF97FF',
+        }
+
     if classification.upper() == 'WHO IMPORTANCE CATEGORIES':
         color = 'who_importance_ctg'
-        color_map = {"A: Critically Important": '#EF553B',
-           "Important": '#EF553B',
-           "B: Highly Important": '#00CC96',
-           "C: Other": '#636EFA',
-           "Other": '#636EFA',
-           "D: Unknown": '#AB63FA',
-           "Unknown": '#AB63FA'}
+        color_map = color_map_impctg
         stackedbar_df['id'] = stackedbar_df.groupby(['who_importance_ctg']).ngroup()
     elif classification.upper() == 'WOAH IMPORTANCE CATEGORIES':
         color = 'woah_importance_ctg'
-        color_map = {"A: Critically Important": '#EF553B',
-           "Important": '#EF553B',
-           "B: Highly Important": '#00CC96',
-           "C: Other": '#636EFA',
-           "Other": '#636EFA',
-           "D: Unknown": '#AB63FA',
-           "Unknown": '#AB63FA'}
+        color_map = color_map_impctg
         stackedbar_df['id'] = stackedbar_df.groupby(['woah_importance_ctg']).ngroup()
     elif classification.upper() == 'ONEHEALTH IMPORTANCE CATEGORIES':
         color = 'onehealth_importance_ctg'
-        color_map = {"A: Critically Important": '#EF553B',
-           "Important": '#EF553B',
-           "B: Highly Important": '#00CC96',
-           "C: Other": '#636EFA',
-           "Other": '#636EFA',
-           "D: Unknown": '#AB63FA',
-           "Unknown": '#AB63FA'}
+        color_map = color_map_impctg
         stackedbar_df['id'] = stackedbar_df.groupby(['onehealth_importance_ctg']).ngroup()
     elif classification.upper() == 'INDIVIDUAL CLASSES':
         color = 'antimicrobial_class_group'
-        color_map = {# Individual classes/top classes
-                     "Aggregated Class Data": '#636EFA',
-                     "Aminoglycosides": '#EF553B',
-                     "Amphenicols": '#00CC96',
-                     "Fluoroquinolones": '#AB63FA',
-                     "Macrolides": '#AAFFE1',
-                     "Other": '#C6CAFD',
-                     "Others": '#C6CAFD',
-                     "Other (Important)": '#FF6692',
-                     "Penicillins": '#FECB52',
-                     "Pleuromutilins": '#F7A799',
-                     "Polypeptides": '#FFA15A',
-                     "Sulfonamides (With Trimethoprim)": '#B6E880',
-                     "Tetracyclines": '#FF97FF', }
+        color_map = color_map_indiv
         stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class']).ngroup()
         # stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class_group']).ngroup()
     elif classification.upper() == 'TOP GLOBAL CLASSES':
         color = 'antimicrobial_class_group2'
-        color_map = {# Individual classes/top classes
-                     "Aggregated Class Data": '#636EFA',
-                     "Aminoglycosides": '#EF553B',
-                     "Amphenicols": '#00CC96',
-                     "Fluoroquinolones": '#AB63FA',
-                     "Macrolides": '#AAFFE1',
-                     "Other": '#C6CAFD',
-                     "Others": '#C6CAFD',
-                     "Other (Important)": '#FF6692',
-                     "Penicillins": '#FECB52',
-                     "Pleuromutilins": '#F7A799',
-                     "Polypeptides": '#FFA15A',
-                     "Sulfonamides (With Trimethoprim)": '#B6E880',
-                     "Tetracyclines": '#FF97FF', }
+        color_map = color_map_indiv
         stackedbar_df['id'] = stackedbar_df.groupby(['antimicrobial_class_group2']).ngroup()
-
-
 
     # Options to change between graphs
     if select_amu_graph.upper() == 'TOTAL':
@@ -10566,36 +10550,26 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
         #     ]
         # )
 
-
     elif select_amu_graph.upper() == 'PERCENT':
-         amu_bar_fig = px.histogram(stackedbar_df,
+         amu_bar_fig = px.histogram(
+             stackedbar_df,
              x=x_var,
              y=y_var,
              color=color,
-             color_discrete_map= {"A: Critically Important": '#EF553B',
-                "Important": '#EF553B',
-                "B: Highly Important": '#00CC96',
-                "C: Other": '#636EFA',
-                "Other": '#636EFA',
-                "D: Unknown": '#AB63FA',
-                "Unknown": '#AB63FA',
-                # Individual classes/top classes
-                "macrolides": '#19D3F3',
-                "penicillins": '#FF6692',
-                "tetracyclines": '#C6CAFD',
-                "others": '#222a2a'
-                },
+             color_discrete_map=color_map,
              barnorm='percent',
              text_auto='.1f',
              labels={
                 x_var: "",
-                "antimicrobial_class_group": "Antimicrobial Class"})
+                "antimicrobial_class_group": "Antimicrobial Class"
+                }
+             )
 
          # Add titles
          amu_bar_fig.update_layout(title_text=f'Regional Percent of AMU {quantity} by {classification}<br><sup>for countries reporting to WOAH</sup>',
-                                       font_size=15,
-                                       plot_bgcolor="#ededed",
-                                       )
+                                   font_size=15,
+                                   plot_bgcolor="#ededed",
+                                   )
          amu_bar_fig.update_yaxes(title_text=f"% of AMU {quantity}")
 
     # Remove legend (share with donut chart)

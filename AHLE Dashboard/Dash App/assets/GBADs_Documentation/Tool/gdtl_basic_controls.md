@@ -1,6 +1,6 @@
 # Selecting region, income group, and country
 <p>
-The first row of controls contains dropdown menus...
+The first row of controls contains dropdown menus to select the region, income group, and country to display.  Note that this tab displays results aggregated over all species.
 </p>
 
 ```{figure} ../Images/gdtl_basic_controls.png

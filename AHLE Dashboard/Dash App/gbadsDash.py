@@ -700,10 +700,10 @@ ecs_ahle_summary['production_system'] = ecs_ahle_summary['production_system'].re
 #    str(ecs_prodsys_options.append({'label':i,'value':(i)}))
 
 # Year
-# ecs_year_options = [{'label': 2021, 'value': 2021, 'disabled': False}]
-ecs_year_options=[]
-for i in np.sort(ecs_ahle_summary['year'].unique()):
-    str(ecs_year_options.append({'label':i,'value':(i)}))
+# Year options are now set in a callback
+# ecs_year_options=[]
+# for i in np.sort(ecs_ahle_summary['year'].unique()):
+#     str(ecs_year_options.append({'label':i,'value':(i)}))
 
 
 # Sex
@@ -737,16 +737,6 @@ ecs_hierarchy_attr_options = [{'label': "Cause", 'value': "cause", 'disabled': F
 ecs_hierarchy_dd_attr_options = [{'label': i, 'value': i, 'disabled': False} for i in ["None"]]
 
 ecs_hierarchy_dd_attr_options += ecs_hierarchy_attr_options
-
-# Graph (visualization)
-ecs_graph_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Single Year",
-                                                                           "Over Time",
-                                                                           ]]
-
-# Geographial View
-ecs_geo_view_options = [{'label': i, 'value': i, 'disabled': False} for i in ["National",
-                                                                              "Subnational",
-                                                                              ]]
 
 # Region - removing 'National' from the options
 ecs_region_options = []
@@ -1740,7 +1730,7 @@ def create_waterfall(x, y, text):
         measure = ["relative", "relative", "relative", "relative", "total"],  # This needs to change with number of columns in waterfalll
         x=x,
         y=y,
-		hoverinfo = 'none',  # Disable the hover over tooltip
+        hoverinfo = 'none',  # Disable the hover over tooltip
         text=text,
         textposition = ["outside","outside","auto","auto","outside"],
         decreasing = {'marker':{"color":'#F7931D'}},
@@ -1954,7 +1944,7 @@ def create_map_display_ecs(input_df, geojson, location, featurekey, color_by, co
                                        mapbox_style="carto-positron",
                                        zoom=5,
                                        center = {"lat": 9.1450, "lon": 40.4897},
-                                       labels={'region': 'Subnation',
+                                       labels={'region': 'State',
                                                'mean_current': 'Current',
                                                'mean_ideal': 'Ideal',
                                                'mean_AHLE': 'AHLE'}
@@ -3361,10 +3351,8 @@ gbadsDash.layout = html.Div([
                     html.H4("Production System"),
                     dcc.Dropdown(id='select-prodsys-ecs',
                                  # Options and value are now defined in a callback based on selected species
-                                # options=ecs_prodsys_options,
-                                # value='All Production Systems',
-                                clearable = False,
-                                ),
+                                 clearable = False,
+                                 ),
                     ]),
                 dbc.Col([
                     html.H4("Currency"),
@@ -3382,8 +3370,6 @@ gbadsDash.layout = html.Div([
                     # Switch between single year and over time
                     html.H4("Display AHLE for..."),
                     dcc.RadioItems(id='select-graph-ahle-ecs',
-                                  options=ecs_graph_options,
-                                  value='Single Year',
                                   inline=True,                  # True: arrange buttons horizontally
                                   inputStyle={
                                       "margin-right":"2px",     # This pulls the words off of the button
@@ -3391,7 +3377,7 @@ gbadsDash.layout = html.Div([
                                       },
                                   ),
                     # Text underneath
-                    html.P("Estimates over time are currently only available for cattle. Other species will show placeholder values." ,style={'font-style':'italic'}),
+                    html.P("Estimates over time or for any year other than 2021 are currently only available for cattle" ,style={'font-style':'italic'}),
                     ]),
 
                 # Year selector
@@ -3399,7 +3385,6 @@ gbadsDash.layout = html.Div([
                     html.H5("Year"),
                     dcc.Dropdown(id='select-year-ecs',
                                  clearable = False,
-                                 placeholder='(all)',
                                  ),
                     ]),
 
@@ -3407,8 +3392,6 @@ gbadsDash.layout = html.Div([
                 dbc.Col([
                     html.H4("AHLE Geographic Scope"),
                     dcc.RadioItems(id='select-geo-view-ecs',
-                                  options=ecs_geo_view_options,
-                                  value='National',
                                   inline=True,                  # True: arrange buttons horizontally
                                   inputStyle={
                                       "margin-right":"2px",     # This pulls the words off of the button
@@ -3416,7 +3399,7 @@ gbadsDash.layout = html.Div([
                                       },
                                   ),
                     # Text underneath
-                    html.P("Regional estimates are currently only available for cattle for 2021" ,style={'font-style':'italic'}),
+                    html.P("Subnational estimates are currently only available for cattle for 2021" ,style={'font-style':'italic'}),
                     ]),
 
                 # Subnational dropdwon
@@ -3433,7 +3416,7 @@ gbadsDash.layout = html.Div([
             html.Hr(style={'margin-right':'10px'}),
 
             dbc.Row([
-                # AHLE Specific Controls
+                #### -- AHLE Specific Controls
                 dbc.Col([
                     dbc.Card([
                         dbc.CardBody([
@@ -3516,7 +3499,7 @@ gbadsDash.layout = html.Div([
                         ], color='#F2F2F2'),    # END OF CARD
                     ],width=6),
 
-                # Attribution Specific Controls
+                #### -- Attribution Specific Controls
                 dbc.Col([
                     dbc.Card([
                         dbc.CardBody([
@@ -3524,7 +3507,7 @@ gbadsDash.layout = html.Div([
                                     className="card-title",
                                     style={"font-weight": "bold"}),
                             html.Label(["Showing how each component contributes to the total animal health loss envelope, including attribution to infectious, non-infectious, and external causes"]),
-                            html.H5("Slice treemap by..."),
+                            html.H5("Segment by..."),
                             dbc.Row([
                                 # Top Level
                                 dbc.Col([
@@ -3689,7 +3672,7 @@ gbadsDash.layout = html.Div([
                         dbc.Col([
                             html.H5("Item"),
                             dcc.Dropdown(id='select-map-display-ecs',
-                                         value='Gross Margin',
+                                         value='Animal Health Loss Envelope',
                                          clearable=False,
                                          ),
                             ],width=3),
@@ -7241,6 +7224,83 @@ def update_ahle_lineplot_ga(
 # ------------------------------------------------------------------------------
 #### -- Controls
 # ------------------------------------------------------------------------------
+# Update production system options based on species
+@gbadsDash.callback(
+    Output('select-prodsys-ecs', 'options'),
+    Output('select-prodsys-ecs', 'value'),
+    Input('select-species-ecs', 'value'),
+    )
+def update_prodsys_options_ecs(species):
+    # Get unique production systems for selected species
+    unique_prodsys = np.sort(ecs_ahle_summary.loc[ecs_ahle_summary['species'] == species ,'production_system'].unique())
+    options = [{'label': i, 'value': i} for i in unique_prodsys]
+    value = options[0]['value']  # Default is first one
+    return options, value
+
+# Longitudinal options
+@gbadsDash.callback(
+    Output('select-graph-ahle-ecs','options'),
+    Output('select-graph-ahle-ecs','value'),
+    Input('select-species-ecs','value'),
+    )
+def update_longitudinal_options_ecs(species):
+    options = [{'label': i, 'value': i, 'disabled': False} for i in ["Single Year", "Over Time"]]
+    value='Single Year'
+
+    # Disable option if species doesn't support it
+    if species.upper() != 'CATTLE':
+        for d in options:
+            d['disabled']=True
+    return options, value
+
+# Year selector
+@gbadsDash.callback(
+    Output('select-year-ecs','options'),
+    Output('select-year-ecs','value'),
+    Output('select-year-ecs','placeholder'),
+    Input('select-graph-ahle-ecs','value'),
+    Input('select-species-ecs','value'),
+    )
+def update_year_select_ecs(graph, species):
+    value=2021
+    ecs_year_options=[]     # By default, list is blank
+    placeholder = '2021'
+    if (graph == 'Single Year') & (species.upper() == 'CATTLE'):
+        ecs_year_options=[]
+        for i in np.sort(ecs_ahle_summary['year'].unique()):
+            str(ecs_year_options.append({'label':i,'value':(i)}))
+    elif graph == 'Over Time':   # Over time - placeholder (all)
+        placeholder = '(all)'
+    return ecs_year_options, value, placeholder
+
+# Geographical options
+@gbadsDash.callback(
+    Output('select-geo-view-ecs','options'),
+    Output('select-geo-view-ecs','value'),
+    Input('select-graph-ahle-ecs','value'),
+    Input('select-species-ecs','value'),
+    Input('select-year-ecs', 'value'),
+    )
+def update_geo_view_options_ecs(graph, species, year):
+    options = [{'label': i, 'value': i, 'disabled': False} for i in ["National", "Subnational"]]
+    value='National'
+
+    # Disable controls if Over Time selected
+    if graph.upper() == 'OVER TIME':
+        for d in options:
+            d['disabled']=True
+
+    # Disable if any year outside 2021 is selected
+    if year != 2021:
+        for d in options:
+            d['disabled']=True
+
+    # Disable if any species other than cattle is selected
+    if species.upper() != 'CATTLE':
+        for d in options:
+            d['disabled']=True
+    return options, value
+
 # Update agesex group options based on species
 @gbadsDash.callback(
     Output('select-agesex-ecs', 'options'),
@@ -7255,19 +7315,6 @@ def update_age_options_ecs(species):
             if d['value'] == 'Oxen':
                 options.remove(d)
     return options
-
-# Update production system options based on species
-@gbadsDash.callback(
-    Output('select-prodsys-ecs', 'options'),
-    Output('select-prodsys-ecs', 'value'),
-    Input('select-species-ecs', 'value'),
-    )
-def update_prodsys_options_ecs(species):
-    # Get unique production systems for selected species
-    unique_prodsys = np.sort(ecs_ahle_summary.loc[ecs_ahle_summary['species'] == species ,'production_system'].unique())
-    options = [{'label': i, 'value': i} for i in unique_prodsys]
-    value = options[0]['value']  # Default is first one
-    return options, value
 
 # Remove improvement option from scenario for cattle and poultry while those are misssing
 @gbadsDash.callback(
@@ -7286,7 +7333,6 @@ def update_compare_options_ecs(species):
 
 # Update hierarchy dropdown filters to remove higher level selections from the options
 # And change if displaying stacked bar
-
 @gbadsDash.callback(
     Output('select-top-lvl-attr-ecs-title','children'),
     Input('select-graph-ahle-ecs','value'),
@@ -7296,7 +7342,6 @@ def update_year_item_switch(graph):
         title = 'Top Level'
     else:
         title = 'Segmentation'
-
     return title
 
 @gbadsDash.callback(
@@ -7326,7 +7371,6 @@ def update_dd1_options_ecs(graph, top_lvl_hierarchy):
     value='production_system'
 
     return options, value, display_style, display_style
-
 
 @gbadsDash.callback(
     Output('select-dd-2-attr-ecs','options'),
@@ -7428,113 +7472,6 @@ def update_dd4_options_ecs(graph, top_lvl_hierarchy, dd1_hierarchy, dd2_hierarch
 #             else:
 #                 d['disabled']=False
 #     return options
-
-# Grey out Year selector if display is over time
-@gbadsDash.callback(
-    Output('select-year-ecs','options'),
-    Output('select-year-ecs','value'),
-    Input('select-graph-ahle-ecs','value'),
-    )
-def update_year_select_ecs(graph):
-    if graph == 'Single Year':
-        ecs_year_options=[]
-        for i in np.sort(ecs_ahle_summary['year'].unique()):
-            str(ecs_year_options.append({'label':i,'value':(i)}))
-        value=2021
-    else:
-        ecs_year_options=[]
-        value=''
-    return ecs_year_options, value
-
-# Switch between Compare and Item select to minimize blank space
-# @gbadsDash.callback(
-#     Output('select-year-item-switch-ecs','options'),
-#     Output('select-year-item-switch-ecs','value'),
-#     Output('select-year-ecs-title','children'),
-#     Input('select-graph-ahle-ecs','value'),
-#     Input('select-species-ecs','value'),
-#     )
-# def update_year_item_switch(graph, species):
-#     if graph == 'Single Year':
-#         options=ecs_year_options=[]
-#         for i in np.sort(ecs_ahle_summary['year'].unique()):
-#             str(ecs_year_options.append({'label':i,'value':(i)}))
-#         value=2021
-#         title = 'Year'
-#     else:
-#         # Filters Items to display based on species selected
-#         if species == "Cattle":     # Cattle have draught
-#             waterfall_plot_values = ('Value of Offtake',
-#                                      'Value of Herd Increase',
-#                                      'Value of Draught',
-#                                      'Value of Milk',
-#                                      'Value of Manure',
-#                                      'Value of Hides',
-#                                      'Expenditure on Feed',
-#                                      'Expenditure on Labour',
-#                                      'Expenditure on Health',
-#                                      'Expenditure on Housing',
-#                                      'Expenditure on Capital',
-#                                      'Gross Margin')
-#         elif 'POULTRY' in species.upper():   # Poultry have value of eggs, do not have manure or hides
-#             waterfall_plot_values = ('Value of Offtake',
-#                                      'Value of Herd Increase',
-#                                      'Value of Eggs consumed',
-#                                      'Value of Eggs sold',
-#                                      'Expenditure on Feed',
-#                                      'Expenditure on Labour',
-#                                      'Expenditure on Health',
-#                                      'Expenditure on Housing',
-#                                      'Expenditure on Capital',
-#                                      'Gross Margin')
-#         else:
-#             waterfall_plot_values = ('Value of Offtake',
-#                                      'Value of Herd Increase',
-#                                      'Value of Milk',
-#                                      'Value of Manure',
-#                                      'Value of Hides',
-#                                      'Expenditure on Feed',
-#                                      'Expenditure on Labour',
-#                                      'Expenditure on Health',
-#                                      'Expenditure on Housing',
-#                                      'Expenditure on Capital',
-#                                      'Gross Margin')
-
-#         options=ecs_item_ahle_options=[]
-#         for i in waterfall_plot_values:
-#            str(ecs_item_ahle_options.append({'label':i,'value':(i)}))
-#         value='Gross Margin'
-#         title = 'Item'
-
-#     return options, value, title
-
-# Disable geographical options for longitudinal graphs
-@gbadsDash.callback(
-    Output('select-geo-view-ecs','options'),
-    Output('select-geo-view-ecs','value'),
-    Input('select-graph-ahle-ecs','value'),
-    Input('select-species-ecs','value'),
-    )
-def update_geo_view_options_ecs(graph, species):
-    options = ecs_geo_view_options.copy()
-
-    # Disable controls if Over Time selected
-    if graph.upper() == 'OVER TIME':
-        for d in options:
-            d['disabled']=True
-            value='National'
-    else:
-        # Only currently have regional data for cattle
-        if species.upper() == 'CATTLE':
-            for d in options:
-                d['disabled']=False
-        else:
-            options = [{'label': "National", 'value': "National", 'disabled': False},
-                       {'label': "Subnational", 'value': "Subnational", 'disabled': True},
-                       ]
-        value='National'
-
-    return options, value
 
 @gbadsDash.callback(
     Output('select-region-ecs','style'),
@@ -7691,6 +7628,15 @@ def update_map_display_options_ecs(species):
                         )
     # Build dictionary
     options=[]
+
+    # Add options for AHLE and gross margin
+    options += [{'label': i, 'value': i, 'disabled': False} for i in [
+        "Animal Health Loss Envelope",
+        "Ideal Gross Margin",
+        ]]
+    options += [{'label':"Current Gross Margin", 'value':"Gross Margin"}]
+
+    # Add options for values using species-specific list from above
     for i in item_options:
         str(options.append({'label':'Current ' + i,'value':(i)}))
 
@@ -7698,14 +7644,10 @@ def update_map_display_options_ecs(species):
     options += [{'label':"Current Expenditure on Feed", 'value':"Feed Cost"},
                 {'label':"Current Expenditure on Labour", 'value':"Labour Cost"},
                 {'label':"Current Expenditure on Health", 'value':"Health Cost"},
-                {'label':"Current Expenditure on Housing", 'value':"Infrastructure Cost"},
-                {'label':"Current Expenditure on Capital", 'value':"Capital Cost"},
-                {'label':"Current Gross Margin", 'value':"Gross Margin"},]
-
-
-    # Add options for Ideal gross margin and AHLE
-    options += [{'label': i, 'value': i, 'disabled': False} for i in ["Ideal Gross Margin",
-                                                                      "Animal Health Loss Envelope"]]
+                # May 2023: Wudu does not want housing and captial expenses in waterfall chart or map
+                # {'label':"Current Expenditure on Housing", 'value':"Infrastructure Cost"},
+                # {'label':"Current Expenditure on Capital", 'value':"Capital Cost"},
+                ]
 
     return options
 
@@ -7930,7 +7872,7 @@ def update_ecs_attr_expert_data(species):
 
     # Format numbers
     for COL in ['min' ,'avg' ,'max']:
-    	input_df[COL] = pd.to_numeric(input_df[COL] ,errors='coerce')  # Ensure numeric
+        input_df[COL] = pd.to_numeric(input_df[COL] ,errors='coerce')  # Ensure numeric
     input_df[['min' ,'avg' ,'max']] = input_df[['min' ,'avg' ,'max']] / 100     # Convert to proportions
     input_df.update(input_df[['min', 'avg', 'max']].applymap('{:.0%}'.format))
 
@@ -8335,11 +8277,11 @@ def update_ahle_value_and_cost_viz_ecs(
             # Add trace for error
             ecs_waterfall_fig.add_trace(
                 go.Scatter(
-                 	x=x,
-                 	y=y_error_sum,
+                     x=x,
+                     y=y_error_sum,
                     marker=dict(color='black'),
                     customdata=np.stack((y, prep_df['item']), axis=-1),
-                 	error_y=dict(
+                     error_y=dict(
                         type='data',
                         array=stdev
                     ),
@@ -8385,11 +8327,11 @@ def update_ahle_value_and_cost_viz_ecs(
                 # Add trace for error
                 ecs_waterfall_fig.add_trace(
                     go.Scatter(
-                     	x=x_len-.3,
-                     	y=y_error_sum,
+                         x=x_len-.3,
+                         y=y_error_sum,
                         marker=dict(color='black'),
                         customdata=np.stack((y, prep_df['item']), axis=-1),
-                     	error_y=dict(
+                         error_y=dict(
                             type='data',
                             array=stdev
                         ),
@@ -8430,11 +8372,11 @@ def update_ahle_value_and_cost_viz_ecs(
                 # Add trace for error
                 ecs_waterfall_fig.add_trace(
                     go.Scatter(
-                     	x=x_len+.3,
-                     	y=y_error_sum,
+                         x=x_len+.3,
+                         y=y_error_sum,
                         marker=dict(color='black'),
                         customdata=np.stack((y, prep_df['item']), axis=-1),
-                     	error_y=dict(
+                         error_y=dict(
                             type='data',
                             array=prep_df['stdev_current']
                         ),
@@ -8486,11 +8428,11 @@ def update_ahle_value_and_cost_viz_ecs(
                 # Add trace for error
                 ecs_waterfall_fig.add_trace(
                     go.Scatter(
-                     	x=x_len-.3,
-                     	y=y_error_sum,
+                         x=x_len-.3,
+                         y=y_error_sum,
                         marker=dict(color='black'),
                         customdata=np.stack((y, prep_df['item']), axis=-1),
-                     	error_y=dict(
+                         error_y=dict(
                             type='data',
                             array=stdev
                         ),
@@ -8530,11 +8472,11 @@ def update_ahle_value_and_cost_viz_ecs(
                 # Add trace for error
                 ecs_waterfall_fig.add_trace(
                     go.Scatter(
-                     	x=x_len+.3,
-                     	y=y_error_sum,
+                         x=x_len+.3,
+                         y=y_error_sum,
                         marker=dict(color='black'),
                         customdata=np.stack((y, prep_df['item']), axis=-1),
-                     	error_y=dict(
+                         error_y=dict(
                             type='data',
                             array=prep_df['stdev_current']
                         ),
@@ -8603,11 +8545,11 @@ def update_ahle_value_and_cost_viz_ecs(
                 # Add trace for error
                 ecs_waterfall_fig.add_trace(
                     go.Scatter(
-                     	x=x_len-.3,
-                     	y=y_error_sum,
+                         x=x_len-.3,
+                         y=y_error_sum,
                         marker=dict(color='black'),
                         customdata=np.stack((y, prep_df['item']), axis=-1),
-                     	error_y=dict(
+                         error_y=dict(
                             type='data',
                             array=stdev
                         ),
@@ -8647,11 +8589,11 @@ def update_ahle_value_and_cost_viz_ecs(
                 # Add trace for error
                 ecs_waterfall_fig.add_trace(
                     go.Scatter(
-                     	x=x_len+.3,
-                     	y=y_error_sum,
+                         x=x_len+.3,
+                         y=y_error_sum,
                         marker=dict(color='black'),
                         customdata=np.stack((y, prep_df['item']), axis=-1),
-                     	error_y=dict(
+                         error_y=dict(
                             type='data',
                             array=prep_df['stdev_current']
                         ),
@@ -9410,9 +9352,9 @@ def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator
 
     # Update legend title
     ecs_map_fig.update_layout(
-    coloraxis_colorbar=dict(
-        title=f"{display_currency}",
-        )
+        coloraxis_colorbar=dict(
+            title=f"{display_currency}",
+            )
     )
 
     # TODO: Refine tooltip
@@ -10918,10 +10860,10 @@ def update_am_price_comparison(input_json):
     # Plot Price
     fig.add_trace(
         go.Scatter(
-         	x=input_df['region']
-         	,y=input_df['am_price_usdpertonne_mid']
+             x=input_df['region']
+             ,y=input_df['am_price_usdpertonne_mid']
             ,marker=dict(color=input_df['Color'])
-         	,error_y=dict(
+             ,error_y=dict(
                 type='data'
                 ,symmetric=False
                 ,array=input_df['am_price_usdpertonne_high_err']
@@ -11019,9 +10961,9 @@ def update_expenditure_amu(input_json, expenditure_units):
 #     # Plot Usage
 #     fig.add_trace(
 #         go.Scatter(
-#          	x=amu_uncertainty_data_toplot['region']
-#          	,y=amu_uncertainty_data_toplot['amu_terrestrial_tonnes_mostlikely']
-#          	,error_y=dict(
+#              x=amu_uncertainty_data_toplot['region']
+#              ,y=amu_uncertainty_data_toplot['amu_terrestrial_tonnes_mostlikely']
+#              ,error_y=dict(
 #                 type='data'
 #                 ,symmetric=False
 #                 ,array=amu_uncertainty_data_toplot['amu_terrestrial_tonnes_errorhigh']
@@ -11037,9 +10979,9 @@ def update_expenditure_amu(input_json, expenditure_units):
 #     # Plot Price
 #     fig.add_trace(
 #         go.Scatter(
-#          	x=amu_uncertainty_data_toplot['region']
-#          	,y=amu_uncertainty_data_toplot['amu_eurospertonne_mostlikely']
-#          	,error_y=dict(
+#              x=amu_uncertainty_data_toplot['region']
+#              ,y=amu_uncertainty_data_toplot['amu_eurospertonne_mostlikely']
+#              ,error_y=dict(
 #                 type='data'
 #                 ,symmetric=False
 #                 ,array=amu_uncertainty_data_toplot['amu_eurospertonne_errorhigh']
@@ -11088,9 +11030,9 @@ def update_expenditure_amu(input_json, expenditure_units):
 # def update_terrestrial_expenditure_amu(dummy_input):
 #     fig = px.scatter(
 #         amu_uncertainty_data
-#      	,x='region'
-#      	,y='amu_terrestrial_expenditure_midpoint'
-#      	,error_y='amu_terrestrial_expenditure_errorhigh', error_y_minus="amu_terrestrial_expenditure_errorlow"
+#          ,x='region'
+#          ,y='amu_terrestrial_expenditure_midpoint'
+#          ,error_y='amu_terrestrial_expenditure_errorhigh', error_y_minus="amu_terrestrial_expenditure_errorlow"
 #         ,labels={"amu_terrestrial_expenditure_midpoint":"Total Expenditure on Antimicrobials (Euros)"}
 #     )
 #     fig.update_traces(marker_size=10 ,marker_color='red')

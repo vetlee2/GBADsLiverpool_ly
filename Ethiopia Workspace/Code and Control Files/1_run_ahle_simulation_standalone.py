@@ -100,7 +100,7 @@ ETHIOPIA_DATA_FOLDER = os.path.join(PARENT_FOLDER ,'Data')
 # Full path to rscript.exe
 r_executable = 'C:\\Program Files\\R\\R-4.2.1\\bin\\x64\\Rscript.exe'
 
-N_RUNS = '10'   # String: number of simulation runs for each scenario
+N_RUNS = '1000'   # String: number of simulation runs for each scenario
 
 #%% Small ruminants
 

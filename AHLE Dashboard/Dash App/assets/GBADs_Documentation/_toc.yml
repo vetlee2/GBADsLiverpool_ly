@@ -48,8 +48,9 @@ parts:
       sections:
       - file: Tool/eth_value_cost_chart
       - file: Tool/eth_attribution_chart
-      - file: Tool/eth_ahle_contrib_chart
-    - file: Analysis/Compartmental population model
+      #- file: Tool/eth_ahle_contrib_chart
+      - file: Tool/eth_subnational_map
+    #- file: Analysis/Compartmental population model
   - caption: Antimicrobial Usage
     chapters:
     #- file: Analysis/amu_overview

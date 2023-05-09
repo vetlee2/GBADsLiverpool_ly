@@ -699,7 +699,6 @@ check_ahle_combo = ahle_combo.copy()
 
 _group_overall = (check_ahle_combo['group'].str.upper() == 'OVERALL')
 _item_grossmargin = (check_ahle_combo['item'].str.upper() == 'GROSS MARGIN')
-_sex_combined = (check_ahle_combo['sex'].str.upper() == 'OVERALL')
 
 # =============================================================================
 #### Change in Gross Margin
@@ -716,11 +715,7 @@ check_grossmargin_overall.eval(
     gmchange_ideal_jm = mean_ideal_jm - mean_current
     gmchange_ideal_nf = mean_ideal_nf - mean_current
     gmchange_ideal_nm = mean_ideal_nm - mean_current
-    gmchange_ideal_sumind = gmchange_ideal_af + gmchange_ideal_am \
-        + gmchange_ideal_jf + gmchange_ideal_jm \
-            + gmchange_ideal_nf + gmchange_ideal_nm
-
-    gmchange_ideal_check = gmchange_ideal_sumind / gmchange_ideal_overall
+    gmchange_ideal_o = mean_ideal_o - mean_current
     '''
     # Mortality as proportion of total AHLE
     '''
@@ -738,6 +733,33 @@ check_grossmargin_overall.eval(
     '''
     ,inplace=True
 )
+# Not all agesex scenarios apply to every species. Set missing to zero.
+gmchange_ind_list = [
+    'gmchange_ideal_af'
+    ,'gmchange_ideal_am'
+    ,'gmchange_ideal_jf'
+    ,'gmchange_ideal_jm'
+    ,'gmchange_ideal_nf'
+    ,'gmchange_ideal_nm'
+    ,'gmchange_ideal_o'
+]
+for COL in gmchange_ind_list:
+    check_grossmargin_overall[COL] = check_grossmargin_overall[COL].fillna(0)
+check_grossmargin_overall.eval(
+    '''
+    gmchange_ideal_sumind = gmchange_ideal_af + gmchange_ideal_am \
+        + gmchange_ideal_jf + gmchange_ideal_jm \
+            + gmchange_ideal_nf + gmchange_ideal_nm \
+                + gmchange_ideal_o
+    gmchange_ideal_check = gmchange_ideal_sumind / gmchange_ideal_overall
+    '''
+    ,inplace=True
+)
+
+print('\n> Checking the change in Gross Margin for ideal overall')
+print(check_grossmargin_overall['gmchange_ideal_overall'].describe())
+print(check_grossmargin_overall[['region' ,'species' ,'production_system' ,'year' ,'gmchange_ideal_overall']])
+
 print('\n> Checking the change in Gross Margin for ideal overall vs. individual ideal scenarios')
 print(check_grossmargin_overall[['region' ,'species' ,'production_system' ,'year' ,'gmchange_ideal_check']])
 
@@ -754,6 +776,7 @@ print(check_grossmargin_overall[['region' ,'species' ,'production_system' ,'year
 #### Sum of agesex groups compared to system total for each item
 # =============================================================================
 # Sum individual agesex groups for each item
+_sex_combined = (check_ahle_combo['sex'].str.upper() == 'OVERALL')
 check_agesex_sums = pd.DataFrame(check_ahle_combo.loc[~ _sex_combined]\
     .groupby(['region' ,'species' ,'production_system' ,'year' ,'item'] ,observed=True)['mean_current'].sum())
 check_agesex_sums.columns = ['mean_current_sumagesex']

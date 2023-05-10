@@ -3333,7 +3333,7 @@ gbadsDash.layout = html.Div([
 
             html.H3("Ethiopia Animal Health Loss Envelope and Disease Attribution"),
             html.Label(["Displaying production values, expenditures, and gross margin under the current and ideal scenario estimated by a compartmental herd dynamics model. Attribution of AHLE to infectious, non-infectious, and external causes is based on the results of expert elicitation."]),
-            html.Label(["Results on this page are currently limited to cattle, small ruminants, and poultry, as those are the species for which the compartmental herd model has been estimated. For an estimate of the overall AHLE for all species, see the Global AHLE Details tab and select country Ethiopia."]),
+            html.Label(["Results on this page are currently limited to cattle, small ruminants, and poultry, as those are the species for which the compartmental herd model has been estimated."]),
             html.Hr(style={'margin-right':'10px'}),
             html.Label(["Select a species and production system to view and the currency to display for all charts"] ,style={"font-style":"italic"}),
 
@@ -3574,7 +3574,7 @@ gbadsDash.layout = html.Div([
                                 ,"- Small ruminants: Brucellosis | PPR | Other Infectious"
                                 ] ,style={"font-style":"italic" ,"margin-top":"10px"}
                                 ),
-                            html.Label(["Set any drill down to None to slice by fewer factors"] ,style={"font-style":"italic"}),
+                            html.Label(["Set any drill down to None to segment by fewer factors"] ,style={"font-style":"italic"}),
                             ]),     # END OF CARD BODY
                         ], color='#F2F2F2'),    # END OF CARD
                     ]),
@@ -7265,12 +7265,14 @@ def update_year_select_ecs(graph, species):
     value=2021
     ecs_year_options=[]     # By default, list is blank
     placeholder = '2021'
+
     if (graph == 'Single Year') & (species.upper() == 'CATTLE'):
         ecs_year_options=[]
         for i in np.sort(ecs_ahle_summary['year'].unique()):
             str(ecs_year_options.append({'label':i,'value':(i)}))
     elif graph == 'Over Time':   # Over time - placeholder (all)
         placeholder = '(all)'
+
     return ecs_year_options, value, placeholder
 
 # Geographical options
@@ -9248,128 +9250,149 @@ def update_stacked_bar_ecs(
 # Update subnational map
 @gbadsDash.callback(
     Output('ecs-map','figure'),
+    Input('select-species-ecs','value'),
     Input('select-agesex-ecs', 'value'),
     Input('select-prodsys-ecs','value'),
     Input('select-map-display-ecs','value'),
     Input('select-currency-ecs','value'),
     Input('select-map-denominator-ecs','value'),
     )
-def update_map_display_ecs(agesex_scenario, prodsys, item, currency, denominator):
-    # Ethiopia subnational level map data from S3
-    geojson_ecs_df = geojson_ecs.copy()
-    # geojson_ecs_df = gpd.read_file('<filename>.geojson')
-
-    # Set location based on the granularity level of data - currently Region
-    featureid = 'ADM1_EN'
-    location = 'region'
-
-    # Set the featureid key needed for the chrorpleth mapbox map
-    featurekey = (f'properties.{featureid}')
-
-    # Read in data and apply filters
-    input_df = ahle_all_scensmry
-    # Filter based on species - Currently only have Cattle for 2021
-    input_df = input_df.loc[(input_df['species'] == 'Cattle')]
-    # Remove 'National' for regional view
-    input_df = input_df.query("region != 'National'")
-    # Production System filter
-    # Rename values to match filters
-    input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
-    input_df=input_df.loc[(input_df['production_system'] == prodsys)]
-    # Age/sex filter
-    input_df=input_df.loc[(input_df['agesex_scenario'] == agesex_scenario)]
-
-    if item == 'Ideal Gross Margin' or item == 'Animal Health Loss Envelope':
-        item_filter = 'Gross Margin'
+def update_map_display_ecs(species, agesex_scenario, prodsys, item, currency, denominator):
+    if species.upper() != 'CATTLE':
+        ecs_map_fig = go.Figure()
+        ecs_map_fig.update_layout(
+               xaxis =  { "visible": False },
+               yaxis = { "visible": False },
+               annotations = [
+                   {
+                       "text": "Subnational estimates are currently only available for cattle.",
+                       "xref": "paper",
+                       "yref": "paper",
+                       "showarrow": False,
+                       "font": {
+                           "size": 28
+                       }
+                   }
+               ]
+           )
     else:
-        item_filter = item
-    input_df = input_df.query("item == @item_filter")
+        # Ethiopia subnational level map data from S3
+        geojson_ecs_df = geojson_ecs.copy()
+        # geojson_ecs_df = gpd.read_file('<filename>.geojson')
 
-    # Create AHLE columns
-    input_df['mean_AHLE'] = input_df['mean_ideal'] - input_df['mean_current']
-    input_df['mean_AHLE_usd'] = input_df['mean_ideal_usd'] - input_df['mean_current_usd']
-    input_df['mean_AHLE_perkgbiomass'] = input_df['mean_ideal_perkgbiomass'] - input_df['mean_current_perkgbiomass']
-    input_df['mean_AHLE_usd_perkgbiomass'] = input_df['mean_ideal_usd_perkgbiomass'] - input_df['mean_current_usd_perkgbiomass']
+        # Set location based on the granularity level of data - currently Region
+        featureid = 'ADM1_EN'
+        location = 'region'
 
-    # Set values based on selected currency and denominator values
-    # If currency is USD, use USD columns
-    display_currency = 'Ethiopian Birr'
-    if denominator.upper() == 'PER KG BIOMASS':
-        if currency == 'USD':
-            display_currency = 'USD'
-            input_df['mean_current'] = input_df['mean_current_usd_perkgbiomass']
-            input_df['mean_ideal'] = input_df['mean_ideal_usd_perkgbiomass']
-            input_df['mean_AHLE'] = input_df['mean_AHLE_usd_perkgbiomass']
+        # Set the featureid key needed for the choropleth mapbox map
+        featurekey = (f'properties.{featureid}')
+
+        # Read in data and apply filters
+        input_df = ahle_all_scensmry
+
+        # Filter based on species - Currently only have Cattle for 2021
+        input_df = input_df.loc[(input_df['species'] == 'Cattle')]
+
+        # Remove 'National' for regional view
+        input_df = input_df.query("region != 'National'")
+
+        # Production System filter
+        # Rename values to match filters
+        input_df['production_system'] = input_df['production_system'].replace({'Overall': 'All Production Systems'})
+        input_df=input_df.loc[(input_df['production_system'] == prodsys)]
+
+        # Age/sex filter
+        input_df=input_df.loc[(input_df['agesex_scenario'] == agesex_scenario)]
+
+        if item == 'Ideal Gross Margin' or item == 'Animal Health Loss Envelope':
+            item_filter = 'Gross Margin'
         else:
-            input_df['mean_current'] = input_df['mean_current_perkgbiomass']
-            input_df['mean_ideal'] = input_df['mean_ideal_perkgbiomass']
-            input_df['mean_AHLE'] = input_df['mean_AHLE_perkgbiomass']
+            item_filter = item
+        input_df = input_df.query("item == @item_filter")
 
-    else:
-        if currency == 'USD':
-            display_currency = 'USD'
-            input_df['mean_current'] = input_df['mean_current_usd']
-            input_df['mean_ideal'] = input_df['mean_ideal_usd']
-            input_df['mean_AHLE'] = input_df['mean_AHLE_usd']
+        # Create AHLE columns
+        input_df['mean_AHLE'] = input_df['mean_ideal'] - input_df['mean_current']
+        input_df['mean_AHLE_usd'] = input_df['mean_ideal_usd'] - input_df['mean_current_usd']
+        input_df['mean_AHLE_perkgbiomass'] = input_df['mean_ideal_perkgbiomass'] - input_df['mean_current_perkgbiomass']
+        input_df['mean_AHLE_usd_perkgbiomass'] = input_df['mean_ideal_usd_perkgbiomass'] - input_df['mean_current_usd_perkgbiomass']
 
-    # Color scale by current, ideal or AHLE
-    if item == 'Ideal Gross Margin':
-        color_by = 'mean_ideal'
-    elif item == 'Animal Health Loss Envelope':
-        color_by = 'mean_AHLE'
-    else:
-        color_by = 'mean_current'
+        # Set values based on selected currency and denominator values
+        # If currency is USD, use USD columns
+        display_currency = 'Ethiopian Birr'
+        if denominator.upper() == 'PER KG BIOMASS':
+            if currency == 'USD':
+                display_currency = 'USD'
+                input_df['mean_current'] = input_df['mean_current_usd_perkgbiomass']
+                input_df['mean_ideal'] = input_df['mean_ideal_usd_perkgbiomass']
+                input_df['mean_AHLE'] = input_df['mean_AHLE_usd_perkgbiomass']
+            else:
+                input_df['mean_current'] = input_df['mean_current_perkgbiomass']
+                input_df['mean_ideal'] = input_df['mean_ideal_perkgbiomass']
+                input_df['mean_AHLE'] = input_df['mean_AHLE_perkgbiomass']
 
+        else:
+            if currency == 'USD':
+                display_currency = 'USD'
+                input_df['mean_current'] = input_df['mean_current_usd']
+                input_df['mean_ideal'] = input_df['mean_ideal_usd']
+                input_df['mean_AHLE'] = input_df['mean_AHLE_usd']
 
-    input_df = input_df.sort_values(by=[f'{color_by}'])
+        # Color scale by current, ideal or AHLE
+        if item == 'Ideal Gross Margin':
+            color_by = 'mean_ideal'
+        elif item == 'Animal Health Loss Envelope':
+            color_by = 'mean_AHLE'
+        else:
+            color_by = 'mean_current'
 
-    # Set color scale to match waterfall colors
-    if "GROSS MARGIN" in item.upper() or "ANIMAL HEALTH LOSS ENVELOPE" in item.upper():
-        color_scale = [(0, "#F7F9FB"), (0.5, "#F7C080"), (1, "#F7931D")]
-    elif "VALUE" in item.upper():
-        color_scale = [(0, "#ecf5fc"), (0.5, "#88c2ea"), (1, "#3598db")]
-    elif "COST" in item.upper():
-        color_scale = [(0, "#fdeeec"), (0.5, "#f08d83"), (1, "#E84C3D")]
+        input_df = input_df.sort_values(by=[f'{color_by}'])
 
-    ecs_map_fig = create_map_display_ecs(input_df, geojson_ecs_df, location, featurekey, color_by, color_scale)
+        # Set color scale to match waterfall colors
+        if "GROSS MARGIN" in item.upper() or "ANIMAL HEALTH LOSS ENVELOPE" in item.upper():
+            color_scale = [(0, "#F7F9FB"), (0.5, "#F7C080"), (1, "#F7931D")]
+        elif "VALUE" in item.upper():
+            color_scale = [(0, "#ecf5fc"), (0.5, "#88c2ea"), (1, "#3598db")]
+        elif "COST" in item.upper():
+            color_scale = [(0, "#fdeeec"), (0.5, "#f08d83"), (1, "#E84C3D")]
 
-    # Set min to 0
-    if min(input_df[f'{color_by}']) < 0:
-        ecs_map_fig.update_layout(coloraxis=dict(cmax=max(input_df[f'{color_by}']), cmin=0))
-    else:
-        ecs_map_fig.update_layout(coloraxis=dict(cmax=max(input_df[f'{color_by}']), cmin=min(input_df[f'{color_by}'])))
+        ecs_map_fig = create_map_display_ecs(input_df, geojson_ecs_df, location, featurekey, color_by, color_scale)
 
-    # Adjust margins
-    ecs_map_fig.update_layout(
-        margin=dict(l=5, r=5, b=5),
-        )
+        # Set min to 0
+        if min(input_df[f'{color_by}']) < 0:
+            ecs_map_fig.update_layout(coloraxis=dict(cmax=max(input_df[f'{color_by}']), cmin=0))
+        else:
+            ecs_map_fig.update_layout(coloraxis=dict(cmax=max(input_df[f'{color_by}']), cmin=min(input_df[f'{color_by}'])))
 
-    # Add title
-    ecs_map_fig.update_layout(
-        title_text=f'{item} in {currency} {denominator} by subnational state | {agesex_scenario} Cattle, {prodsys} in 2021',
-        font_size=15
-        )
-
-    # Update legend title
-    ecs_map_fig.update_layout(
-        coloraxis_colorbar=dict(
-            title=f"{display_currency}",
+        # Adjust margins
+        ecs_map_fig.update_layout(
+            margin=dict(l=5, r=5, b=5),
             )
-    )
 
-    # TODO: Refine tooltip
-    # # Update tooltip
-    # if currency == 'Birr':
-    #     ecs_map_fig.update_traces(hovertemplate='subnational state: %{location}'+
-    #                                     '<br>%{featurekey}: %{y} Birr <extra></extra>',
-    #                                     )
-    #     # Tried x, color, item, color_by, text, featurekey, y
-    # elif currency == 'USD':
-    #     ecs_map_fig.update_traces(hovertemplate='subnational state: %{location}'+
-    #                                     '<br>%{item}: %{color:,.0f} USD <extra></extra>'+
-    #                                     ''
-    #                                     )
+        # Add title
+        ecs_map_fig.update_layout(
+            title_text=f'{item} in {currency} {denominator} by subnational state | {agesex_scenario} Cattle, {prodsys} in 2021',
+            font_size=15
+            )
 
+        # Update legend title
+        ecs_map_fig.update_layout(
+            coloraxis_colorbar=dict(
+                title=f"{display_currency}",
+                )
+        )
+
+        # TODO: Refine tooltip
+        # # Update tooltip
+        # if currency == 'Birr':
+        #     ecs_map_fig.update_traces(hovertemplate='subnational state: %{location}'+
+        #                                     '<br>%{featurekey}: %{y} Birr <extra></extra>',
+        #                                     )
+        #     # Tried x, color, item, color_by, text, featurekey, y
+        # elif currency == 'USD':
+        #     ecs_map_fig.update_traces(hovertemplate='subnational state: %{location}'+
+        #                                     '<br>%{item}: %{color:,.0f} USD <extra></extra>'+
+        #                                     ''
+        #                                     )
 
     return ecs_map_fig
 

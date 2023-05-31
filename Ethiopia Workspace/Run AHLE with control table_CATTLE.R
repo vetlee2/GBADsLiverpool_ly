@@ -183,7 +183,7 @@ compartmental_model <- function(
 	,Man_J		# Manure kg/ day from juvenile## means and Sds  are derived from  body wt
 	,Man_A		# Manure kg/ day from adults ##means and Sds  are derived from  body wt
 
-	# 0.0125 USD / kg = 0.65 eth birr per kg 2021 price
+	# 0.018 USD / kg = 250 IDRper kg 2021 price
 	,Man_value
 	  
 	## dry matter requirements as proportion of Liveweight
